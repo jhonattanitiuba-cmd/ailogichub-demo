@@ -10,2296 +10,653 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
-  theme: {
-    extend: {
-      fontFamily: {
-        sans: ['Montserrat', 'system-ui', 'sans-serif'],
-        mono: ['Montserrat', 'system-ui', 'sans-serif'],
-      },
-      colors: {
-        bg: 'rgb(var(--c-bg) / <alpha-value>)',
-        panel: 'rgb(var(--c-panel) / <alpha-value>)',
-        panel2: 'rgb(var(--c-panel2) / <alpha-value>)',
-        border: 'rgb(var(--c-border) / <alpha-value>)',
-        muted: 'rgb(var(--c-muted) / <alpha-value>)',
-        text: 'rgb(var(--c-text) / <alpha-value>)',
-        accent: 'rgb(var(--c-accent) / <alpha-value>)',
-        accent2: 'rgb(var(--c-accent2) / <alpha-value>)',
-        warn: 'rgb(var(--c-warn) / <alpha-value>)',
-        danger: 'rgb(var(--c-danger) / <alpha-value>)',
-      }
+  theme: { extend: {
+    fontFamily: { sans: ['Montserrat','system-ui','sans-serif'] },
+    colors: {
+      bg:'rgb(var(--c-bg)/<alpha-value>)', panel:'rgb(var(--c-panel)/<alpha-value>)',
+      panel2:'rgb(var(--c-panel2)/<alpha-value>)', border:'rgb(var(--c-border)/<alpha-value>)',
+      muted:'rgb(var(--c-muted)/<alpha-value>)', text:'rgb(var(--c-text)/<alpha-value>)',
+      accent:'rgb(var(--c-accent)/<alpha-value>)', accent2:'rgb(var(--c-accent2)/<alpha-value>)',
+      warn:'rgb(var(--c-warn)/<alpha-value>)', danger:'rgb(var(--c-danger)/<alpha-value>)',
+      ok:'rgb(var(--c-ok)/<alpha-value>)'
     }
-  }
+  }}
 }
 </script>
 <style>
-  :root {
-    --c-bg: 245 247 250;
-    --c-panel: 255 255 255;
-    --c-panel2: 247 249 252;
-    --c-border: 227 232 239;
-    --c-muted: 100 115 135;
-    --c-text: 10 31 61;
-    --c-accent: 0 59 92;
-    --c-accent2: 0 119 182;
-    --c-warn: 245 158 11;
-    --c-danger: 220 38 38;
-    --c-side-bg: 6 22 41;
-    --c-side-text: 226 234 247;
-    --c-side-muted: 138 160 192;
-    --c-side-active: 77 163 217;
+  :root{
+    --c-bg:245 247 250; --c-panel:255 255 255; --c-panel2:247 249 252;
+    --c-border:227 232 239; --c-muted:100 115 135; --c-text:10 31 61;
+    --c-accent:0 59 92; --c-accent2:0 119 182; --c-warn:245 158 11;
+    --c-danger:220 38 38; --c-ok:22 163 74;
+    --c-side-bg:6 22 41; --c-side-text:226 234 247; --c-side-muted:138 160 192; --c-side-active:77 163 217;
   }
-  html.dark {
-    --c-bg: 10 16 28;
-    --c-panel: 22 32 50;
-    --c-panel2: 30 42 64;
-    --c-border: 48 64 92;
-    --c-muted: 148 168 196;
-    --c-text: 232 238 250;
-    --c-accent: 77 163 217;
-    --c-accent2: 124 196 240;
-    --c-warn: 251 191 36;
-    --c-danger: 248 113 113;
-    --c-side-bg: 4 12 24;
-    --c-side-active: 124 196 240;
-  }
-  body { background: rgb(var(--c-bg)); color: rgb(var(--c-text)); font-family: 'Montserrat', sans-serif; font-weight: 400; transition: background 0.2s, color 0.2s; }
-  h1, h2, h3, h4, h5, h6 { font-family: 'Montserrat', sans-serif; font-weight: 700; }
-  .num { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; font-weight: 600; }
-  .font-mono { font-variant-numeric: tabular-nums; }
-  .grain::before { display: none; }
-
-  /* Sidebar — sempre navy escuro independente do tema */
-  aside.sidebar { background: rgb(var(--c-side-bg)) !important; border-right-color: rgba(255,255,255,0.04) !important; color: rgb(var(--c-side-text)); }
-  aside.sidebar .border-border { border-color: rgba(255,255,255,0.08) !important; }
-  aside.sidebar .text-text { color: rgb(var(--c-side-text)) !important; }
-  aside.sidebar .text-muted { color: rgb(var(--c-side-muted)) !important; }
-  aside.sidebar svg { color: rgb(var(--c-side-muted)); }
-  aside.sidebar .nav-item { color: rgb(var(--c-side-muted)); border-left: 2px solid transparent; transition: all 0.15s ease; }
-  aside.sidebar .nav-item:hover:not(.active) { background: rgba(255,255,255,0.06); color: rgb(var(--c-side-text)); }
-  aside.sidebar .nav-item:hover:not(.active) svg { color: rgb(var(--c-side-text)); }
-  aside.sidebar .nav-item.active { background: rgba(124,196,240,0.12); color: #fff; border-left-color: rgb(var(--c-side-active)); }
-  aside.sidebar .nav-item.active svg { color: rgb(var(--c-side-active)); }
-
-  .glow { box-shadow: 0 0 0 1px rgb(var(--c-accent) / 0.18), 0 8px 28px rgb(var(--c-accent) / 0.12); }
-  .glow-cyan { box-shadow: 0 0 0 1px rgb(var(--c-accent2) / 0.2), 0 4px 20px rgb(var(--c-accent2) / 0.1); }
-  .gradient-line { background: linear-gradient(90deg, transparent, rgb(var(--c-accent) / 0.3), transparent); height: 1px; }
-  .card-hover { transition: all 0.2s ease; }
-  .card-hover:hover { border-color: rgb(var(--c-accent) / 0.4); box-shadow: 0 4px 16px rgb(var(--c-accent) / 0.08); }
-  .pulse-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: rgb(var(--c-accent)); box-shadow: 0 0 8px rgb(var(--c-accent) / 0.5); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-  .screen { display: none; }
-  .screen.active { display: block; animation: fadeIn 0.35s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* ===== Animation system ===== */
-  @keyframes fxIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes fxFade { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes slideInLeft { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
-  @keyframes scaleInX { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-
-  /* Sidebar slide-in (load) */
-  aside.sidebar { animation: slideInLeft 0.45s cubic-bezier(.16,.84,.44,1) both; }
-  aside.sidebar .nav-item { opacity: 0; animation: fxIn 0.35s ease-out forwards; }
-  aside.sidebar nav .nav-item:nth-of-type(1) { animation-delay: 180ms; }
-  aside.sidebar nav .nav-item:nth-of-type(2) { animation-delay: 220ms; }
-  aside.sidebar nav .nav-item:nth-of-type(3) { animation-delay: 260ms; }
-  aside.sidebar nav .nav-item:nth-of-type(4) { animation-delay: 300ms; }
-  aside.sidebar nav .nav-item:nth-of-type(5) { animation-delay: 340ms; }
-  aside.sidebar nav .nav-item:nth-of-type(6) { animation-delay: 380ms; }
-  aside.sidebar nav .nav-item:nth-of-type(7) { animation-delay: 420ms; }
-  aside.sidebar nav .nav-item:nth-of-type(8) { animation-delay: 460ms; }
-  aside.sidebar nav .nav-item:nth-of-type(9) { animation-delay: 500ms; }
-
-  /* Headers de cada tela */
-  .screen.active > header { animation: fxIn 0.45s cubic-bezier(.16,.84,.44,1) both; }
-
-  /* Grids/stacks com stagger automático */
-  .screen.active .fx-grid > *,
-  .screen.active .fx-stack > * { animation: fxIn 0.5s cubic-bezier(.16,.84,.44,1) both; }
-  .fx-grid > *:nth-child(1), .fx-stack > *:nth-child(1) { animation-delay: 50ms; }
-  .fx-grid > *:nth-child(2), .fx-stack > *:nth-child(2) { animation-delay: 100ms; }
-  .fx-grid > *:nth-child(3), .fx-stack > *:nth-child(3) { animation-delay: 150ms; }
-  .fx-grid > *:nth-child(4), .fx-stack > *:nth-child(4) { animation-delay: 200ms; }
-  .fx-grid > *:nth-child(5), .fx-stack > *:nth-child(5) { animation-delay: 240ms; }
-  .fx-grid > *:nth-child(6), .fx-stack > *:nth-child(6) { animation-delay: 280ms; }
-  .fx-grid > *:nth-child(7), .fx-stack > *:nth-child(7) { animation-delay: 310ms; }
-  .fx-grid > *:nth-child(n+8) { animation-delay: 340ms; }
-  .fx-stack > *:nth-child(n+8) { animation-delay: 340ms; }
-
-  /* Tabela de leads */
-  .screen.active .fx-rows tr { animation: fxIn 0.4s ease-out both; }
-  .fx-rows tr:nth-child(1) { animation-delay: 30ms; }
-  .fx-rows tr:nth-child(2) { animation-delay: 60ms; }
-  .fx-rows tr:nth-child(3) { animation-delay: 90ms; }
-  .fx-rows tr:nth-child(4) { animation-delay: 120ms; }
-  .fx-rows tr:nth-child(5) { animation-delay: 150ms; }
-  .fx-rows tr:nth-child(6) { animation-delay: 180ms; }
-  .fx-rows tr:nth-child(7) { animation-delay: 210ms; }
-  .fx-rows tr:nth-child(8) { animation-delay: 240ms; }
-  .fx-rows tr:nth-child(n+9) { animation-delay: 270ms; }
-
-  /* Barras do funil — scale horizontal pra preencher */
-  .screen.active .funil-track > div { transform-origin: left; animation: scaleInX 0.7s cubic-bezier(.16,.84,.44,1) both; }
-  .funil-track > div { transform: scaleX(0); }
-  .funil-track:nth-of-type(1) > div { animation-delay: 200ms; }
-  .funil-track:nth-of-type(2) > div { animation-delay: 260ms; }
-  .funil-track:nth-of-type(3) > div { animation-delay: 320ms; }
-  .funil-track:nth-of-type(4) > div { animation-delay: 380ms; }
-  .funil-track:nth-of-type(5) > div { animation-delay: 440ms; }
-  .funil-track:nth-of-type(6) > div { animation-delay: 500ms; }
-  .funil-track:nth-of-type(7) > div { animation-delay: 560ms; }
-
-  /* Sparklines crescem da esquerda pra direita sincronizado com o contador (5s) */
-  .screen.active #dashboard svg:has(.sparkline) { animation: sparkGrow 5s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
-  @keyframes sparkGrow {
-    from { clip-path: inset(0 100% 0 0); -webkit-clip-path: inset(0 100% 0 0); }
-    to   { clip-path: inset(0 0 0 0);    -webkit-clip-path: inset(0 0 0 0); }
-  }
-
-  /* Modal já tem animação própria, melhoramos transição dos campos */
-  .modal-body .field-group { animation: fxIn 0.3s ease-out both; }
-  .modal-body .field-group:nth-of-type(1) { animation-delay: 60ms; }
-  .modal-body .field-group:nth-of-type(2) { animation-delay: 100ms; }
-  .modal-body .field-group:nth-of-type(3) { animation-delay: 140ms; }
-  .modal-body .field-group:nth-of-type(4) { animation-delay: 180ms; }
-  .modal-body .field-group:nth-of-type(5) { animation-delay: 220ms; }
-  .modal-body .field-group:nth-of-type(n+6) { animation-delay: 260ms; }
-
-  /* ===== Maestra Agent (floating bot) ===== */
-  .agent-fab {
-    position: fixed; bottom: 24px; right: 24px; z-index: 90;
-    width: 60px; height: 60px; border-radius: 50%;
-    background: linear-gradient(135deg, rgb(var(--c-accent2)), rgb(var(--c-accent)));
-    border: none; cursor: pointer; color: #fff;
-    box-shadow: 0 12px 32px rgb(var(--c-accent) / 0.35), 0 0 0 1px rgb(var(--c-accent) / 0.2);
-    display: flex; align-items: center; justify-content: center;
-    transition: transform 0.2s cubic-bezier(.16,.84,.44,1), box-shadow 0.2s;
-    animation:
-      agentEntry 0.65s cubic-bezier(.34,1.2,.64,1) 0.8s backwards,
-      agentBreath 3s ease-in-out 1.6s infinite;
-  }
-  @keyframes agentEntry {
-    0%   { opacity: 0; transform: scale(0); }
-    70%  { opacity: 1; transform: scale(1.1); }
-    100% { opacity: 1; transform: scale(1); }
-  }
-  .agent-fab:hover { transform: scale(1.08); box-shadow: 0 16px 40px rgb(var(--c-accent) / 0.5); }
-  .agent-fab.open { transform: rotate(45deg) scale(0.9); }
-  @keyframes agentBreath { 0%,100% { box-shadow: 0 12px 32px rgb(var(--c-accent) / 0.35), 0 0 0 0 rgb(var(--c-accent2) / 0.4); } 50% { box-shadow: 0 12px 32px rgb(var(--c-accent) / 0.35), 0 0 0 12px rgb(var(--c-accent2) / 0); } }
-  .agent-fab .badge-dot { position: absolute; top: 8px; right: 8px; width: 10px; height: 10px; border-radius: 50%; background: #22c55e; border: 2px solid #fff; }
-
-  .agent-panel {
-    position: fixed; bottom: 20px; right: 20px; z-index: 91;
-    width: 340px; max-width: calc(100vw - 24px);
-    height: 480px; max-height: calc(100vh - 40px);
-    background: rgb(var(--c-panel));
-    border: 1px solid rgb(var(--c-border));
-    border-radius: 16px; overflow: hidden;
-    box-shadow: 0 20px 48px rgba(0,0,0,0.32), 0 0 0 1px rgb(var(--c-accent) / 0.12);
-    display: none; flex-direction: column;
-    transform-origin: bottom right;
-  }
-  .agent-panel.open { display: flex; animation: agentIn 0.28s cubic-bezier(.16,.84,.44,1); }
-  @keyframes agentIn { from { opacity: 0; transform: translateY(12px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
-
-  .agent-header { padding: 14px 16px; background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); color: #fff; display: flex; align-items: center; gap: 12px; }
-  .agent-avatar { width: 38px; height: 38px; border-radius: 12px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .agent-name { font-weight: 700; font-size: 14px; line-height: 1; }
-  .agent-status { font-size: 11px; color: rgba(255,255,255,0.75); margin-top: 4px; display: flex; align-items: center; gap: 5px; }
-  .agent-status .dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 6px #22c55e; }
-  .agent-header-actions { margin-left: auto; display: flex; gap: 4px; }
-  .agent-icon-btn { background: rgba(255,255,255,0.1); border: none; width: 30px; height: 30px; border-radius: 8px; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
-  .agent-icon-btn:hover { background: rgba(255,255,255,0.22); }
-
-  .agent-body { flex: 1; overflow-y: auto; padding: 16px; background: rgb(var(--c-panel2)); display: flex; flex-direction: column; gap: 12px; }
-  .agent-body::-webkit-scrollbar { width: 5px; }
-  .agent-body::-webkit-scrollbar-track { background: transparent; }
-  .agent-body::-webkit-scrollbar-thumb { background: rgb(var(--c-border)); border-radius: 3px; }
-
-  .agent-msg { max-width: 88%; padding: 10px 13px; border-radius: 12px; font-size: 13px; line-height: 1.5; word-wrap: break-word; animation: msgIn 0.25s ease-out; }
-  @keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  .agent-msg.ai { background: rgb(var(--c-panel)); border: 1px solid rgb(var(--c-border)); color: rgb(var(--c-text)); align-self: flex-start; border-bottom-left-radius: 4px; }
-  .agent-msg.user { background: rgb(var(--c-accent)); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
-  .agent-msg.ai strong { color: rgb(var(--c-accent2)); font-weight: 700; }
-  .agent-msg.ai ul { margin: 6px 0 0; padding-left: 18px; }
-  .agent-msg.ai li { margin-bottom: 3px; }
-  .agent-msg.ai .source { display: block; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgb(var(--c-border)); font-size: 10.5px; color: rgb(var(--c-muted)); font-weight: 500; }
-
-  .typing { display: flex; gap: 4px; align-items: center; padding: 12px 14px; background: rgb(var(--c-panel)); border: 1px solid rgb(var(--c-border)); border-radius: 12px; border-bottom-left-radius: 4px; align-self: flex-start; }
-  .typing span { width: 6px; height: 6px; border-radius: 50%; background: rgb(var(--c-accent2)); animation: typingBounce 1.2s infinite; }
-  .typing span:nth-child(2) { animation-delay: 0.15s; }
-  .typing span:nth-child(3) { animation-delay: 0.3s; }
-  @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-5px); opacity: 1; } }
-
-  .suggest-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 12px; background: rgb(var(--c-panel2)); }
-  .suggest-chip { font-size: 11.5px; padding: 7px 11px; border-radius: 999px; background: rgb(var(--c-panel)); border: 1px solid rgb(var(--c-border)); color: rgb(var(--c-text)); cursor: pointer; font-weight: 500; transition: all 0.15s; font-family: inherit; }
-  .suggest-chip:hover { border-color: rgb(var(--c-accent)); color: rgb(var(--c-accent)); background: rgb(var(--c-accent) / 0.05); }
-
-  .agent-input { padding: 12px 14px; border-top: 1px solid rgb(var(--c-border)); background: rgb(var(--c-panel)); display: flex; gap: 8px; align-items: center; }
-  .agent-input input { flex: 1; padding: 11px 14px; background: rgb(var(--c-panel2)); border: 1.5px solid rgb(var(--c-border)); border-radius: 999px; font-size: 13px; color: rgb(var(--c-text)); font-family: inherit; transition: all 0.15s; }
-  .agent-input input:focus { outline: none; border-color: rgb(var(--c-accent)); background: rgb(var(--c-panel)); }
-  .agent-input button { background: rgb(var(--c-accent)); color: #fff; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
-  .agent-input button:hover:not(:disabled) { background: rgb(var(--c-accent) / 0.9); transform: scale(1.05); }
-  .agent-input button:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .agent-footer { padding: 8px 16px; border-top: 1px solid rgb(var(--c-border)); background: rgb(var(--c-panel)); font-size: 10px; color: rgb(var(--c-muted)); text-align: center; }
-  .agent-footer strong { color: rgb(var(--c-accent2)); font-weight: 700; }
-
-  /* Respeita prefers-reduced-motion */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-  }
-  .sparkline { stroke: rgb(var(--c-accent)); stroke-width: 2.5; fill: none; }
-  .sparkline-fill { fill: url(#sparkGrad); opacity: 0.35; }
-  .kanban-card { transition: all 0.15s ease; cursor: pointer; }
-  .kanban-card:hover { transform: translateY(-2px); border-color: rgb(var(--c-accent) / 0.5); box-shadow: 0 4px 12px rgb(var(--c-accent) / 0.1); }
-  .scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-  .scrollbar::-webkit-scrollbar-track { background: rgb(var(--c-bg)); }
-  .scrollbar::-webkit-scrollbar-thumb { background: rgb(var(--c-border)); border-radius: 3px; }
-  .scrollbar::-webkit-scrollbar-thumb:hover { background: rgb(var(--c-accent)); }
-  .badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 700; letter-spacing: 0.5px; }
-  .chip { font-size: 11px; padding: 4px 10px; border-radius: 999px; border: 1px solid rgb(var(--c-border)); background: rgb(var(--c-panel)); color: rgb(var(--c-text)); }
-  table { border-collapse: separate; border-spacing: 0; }
-  .conv-bubble { max-width: 75%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
-  .conv-ai { background: rgb(var(--c-accent) / 0.1); border: 1px solid rgb(var(--c-accent) / 0.25); color: rgb(var(--c-text)); margin-left: auto; }
-  .conv-user { background: rgb(var(--c-panel2)); border: 1px solid rgb(var(--c-border)); color: rgb(var(--c-text)); }
-
-  /* SVG color overrides para dark mode */
-  html.dark stop[stop-color="#003B5C"] { stop-color: #4da3d9; }
-  html.dark path[stroke="#003B5C"]:not(.sparkline) { stroke: #4da3d9; }
-  html.dark text[fill="#003B5C"] { fill: #4da3d9; }
-  html.dark line[stroke="#e3e8ef"] { stroke: rgba(255,255,255,0.08); }
-  html.dark line[stroke="#0077b6"] { stroke: #7cc4f0; }
-  html.dark text[fill="#0077b6"] { fill: #7cc4f0; }
-  html.dark line[stroke="#f59e0b"], html.dark path[stroke="#f59e0b"] { stroke: #fbbf24; }
-  html.dark text[fill="#f59e0b"] { fill: #fbbf24; }
-
-  /* Form theming */
-  input { color: rgb(var(--c-text)); background: rgb(var(--c-panel)); }
-  input::placeholder { color: rgb(var(--c-muted)); }
-
-  /* Theme toggle */
-  .theme-toggle { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgb(var(--c-side-text)); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; transition: all 0.15s; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .theme-toggle:hover { background: rgba(255,255,255,0.14); }
-
-  /* Support modal */
-  .modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(4,12,28,0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 24px; animation: bdIn 0.18s ease; }
-  .modal-backdrop.open { display: flex; }
-  @keyframes bdIn { from { opacity:0 } to { opacity:1 } }
-  .modal { background: rgb(var(--c-panel)); border: 1px solid rgb(var(--c-border)); border-radius: 16px; width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,0.35); animation: modalIn 0.22s cubic-bezier(.16,.84,.44,1); }
-  @keyframes modalIn { from { opacity:0; transform: translateY(16px) scale(0.98); } to { opacity:1; transform: translateY(0) scale(1); } }
-  .modal-header { display:flex; justify-content:space-between; align-items:flex-start; padding: 22px 24px 16px; border-bottom: 1px solid rgb(var(--c-border)); }
-  .modal-header h2 { font-size: 18px; font-weight: 700; color: rgb(var(--c-text)); display:flex; align-items:center; gap:10px; }
-  .modal-header h2::after { content: 'BRAVA'; font-size:9px; font-weight: 800; letter-spacing: 1px; padding: 3px 7px; border-radius: 4px; background: linear-gradient(135deg, rgb(var(--c-accent2)), rgb(var(--c-accent))); color: #fff; }
-  .modal-header p { font-size: 12.5px; color: rgb(var(--c-muted)); margin-top: 4px; }
-  .modal-close { background: transparent; border: 1px solid rgb(var(--c-border)); width: 30px; height: 30px; border-radius: 8px; color: rgb(var(--c-muted)); cursor:pointer; display:flex; align-items:center; justify-content:center; transition: all 0.15s; }
-  .modal-close:hover { background: rgb(var(--c-panel2)); color: rgb(var(--c-text)); border-color: rgb(var(--c-accent)); }
-  .modal-body { padding: 22px 24px; }
-  .modal-footer { padding: 16px 24px 20px; border-top: 1px solid rgb(var(--c-border)); background: rgb(var(--c-panel2) / 0.5); border-radius: 0 0 16px 16px; }
-
-  .field-group { margin-bottom: 16px; }
-  .field-group label { display:block; font-size: 12px; font-weight: 700; color: rgb(var(--c-text)); margin-bottom: 7px; letter-spacing: 0.2px; }
-  .field-group input, .field-group select, .field-group textarea { width: 100%; padding: 11px 13px; background: rgb(var(--c-panel)); border: 1.5px solid rgb(var(--c-border)); border-radius: 9px; font-size: 13px; font-family: 'Montserrat', sans-serif; color: rgb(var(--c-text)); transition: all 0.15s; }
-  .field-group input:focus, .field-group select:focus, .field-group textarea:focus { outline: none; border-color: rgb(var(--c-accent)); box-shadow: 0 0 0 3px rgb(var(--c-accent) / 0.1); }
-  .field-group textarea { resize: vertical; min-height: 90px; font-family: 'Montserrat', sans-serif; }
-  .field-group select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7785' stroke-width='3'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; padding-right: 36px; }
-
-  .chip-group { display: flex; gap: 6px; flex-wrap: wrap; }
-  .chip-opt { padding: 7px 12px; border-radius: 999px; border: 1.5px solid rgb(var(--c-border)); background: rgb(var(--c-panel)); cursor: pointer; font-size: 12px; font-weight: 600; color: rgb(var(--c-muted)); transition: all 0.15s; }
-  .chip-opt:hover { border-color: rgb(var(--c-accent) / 0.5); color: rgb(var(--c-text)); }
-  .chip-opt.selected { background: rgb(var(--c-accent)); border-color: rgb(var(--c-accent)); color: #fff; }
-  .chip-opt[data-prio="urgente"].selected { background: rgb(var(--c-danger)); border-color: rgb(var(--c-danger)); }
-  .chip-opt[data-prio="alta"].selected { background: rgb(var(--c-warn)); border-color: rgb(var(--c-warn)); }
-
-  .btn-submit { background: rgb(var(--c-accent)); color: #fff; border: none; padding: 12px 22px; border-radius: 9px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.15s; font-family: 'Montserrat', sans-serif; }
-  .btn-submit:hover:not(:disabled) { background: rgb(var(--c-accent) / 0.9); box-shadow: 0 6px 20px rgb(var(--c-accent) / 0.3); transform: translateY(-1px); }
-  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .ticket-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; font-size: 12px; }
-  .ticket-row:hover { background: rgb(var(--c-panel)); }
-  .ticket-id { font-family: 'Montserrat', sans-serif; font-weight: 700; color: rgb(var(--c-accent2)); font-size: 11px; min-width: 70px; }
-  .ticket-title { flex: 1; color: rgb(var(--c-text)); font-weight: 500; }
-  .ticket-status { font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; }
-  .ts-aberto { background: rgb(var(--c-accent2) / 0.15); color: rgb(var(--c-accent2)); }
-  .ts-em-analise { background: rgb(var(--c-warn) / 0.15); color: rgb(var(--c-warn)); }
-  .ts-em-desenvolvimento { background: rgb(var(--c-accent) / 0.15); color: rgb(var(--c-accent)); }
-  .ts-resolvido { background: rgba(34,197,94,0.15); color: rgb(34,197,94); }
-
-  .success-msg { display: none; padding: 14px 16px; background: rgb(var(--c-accent2) / 0.1); border: 1px solid rgb(var(--c-accent2) / 0.3); border-radius: 10px; color: rgb(var(--c-text)); font-size: 13px; margin-bottom: 16px; }
-  .success-msg.show { display: block; animation: slideDown 0.25s ease; }
-  @keyframes slideDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
-  .success-msg strong { color: rgb(var(--c-accent2)); font-weight: 700; }
+  *{box-sizing:border-box}
+  body{background:rgb(var(--c-bg));color:rgb(var(--c-text));font-family:'Montserrat',sans-serif;font-weight:400;margin:0}
+  h1,h2,h3,h4{font-weight:700;letter-spacing:-0.2px}
+  .num{font-variant-numeric:tabular-nums;font-weight:700}
+  aside.sidebar{background:rgb(var(--c-side-bg));color:rgb(var(--c-side-text))}
+  .nav-item{color:rgb(var(--c-side-muted));border-left:2px solid transparent;transition:all .15s;cursor:pointer}
+  .nav-item:hover:not(.active){background:rgba(255,255,255,.06);color:rgb(var(--c-side-text))}
+  .nav-item.active{background:rgba(124,196,240,.12);color:#fff;border-left-color:rgb(var(--c-side-active))}
+  .nav-item.active svg{color:rgb(var(--c-side-active))}
+  .screen{display:none}
+  .screen.active{display:block;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .card{background:rgb(var(--c-panel));border:1px solid rgb(var(--c-border));border-radius:14px}
+  .card-h{transition:all .18s}.card-h:hover{border-color:rgb(var(--c-accent)/.4);box-shadow:0 6px 20px rgb(var(--c-accent)/.08);transform:translateY(-2px)}
+  .badge{font-size:10px;padding:3px 9px;border-radius:5px;font-weight:700;letter-spacing:.4px}
+  .chip{font-size:11px;padding:4px 11px;border-radius:999px;border:1px solid rgb(var(--c-border));background:rgb(var(--c-panel));font-weight:600}
+  table{border-collapse:separate;border-spacing:0;width:100%}
+  th{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:rgb(var(--c-muted));font-weight:700;text-align:left;padding:11px 14px;border-bottom:1px solid rgb(var(--c-border))}
+  td{padding:13px 14px;border-bottom:1px solid rgb(var(--c-border));font-size:13px}
+  tbody tr:hover{background:rgb(var(--c-panel2))}
+  .kcol{background:rgb(var(--c-panel2));border:1px solid rgb(var(--c-border));border-radius:12px;min-height:200px}
+  .kcard{background:rgb(var(--c-panel));border:1px solid rgb(var(--c-border));border-radius:10px;padding:12px;margin-bottom:10px;cursor:grab;transition:all .15s}
+  .kcard:hover{border-color:rgb(var(--c-accent)/.5);box-shadow:0 4px 12px rgb(var(--c-accent)/.1);transform:translateY(-2px)}
+  .scrollbar::-webkit-scrollbar{width:6px;height:6px}
+  .scrollbar::-webkit-scrollbar-thumb{background:rgb(var(--c-border));border-radius:3px}
+  .conv-b{max-width:78%;padding:9px 13px;border-radius:13px;font-size:12.5px;line-height:1.5}
+  .conv-lead{background:rgb(var(--c-panel2));border:1px solid rgb(var(--c-border))}
+  .conv-ia{background:rgb(var(--c-accent)/.1);border:1px solid rgb(var(--c-accent)/.22);margin-left:auto}
+  .flag{background:rgb(var(--c-danger)/.1);border:1px solid rgb(var(--c-danger)/.35);color:rgb(var(--c-danger));font-weight:600}
+  .pulse{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e;animation:p 2s infinite;display:inline-block}
+  @keyframes p{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
 </head>
-<body class="grain min-h-screen">
+<body class="min-h-screen">
 
-<div class="flex h-screen">
-  <aside class="sidebar w-60 border-r border-border flex flex-col">
-    <div class="p-5 border-b border-border">
-      <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent2 flex items-center justify-center">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M4 4 L12 12 L20 4 M4 20 L12 12 L20 20" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
-          </svg>
-        </div>
+<div class="flex h-screen overflow-hidden">
+  <!-- SIDEBAR -->
+  <aside class="sidebar w-60 flex flex-col flex-shrink-0">
+    <div class="p-5 border-b border-white/10">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent2 to-accent flex items-center justify-center font-extrabold text-white text-sm tracking-tight">AI</div>
         <div>
-          <div class="font-bold text-text tracking-tight">AI Logic Hub</div>
-          <div class="text-[10px] text-muted font-semibold">Tecnologia Imobiliária</div>
+          <div class="font-extrabold text-white text-[15px] leading-none">AI Logic Hub</div>
+          <div class="text-[10px] text-side-muted font-semibold mt-1">Tecnologia Imobiliária</div>
         </div>
       </div>
     </div>
+    <nav class="flex-1 py-4 overflow-y-auto scrollbar">
+      <div class="px-5 mb-2 text-[10px] uppercase tracking-widest text-side-muted font-bold">Operação</div>
+      <a class="nav-item active flex items-center gap-3 px-5 py-2.5 text-sm" data-s="dashboard">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Visão Geral</a>
+      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="imobiliarias">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg>Imobiliárias</a>
+      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="leads">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>Leads</a>
+      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="funil">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h18l-7 9v6l-4 2v-8z"/></svg>Funil de Negócios</a>
+      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="agenda">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</a>
+      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="whatsapp">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>WhatsApp · Auditoria</a>
+      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="emails">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>E-mails</a>
 
-    <nav class="flex-1 py-4">
-      <div class="px-4 mb-2 text-[10px] uppercase tracking-widest text-muted font-semibold">Operação</div>
-      <a class="nav-item active flex items-center gap-3 px-5 py-2.5 text-sm cursor-pointer" data-screen="dashboard">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
-        Visão Geral
-      </a>
-      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm cursor-pointer" data-screen="funil">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h18l-7 9v6l-4 2v-8z"/></svg>
-        Funil
-      </a>
-      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm cursor-pointer" data-screen="leads">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Leads
-      </a>
-      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm cursor-pointer" data-screen="lead-detail">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Conversa IA
-      </a>
+      <div class="px-5 mt-6 mb-2 text-[10px] uppercase tracking-widest text-side-muted font-bold">Catálogo</div>
+      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="imoveis">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Imóveis</a>
+      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="assinaturas">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>Assinaturas · Docs</a>
+      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="anuncios">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>Anúncios · Rodízios <span class="ml-auto text-[8px] px-1.5 py-0.5 rounded font-bold" style="background:rgba(245,158,11,.2);color:#fbbf24">F2</span></a>
 
-      <div class="px-4 mt-6 mb-2 text-[10px] uppercase tracking-widest text-muted font-semibold">Rede</div>
-      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm cursor-pointer" data-screen="parceiros">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg>
-        Parceiros
-      </a>
-      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm cursor-pointer" data-screen="estoque">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        Estoque
-      </a>
-
-      <div class="px-4 mt-6 mb-2 text-[10px] uppercase tracking-widest text-muted font-semibold">Receita</div>
-      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm cursor-pointer" data-screen="financeiro">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        Financeiro
-      </a>
-
-      <div class="px-4 mt-6 mb-2 text-[10px] uppercase tracking-widest text-muted font-semibold">Sistema</div>
-      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm cursor-pointer" data-screen="ia">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 16h.01M16 16h.01"/></svg>
-        Config IA
-      </a>
-      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm cursor-pointer" data-action="support">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 10a6 6 0 0 0-12 0v6"/><path d="M4 16v2a2 2 0 0 0 2 2h2v-6H6a2 2 0 0 0-2 2zM20 16v2a2 2 0 0 1-2 2h-2v-6h2a2 2 0 0 1 2 2z"/></svg>
-        Suporte
-        <span class="ml-auto text-[9px] px-1.5 py-0.5 rounded-full font-bold tracking-wider" style="background:rgba(124,196,240,0.15); color:#7cc4f0;">BRV</span>
-      </a>
+      <div class="px-5 mt-6 mb-2 text-[10px] uppercase tracking-widest text-side-muted font-bold">Gestão</div>
+      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="relatorios">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios</a>
+      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="config">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configurações · IA</a>
     </nav>
-
-    <div class="p-4 border-t border-border">
-      <div class="flex items-center gap-3">
-        <img src="alessandro.jpg" alt="Alessandro" class="w-10 h-10 rounded-full object-cover ring-2 ring-accent/30" style="object-position: 50% 32%;">
-        <div class="flex-1 min-w-0">
-          <div class="text-sm font-semibold truncate">Alessandro</div>
-          <div class="text-[11px] text-muted">CRECI-SP · admin</div>
-        </div>
-        <button id="themeToggle" class="theme-toggle" title="Alternar tema" aria-label="Alternar tema claro/escuro">
-          <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
-        <button id="logoutBtn" class="theme-toggle" title="Sair" aria-label="Sair da plataforma">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        </button>
-      </div>
+    <div class="p-4 border-t border-white/10 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-accent2 to-accent flex items-center justify-center text-white text-xs font-bold">AF</div>
+      <div class="flex-1 min-w-0"><div class="text-[13px] font-semibold text-white truncate">Alessandro F.</div><div class="text-[10px] text-side-muted">Administrador do Hub</div></div>
     </div>
   </aside>
 
+  <!-- MAIN -->
   <main class="flex-1 overflow-y-auto scrollbar">
+    <!-- TOPBAR -->
+    <header class="sticky top-0 z-20 bg-panel/90 backdrop-blur border-b border-border px-8 py-4 flex items-center gap-4">
+      <div class="flex-1">
+        <h1 id="page-title" class="text-lg font-bold">Visão Geral</h1>
+        <p id="page-sub" class="text-xs text-muted mt-0.5">Operação consolidada de todas as imobiliárias parceiras</p>
+      </div>
+      <div class="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-panel2 border border-border text-xs">
+        <span class="pulse"></span><span class="font-semibold">Sistema estável</span><span class="text-muted">· 6 imobiliárias ativas</span>
+      </div>
+      <button class="px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold hover:opacity-90 transition">+ Nova Imobiliária</button>
+    </header>
 
-    <section class="screen active" id="dashboard">
-      <header class="border-b border-border bg-panel/50 backdrop-blur sticky top-0 z-10">
-        <div class="px-8 py-5 flex items-center justify-between">
-          <div>
-            <div class="flex items-center gap-3">
-              <h1 class="text-xl font-bold tracking-tight">Visão Geral</h1>
-              <span class="pulse-dot"></span>
-              <span class="text-[11px] text-accent font-semibold">live</span>
-            </div>
-            <div class="text-xs text-muted mt-1 font-mono">PoC · Região Paulista · Semana 7 de 16</div>
+    <div class="p-8">
+
+      <!-- ============ DASHBOARD ============ -->
+      <section id="dashboard" class="screen active">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="card card-h p-5">
+            <div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Leads no mês</div>
+            <div class="num text-3xl mt-2">1.284</div>
+            <div class="text-[11px] text-ok font-semibold mt-1">▲ 23% vs. mês anterior</div>
           </div>
-          <div class="flex items-center gap-2">
-            <button class="chip text-text">Últimos 7 dias ▾</button>
-            <button class="chip text-text">Apartamentos · Casas ▾</button>
-            <button class="px-3 py-1.5 bg-accent text-white text-xs font-semibold rounded-md hover:bg-accent/90">Exportar</button>
+          <div class="card card-h p-5">
+            <div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Qualificados pela IA</div>
+            <div class="num text-3xl mt-2">847</div>
+            <div class="text-[11px] text-muted font-semibold mt-1">66% de taxa de qualificação</div>
           </div>
-        </div>
-      </header>
-
-      <div class="p-8 space-y-6">
-
-        <div class="grid grid-cols-4 gap-4">
-          <div class="bg-panel border border-border rounded-xl p-5 card-hover">
-            <div class="flex items-start justify-between">
-              <div class="text-[11px] uppercase tracking-wider text-muted font-semibold">Leads captados</div>
-              <span class="badge bg-accent/10 text-accent">+18%</span>
-            </div>
-            <div class="num text-3xl font-bold mt-3 text-text">847</div>
-            <div class="text-xs text-muted mt-1">vs 718 semana anterior</div>
-            <svg class="mt-3 w-full h-8" viewBox="0 0 100 30">
-              <defs><linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#003B5C"/><stop offset="100%" stop-color="#003B5C" stop-opacity="0"/></linearGradient></defs>
-              <path class="sparkline-fill" d="M0,20 L10,18 L20,22 L30,15 L40,17 L50,12 L60,14 L70,8 L80,10 L90,5 L100,7 L100,30 L0,30 Z"/>
-              <path class="sparkline" d="M0,20 L10,18 L20,22 L30,15 L40,17 L50,12 L60,14 L70,8 L80,10 L90,5 L100,7"/>
-            </svg>
+          <div class="card card-h p-5">
+            <div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Negócios em andamento</div>
+            <div class="num text-3xl mt-2">192</div>
+            <div class="text-[11px] text-ok font-semibold mt-1">R$ 48,6M em pipeline</div>
           </div>
-
-          <div class="bg-panel border border-border rounded-xl p-5 card-hover">
-            <div class="flex items-start justify-between">
-              <div class="text-[11px] uppercase tracking-wider text-muted font-semibold">Taxa qualificação</div>
-              <span class="badge bg-accent/10 text-accent">+3.2pp</span>
-            </div>
-            <div class="num text-3xl font-bold mt-3 text-text">41.2<span class="text-lg text-muted">%</span></div>
-            <div class="text-xs text-muted mt-1">349 qualificados pela IA</div>
-            <svg class="mt-3 w-full h-8" viewBox="0 0 100 30">
-              <path class="sparkline-fill" d="M0,18 L10,16 L20,17 L30,14 L40,12 L50,13 L60,10 L70,11 L80,9 L90,8 L100,6 L100,30 L0,30 Z"/>
-              <path class="sparkline" d="M0,18 L10,16 L20,17 L30,14 L40,12 L50,13 L60,10 L70,11 L80,9 L90,8 L100,6"/>
-            </svg>
-          </div>
-
-          <div class="bg-panel border border-border rounded-xl p-5 card-hover">
-            <div class="flex items-start justify-between">
-              <div class="text-[11px] uppercase tracking-wider text-muted font-semibold">Visitas agendadas</div>
-              <span class="badge bg-warn/10 text-warn">-4%</span>
-            </div>
-            <div class="num text-3xl font-bold mt-3 text-text">62</div>
-            <div class="text-xs text-muted mt-1">7.3% lead → visita</div>
-            <svg class="mt-3 w-full h-8" viewBox="0 0 100 30">
-              <path class="sparkline" stroke="#f59e0b" d="M0,10 L10,8 L20,12 L30,9 L40,11 L50,14 L60,13 L70,16 L80,12 L90,15 L100,13"/>
-            </svg>
-          </div>
-
-          <div class="bg-panel border border-border rounded-xl p-5 card-hover glow">
-            <div class="flex items-start justify-between">
-              <div class="text-[11px] uppercase tracking-wider text-accent font-semibold">Receita HUB (mês)</div>
-              <span class="badge bg-accent/10 text-accent">+ R$28k</span>
-            </div>
-            <div class="num text-3xl font-bold mt-3 text-accent">R$ 84.5<span class="text-lg text-muted">k</span></div>
-            <div class="text-xs text-muted mt-1">50% comissão · 11 fechamentos</div>
-            <svg class="mt-3 w-full h-8" viewBox="0 0 100 30">
-              <path class="sparkline-fill" d="M0,25 L10,22 L20,20 L30,18 L40,14 L50,12 L60,9 L70,7 L80,5 L90,3 L100,2 L100,30 L0,30 Z"/>
-              <path class="sparkline" d="M0,25 L10,22 L20,20 L30,18 L40,14 L50,12 L60,9 L70,7 L80,5 L90,3 L100,2"/>
-            </svg>
+          <div class="card card-h p-5">
+            <div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Fechados no mês</div>
+            <div class="num text-3xl mt-2">31</div>
+            <div class="text-[11px] text-ok font-semibold mt-1">R$ 9,2M · comissão R$ 552k</div>
           </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-4">
-          <div class="col-span-2 bg-panel border border-border rounded-xl p-6">
+        <div class="grid lg:grid-cols-3 gap-4 mb-6">
+          <div class="card p-6 lg:col-span-2">
             <div class="flex items-center justify-between mb-5">
-              <div>
-                <h3 class="font-bold text-text">Funil de conversão</h3>
-                <p class="text-xs text-muted mt-0.5">Lead → Fechamento · PoC Paulista</p>
-              </div>
-              <div class="flex gap-1">
-                <button class="chip text-accent border-accent/30 bg-accent/5">Apartamentos</button>
-                <button class="chip text-muted">Casas</button>
-                <button class="chip text-muted">Comercial</button>
-              </div>
+              <h3 class="text-sm font-bold">Funil de Conversão · consolidado</h3>
+              <span class="chip">Últimos 30 dias</span>
             </div>
-
-            <div class="space-y-2.5">
-              <div>
-                <div class="flex items-center justify-between text-xs mb-1.5">
-                  <span class="text-muted font-semibold">01 · Lead captado</span>
-                  <span class="num text-text">623 · 100%</span>
-                </div>
-                <div class="h-9 bg-bg rounded-md overflow-hidden relative">
-                  <div class="h-full bg-accent" style="width:100%"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex items-center justify-between text-xs mb-1.5">
-                  <span class="text-muted font-semibold">02 · Qualificado IA</span>
-                  <span class="num text-text">271 · 43.5%</span>
-                </div>
-                <div class="h-9 bg-bg rounded-md overflow-hidden">
-                  <div class="h-full bg-accent" style="width:43.5%"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex items-center justify-between text-xs mb-1.5">
-                  <span class="text-muted font-semibold">03 · 3 imóveis enviados</span>
-                  <span class="num text-text">218 · 35%</span>
-                </div>
-                <div class="h-9 bg-bg rounded-md overflow-hidden">
-                  <div class="h-full bg-accent" style="width:35%"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex items-center justify-between text-xs mb-1.5">
-                  <span class="text-muted font-semibold">04 · Ficha assinada</span>
-                  <span class="num text-text">78 · 12.5%</span>
-                </div>
-                <div class="h-9 bg-bg rounded-md overflow-hidden">
-                  <div class="h-full bg-accent" style="width:12.5%"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex items-center justify-between text-xs mb-1.5">
-                  <span class="text-muted font-semibold">05 · Visita realizada</span>
-                  <span class="num text-text">54 · 8.7%</span>
-                </div>
-                <div class="h-9 bg-bg rounded-md overflow-hidden">
-                  <div class="h-full bg-accent" style="width:8.7%"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex items-center justify-between text-xs mb-1.5">
-                  <span class="text-muted font-semibold">06 · Proposta enviada</span>
-                  <span class="num text-text">19 · 3.0%</span>
-                </div>
-                <div class="h-9 bg-bg rounded-md overflow-hidden">
-                  <div class="h-full bg-accent" style="width:3%"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex items-center justify-between text-xs mb-1.5">
-                  <span class="text-accent font-semibold font-semibold">07 · Fechamento ✓</span>
-                  <span class="num text-accent font-semibold">11 · 1.77%</span>
-                </div>
-                <div class="h-9 bg-bg rounded-md overflow-hidden">
-                  <div class="h-full bg-accent glow" style="width:1.77%"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-panel border border-border rounded-xl p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="font-bold text-text">Atividade ao vivo</h3>
-              <span class="pulse-dot"></span>
-            </div>
-            <div class="space-y-3 text-sm">
-              <div class="flex gap-3 pb-3 border-b border-border">
-                <div class="w-2 h-2 mt-1.5 rounded-full bg-accent flex-shrink-0"></div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-text">Visita agendada</div>
-                  <div class="text-xs text-muted mt-0.5"><span class="font-mono">Apto · R$680k · Jardins</span></div>
-                  <div class="text-[10px] text-muted font-mono mt-1">há 2 min</div>
-                </div>
-              </div>
-              <div class="flex gap-3 pb-3 border-b border-border">
-                <div class="w-2 h-2 mt-1.5 rounded-full bg-accent2 flex-shrink-0"></div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-text">Lead qualificado</div>
-                  <div class="text-xs text-muted mt-0.5">Mariana S. · score 87</div>
-                  <div class="text-[10px] text-muted font-mono mt-1">há 4 min</div>
-                </div>
-              </div>
-              <div class="flex gap-3 pb-3 border-b border-border">
-                <div class="w-2 h-2 mt-1.5 rounded-full bg-warn flex-shrink-0"></div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-text">Proposta enviada</div>
-                  <div class="text-xs text-muted mt-0.5">R$ 520k · Bela Vista</div>
-                  <div class="text-[10px] text-muted font-mono mt-1">há 12 min</div>
-                </div>
-              </div>
-              <div class="flex gap-3 pb-3 border-b border-border">
-                <div class="w-2 h-2 mt-1.5 rounded-full bg-accent flex-shrink-0"></div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-text">Fechamento ✓</div>
-                  <div class="text-xs text-muted mt-0.5">Apto R$ 520k · Consolação</div>
-                  <div class="text-[10px] text-muted font-mono mt-1">há 38 min</div>
-                </div>
-              </div>
-              <div class="flex gap-3">
-                <div class="w-2 h-2 mt-1.5 rounded-full bg-muted flex-shrink-0"></div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-text">Novo lead Meta Ads</div>
-                  <div class="text-xs text-muted mt-0.5">Carlos R. · Brooklin · venda</div>
-                  <div class="text-[10px] text-muted font-mono mt-1">há 1h</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-3 gap-4">
-          <div class="bg-panel border border-border rounded-xl p-6">
-            <h3 class="font-bold text-text mb-1">CAC por canal</h3>
-            <p class="text-xs text-muted mb-5">Custo de aquisição · últimos 30 dias</p>
             <div class="space-y-3">
-              <div>
-                <div class="flex justify-between text-xs mb-1"><span>Meta Ads</span><span class="num text-text">R$ 38</span></div>
-                <div class="h-1.5 bg-bg rounded-full overflow-hidden"><div class="h-full bg-accent" style="width:60%"></div></div>
-              </div>
-              <div>
-                <div class="flex justify-between text-xs mb-1"><span>Google Ads</span><span class="num text-text">R$ 52</span></div>
-                <div class="h-1.5 bg-bg rounded-full overflow-hidden"><div class="h-full bg-accent2" style="width:82%"></div></div>
-              </div>
-              <div>
-                <div class="flex justify-between text-xs mb-1"><span>Orgânico/SEO</span><span class="num text-text">R$ 8</span></div>
-                <div class="h-1.5 bg-bg rounded-full overflow-hidden"><div class="h-full bg-accent" style="width:13%"></div></div>
-              </div>
-              <div>
-                <div class="flex justify-between text-xs mb-1"><span>Portais (ZAP, VR)</span><span class="num text-text">R$ 71</span></div>
-                <div class="h-1.5 bg-bg rounded-full overflow-hidden"><div class="h-full bg-warn" style="width:100%"></div></div>
-              </div>
-              <div>
-                <div class="flex justify-between text-xs mb-1"><span>Indicação</span><span class="num text-accent">R$ 0</span></div>
-                <div class="h-1.5 bg-bg rounded-full overflow-hidden"><div class="h-full bg-accent" style="width:2%"></div></div>
-              </div>
+              <div><div class="flex justify-between text-xs mb-1"><span class="font-semibold">Novos leads</span><span class="num text-muted">1.284</span></div><div class="h-7 rounded-md bg-accent" style="width:100%"></div></div>
+              <div><div class="flex justify-between text-xs mb-1"><span class="font-semibold">Qualificados</span><span class="num text-muted">847</span></div><div class="h-7 rounded-md bg-accent/80" style="width:66%"></div></div>
+              <div><div class="flex justify-between text-xs mb-1"><span class="font-semibold">Em atendimento (corretor)</span><span class="num text-muted">421</span></div><div class="h-7 rounded-md bg-accent2" style="width:33%"></div></div>
+              <div><div class="flex justify-between text-xs mb-1"><span class="font-semibold">Proposta / Visita</span><span class="num text-muted">192</span></div><div class="h-7 rounded-md bg-accent2/70" style="width:15%"></div></div>
+              <div><div class="flex justify-between text-xs mb-1"><span class="font-semibold">Fechados</span><span class="num text-muted">31</span></div><div class="h-7 rounded-md bg-ok" style="width:8%"></div></div>
             </div>
           </div>
-
-          <div class="bg-panel border border-border rounded-xl p-6">
-            <h3 class="font-bold text-text mb-1">Top parceiros</h3>
-            <p class="text-xs text-muted mb-5">Por receita gerada · mês</p>
-            <div class="space-y-3">
-              <div class="flex items-center gap-3">
-                <div class="num text-xs text-accent font-bold w-5">01</div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm truncate">Coelho & Andrade Imóveis</div>
-                  <div class="text-[10px] text-muted font-mono">5 fechamentos · NPS 78</div>
-                </div>
-                <div class="num text-sm font-semibold text-text">R$ 31.2k</div>
-              </div>
-              <div class="flex items-center gap-3">
-                <div class="num text-xs text-muted font-bold w-5">02</div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm truncate">Paulista Living</div>
-                  <div class="text-[10px] text-muted font-mono">3 fechamentos · NPS 71</div>
-                </div>
-                <div class="num text-sm font-semibold text-text">R$ 22.4k</div>
-              </div>
-              <div class="flex items-center gap-3">
-                <div class="num text-xs text-muted font-bold w-5">03</div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm truncate">JS Negócios Imobiliários</div>
-                  <div class="text-[10px] text-muted font-mono">2 fechamentos · NPS 65</div>
-                </div>
-                <div class="num text-sm font-semibold text-text">R$ 18.7k</div>
-              </div>
-              <div class="flex items-center gap-3">
-                <div class="num text-xs text-muted font-bold w-5">04</div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm truncate">Urbe Imobiliária</div>
-                  <div class="text-[10px] text-muted font-mono">1 fechamento · NPS 82</div>
-                </div>
-                <div class="num text-sm font-semibold text-text">R$ 8.1k</div>
-              </div>
-              <div class="flex items-center gap-3 opacity-60">
-                <div class="num text-xs text-muted font-bold w-5">05</div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm truncate">Vera Cruz Imóveis</div>
-                  <div class="text-[10px] text-warn font-mono">0 fechamentos · NPS 41 ⚠</div>
-                </div>
-                <div class="num text-sm text-muted">R$ 4.0k</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-panel border border-border rounded-xl p-6">
-            <h3 class="font-bold text-text mb-1">Performance da IA</h3>
-            <p class="text-xs text-muted mb-5">Qualificação automatizada</p>
-            <div class="grid grid-cols-2 gap-3 mb-4">
-              <div class="bg-bg rounded-lg p-3">
-                <div class="text-[10px] uppercase text-muted tracking-wider">SLA 1º contato</div>
-                <div class="num text-2xl font-bold text-accent mt-1">1.4<span class="text-sm text-muted">s</span></div>
-                <div class="text-[10px] text-muted mt-0.5">meta &lt; 2s ✓</div>
-              </div>
-              <div class="bg-bg rounded-lg p-3">
-                <div class="text-[10px] uppercase text-muted tracking-wider">Conversão IA</div>
-                <div class="num text-2xl font-bold text-accent mt-1">41<span class="text-sm text-muted">%</span></div>
-                <div class="text-[10px] text-muted mt-0.5">qualificação</div>
-              </div>
-              <div class="bg-bg rounded-lg p-3">
-                <div class="text-[10px] uppercase text-muted tracking-wider">Escalation rate</div>
-                <div class="num text-2xl font-bold text-warn mt-1">12<span class="text-sm text-muted">%</span></div>
-                <div class="text-[10px] text-muted mt-0.5">para humano</div>
-              </div>
-              <div class="bg-bg rounded-lg p-3">
-                <div class="text-[10px] uppercase text-muted tracking-wider">Custo/conversa</div>
-                <div class="num text-2xl font-bold text-text mt-1">R$0.32</div>
-                <div class="text-[10px] text-muted mt-0.5">tokens Claude</div>
-              </div>
-            </div>
-            <div class="gradient-line"></div>
-            <div class="mt-3 text-[11px] text-muted">
-              <span class="text-accent">●</span> 847 conversas processadas · 12% escaladas para humano · custo total R$ 271 mês
+          <div class="card p-6">
+            <h3 class="text-sm font-bold mb-4">Leads por fonte</h3>
+            <div class="space-y-3 text-[13px]">
+              <div class="flex items-center justify-between"><span>WhatsApp (Click-to)</span><span class="num">512</span></div>
+              <div class="h-1.5 rounded bg-accent" style="width:80%"></div>
+              <div class="flex items-center justify-between"><span>Portais (ZAP/VivaReal)</span><span class="num">389</span></div>
+              <div class="h-1.5 rounded bg-accent2" style="width:60%"></div>
+              <div class="flex items-center justify-between"><span>Anúncios pagos</span><span class="num">241</span></div>
+              <div class="h-1.5 rounded bg-warn" style="width:38%"></div>
+              <div class="flex items-center justify-between"><span>Site / Landing</span><span class="num">142</span></div>
+              <div class="h-1.5 rounded bg-muted" style="width:22%"></div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <section class="screen" id="funil">
-      <header class="border-b border-border bg-panel/50 backdrop-blur sticky top-0 z-10">
-        <div class="px-8 py-5">
-          <h1 class="text-xl font-bold tracking-tight">Funil de Leads</h1>
-          <div class="text-xs text-muted mt-1 font-mono">Kanban · 271 leads ativos no pipeline</div>
-        </div>
-      </header>
-      <div class="p-8">
-        <div class="flex gap-3 overflow-x-auto scrollbar pb-4" style="min-height:600px">
-          <div class="flex-shrink-0 w-72">
-            <div class="flex items-center justify-between mb-3 px-1">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-text">Novo</span>
-                <span class="chip num">47</span>
-              </div>
-              <span class="text-[10px] text-muted font-mono">avg 0:42</span>
-            </div>
-            <div class="space-y-2">
-              <div class="kanban-card bg-panel border border-border rounded-lg p-3">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">Mariana Silva</div>
-                  <span class="badge bg-accent/10 text-accent">87</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Venda R$580-780k · Jardins/V.Olímpia</div>
-                <div class="flex items-center gap-2 mt-2 text-[10px] text-muted font-mono">
-                  <span>📱 Meta</span><span>•</span><span>há 3min</span>
-                </div>
-              </div>
-              <div class="kanban-card bg-panel border border-border rounded-lg p-3">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">Carlos R.</div>
-                  <span class="badge bg-accent/10 text-accent">72</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Venda R$650k · Brooklin</div>
-                <div class="flex items-center gap-2 mt-2 text-[10px] text-muted font-mono">
-                  <span>🔍 Google</span><span>•</span><span>há 14min</span>
-                </div>
-              </div>
-              <div class="kanban-card bg-panel border border-border rounded-lg p-3">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">Patrícia M.</div>
-                  <span class="badge bg-warn/10 text-warn">54</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Venda R$420-580k · Bela Vista</div>
-                <div class="flex items-center gap-2 mt-2 text-[10px] text-muted font-mono">
-                  <span>📱 Meta</span><span>•</span><span>há 22min</span>
-                </div>
-              </div>
-              <div class="kanban-card bg-panel border border-border rounded-lg p-3 opacity-70">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">João T.</div>
-                  <span class="badge bg-danger/10 text-danger">28</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Sem definição clara</div>
-                <div class="flex items-center gap-2 mt-2 text-[10px] text-muted font-mono">
-                  <span>📱 Meta</span><span>•</span><span>há 41min</span>
-                </div>
-              </div>
-            </div>
+        <div class="card p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-bold">Desempenho por imobiliária</h3>
+            <a class="text-xs text-accent2 font-semibold cursor-pointer" data-s="imobiliarias">Ver todas →</a>
           </div>
-
-          <div class="flex-shrink-0 w-72">
-            <div class="flex items-center justify-between mb-3 px-1">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-text">Qualificando</span>
-                <span class="chip num">62</span>
-              </div>
-              <span class="text-[10px] text-muted font-mono">avg 8:14</span>
-            </div>
-            <div class="space-y-2">
-              <div class="kanban-card bg-panel border border-border rounded-lg p-3 cursor-pointer" onclick="show('lead-detail')">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">Ana Beatriz</div>
-                  <span class="badge bg-accent/10 text-accent">91</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Venda R$780k-1.1M · Itaim</div>
-                <div class="mt-2 bg-bg rounded p-2 text-[11px] text-muted italic">"Preciso até dia 30, tem 2 filhos..."</div>
-                <div class="flex items-center gap-2 mt-2 text-[10px] text-accent font-mono">
-                  <span>🤖 IA em conversa</span>
-                </div>
-              </div>
-              <div class="kanban-card bg-panel border border-border rounded-lg p-3">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">Roberto K.</div>
-                  <span class="badge bg-accent/10 text-accent">79</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Venda R$1.2M · Jardins</div>
-                <div class="flex items-center gap-2 mt-2 text-[10px] text-muted font-mono">
-                  <span>🤖 IA em conversa</span>
-                </div>
-              </div>
-              <div class="kanban-card bg-panel border border-border rounded-lg p-3">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">Laura F.</div>
-                  <span class="badge bg-accent/10 text-accent">68</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Venda R$ 480k · Consolação</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex-shrink-0 w-72">
-            <div class="flex items-center justify-between mb-3 px-1">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-text">Imóveis enviados</span>
-                <span class="chip num">38</span>
-              </div>
-              <span class="text-[10px] text-muted font-mono">avg 2h12</span>
-            </div>
-            <div class="space-y-2">
-              <div class="kanban-card bg-panel border border-border rounded-lg p-3">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">Eduardo P.</div>
-                  <span class="badge bg-accent/10 text-accent">88</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Venda R$ 890k · Itaim</div>
-                <div class="text-[10px] text-accent font-mono mt-2">3 imóveis · aguardando ficha</div>
-              </div>
-              <div class="kanban-card bg-panel border border-border rounded-lg p-3">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">Felipe A.</div>
-                  <span class="badge bg-accent/10 text-accent">82</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Venda R$ 560k · Bela Vista</div>
-                <div class="text-[10px] text-accent font-mono mt-2">2/3 imóveis curtidos</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex-shrink-0 w-72">
-            <div class="flex items-center justify-between mb-3 px-1">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-text">Ficha + Visita</span>
-                <span class="chip num">29</span>
-              </div>
-              <span class="text-[10px] text-muted font-mono">avg 1d4h</span>
-            </div>
-            <div class="space-y-2">
-              <div class="kanban-card bg-panel border border-border rounded-lg p-3">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">Camila V.</div>
-                  <span class="badge bg-accent2/10 text-accent2">95</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Venda R$ 750k · Jardins</div>
-                <div class="text-[10px] text-accent2 font-mono mt-2">📅 Visita amanhã 14h</div>
-              </div>
-              <div class="kanban-card bg-panel border border-border rounded-lg p-3">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">Murilo S.</div>
-                  <span class="badge bg-accent2/10 text-accent2">86</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Venda R$780k · Higienópolis</div>
-                <div class="text-[10px] text-accent2 font-mono mt-2">📅 Visita sex 10h</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex-shrink-0 w-72">
-            <div class="flex items-center justify-between mb-3 px-1">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-text">Proposta</span>
-                <span class="chip num">8</span>
-              </div>
-              <span class="text-[10px] text-muted font-mono">avg 3d</span>
-            </div>
-            <div class="space-y-2">
-              <div class="kanban-card bg-panel border border-border rounded-lg p-3">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">Tatiana O.</div>
-                  <span class="badge bg-warn/10 text-warn">prop.</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Venda R$ 680k · V.Olímpia</div>
-                <div class="text-[10px] text-warn font-mono mt-2">aguardando resposta</div>
-              </div>
-              <div class="kanban-card bg-panel border border-border rounded-lg p-3">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">Bruno H.</div>
-                  <span class="badge bg-warn/10 text-warn">neg.</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Venda R$920k · Brooklin</div>
-                <div class="text-[10px] text-warn font-mono mt-2">contraproposta R$880k</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex-shrink-0 w-72">
-            <div class="flex items-center justify-between mb-3 px-1">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-accent">Fechado ✓</span>
-                <span class="chip num text-accent border-accent/30">11</span>
-              </div>
-              <span class="text-[10px] text-muted font-mono">+ R$84.5k</span>
-            </div>
-            <div class="space-y-2">
-              <div class="kanban-card bg-panel border border-accent/30 rounded-lg p-3 glow">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">Marcela D.</div>
-                  <span class="badge bg-accent text-white">✓</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Venda R$ 520k · Consolação</div>
-                <div class="num text-[11px] text-accent mt-2">+ R$13.000 comissão HUB</div>
-              </div>
-              <div class="kanban-card bg-panel border border-accent/30 rounded-lg p-3 glow">
-                <div class="flex items-start justify-between">
-                  <div class="text-sm font-semibold">Pedro N.</div>
-                  <span class="badge bg-accent text-white">✓</span>
-                </div>
-                <div class="text-xs text-muted mt-1">Venda R$720k · Jardins</div>
-                <div class="num text-[11px] text-accent mt-2">+ R$18.000 comissão HUB</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="screen" id="leads">
-      <header class="border-b border-border bg-panel/50 backdrop-blur sticky top-0 z-10">
-        <div class="px-8 py-5 flex items-center justify-between">
-          <div>
-            <h1 class="text-xl font-bold tracking-tight">Leads</h1>
-            <div class="text-xs text-muted mt-1 font-mono">847 totais · 271 ativos · filtros aplicados</div>
-          </div>
-          <div class="flex gap-2">
-            <input type="text" placeholder="Buscar lead, telefone, email..." class="bg-panel border border-border rounded-md px-3 py-1.5 text-sm w-72 focus:outline-none focus:border-accent">
-            <button class="chip text-text">Score ▾</button>
-            <button class="chip text-text">Origem ▾</button>
-            <button class="chip text-text">Etapa ▾</button>
-          </div>
-        </div>
-      </header>
-      <div class="p-8">
-        <div class="bg-panel border border-border rounded-xl overflow-hidden">
-          <table class="w-full text-sm">
-            <thead class="bg-panel2">
-              <tr class="text-left text-[10px] uppercase tracking-wider text-muted font-mono">
-                <th class="px-5 py-3 font-semibold">Score</th>
-                <th class="px-5 py-3 font-semibold">Nome</th>
-                <th class="px-5 py-3 font-semibold">Tipo</th>
-                <th class="px-5 py-3 font-semibold">Faixa / Região</th>
-                <th class="px-5 py-3 font-semibold">Origem</th>
-                <th class="px-5 py-3 font-semibold">Etapa</th>
-                <th class="px-5 py-3 font-semibold">Parceiro</th>
-                <th class="px-5 py-3 font-semibold">Última atividade</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border">
-              <tr class="hover:bg-panel2 cursor-pointer transition" onclick="show('lead-detail')">
-                <td class="px-5 py-3"><span class="badge bg-accent/10 text-accent">95</span></td>
-                <td class="px-5 py-3 font-semibold">Camila Vasconcelos</td>
-                <td class="px-5 py-3 text-muted">Venda</td>
-                <td class="px-5 py-3 num text-xs">R$ 750-900k · Jardins</td>
-                <td class="px-5 py-3 text-muted">Meta Ads</td>
-                <td class="px-5 py-3"><span class="chip text-accent2 border-accent2/30">Visita</span></td>
-                <td class="px-5 py-3 text-muted">Coelho & Andrade</td>
-                <td class="px-5 py-3 text-muted text-xs font-mono">há 12 min</td>
-              </tr>
-              <tr class="hover:bg-panel2 cursor-pointer transition">
-                <td class="px-5 py-3"><span class="badge bg-accent/10 text-accent">91</span></td>
-                <td class="px-5 py-3 font-semibold">Ana Beatriz Lima</td>
-                <td class="px-5 py-3 text-muted">Venda</td>
-                <td class="px-5 py-3 num text-xs">R$ 780k-1.1M · Itaim</td>
-                <td class="px-5 py-3 text-muted">Google Ads</td>
-                <td class="px-5 py-3"><span class="chip text-accent border-accent/30">Qualificando</span></td>
-                <td class="px-5 py-3 text-muted">—</td>
-                <td class="px-5 py-3 text-muted text-xs font-mono">há 18 min</td>
-              </tr>
-              <tr class="hover:bg-panel2 cursor-pointer transition">
-                <td class="px-5 py-3"><span class="badge bg-accent/10 text-accent">88</span></td>
-                <td class="px-5 py-3 font-semibold">Eduardo Pereira</td>
-                <td class="px-5 py-3 text-muted">Venda</td>
-                <td class="px-5 py-3 num text-xs">R$ 890k · Itaim</td>
-                <td class="px-5 py-3 text-muted">Meta Ads</td>
-                <td class="px-5 py-3"><span class="chip text-warn border-warn/30">Imóveis env.</span></td>
-                <td class="px-5 py-3 text-muted">Paulista Living</td>
-                <td class="px-5 py-3 text-muted text-xs font-mono">há 32 min</td>
-              </tr>
-              <tr class="hover:bg-panel2 cursor-pointer transition">
-                <td class="px-5 py-3"><span class="badge bg-accent/10 text-accent">87</span></td>
-                <td class="px-5 py-3 font-semibold">Mariana Silva</td>
-                <td class="px-5 py-3 text-muted">Venda</td>
-                <td class="px-5 py-3 num text-xs">R$ 580-780k · V.Olímpia</td>
-                <td class="px-5 py-3 text-muted">Meta Ads</td>
-                <td class="px-5 py-3"><span class="chip text-text border-border">Novo</span></td>
-                <td class="px-5 py-3 text-muted">—</td>
-                <td class="px-5 py-3 text-muted text-xs font-mono">há 41 min</td>
-              </tr>
-              <tr class="hover:bg-panel2 cursor-pointer transition">
-                <td class="px-5 py-3"><span class="badge bg-accent/10 text-accent">86</span></td>
-                <td class="px-5 py-3 font-semibold">Murilo Santos</td>
-                <td class="px-5 py-3 text-muted">Venda</td>
-                <td class="px-5 py-3 num text-xs">R$780k · Higienópolis</td>
-                <td class="px-5 py-3 text-muted">Portal ZAP</td>
-                <td class="px-5 py-3"><span class="chip text-accent2 border-accent2/30">Visita</span></td>
-                <td class="px-5 py-3 text-muted">JS Negócios</td>
-                <td class="px-5 py-3 text-muted text-xs font-mono">há 1h</td>
-              </tr>
-              <tr class="hover:bg-panel2 cursor-pointer transition">
-                <td class="px-5 py-3"><span class="badge bg-accent/10 text-accent">82</span></td>
-                <td class="px-5 py-3 font-semibold">Felipe Andrade</td>
-                <td class="px-5 py-3 text-muted">Venda</td>
-                <td class="px-5 py-3 num text-xs">R$ 560k · Bela Vista</td>
-                <td class="px-5 py-3 text-muted">Indicação</td>
-                <td class="px-5 py-3"><span class="chip text-warn border-warn/30">Imóveis env.</span></td>
-                <td class="px-5 py-3 text-muted">Urbe Imobiliária</td>
-                <td class="px-5 py-3 text-muted text-xs font-mono">há 2h</td>
-              </tr>
-              <tr class="hover:bg-panel2 cursor-pointer transition">
-                <td class="px-5 py-3"><span class="badge bg-accent/10 text-accent">79</span></td>
-                <td class="px-5 py-3 font-semibold">Roberto Kominski</td>
-                <td class="px-5 py-3 text-muted">Venda</td>
-                <td class="px-5 py-3 num text-xs">R$1.2M · Jardins</td>
-                <td class="px-5 py-3 text-muted">Google Ads</td>
-                <td class="px-5 py-3"><span class="chip text-accent border-accent/30">Qualificando</span></td>
-                <td class="px-5 py-3 text-muted">—</td>
-                <td class="px-5 py-3 text-muted text-xs font-mono">há 3h</td>
-              </tr>
-              <tr class="hover:bg-panel2 cursor-pointer transition">
-                <td class="px-5 py-3"><span class="badge bg-warn/10 text-warn">54</span></td>
-                <td class="px-5 py-3 font-semibold">Patrícia Mendes</td>
-                <td class="px-5 py-3 text-muted">Venda</td>
-                <td class="px-5 py-3 num text-xs">R$ 420-580k · Bela Vista</td>
-                <td class="px-5 py-3 text-muted">Meta Ads</td>
-                <td class="px-5 py-3"><span class="chip text-text border-border">Novo</span></td>
-                <td class="px-5 py-3 text-muted">—</td>
-                <td class="px-5 py-3 text-muted text-xs font-mono">há 4h</td>
-              </tr>
-              <tr class="hover:bg-panel2 cursor-pointer transition opacity-60">
-                <td class="px-5 py-3"><span class="badge bg-danger/10 text-danger">28</span></td>
-                <td class="px-5 py-3 font-semibold">João Teixeira</td>
-                <td class="px-5 py-3 text-muted">—</td>
-                <td class="px-5 py-3 num text-xs">Indefinido</td>
-                <td class="px-5 py-3 text-muted">Meta Ads</td>
-                <td class="px-5 py-3"><span class="chip text-danger border-danger/30">Descartado IA</span></td>
-                <td class="px-5 py-3 text-muted">—</td>
-                <td class="px-5 py-3 text-muted text-xs font-mono">há 5h</td>
-              </tr>
+          <table>
+            <thead><tr><th>Imobiliária</th><th>Leads recebidos</th><th>Atendidos no SLA</th><th>Negócios</th><th>Conversão</th><th>Plano</th></tr></thead>
+            <tbody>
+              <tr><td class="font-semibold">Robotão Imóveis</td><td class="num">387</td><td class="num text-ok">94%</td><td class="num">12</td><td class="num">8,2%</td><td><span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">Plano fixo</span></td></tr>
+              <tr><td class="font-semibold">Paulista Prime</td><td class="num">214</td><td class="num text-ok">88%</td><td class="num">7</td><td class="num">6,1%</td><td><span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Comissão</span></td></tr>
+              <tr><td class="font-semibold">Vila Nova Negócios</td><td class="num">176</td><td class="num text-warn">71%</td><td class="num">5</td><td class="num">5,4%</td><td><span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Comissão</span></td></tr>
+              <tr><td class="font-semibold">Jardins Realty</td><td class="num">158</td><td class="num text-ok">91%</td><td class="num">4</td><td class="num">4,8%</td><td><span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">Plano fixo</span></td></tr>
+              <tr><td class="font-semibold">Centro SP Imóveis</td><td class="num">142</td><td class="num text-danger">58%</td><td class="num">2</td><td class="num">3,1%</td><td><span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Comissão</span></td></tr>
             </tbody>
           </table>
         </div>
-        <div class="text-xs text-muted text-center mt-4 font-mono">Mostrando 9 de 271 · página 1/31</div>
-      </div>
-    </section>
+      </section>
 
-    <section class="screen" id="lead-detail">
-      <header class="border-b border-border bg-panel/50 backdrop-blur sticky top-0 z-10">
-        <div class="px-8 py-5 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <button class="text-muted hover:text-text" onclick="show('leads')">←</button>
-            <div>
-              <h1 class="text-xl font-bold tracking-tight">Ana Beatriz Lima</h1>
-              <div class="text-xs text-muted mt-1 font-mono">+55 11 9 8421-3392 · ana.lima@email.com</div>
-            </div>
-            <span class="badge bg-accent/10 text-accent ml-3">SCORE 91</span>
-            <span class="chip text-accent border-accent/30">Qualificando</span>
-          </div>
+      <!-- ============ IMOBILIÁRIAS ============ -->
+      <section id="imobiliarias" class="screen">
+        <div class="flex items-center justify-between mb-5">
           <div class="flex gap-2">
-            <button class="chip text-text">Atribuir parceiro</button>
-            <button class="px-3 py-1.5 bg-accent text-white text-xs font-semibold rounded-md">Enviar 3 imóveis</button>
+            <span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todas · 6</span>
+            <span class="chip">Plano fixo · 2</span>
+            <span class="chip">Comissão · 4</span>
           </div>
+          <input placeholder="Buscar imobiliária..." class="px-4 py-2 rounded-lg bg-panel border border-border text-sm w-64">
         </div>
-      </header>
-      <div class="p-8 grid grid-cols-3 gap-6">
-
-        <div class="col-span-2 bg-panel border border-border rounded-xl p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-text">Conversa com IA</h3>
-            <span class="chip text-accent border-accent/30"><span class="pulse-dot mr-1.5"></span> Em andamento</span>
-          </div>
-          <div class="space-y-3 max-h-[500px] overflow-y-auto scrollbar pr-2">
-            <div class="flex"><div class="conv-bubble conv-user">Oi, vi o anúncio sobre apartamentos no Itaim</div></div>
-            <div class="text-[10px] text-muted text-left font-mono pl-2">21:34 · cliente</div>
-
-            <div class="flex flex-row-reverse"><div class="conv-bubble conv-ai">Oi! Tudo bem? Que ótimo que entrou em contato. Sou a Maestra, assistente do AI Logic Hub. Pra te ajudar a encontrar o imóvel certo rapidinho, posso te fazer algumas perguntas?</div></div>
-            <div class="text-[10px] text-muted text-right font-mono pr-2">21:34 · IA · 1.2s</div>
-
-            <div class="flex"><div class="conv-bubble conv-user">Pode</div></div>
-
-            <div class="flex flex-row-reverse"><div class="conv-bubble conv-ai">Show. Primeiro: a compra é pra morar ou investimento?</div></div>
-            <div class="text-[10px] text-muted text-right font-mono pr-2">21:35 · IA</div>
-
-            <div class="flex"><div class="conv-bubble conv-user">Pra morar, preciso fechar até final do mês</div></div>
-
-            <div class="flex flex-row-reverse"><div class="conv-bubble conv-ai">Perfeito, urgência anotada ✓. Qual sua faixa de orçamento pra compra?</div></div>
-
-            <div class="flex"><div class="conv-bubble conv-user">Entre 780 mil e 1.1 milhão</div></div>
-
-            <div class="flex flex-row-reverse"><div class="conv-bubble conv-ai">Entendi. Pra quantas pessoas? E precisa de quantos quartos?</div></div>
-
-            <div class="flex"><div class="conv-bubble conv-user">Eu, meu marido e 2 filhos pequenos. 3 quartos pelo menos</div></div>
-
-            <div class="flex flex-row-reverse"><div class="conv-bubble conv-ai">Anotei: família de 4, mín. 3 dorms. Vaga de garagem é essencial?</div></div>
-
-            <div class="flex"><div class="conv-bubble conv-user">Sim, no mínimo 1, melhor se for 2</div></div>
-
-            <div class="flex flex-row-reverse"><div class="conv-bubble conv-ai">Sobre regiões: você falou Itaim, mas tem outras que toparia? Tipo Vila Olímpia, Jardins, Pinheiros?</div></div>
-
-            <div class="flex"><div class="conv-bubble conv-user">Itaim de preferência, mas V.Olímpia ou Jardins também serviria</div></div>
-
-            <div class="flex flex-row-reverse"><div class="conv-bubble conv-ai">Última coisa importante: a compra vai ser à vista, financiada ou com FGTS? Já tem aprovação de crédito?</div></div>
-
-            <div class="flex"><div class="conv-bubble conv-user">Financiamento, Caixa já pré-aprovou</div></div>
-
-            <div class="flex flex-row-reverse"><div class="conv-bubble conv-ai">Ótimo. Tenho 3 imóveis que batem perfeitamente com seu perfil em Itaim e V.Olímpia, todos com 3 dorms, 2 vagas, prontos pra financiamento. Posso te enviar agora?</div></div>
-            <div class="text-[10px] text-accent text-right font-mono pr-2">21:41 · IA · score atualizado: 91</div>
-          </div>
-        </div>
-
-        <div class="space-y-4">
-          <div class="bg-panel border border-border rounded-xl p-5">
-            <h4 class="text-[10px] uppercase tracking-wider text-muted font-semibold mb-3">Perfil extraído pela IA</h4>
-            <div class="space-y-2.5 text-sm">
-              <div class="flex justify-between"><span class="text-muted">Tipo</span><span>Venda · apto</span></div>
-              <div class="flex justify-between"><span class="text-muted">Faixa</span><span class="num">R$780k-1.1M</span></div>
-              <div class="flex justify-between"><span class="text-muted">Dorms</span><span>3+</span></div>
-              <div class="flex justify-between"><span class="text-muted">Vagas</span><span>2</span></div>
-              <div class="flex justify-between"><span class="text-muted">Família</span><span>4 pessoas</span></div>
-              <div class="flex justify-between"><span class="text-muted">Pagamento</span><span>Financiamento Caixa</span></div>
-              <div class="flex justify-between"><span class="text-muted">Urgência</span><span class="text-accent">Alta · até 30/11</span></div>
-              <div class="flex justify-between"><span class="text-muted">Regiões</span><span class="text-right text-xs">Itaim · V.Olímpia · Jardins</span></div>
-            </div>
-          </div>
-
-          <div class="bg-panel border border-border rounded-xl p-5">
-            <h4 class="text-[10px] uppercase tracking-wider text-muted font-semibold mb-3">Score IA · breakdown</h4>
-            <div class="space-y-2 text-xs">
-              <div class="flex justify-between"><span>Budget claro</span><span class="text-accent num">+25</span></div>
-              <div class="flex justify-between"><span>Urgência (30d)</span><span class="text-accent num">+22</span></div>
-              <div class="flex justify-between"><span>Authority (decisor)</span><span class="text-accent num">+18</span></div>
-              <div class="flex justify-between"><span>Need específico</span><span class="text-accent num">+15</span></div>
-              <div class="flex justify-between"><span>Crédito aprovado</span><span class="text-accent num">+11</span></div>
-              <div class="border-t border-border my-2 pt-2 flex justify-between font-semibold"><span>Total</span><span class="text-accent num">91/100</span></div>
-            </div>
-          </div>
-
-          <div class="bg-panel border border-border rounded-xl p-5">
-            <h4 class="text-[10px] uppercase tracking-wider text-muted font-semibold mb-3">Timeline</h4>
-            <div class="space-y-3 text-xs">
-              <div class="flex gap-2"><span class="text-accent">●</span><div><div>Lead criado · Meta Ads</div><div class="text-muted font-mono">21:34</div></div></div>
-              <div class="flex gap-2"><span class="text-accent">●</span><div><div>IA iniciou conversa</div><div class="text-muted font-mono">21:34 · +1.2s</div></div></div>
-              <div class="flex gap-2"><span class="text-accent">●</span><div><div>Score atingiu 80+</div><div class="text-muted font-mono">21:38</div></div></div>
-              <div class="flex gap-2"><span class="text-accent2">●</span><div><div>Pronto p/ envio de imóveis</div><div class="text-muted font-mono">21:41 · agora</div></div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="screen" id="parceiros">
-      <header class="border-b border-border bg-panel/50 backdrop-blur sticky top-0 z-10">
-        <div class="px-8 py-5 flex items-center justify-between">
-          <div>
-            <h1 class="text-xl font-bold tracking-tight">Imobiliárias Parceiras</h1>
-            <div class="text-xs text-muted mt-1 font-mono">7 ativas · 2 em onboarding · região Paulista</div>
-          </div>
-          <button class="px-3 py-1.5 bg-accent text-white text-xs font-semibold rounded-md">+ Adicionar parceiro</button>
-        </div>
-      </header>
-      <div class="p-8 grid grid-cols-2 gap-4">
-        <div class="bg-panel border border-border rounded-xl p-6 card-hover">
-          <div class="flex items-start justify-between mb-4">
-            <div>
-              <div class="flex items-center gap-2">
-                <h3 class="font-bold">Coelho & Andrade Imóveis</h3>
-                <span class="badge bg-accent/10 text-accent">TIER 1</span>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- card imobiliária -->
+          <div class="card card-h p-5">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-lg bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-white font-bold">RI</div>
+                <div><div class="font-bold text-sm">Robotão Imóveis</div><div class="text-[11px] text-muted">CRECI 12.345-J · São Paulo/SP</div></div>
               </div>
-              <div class="text-xs text-muted mt-1 font-mono">CRECI-J 28.394 · Jardins · desde set/26</div>
+              <span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">Plano fixo</span>
             </div>
-            <div class="text-right">
-              <div class="num text-2xl font-bold text-accent">R$31.2k</div>
-              <div class="text-[10px] text-muted">receita HUB mês</div>
+            <div class="grid grid-cols-3 gap-2 text-center my-4">
+              <div><div class="num text-lg">14</div><div class="text-[10px] text-muted">Corretores</div></div>
+              <div><div class="num text-lg">312</div><div class="text-[10px] text-muted">Imóveis</div></div>
+              <div><div class="num text-lg">387</div><div class="text-[10px] text-muted">Leads/mês</div></div>
+            </div>
+            <div class="flex items-center justify-between text-xs pt-3 border-t border-border">
+              <span class="flex items-center gap-1.5"><span class="pulse"></span>SLA 94%</span>
+              <a class="text-accent2 font-semibold cursor-pointer" data-s="whatsapp">Ver conversas →</a>
             </div>
           </div>
-          <div class="grid grid-cols-4 gap-3 mb-4">
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">Imóveis</div><div class="num font-bold mt-0.5">147</div></div>
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">Leads</div><div class="num font-bold mt-0.5">62</div></div>
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">Fech.</div><div class="num font-bold text-accent mt-0.5">5</div></div>
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">NPS</div><div class="num font-bold text-accent mt-0.5">78</div></div>
-          </div>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-muted">Split atual</span>
-            <span class="num text-accent font-semibold">55% / 45% HUB</span>
-          </div>
-        </div>
-
-        <div class="bg-panel border border-border rounded-xl p-6 card-hover">
-          <div class="flex items-start justify-between mb-4">
-            <div>
-              <div class="flex items-center gap-2">
-                <h3 class="font-bold">Paulista Living</h3>
-                <span class="badge bg-accent/10 text-accent">TIER 1</span>
+          <div class="card card-h p-5">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-lg bg-gradient-to-br from-accent2 to-accent flex items-center justify-center text-white font-bold">PP</div>
+                <div><div class="font-bold text-sm">Paulista Prime</div><div class="text-[11px] text-muted">CRECI 23.811-J · São Paulo/SP</div></div>
               </div>
-              <div class="text-xs text-muted mt-1 font-mono">CRECI-J 41.882 · Bela Vista · desde set/26</div>
+              <span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Comissão</span>
             </div>
-            <div class="text-right">
-              <div class="num text-2xl font-bold text-text">R$22.4k</div>
-              <div class="text-[10px] text-muted">receita HUB mês</div>
+            <div class="grid grid-cols-3 gap-2 text-center my-4">
+              <div><div class="num text-lg">8</div><div class="text-[10px] text-muted">Corretores</div></div>
+              <div><div class="num text-lg">187</div><div class="text-[10px] text-muted">Imóveis</div></div>
+              <div><div class="num text-lg">214</div><div class="text-[10px] text-muted">Leads/mês</div></div>
+            </div>
+            <div class="flex items-center justify-between text-xs pt-3 border-t border-border">
+              <span class="flex items-center gap-1.5"><span class="pulse"></span>SLA 88%</span>
+              <a class="text-accent2 font-semibold cursor-pointer" data-s="whatsapp">Ver conversas →</a>
             </div>
           </div>
-          <div class="grid grid-cols-4 gap-3 mb-4">
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">Imóveis</div><div class="num font-bold mt-0.5">98</div></div>
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">Leads</div><div class="num font-bold mt-0.5">41</div></div>
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">Fech.</div><div class="num font-bold text-accent mt-0.5">3</div></div>
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">NPS</div><div class="num font-bold text-accent mt-0.5">71</div></div>
-          </div>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-muted">Split atual</span>
-            <span class="num text-text font-semibold">50% / 50%</span>
-          </div>
-        </div>
-
-        <div class="bg-panel border border-border rounded-xl p-6 card-hover">
-          <div class="flex items-start justify-between mb-4">
-            <div>
-              <div class="flex items-center gap-2">
-                <h3 class="font-bold">JS Negócios Imobiliários</h3>
-                <span class="badge bg-text/10 text-text">TIER 2</span>
+          <div class="card card-h p-5">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-lg bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-white font-bold">VN</div>
+                <div><div class="font-bold text-sm">Vila Nova Negócios</div><div class="text-[11px] text-muted">CRECI 31.002-J · São Paulo/SP</div></div>
               </div>
-              <div class="text-xs text-muted mt-1 font-mono">CRECI-J 19.776 · Higienópolis · desde out/26</div>
+              <span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">⚠ SLA baixo</span>
             </div>
-            <div class="text-right">
-              <div class="num text-2xl font-bold text-text">R$18.7k</div>
-              <div class="text-[10px] text-muted">receita HUB mês</div>
+            <div class="grid grid-cols-3 gap-2 text-center my-4">
+              <div><div class="num text-lg">5</div><div class="text-[10px] text-muted">Corretores</div></div>
+              <div><div class="num text-lg">98</div><div class="text-[10px] text-muted">Imóveis</div></div>
+              <div><div class="num text-lg">176</div><div class="text-[10px] text-muted">Leads/mês</div></div>
+            </div>
+            <div class="flex items-center justify-between text-xs pt-3 border-t border-border">
+              <span class="flex items-center gap-1.5 text-warn font-semibold">SLA 71%</span>
+              <a class="text-accent2 font-semibold cursor-pointer" data-s="whatsapp">Ver conversas →</a>
             </div>
           </div>
-          <div class="grid grid-cols-4 gap-3 mb-4">
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">Imóveis</div><div class="num font-bold mt-0.5">63</div></div>
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">Leads</div><div class="num font-bold mt-0.5">28</div></div>
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">Fech.</div><div class="num font-bold text-accent mt-0.5">2</div></div>
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">NPS</div><div class="num font-bold text-text mt-0.5">65</div></div>
-          </div>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-muted">Split atual</span>
-            <span class="num text-text font-semibold">50% / 50%</span>
-          </div>
-        </div>
-
-        <div class="bg-panel border border-border rounded-xl p-6 card-hover opacity-80">
-          <div class="flex items-start justify-between mb-4">
-            <div>
-              <div class="flex items-center gap-2">
-                <h3 class="font-bold">Vera Cruz Imóveis</h3>
-                <span class="badge bg-danger/10 text-danger">EM REVISÃO</span>
+          <div class="card card-h p-5">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-lg bg-gradient-to-br from-accent2 to-accent flex items-center justify-center text-white font-bold">JR</div>
+                <div><div class="font-bold text-sm">Jardins Realty</div><div class="text-[11px] text-muted">CRECI 18.547-J · São Paulo/SP</div></div>
               </div>
-              <div class="text-xs text-muted mt-1 font-mono">CRECI-J 33.012 · Consolação · desde out/26</div>
+              <span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">Plano fixo</span>
             </div>
-            <div class="text-right">
-              <div class="num text-2xl font-bold text-text">R$4.0k</div>
-              <div class="text-[10px] text-muted">receita HUB mês</div>
+            <div class="grid grid-cols-3 gap-2 text-center my-4">
+              <div><div class="num text-lg">11</div><div class="text-[10px] text-muted">Corretores</div></div>
+              <div><div class="num text-lg">241</div><div class="text-[10px] text-muted">Imóveis</div></div>
+              <div><div class="num text-lg">158</div><div class="text-[10px] text-muted">Leads/mês</div></div>
+            </div>
+            <div class="flex items-center justify-between text-xs pt-3 border-t border-border">
+              <span class="flex items-center gap-1.5"><span class="pulse"></span>SLA 91%</span>
+              <a class="text-accent2 font-semibold cursor-pointer" data-s="whatsapp">Ver conversas →</a>
             </div>
           </div>
-          <div class="grid grid-cols-4 gap-3 mb-4">
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">Imóveis</div><div class="num font-bold mt-0.5">42</div></div>
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">Leads</div><div class="num font-bold mt-0.5">14</div></div>
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">Fech.</div><div class="num font-bold text-text mt-0.5">0</div></div>
-            <div class="bg-bg rounded p-2"><div class="text-[10px] text-muted uppercase tracking-wider">NPS</div><div class="num font-bold text-danger mt-0.5">41</div></div>
+          <div class="card card-h p-5">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-lg bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-white font-bold">CS</div>
+                <div><div class="font-bold text-sm">Centro SP Imóveis</div><div class="text-[11px] text-muted">CRECI 09.220-J · São Paulo/SP</div></div>
+              </div>
+              <span class="badge" style="background:rgb(var(--c-danger)/.12);color:rgb(var(--c-danger))">⚠ Crítico</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center my-4">
+              <div><div class="num text-lg">4</div><div class="text-[10px] text-muted">Corretores</div></div>
+              <div><div class="num text-lg">64</div><div class="text-[10px] text-muted">Imóveis</div></div>
+              <div><div class="num text-lg">142</div><div class="text-[10px] text-muted">Leads/mês</div></div>
+            </div>
+            <div class="flex items-center justify-between text-xs pt-3 border-t border-border">
+              <span class="flex items-center gap-1.5 text-danger font-semibold">SLA 58%</span>
+              <a class="text-accent2 font-semibold cursor-pointer" data-s="whatsapp">Ver conversas →</a>
+            </div>
           </div>
-          <div class="bg-danger/10 border border-danger/20 rounded-md p-2 text-[11px] text-danger">
-            ⚠ NPS abaixo de 50 · SLA de retorno violado 3x · revisão programada para 25/nov
+          <!-- add card -->
+          <div class="card card-h p-5 border-dashed flex flex-col items-center justify-center text-center cursor-pointer" style="border-style:dashed">
+            <div class="w-11 h-11 rounded-full bg-accent/10 flex items-center justify-center text-accent text-2xl font-bold mb-2">+</div>
+            <div class="font-semibold text-sm">Nova imobiliária parceira</div>
+            <div class="text-[11px] text-muted mt-1">Cadastrar CRECI, plano e equipe</div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="screen" id="estoque">
-      <header class="border-b border-border bg-panel/50 backdrop-blur sticky top-0 z-10">
-        <div class="px-8 py-5 flex items-center justify-between">
-          <div>
-            <h1 class="text-xl font-bold tracking-tight">Estoque de Imóveis</h1>
-            <div class="text-xs text-muted mt-1 font-mono">412 imóveis consolidados · 7 parceiros</div>
-          </div>
+      <!-- ============ LEADS ============ -->
+      <section id="leads" class="screen">
+        <div class="flex items-center justify-between mb-5">
           <div class="flex gap-2">
-            <button class="chip text-text">Tipo ▾</button>
-            <button class="chip text-text">Região ▾</button>
-            <button class="chip text-text">Faixa preço ▾</button>
+            <span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todos</span>
+            <span class="chip">Novos</span><span class="chip">Qualificados</span><span class="chip">Em atendimento</span><span class="chip">Descartados</span>
           </div>
+          <input placeholder="Buscar lead..." class="px-4 py-2 rounded-lg bg-panel border border-border text-sm w-64">
         </div>
-      </header>
-      <div class="p-8">
-        <div class="grid grid-cols-4 gap-4 mb-6">
-          <div class="bg-panel border border-border rounded-xl p-4">
-            <div class="text-[10px] uppercase tracking-wider text-muted">Total imóveis</div>
-            <div class="num text-2xl font-bold mt-2">412</div>
-            <div class="text-xs text-muted">apartamentos, casas e comerciais</div>
-          </div>
-          <div class="bg-panel border border-border rounded-xl p-4">
-            <div class="text-[10px] uppercase tracking-wider text-muted">Disponíveis</div>
-            <div class="num text-2xl font-bold mt-2 text-accent">381</div>
-            <div class="text-xs text-muted">92.5% do estoque</div>
-          </div>
-          <div class="bg-panel border border-border rounded-xl p-4">
-            <div class="text-[10px] uppercase tracking-wider text-muted">Em negociação</div>
-            <div class="num text-2xl font-bold mt-2 text-warn">23</div>
-            <div class="text-xs text-muted">ticket médio R$ 680k</div>
-          </div>
-          <div class="bg-panel border border-border rounded-xl p-4">
-            <div class="text-[10px] uppercase tracking-wider text-muted">Fechados (mês)</div>
-            <div class="num text-2xl font-bold mt-2 text-accent">11</div>
-            <div class="text-xs text-muted">+ R$84.5k receita</div>
-          </div>
+        <div class="card overflow-hidden">
+          <table>
+            <thead><tr><th>Lead</th><th>Fonte</th><th>Interesse</th><th>Score IA</th><th>Imobiliária</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr class="cursor-pointer" data-s="whatsapp"><td><div class="font-semibold">Marina Costa</div><div class="text-[11px] text-muted">(11) 98***-**21</div></td><td><span class="chip">WhatsApp</span></td><td>Apto 2dorm · Pinheiros · até R$ 850k</td><td><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">92 · Quente</span></td><td>Robotão Imóveis</td><td><span class="badge" style="background:rgb(var(--c-accent2)/.15);color:rgb(var(--c-accent2))">Em atendimento</span></td></tr>
+              <tr><td><div class="font-semibold">Rafael Lima</div><div class="text-[11px] text-muted">(11) 99***-**08</div></td><td><span class="chip">Portal ZAP</span></td><td>Casa 3dorm · Morumbi · até R$ 1,4M</td><td><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">87 · Quente</span></td><td>Paulista Prime</td><td><span class="badge" style="background:rgb(var(--c-accent2)/.15);color:rgb(var(--c-accent2))">Em atendimento</span></td></tr>
+              <tr><td><div class="font-semibold">Juliana Reis</div><div class="text-[11px] text-muted">(11) 97***-**44</div></td><td><span class="chip">Anúncio Meta</span></td><td>Apto 1dorm · Centro · locação</td><td><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">64 · Morno</span></td><td>Jardins Realty</td><td><span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">Qualificado</span></td></tr>
+              <tr><td><div class="font-semibold">Pedro Alves</div><div class="text-[11px] text-muted">(11) 96***-**73</div></td><td><span class="chip">WhatsApp</span></td><td>Cobertura · Jardins · até R$ 3M</td><td><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">95 · Quente</span></td><td>—</td><td><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Roteando...</span></td></tr>
+              <tr><td><div class="font-semibold">Camila Souza</div><div class="text-[11px] text-muted">(11) 95***-**12</div></td><td><span class="chip">Site</span></td><td>Apto 2dorm · Vila Mariana · até R$ 700k</td><td><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">58 · Morno</span></td><td>Vila Nova Negócios</td><td><span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">Qualificado</span></td></tr>
+              <tr><td><div class="font-semibold">Bruno Martins</div><div class="text-[11px] text-muted">(11) 94***-**90</div></td><td><span class="chip">Portal Viva</span></td><td>Galpão comercial · ABC · locação</td><td><span class="badge" style="background:rgb(var(--c-muted)/.2);color:rgb(var(--c-muted))">22 · Frio</span></td><td>—</td><td><span class="badge" style="background:rgb(var(--c-muted)/.15);color:rgb(var(--c-muted))">Descartado</span></td></tr>
+              <tr><td><div class="font-semibold">Letícia Gomes</div><div class="text-[11px] text-muted">(11) 93***-**56</div></td><td><span class="chip">WhatsApp</span></td><td>Apto 3dorm · Moema · até R$ 1,2M</td><td><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">89 · Quente</span></td><td>Robotão Imóveis</td><td><span class="badge" style="background:rgb(var(--c-accent2)/.15);color:rgb(var(--c-accent2))">Em atendimento</span></td></tr>
+            </tbody>
+          </table>
         </div>
+      </section>
 
-        <div class="grid grid-cols-3 gap-4">
-          <div class="bg-panel border border-border rounded-xl overflow-hidden card-hover">
-            <div class="h-40 bg-gradient-to-br from-accent/20 to-accent2/10 relative">
-              <div class="absolute top-3 left-3 chip text-accent border-accent/30">Apartamento</div>
-              <div class="absolute top-3 right-3 chip text-text">Itaim</div>
-              <div class="absolute bottom-3 left-3 text-[10px] text-text/70 font-mono">3D · 2vg · 110m²</div>
-            </div>
-            <div class="p-4">
-              <div class="flex items-center justify-between">
-                <div class="num text-lg font-bold">R$ 720k</div>
-                <span class="badge bg-accent/10 text-accent">match 94%</span>
-              </div>
-              <div class="text-xs text-muted mt-1">Rua Joaquim Floriano, 850</div>
-              <div class="flex items-center justify-between mt-3 pt-3 border-t border-border text-[11px]">
-                <span class="text-muted">Coelho & Andrade</span>
-                <span class="text-accent num">4 visitas</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-panel border border-border rounded-xl overflow-hidden card-hover">
-            <div class="h-40 bg-gradient-to-br from-accent2/20 to-accent/10 relative">
-              <div class="absolute top-3 left-3 chip text-accent border-accent/30">Apartamento</div>
-              <div class="absolute top-3 right-3 chip text-text">V.Olímpia</div>
-              <div class="absolute bottom-3 left-3 text-[10px] text-text/70 font-mono">3D · 2vg · 95m²</div>
-            </div>
-            <div class="p-4">
-              <div class="flex items-center justify-between">
-                <div class="num text-lg font-bold">R$ 680k</div>
-                <span class="badge bg-accent/10 text-accent">match 89%</span>
-              </div>
-              <div class="text-xs text-muted mt-1">Rua Olimpíadas, 142</div>
-              <div class="flex items-center justify-between mt-3 pt-3 border-t border-border text-[11px]">
-                <span class="text-muted">Paulista Living</span>
-                <span class="text-accent num">2 visitas</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-panel border border-border rounded-xl overflow-hidden card-hover">
-            <div class="h-40 bg-gradient-to-br from-warn/20 to-accent/10 relative">
-              <div class="absolute top-3 left-3 chip text-warn border-warn/30">Venda</div>
-              <div class="absolute top-3 right-3 chip text-text">Jardins</div>
-              <div class="absolute bottom-3 left-3 text-[10px] text-text/70 font-mono">4D · 3vg · 180m²</div>
-            </div>
-            <div class="p-4">
-              <div class="flex items-center justify-between">
-                <div class="num text-lg font-bold">R$ 1.45M</div>
-                <span class="badge bg-warn/10 text-warn">negociando</span>
-              </div>
-              <div class="text-xs text-muted mt-1">Alameda Casa Branca, 720</div>
-              <div class="flex items-center justify-between mt-3 pt-3 border-t border-border text-[11px]">
-                <span class="text-muted">Coelho & Andrade</span>
-                <span class="text-warn num">prop. R$1.39M</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-panel border border-border rounded-xl overflow-hidden card-hover">
-            <div class="h-40 bg-gradient-to-br from-accent/15 to-accent2/15 relative">
-              <div class="absolute top-3 left-3 chip text-accent border-accent/30">Apartamento</div>
-              <div class="absolute top-3 right-3 chip text-text">Consolação</div>
-              <div class="absolute bottom-3 left-3 text-[10px] text-text/70 font-mono">2D · 1vg · 75m²</div>
-            </div>
-            <div class="p-4">
-              <div class="flex items-center justify-between">
-                <div class="num text-lg font-bold">R$ 480k</div>
-                <span class="badge bg-accent/10 text-accent">disponível</span>
-              </div>
-              <div class="text-xs text-muted mt-1">Rua Maranhão, 312</div>
-              <div class="flex items-center justify-between mt-3 pt-3 border-t border-border text-[11px]">
-                <span class="text-muted">Urbe Imobiliária</span>
-                <span class="text-muted num">1 visita</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-panel border border-border rounded-xl overflow-hidden card-hover">
-            <div class="h-40 bg-gradient-to-br from-accent/20 to-warn/10 relative">
-              <div class="absolute top-3 left-3 chip text-accent border-accent/30">Apartamento</div>
-              <div class="absolute top-3 right-3 chip text-text">Bela Vista</div>
-              <div class="absolute bottom-3 left-3 text-[10px] text-text/70 font-mono">3D · 1vg · 88m²</div>
-            </div>
-            <div class="p-4">
-              <div class="flex items-center justify-between">
-                <div class="num text-lg font-bold">R$ 560k</div>
-                <span class="badge bg-accent/10 text-accent">match 86%</span>
-              </div>
-              <div class="text-xs text-muted mt-1">Av. Brigadeiro Luís Antônio, 1.840</div>
-              <div class="flex items-center justify-between mt-3 pt-3 border-t border-border text-[11px]">
-                <span class="text-muted">Paulista Living</span>
-                <span class="text-accent num">3 visitas</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-panel border border-border rounded-xl overflow-hidden card-hover">
-            <div class="h-40 bg-gradient-to-br from-warn/20 to-accent/10 relative">
-              <div class="absolute top-3 left-3 chip text-warn border-warn/30">Venda</div>
-              <div class="absolute top-3 right-3 chip text-text">Higienópolis</div>
-              <div class="absolute bottom-3 left-3 text-[10px] text-text/70 font-mono">3D · 2vg · 140m²</div>
-            </div>
-            <div class="p-4">
-              <div class="flex items-center justify-between">
-                <div class="num text-lg font-bold">R$ 780k</div>
-                <span class="badge bg-accent/10 text-accent">disponível</span>
-              </div>
-              <div class="text-xs text-muted mt-1">Rua Tinhorão, 215</div>
-              <div class="flex items-center justify-between mt-3 pt-3 border-t border-border text-[11px]">
-                <span class="text-muted">JS Negócios</span>
-                <span class="text-muted num">2 visitas</span>
-              </div>
-            </div>
-          </div>
+      <!-- ============ FUNIL ============ -->
+      <section id="funil" class="screen">
+        <div class="flex items-center justify-between mb-5">
+          <p class="text-sm text-muted">Funil padronizado pelo Hub · arraste os cards entre etapas</p>
+          <select class="px-4 py-2 rounded-lg bg-panel border border-border text-sm"><option>Todas as imobiliárias</option><option>Robotão Imóveis</option><option>Paulista Prime</option></select>
         </div>
-      </div>
-    </section>
-
-    <section class="screen" id="financeiro">
-      <header class="border-b border-border bg-panel/50 backdrop-blur sticky top-0 z-10">
-        <div class="px-8 py-5 flex items-center justify-between">
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
           <div>
-            <h1 class="text-xl font-bold tracking-tight">Financeiro</h1>
-            <div class="text-xs text-muted mt-1 font-mono">Receita · CAC · Projeção · PoC mês 2/4</div>
-          </div>
-          <button class="chip text-text">Período: novembro/26 ▾</button>
-        </div>
-      </header>
-      <div class="p-8 space-y-6">
-
-        <div class="grid grid-cols-4 gap-4">
-          <div class="bg-panel border border-border rounded-xl p-5 glow">
-            <div class="text-[11px] uppercase tracking-wider text-accent font-semibold">Receita acumulada</div>
-            <div class="num text-3xl font-bold text-accent mt-2">R$ 142.3k</div>
-            <div class="text-xs text-muted mt-1">desde início PoC</div>
-          </div>
-          <div class="bg-panel border border-border rounded-xl p-5">
-            <div class="text-[11px] uppercase tracking-wider text-muted font-semibold">Investido</div>
-            <div class="num text-3xl font-bold text-text mt-2">R$ 41.2k</div>
-            <div class="text-xs text-muted mt-1">52% do orçamento</div>
-          </div>
-          <div class="bg-panel border border-border rounded-xl p-5">
-            <div class="text-[11px] uppercase tracking-wider text-muted font-semibold">ROAS</div>
-            <div class="num text-3xl font-bold text-accent2 mt-2">3.45<span class="text-lg text-muted">x</span></div>
-            <div class="text-xs text-muted mt-1">retorno sobre investido</div>
-          </div>
-          <div class="bg-panel border border-border rounded-xl p-5">
-            <div class="text-[11px] uppercase tracking-wider text-muted font-semibold">Projeção 4 meses</div>
-            <div class="num text-3xl font-bold text-text mt-2">R$ 312k</div>
-            <div class="text-xs text-muted mt-1">cenário base</div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div class="bg-panel border border-border rounded-xl p-6">
-            <h3 class="font-bold mb-1">Receita por fonte</h3>
-            <p class="text-xs text-muted mb-5">Comissão HUB (50% do total)</p>
-            <div class="space-y-3 text-sm">
-              <div class="flex justify-between items-center pb-3 border-b border-border">
-                <div>
-                  <div>Apartamentos · 8 fechamentos</div>
-                  <div class="text-[10px] text-muted font-mono">ticket médio R$ 620k · 6% comissão</div>
-                </div>
-                <div class="num font-bold">R$ 148.8k</div>
-              </div>
-              <div class="flex justify-between items-center pb-3 border-b border-border">
-                <div>
-                  <div>Casas · 3 fechamentos</div>
-                  <div class="text-[10px] text-muted font-mono">ticket médio R$ 980k · 6% comissão</div>
-                </div>
-                <div class="num font-bold">R$ 88.2k</div>
-              </div>
-              <div class="flex justify-between items-center pb-3 border-b border-border">
-                <div>
-                  <div>Pipeline em fechamento</div>
-                  <div class="text-[10px] text-muted font-mono">8 propostas ativas</div>
-                </div>
-                <div class="num font-bold text-accent">+ R$78.3k esperado</div>
-              </div>
-              <div class="flex justify-between items-center pt-2 text-base">
-                <div class="font-bold">Receita HUB mês</div>
-                <div class="num font-bold text-accent">R$ 64.0k</div>
-              </div>
+            <div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Interesse</span><span class="num text-xs text-muted">48</span></div>
+            <div class="kcol p-2.5">
+              <div class="kcard"><div class="font-semibold text-[13px]">Marina Costa</div><div class="text-[11px] text-muted mt-1">Apto 2dorm · Pinheiros</div><div class="flex items-center justify-between mt-2"><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">R$ 850k</span><span class="text-[10px] text-muted">Robotão</span></div></div>
+              <div class="kcard"><div class="font-semibold text-[13px]">Letícia Gomes</div><div class="text-[11px] text-muted mt-1">Apto 3dorm · Moema</div><div class="flex items-center justify-between mt-2"><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">R$ 1,2M</span><span class="text-[10px] text-muted">Robotão</span></div></div>
             </div>
           </div>
-
-          <div class="bg-panel border border-border rounded-xl p-6">
-            <h3 class="font-bold mb-1">Distribuição de gastos</h3>
-            <p class="text-xs text-muted mb-5">Orçamento PoC R$80k</p>
-            <div class="space-y-3 text-sm">
-              <div>
-                <div class="flex justify-between mb-1.5"><span>Mídia paga</span><span class="num">R$ 18.4k / 32k</span></div>
-                <div class="h-1.5 bg-bg rounded-full overflow-hidden"><div class="h-full bg-accent" style="width:57%"></div></div>
-              </div>
-              <div>
-                <div class="flex justify-between mb-1.5"><span>Stack tech</span><span class="num">R$ 5.8k / 10k</span></div>
-                <div class="h-1.5 bg-bg rounded-full overflow-hidden"><div class="h-full bg-accent2" style="width:58%"></div></div>
-              </div>
-              <div>
-                <div class="flex justify-between mb-1.5"><span>Jurídico</span><span class="num">R$ 8.5k / 12k</span></div>
-                <div class="h-1.5 bg-bg rounded-full overflow-hidden"><div class="h-full bg-accent" style="width:71%"></div></div>
-              </div>
-              <div>
-                <div class="flex justify-between mb-1.5"><span>Operação humana</span><span class="num">R$ 6.0k / 12k</span></div>
-                <div class="h-1.5 bg-bg rounded-full overflow-hidden"><div class="h-full bg-warn" style="width:50%"></div></div>
-              </div>
-              <div>
-                <div class="flex justify-between mb-1.5"><span>IA / Prompts</span><span class="num">R$ 2.5k / 6k</span></div>
-                <div class="h-1.5 bg-bg rounded-full overflow-hidden"><div class="h-full bg-accent2" style="width:42%"></div></div>
-              </div>
-              <div>
-                <div class="flex justify-between mb-1.5"><span>B2B / Parceiros</span><span class="num">R$ 0 / 3k</span></div>
-                <div class="h-1.5 bg-bg rounded-full overflow-hidden"><div class="h-full bg-muted" style="width:0%"></div></div>
-              </div>
+          <div>
+            <div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Visita</span><span class="num text-xs text-muted">23</span></div>
+            <div class="kcol p-2.5">
+              <div class="kcard"><div class="font-semibold text-[13px]">Rafael Lima</div><div class="text-[11px] text-muted mt-1">Casa 3dorm · Morumbi</div><div class="flex items-center justify-between mt-2"><span class="badge" style="background:rgb(var(--c-accent2)/.15);color:rgb(var(--c-accent2))">R$ 1,4M</span><span class="text-[10px] text-muted">Paulista</span></div></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Proposta</span><span class="num text-xs text-muted">12</span></div>
+            <div class="kcol p-2.5">
+              <div class="kcard"><div class="font-semibold text-[13px]">Pedro Alves</div><div class="text-[11px] text-muted mt-1">Cobertura · Jardins</div><div class="flex items-center justify-between mt-2"><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">R$ 3M</span><span class="text-[10px] text-muted">Jardins R.</span></div></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Assinatura</span><span class="num text-xs text-muted">5</span></div>
+            <div class="kcol p-2.5">
+              <div class="kcard"><div class="font-semibold text-[13px]">Fernanda Dias</div><div class="text-[11px] text-muted mt-1">Apto 2dorm · Itaim</div><div class="flex items-center justify-between mt-2"><span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">D4Sign ⏳</span><span class="text-[10px] text-muted">Paulista</span></div></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide text-ok">Pós-venda</span><span class="num text-xs text-muted">31</span></div>
+            <div class="kcol p-2.5">
+              <div class="kcard" style="border-color:rgb(var(--c-ok)/.4)"><div class="font-semibold text-[13px]">Carlos Nunes</div><div class="text-[11px] text-muted mt-1">Casa · Alto de Pinheiros</div><div class="flex items-center justify-between mt-2"><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">✓ R$ 2,1M</span><span class="text-[10px] text-muted">Robotão</span></div></div>
             </div>
           </div>
         </div>
+      </section>
 
-        <div class="bg-panel border border-border rounded-xl p-6">
-          <div class="flex items-center justify-between mb-5">
-            <div>
-              <h3 class="font-bold">Curva de receita</h3>
-              <p class="text-xs text-muted mt-0.5">Acumulado por semana · 16 semanas PoC</p>
+      <!-- ============ WHATSAPP AUDITORIA ============ -->
+      <section id="whatsapp" class="screen">
+        <div class="grid lg:grid-cols-3 gap-4">
+          <!-- lista conversas -->
+          <div class="card overflow-hidden">
+            <div class="p-4 border-b border-border flex items-center justify-between">
+              <span class="text-sm font-bold">Conversas monitoradas</span>
+              <span class="badge flag">2 alertas</span>
+            </div>
+            <div class="divide-y divide-border max-h-[560px] overflow-y-auto scrollbar">
+              <div class="p-4 bg-panel2 cursor-pointer border-l-2 border-accent">
+                <div class="flex justify-between items-center"><span class="font-semibold text-sm">Marina Costa</span><span class="text-[10px] text-muted">14:32</span></div>
+                <div class="text-[11px] text-muted mt-1">Robotão Imóveis · IA ativa</div>
+                <div class="text-[12px] mt-1.5 truncate">Perfeito! Vou agendar a visita...</div>
+              </div>
+              <div class="p-4 cursor-pointer">
+                <div class="flex justify-between items-center"><span class="font-semibold text-sm">Rafael Lima</span><span class="text-[10px] text-muted">13:08</span></div>
+                <div class="text-[11px] text-muted mt-1">Paulista Prime · Corretor</div>
+                <div class="text-[12px] mt-1.5 truncate flag inline-block px-2 py-0.5 rounded">⚠ Tentativa de contato externo</div>
+              </div>
+              <div class="p-4 cursor-pointer">
+                <div class="flex justify-between items-center"><span class="font-semibold text-sm">Pedro Alves</span><span class="text-[10px] text-muted">11:45</span></div>
+                <div class="text-[11px] text-muted mt-1">Jardins Realty · Corretor</div>
+                <div class="text-[12px] mt-1.5 truncate">Vou te enviar a proposta hoje</div>
+              </div>
+              <div class="p-4 cursor-pointer">
+                <div class="flex justify-between items-center"><span class="font-semibold text-sm">Juliana Reis</span><span class="text-[10px] text-muted">10:20</span></div>
+                <div class="text-[11px] text-muted mt-1">Vila Nova · IA ativa</div>
+                <div class="text-[12px] mt-1.5 truncate flag inline-block px-2 py-0.5 rounded">⚠ "me chama no zap pessoal"</div>
+              </div>
             </div>
           </div>
-          <svg viewBox="0 0 800 200" class="w-full h-48">
-            <defs>
-              <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#003B5C" stop-opacity="0.3"/>
-                <stop offset="100%" stop-color="#003B5C" stop-opacity="0"/>
-              </linearGradient>
-            </defs>
-            <line x1="0" y1="50" x2="800" y2="50" stroke="#e3e8ef" stroke-dasharray="2,4"/>
-            <line x1="0" y1="100" x2="800" y2="100" stroke="#e3e8ef" stroke-dasharray="2,4"/>
-            <line x1="0" y1="150" x2="800" y2="150" stroke="#e3e8ef" stroke-dasharray="2,4"/>
-            <path d="M0,190 L50,188 L100,180 L150,170 L200,150 L250,135 L300,115 L350,95" fill="url(#revGrad)"/>
-            <path d="M0,190 L50,188 L100,180 L150,170 L200,150 L250,135 L300,115 L350,95" stroke="#003B5C" stroke-width="2" fill="none"/>
-            <path d="M350,95 L400,80 L450,68 L500,58 L550,48 L600,40 L650,32 L700,25 L750,18 L800,12" stroke="#003B5C" stroke-width="2" fill="none" stroke-dasharray="4,4" opacity="0.5"/>
-            <line x1="0" y1="60" x2="800" y2="60" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.7"/>
-            <text x="780" y="55" fill="#f59e0b" font-size="10" font-family="monospace" text-anchor="end">meta R$250k</text>
-            <line x1="350" y1="0" x2="350" y2="200" stroke="#0077b6" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.6"/>
-            <text x="355" y="15" fill="#0077b6" font-size="10" font-family="monospace">agora · sem 7</text>
-          </svg>
-          <div class="flex justify-between text-[10px] text-muted font-mono mt-2">
-            <span>sem 1</span><span>sem 4</span><span>sem 8</span><span>sem 12</span><span>sem 16</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="screen" id="ia">
-      <header class="border-b border-border bg-panel/50 backdrop-blur sticky top-0 z-10">
-        <div class="px-8 py-5">
-          <h1 class="text-xl font-bold tracking-tight">Configuração da IA</h1>
-          <div class="text-xs text-muted mt-1 font-mono">Maestra · qualificação + matching · v2.4</div>
-        </div>
-      </header>
-      <div class="p-8 grid grid-cols-3 gap-6">
-
-        <div class="col-span-2 bg-panel border border-border rounded-xl p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold">Árvore de qualificação</h3>
-            <span class="chip text-accent border-accent/30">Ativo</span>
-          </div>
-          <div class="space-y-3">
-            <div class="bg-bg border border-border rounded-lg p-4">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                  <span class="num text-[10px] text-accent">01</span>
-                  <span class="font-semibold text-sm">Tipo de imóvel · apto, casa ou comercial</span>
-                </div>
-                <span class="badge bg-accent/10 text-accent">obrigatório</span>
-              </div>
-              <div class="text-xs text-muted">Identifica modalidade. Sem isso, lead não progride.</div>
+          <!-- chat -->
+          <div class="card lg:col-span-2 flex flex-col" style="max-height:620px">
+            <div class="p-4 border-b border-border flex items-center justify-between">
+              <div><div class="font-bold text-sm">Marina Costa ↔ Robotão Imóveis</div><div class="text-[11px] text-muted flex items-center gap-1.5 mt-0.5"><span class="pulse"></span>IA conduzindo · janela 24h ativa</div></div>
+              <div class="flex gap-2"><span class="chip">Assumir conversa</span><span class="chip" style="color:rgb(var(--c-accent2))">Auditar</span></div>
             </div>
-            <div class="bg-bg border border-border rounded-lg p-4">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                  <span class="num text-[10px] text-accent">02</span>
-                  <span class="font-semibold text-sm">Orçamento · faixa de preço</span>
-                </div>
-                <span class="badge bg-accent/10 text-accent">peso 25</span>
-              </div>
-              <div class="text-xs text-muted">Faixa numérica clara. Valor total da compra ou faixa de financiamento desejada.</div>
+            <div class="flex-1 overflow-y-auto scrollbar p-5 space-y-3 bg-panel2">
+              <div class="conv-b conv-lead">Oi, vi o apê de 2 dormitórios em Pinheiros. Ainda está disponível?</div>
+              <div class="conv-b conv-ia">Olá, Marina! 😊 Sim, está disponível. É um 2 dormitórios de 68m² na Rua dos Pinheiros, R$ 845.000. Você procura para morar ou investir?</div>
+              <div class="conv-b conv-lead">Para morar. Tenho uma entrada de uns 200 mil.</div>
+              <div class="conv-b conv-ia">Ótimo! Com essa entrada, o financiamento fica bem tranquilo. Você prefere visitar nesta semana? Tenho horários quinta e sábado.</div>
+              <div class="conv-b conv-lead">Sábado de manhã seria perfeito.</div>
+              <div class="conv-b conv-ia">Perfeito! Vou agendar a visita para sábado às 10h e já transferir você para o corretor responsável, o Marcelo. Ele confirma os detalhes. 🏡</div>
+              <div class="text-center"><span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">→ Lead qualificado (score 92) e roteado para Robotão Imóveis</span></div>
             </div>
-            <div class="bg-bg border border-border rounded-lg p-4">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                  <span class="num text-[10px] text-accent">03</span>
-                  <span class="font-semibold text-sm">Urgência · prazo de decisão</span>
-                </div>
-                <span class="badge bg-accent/10 text-accent">peso 22</span>
-              </div>
-              <div class="text-xs text-muted">≤ 30d = alta · 30-90d = média · &gt; 90d = baixa</div>
-            </div>
-            <div class="bg-bg border border-border rounded-lg p-4">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                  <span class="num text-[10px] text-accent">04</span>
-                  <span class="font-semibold text-sm">Autoridade · decisor</span>
-                </div>
-                <span class="badge bg-accent/10 text-accent">peso 18</span>
-              </div>
-              <div class="text-xs text-muted">Decide sozinho · com cônjuge · precisa terceiros</div>
-            </div>
-            <div class="bg-bg border border-border rounded-lg p-4">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                  <span class="num text-[10px] text-accent">05</span>
-                  <span class="font-semibold text-sm">Necessidade · especificidade</span>
-                </div>
-                <span class="badge bg-accent/10 text-accent">peso 15</span>
-              </div>
-              <div class="text-xs text-muted">Dorms, vagas, região, pets, características essenciais</div>
-            </div>
-            <div class="bg-bg border border-border rounded-lg p-4">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                  <span class="num text-[10px] text-accent">06</span>
-                  <span class="font-semibold text-sm">Forma de pagamento</span>
-                </div>
-                <span class="badge bg-accent/10 text-accent">peso 11</span>
-              </div>
-              <div class="text-xs text-muted">À vista, financiado (Caixa, Itaú, Bradesco), consórcio. FGTS aceito.</div>
-            </div>
-          </div>
-
-          <div class="mt-6 pt-4 border-t border-border">
-            <div class="text-[10px] uppercase tracking-wider text-muted mb-2">Regra de roteamento</div>
-            <div class="bg-bg rounded-lg p-3 font-mono text-xs text-text/80">
-              <div><span class="text-accent">if</span> score &gt;= 75 <span class="text-accent">→</span> envia 3 imóveis automaticamente</div>
-              <div><span class="text-accent">if</span> score 50-74 <span class="text-accent">→</span> humano confirma envio</div>
-              <div><span class="text-accent">if</span> score 30-49 <span class="text-accent">→</span> nurturing + retry 48h</div>
-              <div><span class="text-accent">if</span> score &lt; 30 <span class="text-accent">→</span> descartado · feedback Meta</div>
+            <div class="p-3 border-t border-border flex items-center gap-2">
+              <input placeholder="Modo auditoria — somente leitura" disabled class="flex-1 px-4 py-2.5 rounded-full bg-panel2 border border-border text-sm">
+              <span class="text-[11px] text-muted">🔒 Hub monitora · não interfere</span>
             </div>
           </div>
         </div>
+      </section>
 
-        <div class="space-y-4">
-          <div class="bg-panel border border-border rounded-xl p-5">
-            <h4 class="text-[10px] uppercase tracking-wider text-muted font-semibold mb-3">Modelo</h4>
-            <div class="text-sm font-bold">Claude Sonnet 4.6</div>
-            <div class="text-xs text-muted mt-1 font-mono">claude-sonnet-4-6</div>
-            <div class="mt-3 pt-3 border-t border-border text-xs space-y-1.5">
-              <div class="flex justify-between"><span class="text-muted">Temp.</span><span class="num">0.3</span></div>
-              <div class="flex justify-between"><span class="text-muted">Max tokens</span><span class="num">800</span></div>
-              <div class="flex justify-between"><span class="text-muted">Custo médio</span><span class="num">R$0.32/conv</span></div>
+      <!-- ============ IMÓVEIS ============ -->
+      <section id="imoveis" class="screen">
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex gap-2">
+            <span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todos · 902</span>
+            <span class="chip">Venda</span><span class="chip">Locação</span><span class="chip">Disponíveis</span>
+          </div>
+          <input placeholder="Buscar por código, região..." class="px-4 py-2 rounded-lg bg-panel border border-border text-sm w-64">
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="card card-h overflow-hidden">
+            <div class="h-36 bg-gradient-to-br from-accent/20 to-accent2/20 flex items-center justify-center text-muted text-xs">📷 Foto do imóvel</div>
+            <div class="p-4">
+              <div class="flex items-center justify-between"><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Disponível</span><span class="text-[11px] text-muted">#RB-3120</span></div>
+              <div class="font-bold text-sm mt-2">Apto 2 dorm · Pinheiros</div>
+              <div class="text-[12px] text-muted">68m² · 1 vaga · Robotão Imóveis</div>
+              <div class="num text-lg text-accent mt-2">R$ 845.000</div>
             </div>
           </div>
-
-          <div class="bg-panel border border-border rounded-xl p-5">
-            <h4 class="text-[10px] uppercase tracking-wider text-muted font-semibold mb-3">Guardrails</h4>
-            <div class="space-y-2 text-xs">
-              <div class="flex items-center gap-2"><span class="text-accent">✓</span> Não dá valor final de imóvel sem cadastro</div>
-              <div class="flex items-center gap-2"><span class="text-accent">✓</span> Não promete data sem ficha de visita</div>
-              <div class="flex items-center gap-2"><span class="text-accent">✓</span> Não negocia preço</div>
-              <div class="flex items-center gap-2"><span class="text-accent">✓</span> Escala p/ humano em &gt;3 perguntas técnicas</div>
-              <div class="flex items-center gap-2"><span class="text-accent">✓</span> LGPD: pede consent. de dados pessoais</div>
+          <div class="card card-h overflow-hidden">
+            <div class="h-36 bg-gradient-to-br from-accent2/20 to-accent/20 flex items-center justify-center text-muted text-xs">📷 Foto do imóvel</div>
+            <div class="p-4">
+              <div class="flex items-center justify-between"><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Reservado</span><span class="text-[11px] text-muted">#PP-0871</span></div>
+              <div class="font-bold text-sm mt-2">Casa 3 dorm · Morumbi</div>
+              <div class="text-[12px] text-muted">220m² · 4 vagas · Paulista Prime</div>
+              <div class="num text-lg text-accent mt-2">R$ 1.420.000</div>
             </div>
           </div>
-
-          <div class="bg-panel border border-border rounded-xl p-5">
-            <h4 class="text-[10px] uppercase tracking-wider text-muted font-semibold mb-3">A/B test ativo</h4>
-            <div class="space-y-2 text-xs">
-              <div class="bg-bg rounded p-2">
-                <div class="flex justify-between"><span>Var A · formal</span><span class="num text-text">38% conv</span></div>
-              </div>
-              <div class="bg-bg rounded p-2 border border-accent/30">
-                <div class="flex justify-between"><span class="text-accent">Var B · informal ✓</span><span class="num text-accent">44% conv</span></div>
-              </div>
+          <div class="card card-h overflow-hidden">
+            <div class="h-36 bg-gradient-to-br from-accent/20 to-accent2/20 flex items-center justify-center text-muted text-xs">📷 Foto do imóvel</div>
+            <div class="p-4">
+              <div class="flex items-center justify-between"><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Disponível</span><span class="text-[11px] text-muted">#JR-2044</span></div>
+              <div class="font-bold text-sm mt-2">Cobertura · Jardins</div>
+              <div class="text-[12px] text-muted">310m² · 5 vagas · Jardins Realty</div>
+              <div class="num text-lg text-accent mt-2">R$ 3.050.000</div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+        <div class="card p-4 mt-4 flex items-center gap-3 text-[13px]" style="background:rgb(var(--c-accent2)/.06)">
+          <span class="badge" style="background:rgb(var(--c-accent2)/.15);color:rgb(var(--c-accent2))">Cross-imobiliária</span>
+          <span class="text-muted">Imóveis podem ser compartilhados entre parceiras para permutas e indicações — comissão dividida pelo Hub.</span>
+        </div>
+      </section>
 
+      <!-- ============ RELATÓRIOS ============ -->
+      <section id="relatorios" class="screen">
+        <div class="grid lg:grid-cols-2 gap-4 mb-4">
+          <div class="card p-6">
+            <h3 class="text-sm font-bold mb-4">Receita do Hub · últimos 6 meses</h3>
+            <div class="flex items-end gap-2 h-44">
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-accent/30" style="height:40%"></div><span class="text-[10px] text-muted">Jan</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-accent/45" style="height:55%"></div><span class="text-[10px] text-muted">Fev</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-accent/60" style="height:62%"></div><span class="text-[10px] text-muted">Mar</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-accent/75" style="height:78%"></div><span class="text-[10px] text-muted">Abr</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-accent/90" style="height:88%"></div><span class="text-[10px] text-muted">Mai</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-accent" style="height:100%"></div><span class="text-[10px] text-muted">Jun</span></div>
+            </div>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-sm font-bold mb-4">Relatório dinâmico <span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">vs. Imobzi engessado</span></h3>
+            <div class="space-y-3 text-[13px]">
+              <select class="w-full px-3 py-2.5 rounded-lg bg-panel2 border border-border"><option>Por imobiliária</option><option>Por região</option><option>Por fonte de lead</option><option>Por corretor</option></select>
+              <select class="w-full px-3 py-2.5 rounded-lg bg-panel2 border border-border"><option>Faixa: R$ 800k – R$ 1,5M</option><option>Alto padrão (R$ 1,5M+)</option></select>
+              <button class="w-full px-4 py-2.5 rounded-lg bg-accent text-white font-semibold text-sm">Gerar relatório (instantâneo)</button>
+              <p class="text-[11px] text-muted">No Imobzi era preciso solicitar à equipe. No Hub o gestor monta sozinho.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card p-6">
+          <h3 class="text-sm font-bold mb-4">Custo de WhatsApp por categoria · junho</h3>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+            <div><div class="num text-2xl text-ok">Grátis</div><div class="text-[11px] text-muted mt-1">Service (janela 24h) · 8.412 msgs</div></div>
+            <div><div class="num text-2xl">R$ 184</div><div class="text-[11px] text-muted mt-1">Utility · 2.300 msgs</div></div>
+            <div><div class="num text-2xl">R$ 0</div><div class="text-[11px] text-muted mt-1">Marketing · desativado</div></div>
+            <div><div class="num text-2xl text-accent">R$ 184</div><div class="text-[11px] text-muted mt-1">Total · teto R$ 500</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ AGENDA ============ -->
+      <section id="agenda" class="screen">
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex gap-2"><span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Semana</span><span class="chip">Hoje · 8</span><span class="chip">Visitas</span><span class="chip">Tarefas</span></div>
+          <select class="px-4 py-2 rounded-lg bg-panel border border-border text-sm"><option>Todas as imobiliárias</option><option>Robotão Imóveis</option></select>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-4">
+          <div class="card p-6">
+            <h3 class="text-sm font-bold mb-4">Hoje · 16 jun</h3>
+            <div class="space-y-3 text-[13px]">
+              <div class="flex gap-3 p-3 rounded-lg bg-panel2 border border-border"><div class="num text-accent font-bold">10:00</div><div><div class="font-semibold">Visita · Apto Pinheiros</div><div class="text-[11px] text-muted">Marina Costa · Robotão · corretor Marcelo</div></div></div>
+              <div class="flex gap-3 p-3 rounded-lg bg-panel2 border border-border"><div class="num text-accent font-bold">14:30</div><div><div class="font-semibold">Proposta · Cobertura Jardins</div><div class="text-[11px] text-muted">Pedro Alves · Jardins Realty</div></div></div>
+              <div class="flex gap-3 p-3 rounded-lg bg-panel2 border border-border"><div class="num text-accent font-bold">17:00</div><div><div class="font-semibold">Retorno · lead morno</div><div class="text-[11px] text-muted">Camila Souza · Vila Nova</div></div></div>
+            </div>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-sm font-bold mb-4">Próximos dias</h3>
+            <div class="space-y-3 text-[13px]">
+              <div class="flex gap-3 p-3 rounded-lg bg-panel2 border border-border"><div class="num text-muted font-bold text-center" style="min-width:42px"><div>17</div><div class="text-[9px]">QUA</div></div><div><div class="font-semibold">Assinatura D4Sign · Apto Itaim</div><div class="text-[11px] text-muted">Fernanda Dias · Paulista Prime</div></div></div>
+              <div class="flex gap-3 p-3 rounded-lg bg-panel2 border border-border"><div class="num text-muted font-bold text-center" style="min-width:42px"><div>18</div><div class="text-[9px]">QUI</div></div><div><div class="font-semibold">Visita · Casa Morumbi</div><div class="text-[11px] text-muted">Rafael Lima · Paulista Prime</div></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ E-MAILS ============ -->
+      <section id="emails" class="screen">
+        <div class="card overflow-hidden">
+          <div class="p-4 border-b border-border flex items-center justify-between">
+            <span class="text-sm font-bold">Caixa do Hub · admin.ailogichub@gmail.com</span>
+            <span class="chip">3 não lidos</span>
+          </div>
+          <div class="divide-y divide-border">
+            <div class="p-4 flex items-center gap-4 hover:bg-panel2 cursor-pointer"><span class="pulse"></span><div class="flex-1"><div class="font-semibold text-sm">Robotão Imóveis</div><div class="text-[12px] text-muted truncate">Confirmação da visita de sábado — Marina Costa</div></div><span class="text-[11px] text-muted">14:20</span></div>
+            <div class="p-4 flex items-center gap-4 hover:bg-panel2 cursor-pointer"><span class="w-1.5 h-1.5 rounded-full bg-accent2 inline-block"></span><div class="flex-1"><div class="font-semibold text-sm">D4Sign</div><div class="text-[12px] text-muted truncate">Documento assinado por todos os signatários — Apto Itaim</div></div><span class="text-[11px] text-muted">11:05</span></div>
+            <div class="p-4 flex items-center gap-4 hover:bg-panel2 cursor-pointer"><span class="w-1.5 h-1.5 rounded-full bg-accent2 inline-block"></span><div class="flex-1"><div class="font-semibold text-sm">Google Ads</div><div class="text-[12px] text-muted truncate">Relatório semanal de campanhas — 241 leads</div></div><span class="text-[11px] text-muted">09:30</span></div>
+            <div class="p-4 flex items-center gap-4 hover:bg-panel2 cursor-pointer opacity-60"><span class="w-1.5 h-1.5 inline-block"></span><div class="flex-1"><div class="font-semibold text-sm">Paulista Prime</div><div class="text-[12px] text-muted truncate">Dúvida sobre comissão — plano fixo vs %</div></div><span class="text-[11px] text-muted">ontem</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ASSINATURAS E DOCUMENTOS ============ -->
+      <section id="assinaturas" class="screen">
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex gap-2"><span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todos</span><span class="chip">Pendentes · 4</span><span class="chip">Concluídos</span></div>
+          <span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Integração D4Sign · Fase 2</span>
+        </div>
+        <div class="card overflow-hidden">
+          <table>
+            <thead><tr><th>Documento</th><th>Negócio</th><th>Imobiliária</th><th>Signatários</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="font-semibold">Contrato de compra e venda</td><td>Apto Itaim · R$ 980k</td><td>Paulista Prime</td><td>2 de 3 assinaram</td><td><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">⏳ Aguardando</span></td></tr>
+              <tr><td class="font-semibold">Proposta de locação</td><td>Apto Centro · loc.</td><td>Jardins Realty</td><td>1 de 2 assinaram</td><td><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">⏳ Aguardando</span></td></tr>
+              <tr><td class="font-semibold">Contrato de compra e venda</td><td>Casa Alto Pinheiros · R$ 2,1M</td><td>Robotão Imóveis</td><td>3 de 3 assinaram</td><td><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">✓ Concluído</span></td></tr>
+              <tr><td class="font-semibold">Autorização de venda</td><td>Cobertura Jardins · R$ 3M</td><td>Jardins Realty</td><td>0 de 2 assinaram</td><td><span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">Enviado</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ ANÚNCIOS E RODÍZIOS (Fase 2) ============ -->
+      <section id="anuncios" class="screen">
+        <div class="card p-4 mb-4 flex items-center gap-3 text-[13px]" style="background:rgb(var(--c-warn)/.08)">
+          <span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Fase 2</span>
+          <span class="text-muted">Lógica modelada desde já — distribuição de leads e gestão de anúncios pagos por imobiliária. Ativação na Fase 2.</span>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-4">
+          <div class="card p-6">
+            <h3 class="text-sm font-bold mb-4">Regra de distribuição (rodízio)</h3>
+            <div class="space-y-3 text-[13px]">
+              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span>Lead → imobiliária dona do imóvel</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Ativo</span></div>
+              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span>SLA de aceite</span><span class="num">15 min</span></div>
+              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span>Reatribuição se não aceitar</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Ativo</span></div>
+              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border opacity-60"><span>Rodízio interno entre corretores</span><span class="badge" style="background:rgb(var(--c-muted)/.15);color:rgb(var(--c-muted))">Imobiliária decide</span></div>
+            </div>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-sm font-bold mb-4">Anúncios pagos · custo por canal</h3>
+            <div class="space-y-3 text-[13px]">
+              <div class="flex items-center justify-between"><span>Google Ads</span><span class="num">R$ 4.200 · 241 leads</span></div>
+              <div class="h-1.5 rounded bg-accent" style="width:70%"></div>
+              <div class="flex items-center justify-between"><span>Meta Ads</span><span class="num">R$ 2.800 · 156 leads</span></div>
+              <div class="h-1.5 rounded bg-accent2" style="width:48%"></div>
+              <div class="flex items-center justify-between"><span>Portais (impulsionar)</span><span class="num">R$ 1.500 · 89 leads</span></div>
+              <div class="h-1.5 rounded bg-warn" style="width:30%"></div>
+              <div class="pt-2 mt-2 border-t border-border flex justify-between font-semibold"><span>CAC médio</span><span class="num text-accent">R$ 17,30 / lead</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CONFIG IA ============ -->
+      <section id="config" class="screen">
+        <div class="grid lg:grid-cols-2 gap-4">
+          <div class="card p-6">
+            <h3 class="text-sm font-bold mb-4">Agente de IA · qualificação</h3>
+            <div class="space-y-4 text-[13px]">
+              <div><label class="block text-xs font-bold mb-1.5">Modelo</label><select class="w-full px-3 py-2.5 rounded-lg bg-panel2 border border-border"><option>IA Logic Hub (padrão)</option></select></div>
+              <div><label class="block text-xs font-bold mb-1.5">Persona / tom de voz</label><textarea class="w-full px-3 py-2.5 rounded-lg bg-panel2 border border-border" rows="3">Atendente cordial e ágil. Qualifica intenção (compra/locação), tipo de imóvel, região, faixa de preço e prazo. Nunca passa contato externo.</textarea></div>
+              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span>Detecção anti-burla (modelo Uber)</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Ativo</span></div>
+              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span>Handoff automático para corretor</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Ativo</span></div>
+            </div>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-sm font-bold mb-4">Integrações</h3>
+            <div class="space-y-3 text-[13px]">
+              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span class="font-semibold">WhatsApp · +55 (11) 9 3623-8387</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Conectado</span></div>
+              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span class="font-semibold">Portais (ZAP / VivaReal / OLX)</span><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Fase 2</span></div>
+              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span class="font-semibold">D4Sign · assinatura eletrônica</span><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Fase 2</span></div>
+              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span class="font-semibold">Open Finance · Pix recorrente</span><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Fase 2</span></div>
+              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span class="font-semibold">Google · admin.ailogichub</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Conectado</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
   </main>
 </div>
 
-<!-- Maestra Agent (floating) -->
-<button class="agent-fab" id="agentFab" aria-label="Abrir Maestra Agent">
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="3" y="11" width="18" height="10" rx="2"/>
-    <circle cx="12" cy="5" r="2"/>
-    <path d="M12 7v4"/>
-    <line x1="8" y1="16" x2="8" y2="16"/>
-    <line x1="16" y1="16" x2="16" y2="16"/>
-  </svg>
-  <span class="badge-dot"></span>
-</button>
-
-<div class="agent-panel" id="agentPanel" role="dialog" aria-label="Maestra Agent">
-  <div class="agent-header">
-    <div class="agent-avatar">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>
-    </div>
-    <div>
-      <div class="agent-name">Maestra Agent</div>
-      <div class="agent-status"><span class="dot"></span> Online · acesso total ao HUB</div>
-    </div>
-    <div class="agent-header-actions">
-      <button class="agent-icon-btn" id="agentClear" title="Limpar conversa" aria-label="Limpar">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-      </button>
-      <button class="agent-icon-btn" id="agentClose" title="Fechar" aria-label="Fechar">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
-      </button>
-    </div>
-  </div>
-
-  <div class="agent-body" id="agentBody"></div>
-
-  <div class="suggest-chips" id="suggestChips">
-    <button class="suggest-chip" data-q="Quantos leads ativos hoje?">Quantos leads ativos?</button>
-    <button class="suggest-chip" data-q="Qual a receita do mês?">Receita do mês</button>
-    <button class="suggest-chip" data-q="Quem é o top parceiro?">Top parceiro</button>
-    <button class="suggest-chip" data-q="Como está o funil de conversão?">Status do funil</button>
-    <button class="suggest-chip" data-q="Qual o lead com maior score?">Maior score</button>
-    <button class="suggest-chip" data-q="Quantos imóveis disponíveis?">Estoque disponível</button>
-  </div>
-
-  <form class="agent-input" id="agentForm">
-    <input id="agentInput" type="text" placeholder="Pergunte qualquer coisa sobre o HUB..." autocomplete="off">
-    <button type="submit" id="agentSend" aria-label="Enviar">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-    </button>
-  </form>
-
-  <div class="agent-footer">
-    powered by <strong>© Brava Company</strong> · agent v1.2
-  </div>
-</div>
-
-<!-- Support modal -->
-<div class="modal-backdrop" id="supportModal" role="dialog" aria-modal="true" aria-labelledby="supportTitle">
-  <div class="modal">
-    <div class="modal-header">
-      <div>
-        <h2 id="supportTitle">Abrir chamado</h2>
-        <p>Solicite ajuste, melhoria ou nova funcionalidade. Encaminhado direto pra equipe © Brava Company.</p>
-      </div>
-      <button class="modal-close" id="supportClose" aria-label="Fechar">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
-      </button>
-    </div>
-    <div class="modal-body">
-      <div class="success-msg" id="successMsg"></div>
-
-      <form id="supportForm">
-        <div class="field-group">
-          <label>Tipo de solicitação</label>
-          <div class="chip-group" id="typeChips">
-            <button type="button" class="chip-opt selected" data-type="ajuste">Ajuste</button>
-            <button type="button" class="chip-opt" data-type="bug">Bug</button>
-            <button type="button" class="chip-opt" data-type="feature">Nova funcionalidade</button>
-            <button type="button" class="chip-opt" data-type="melhoria">Melhoria UX</button>
-            <button type="button" class="chip-opt" data-type="outro">Outro</button>
-          </div>
-        </div>
-
-        <div class="field-group">
-          <label>Prioridade</label>
-          <div class="chip-group" id="prioChips">
-            <button type="button" class="chip-opt" data-prio="baixa">Baixa</button>
-            <button type="button" class="chip-opt selected" data-prio="media">Média</button>
-            <button type="button" class="chip-opt" data-prio="alta">Alta</button>
-            <button type="button" class="chip-opt" data-prio="urgente">Urgente</button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div class="field-group">
-            <label for="ticketModule">Módulo afetado</label>
-            <select id="ticketModule">
-              <option value="dashboard">Visão Geral</option>
-              <option value="funil">Funil</option>
-              <option value="leads">Leads</option>
-              <option value="lead-detail">Conversa IA</option>
-              <option value="parceiros">Parceiros</option>
-              <option value="estoque">Estoque</option>
-              <option value="financeiro">Financeiro</option>
-              <option value="ia">Config IA</option>
-              <option value="geral">Geral · plataforma</option>
-            </select>
-          </div>
-          <div class="field-group">
-            <label for="ticketContact">Contato preferencial</label>
-            <select id="ticketContact">
-              <option value="email">E-mail</option>
-              <option value="whatsapp">WhatsApp</option>
-              <option value="call">Reunião curta</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field-group">
-          <label for="ticketTitle">Título do chamado</label>
-          <input id="ticketTitle" type="text" required placeholder="Ex: Filtro por origem no Kanban do Funil" maxlength="120">
-        </div>
-
-        <div class="field-group">
-          <label for="ticketDesc">Descrição</label>
-          <textarea id="ticketDesc" required placeholder="Descreva o comportamento atual, o esperado e o contexto de negócio. Anexe prints/links se possível." maxlength="2000"></textarea>
-        </div>
-
-        <div class="flex items-center justify-between pt-1">
-          <div class="text-[11px]" style="color: rgb(var(--c-muted));">
-            SLA Brava: <strong style="color: rgb(var(--c-text));">1 dia útil</strong> · resposta inicial
-          </div>
-          <button type="submit" class="btn-submit" id="submitTicket">Enviar chamado →</button>
-        </div>
-      </form>
-    </div>
-
-    <div class="modal-footer">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-[11px] font-bold uppercase tracking-wider" style="color: rgb(var(--c-muted));">Chamados recentes</span>
-        <a href="#" class="text-[11px] font-semibold" style="color: rgb(var(--c-accent2));">Ver todos →</a>
-      </div>
-      <div id="ticketList"></div>
-    </div>
-  </div>
-</div>
-
 <script>
-function decorateAnimations() {
-  document.querySelectorAll('.screen').forEach(screen => {
-    const content = screen.querySelector('[class*="p-8"]');
-    if (!content) return;
-    Array.from(content.children).forEach(child => {
-      if (child.classList.contains('grid')) child.classList.add('fx-grid');
-      else if (child.classList.contains('flex') && Array.from(child.classList).some(c => c.startsWith('gap-'))) child.classList.add('fx-grid');
-    });
-    // marca colunas do kanban (filhas diretas do flex container)
-    const kanban = content.querySelector('.flex.fx-grid');
-    if (kanban) {
-      kanban.querySelectorAll(':scope > div > .space-y-2').forEach(s => s.classList.add('fx-stack'));
-    }
-    // stacks comuns dentro da tela
-    content.querySelectorAll('.space-y-3, .space-y-4, .space-y-2\\.5').forEach(s => {
-      if (!s.classList.contains('fx-grid')) s.classList.add('fx-stack');
-    });
-  });
-  const tbody = document.querySelector('#leads tbody');
-  if (tbody) tbody.classList.add('fx-rows');
-  document.querySelectorAll('#dashboard [class*="h-9"][class*="rounded-md"][class*="overflow-hidden"]').forEach(t => t.classList.add('funil-track'));
-}
-
-function restartAnimations(screen) {
-  const sel = '.fx-grid > *, .fx-stack > *, .fx-rows tr, .funil-track > div';
-  screen.querySelectorAll(sel).forEach(el => {
-    el.style.animation = 'none';
-    void el.offsetWidth;
-    el.style.animation = '';
-  });
-  const header = screen.querySelector(':scope > header');
-  if (header) {
-    header.style.animation = 'none';
-    void header.offsetWidth;
-    header.style.animation = '';
+  const titles = {
+    dashboard:['Visão Geral','Operação consolidada de todas as imobiliárias parceiras'],
+    imobiliarias:['Imobiliárias','Rede de parceiras do Hub · entidade central'],
+    leads:['Leads','Captação multi-fonte e roteamento automático'],
+    funil:['Funil de Negócios','Pipeline padronizado pelo Hub'],
+    agenda:['Agenda','Visitas e tarefas dos corretores'],
+    whatsapp:['WhatsApp · Auditoria','Monitoramento das conversas das imobiliárias (modelo Uber)'],
+    emails:['E-mails','Caixa central do Hub · admin.ailogichub'],
+    imoveis:['Imóveis','Catálogo cross-imobiliária'],
+    assinaturas:['Assinaturas · Documentos','Controle de contratos · integração D4Sign (Fase 2)'],
+    anuncios:['Anúncios · Rodízios','Distribuição de leads e anúncios pagos (Fase 2)'],
+    relatorios:['Relatórios','Geração dinâmica · custo de WhatsApp · receita'],
+    config:['Configurações · IA','Agente, integrações e parâmetros do Hub']
+  };
+  function show(s){
+    document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));
+    document.getElementById(s).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(e=>e.classList.toggle('active', e.dataset.s===s));
+    if(titles[s]){document.getElementById('page-title').textContent=titles[s][0];document.getElementById('page-sub').textContent=titles[s][1];}
+    document.querySelector('main').scrollTop=0;
   }
-  // Sparklines do dashboard: reinicia o reveal sincronizado com o contador
-  if (screen.id === 'dashboard') {
-    screen.querySelectorAll('svg').forEach(svg => {
-      if (svg.querySelector('.sparkline')) {
-        svg.style.animation = 'none';
-        void svg.offsetWidth;
-        svg.style.animation = '';
-      }
-    });
-  }
-}
-
-function show(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const screen = document.getElementById(id);
-  screen.classList.add('active');
-  const nav = document.querySelector(`.nav-item[data-screen="${id}"]`);
-  if (nav) nav.classList.add('active');
-  window.scrollTo(0, 0);
-  restartAnimations(screen);
-  if (id === 'dashboard') animateDashboardCounters();
-}
-
-// ===== Counter animation =====
-const NUM_RE = /\d+(?:\.\d+)?/g;
-function animateCount(el, duration = 5000) {
-  const textNode = el.firstChild;
-  if (!textNode || textNode.nodeType !== 3) return;
-  const rawText = textNode.textContent;
-  const matches = [...rawText.matchAll(NUM_RE)];
-  if (matches.length === 0) return;
-  const targets = matches.map(m => ({ value: parseFloat(m[0]), decimals: (m[0].split('.')[1] || '').length }));
-
-  // Estado inicial: zera imediatamente
-  let i = 0;
-  textNode.textContent = rawText.replace(NUM_RE, () => (0).toFixed(targets[i++].decimals));
-
-  const start = performance.now();
-  function tick(now) {
-    const t = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
-    let j = 0;
-    textNode.textContent = rawText.replace(NUM_RE, () => (targets[j++].value * eased).toFixed(targets[j-1].decimals));
-    if (t < 1) requestAnimationFrame(tick);
-    else textNode.textContent = rawText; // garante valor final exato
-  }
-  requestAnimationFrame(tick);
-}
-
-function animateDashboardCounters() {
-  document.querySelectorAll('#dashboard .num').forEach(el => animateCount(el, 5000));
-}
-
-decorateAnimations();
-// Dispara contadores na carga inicial (dashboard já vem ativa)
-animateDashboardCounters();
-
-// ===== Maestra Agent =====
-const HUB = {
-  leads: { total: 847, ativos: 271, qualificados: 349, taxaQualificacao: 41.2, novosSemana: 18, scoreMedio: 67 },
-  visitas: { agendadas: 62, realizadas: 54, taxaConversao: 7.3, deltaSemanal: -4 },
-  receita: { mesHub: 84500, acumulado: 142300, projetado4m: 312000, roas: 3.45, deltaMes: 28000 },
-  funil: [
-    { etapa: 'Lead captado', valor: 623, pct: 100 },
-    { etapa: 'Qualificado IA', valor: 271, pct: 43.5 },
-    { etapa: 'Imóveis enviados', valor: 218, pct: 35 },
-    { etapa: 'Ficha assinada', valor: 78, pct: 12.5 },
-    { etapa: 'Visita realizada', valor: 54, pct: 8.7 },
-    { etapa: 'Proposta enviada', valor: 19, pct: 3.0 },
-    { etapa: 'Fechamento', valor: 11, pct: 1.77 },
-  ],
-  parceiros: [
-    { nome: 'Coelho & Andrade Imóveis', tier: 1, fechamentos: 5, receita: 31200, nps: 78, imoveis: 147, leads: 62, split: '55% / 45%' },
-    { nome: 'Paulista Living', tier: 1, fechamentos: 3, receita: 22400, nps: 71, imoveis: 98, leads: 41, split: '50% / 50%' },
-    { nome: 'JS Negócios Imobiliários', tier: 2, fechamentos: 2, receita: 18700, nps: 65, imoveis: 63, leads: 28, split: '50% / 50%' },
-    { nome: 'Urbe Imobiliária', tier: 2, fechamentos: 1, receita: 8100, nps: 82, imoveis: 0, leads: 0, split: '50% / 50%' },
-    { nome: 'Vera Cruz Imóveis', tier: 'review', fechamentos: 0, receita: 4000, nps: 41, imoveis: 42, leads: 14, alerta: 'NPS abaixo de 50, SLA de retorno violado 3x' },
-  ],
-  imoveis: { total: 412, apartamentos: 298, casas: 88, comercial: 26, disponiveis: 381, negociacao: 23, fechados: 11, ticketMedioNeg: 680000 },
-  ia: { modelo: 'Claude Sonnet 4.6', slaPrimeiroContato: 1.4, conversao: 41, escalation: 12, custoConversa: 0.32, conversasMes: 847, abTestVencedor: 'Var B (informal) com 44%' },
-  topLeads: [
-    { nome: 'Camila Vasconcelos', score: 95, tipo: 'Venda', regiao: 'Jardins', etapa: 'Visita', parceiro: 'Coelho & Andrade' },
-    { nome: 'Ana Beatriz Lima', score: 91, tipo: 'Venda', regiao: 'Itaim', etapa: 'Qualificando' },
-    { nome: 'Eduardo Pereira', score: 88, tipo: 'Venda', regiao: 'Itaim', etapa: 'Imóveis enviados', parceiro: 'Paulista Living' },
-    { nome: 'Mariana Silva', score: 87, tipo: 'Venda', regiao: 'V.Olímpia', etapa: 'Novo' },
-    { nome: 'Murilo Santos', score: 86, tipo: 'Venda', regiao: 'Higienópolis', etapa: 'Visita', parceiro: 'JS Negócios' },
-  ],
-  cac: { meta: 38, google: 52, organico: 8, portais: 71, indicacao: 0 },
-  poc: { regiao: 'Paulista', semana: 11, totalSemanas: 16, orcamento: 80000, gasto: 41200 },
-};
-
-function fmtMoney(n) {
-  if (n >= 1000) return 'R$ ' + (n/1000).toFixed(1).replace('.', ',') + 'k';
-  return 'R$ ' + n.toLocaleString('pt-BR');
-}
-
-const INTENTS = [
-  {
-    match: /(quant|numero|total).*(lead|contato)/i,
-    answer: () => `Atualmente temos <strong>${HUB.leads.total} leads totais</strong> captados na PoC, sendo <strong>${HUB.leads.ativos} ativos</strong> no pipeline e <strong>${HUB.leads.qualificados} qualificados</strong> pela IA Maestra.\n\nA taxa de qualificação está em <strong>${HUB.leads.taxaQualificacao}%</strong>, com crescimento de +3,2pp na semana.<span class="source">↳ Visão Geral · KPIs</span>`,
-  },
-  {
-    match: /(receita|faturamento|ganho|comissão|comissao)/i,
-    answer: () => `Receita HUB do mês: <strong>${fmtMoney(HUB.receita.mesHub)}</strong> (50% de comissão sobre fechamentos).\n\nAcumulado da PoC: <strong>${fmtMoney(HUB.receita.acumulado)}</strong>. Projeção para os 4 meses: <strong>${fmtMoney(HUB.receita.projetado4m)}</strong>. ROAS atual de <strong>${HUB.receita.roas}x</strong>.<span class="source">↳ Financeiro · Receita HUB</span>`,
-  },
-  {
-    match: /(top|maior|melhor).*(parceiro|imobiliária|imobiliaria)/i,
-    answer: () => { const p = HUB.parceiros[0]; return `O top parceiro é a <strong>${p.nome}</strong> (Tier ${p.tier}).\n\n<ul><li>Receita gerada: <strong>${fmtMoney(p.receita)}</strong></li><li>${p.fechamentos} fechamentos no mês</li><li>NPS ${p.nps}</li><li>${p.imoveis} imóveis cadastrados, ${p.leads} leads recebidos</li><li>Split: ${p.split}</li></ul><span class="source">↳ Parceiros</span>`; },
-  },
-  {
-    match: /(parceiro.*ruim|nps.*baix|alerta|risco|revisao|revisão)/i,
-    answer: () => { const p = HUB.parceiros.find(x => x.tier === 'review'); return `<strong>${p.nome}</strong> está em revisão. NPS ${p.nps} (abaixo de 50), receita de ${fmtMoney(p.receita)} no mês e 0 fechamentos.\n\nAlerta: <em>${p.alerta}</em>.<span class="source">↳ Parceiros · Em revisão</span>`; },
-  },
-  {
-    match: /(funil|conversao|conversão|etapa)/i,
-    answer: () => `Funil atual (Lead → Fechamento):\n<ul>${HUB.funil.map(f => `<li>${f.etapa}: <strong>${f.valor}</strong> (${f.pct}%)</li>`).join('')}</ul>\nConversão lead → fechamento de <strong>1,77%</strong>. Maior gargalo entre Imóveis enviados (35%) e Ficha assinada (12,5%).<span class="source">↳ Visão Geral · Funil</span>`,
-  },
-  {
-    match: /(maior|top).*(score|lead)/i,
-    answer: () => { const l = HUB.topLeads[0]; return `Lead com maior score: <strong>${l.nome}</strong> (${l.score}/100).\n<ul><li>Tipo: ${l.tipo}</li><li>Região: ${l.regiao}</li><li>Etapa atual: ${l.etapa}</li>${l.parceiro?`<li>Parceiro: ${l.parceiro}</li>`:''}</ul>Outros leads quentes: ${HUB.topLeads.slice(1,4).map(x=>`${x.nome} (${x.score})`).join(', ')}.<span class="source">↳ Leads · ordenados por score</span>`; },
-  },
-  {
-    match: /(imov|estoque|catalogo|catálogo|disponiv|disponív)/i,
-    answer: () => `Estoque consolidado: <strong>${HUB.imoveis.total} imóveis</strong> à venda (${HUB.imoveis.apartamentos} apartamentos, ${HUB.imoveis.casas} casas, ${HUB.imoveis.comercial} comerciais).\n\n<ul><li>Disponíveis: <strong>${HUB.imoveis.disponiveis}</strong> (92,5%)</li><li>Em negociação: ${HUB.imoveis.negociacao} (ticket médio ${fmtMoney(HUB.imoveis.ticketMedioNeg)})</li><li>Fechados no mês: ${HUB.imoveis.fechados}</li></ul><span class="source">↳ Estoque</span>`,
-  },
-  {
-    match: /(visita|agendad)/i,
-    answer: () => `Visitas agendadas: <strong>${HUB.visitas.agendadas}</strong> (${HUB.visitas.deltaSemanal}% vs semana anterior).\n\nVisitas realizadas: ${HUB.visitas.realizadas}. Taxa lead → visita: <strong>${HUB.visitas.taxaConversao}%</strong>.<span class="source">↳ Visão Geral · KPIs</span>`,
-  },
-  {
-    match: /(ia|maestra|inteligencia|inteligência|sla|conversa)/i,
-    answer: () => `IA Maestra (${HUB.ia.modelo}):\n<ul><li>SLA de 1º contato: <strong>${HUB.ia.slaPrimeiroContato}s</strong> (meta &lt; 2s)</li><li>Conversão de qualificação: <strong>${HUB.ia.conversao}%</strong></li><li>Escalation para humano: ${HUB.ia.escalation}%</li><li>Custo médio por conversa: ${fmtMoney(HUB.ia.custoConversa)}</li><li>${HUB.ia.conversasMes} conversas processadas no mês</li></ul>A/B test ativo: ${HUB.ia.abTestVencedor}.<span class="source">↳ Config IA</span>`,
-  },
-  {
-    match: /(cac|custo.*aquisi|canal|midia|mídia)/i,
-    answer: () => `CAC por canal (últimos 30 dias):\n<ul><li>Meta Ads: <strong>${fmtMoney(HUB.cac.meta)}</strong></li><li>Google Ads: ${fmtMoney(HUB.cac.google)}</li><li>Orgânico / SEO: ${fmtMoney(HUB.cac.organico)}</li><li>Portais (ZAP, VR): ${fmtMoney(HUB.cac.portais)}</li><li>Indicação: <strong>R$ 0</strong> (CAC mais saudável)</li></ul>Portais com pior eficiência.<span class="source">↳ Visão Geral · CAC por canal</span>`,
-  },
-  {
-    match: /(fechament|venda fechad)/i,
-    answer: () => `Fechamentos do mês: <strong>11</strong> (8 apartamentos + 3 casas).\n\nTicket médio: <strong>R$ 720k</strong>. Comissão média 6%.\n\nReceita HUB gerada: <strong>${fmtMoney(HUB.receita.mesHub)}</strong>.<span class="source">↳ Financeiro · Receita por fonte</span>`,
-  },
-  {
-    match: /(poc|região|regiao|paulista|projeto)/i,
-    answer: () => `PoC em andamento na <strong>Região ${HUB.poc.regiao}</strong>, semana <strong>${HUB.poc.semana} de ${HUB.poc.totalSemanas}</strong>.\n\nOrçamento: ${fmtMoney(HUB.poc.orcamento)}. Gasto até agora: ${fmtMoney(HUB.poc.gasto)} (${((HUB.poc.gasto/HUB.poc.orcamento)*100).toFixed(0)}%).\n\n7 imobiliárias parceiras ativas, 2 em onboarding.<span class="source">↳ Visão Geral · header</span>`,
-  },
-];
-
-function answerOf(q) {
-  for (const intent of INTENTS) {
-    if (intent.match.test(q)) return intent.answer();
-  }
-  return `Hmm, não tenho essa informação específica indexada. Posso te ajudar com:\n<ul><li>Leads (total, ativos, scores)</li><li>Receita, CAC, ROAS</li><li>Parceiros, top performers, alertas</li><li>Funil de conversão</li><li>Estoque e visitas</li><li>Performance da IA Maestra</li></ul>Tenta reformular ou clique numa das sugestões abaixo.`;
-}
-
-const fab = document.getElementById('agentFab');
-const panel = document.getElementById('agentPanel');
-const closeBtn = document.getElementById('agentClose');
-const clearBtn = document.getElementById('agentClear');
-const body = document.getElementById('agentBody');
-const form = document.getElementById('agentForm');
-const input = document.getElementById('agentInput');
-const sendBtn = document.getElementById('agentSend');
-const chips = document.getElementById('suggestChips');
-
-function openAgent() { panel.classList.add('open'); fab.classList.add('open'); setTimeout(() => input.focus(), 200); }
-function closeAgent() { panel.classList.remove('open'); fab.classList.remove('open'); }
-fab.addEventListener('click', () => panel.classList.contains('open') ? closeAgent() : openAgent());
-closeBtn.addEventListener('click', closeAgent);
-
-function addMsg(html, who) {
-  const m = document.createElement('div');
-  m.className = 'agent-msg ' + who;
-  m.innerHTML = html;
-  body.appendChild(m);
-  body.scrollTop = body.scrollHeight;
-  return m;
-}
-
-function showTyping() {
-  const t = document.createElement('div');
-  t.className = 'typing';
-  t.id = 'agentTyping';
-  t.innerHTML = '<span></span><span></span><span></span>';
-  body.appendChild(t);
-  body.scrollTop = body.scrollHeight;
-  return t;
-}
-
-function streamInto(el, html, speed = 28) {
-  // Streaming "typewriter" preservando HTML tags
-  let i = 0;
-  el.innerHTML = '';
-  const tokens = []; let buf = ''; let inTag = false;
-  for (const ch of html) {
-    if (ch === '<') { if (buf) { tokens.push(...buf.split('')); buf = ''; } inTag = true; buf += ch; }
-    else if (ch === '>' && inTag) { buf += ch; tokens.push(buf); buf = ''; inTag = false; }
-    else buf += ch;
-  }
-  if (buf) tokens.push(...(inTag ? [buf] : buf.split('')));
-
-  return new Promise(resolve => {
-    function step() {
-      if (i >= tokens.length) { resolve(); return; }
-      const tk = tokens[i++];
-      el.innerHTML += tk;
-      body.scrollTop = body.scrollHeight;
-      setTimeout(step, tk.length > 1 ? 0 : speed);
-    }
-    step();
-  });
-}
-
-async function handleQuestion(q) {
-  if (!q.trim()) return;
-  addMsg(q.replace(/</g,'&lt;'), 'user');
-  input.value = '';
-  sendBtn.disabled = true;
-  chips.style.display = 'none';
-  const t = showTyping();
-  await new Promise(r => setTimeout(r, 1800 + Math.random() * 1400));
-  t.remove();
-  const ansEl = addMsg('', 'ai');
-  const html = answerOf(q).replace(/\n/g, '<br>');
-  await streamInto(ansEl, html);
-  sendBtn.disabled = false;
-  input.focus();
-}
-
-form.addEventListener('submit', (e) => { e.preventDefault(); handleQuestion(input.value); });
-chips.addEventListener('click', (e) => {
-  const c = e.target.closest('.suggest-chip');
-  if (c) handleQuestion(c.dataset.q);
-});
-
-clearBtn.addEventListener('click', () => {
-  body.innerHTML = '';
-  chips.style.display = 'flex';
-  greet();
-});
-
-function greet() {
-  const hour = new Date().getHours();
-  const sd = hour < 12 ? 'Bom dia' : (hour < 18 ? 'Boa tarde' : 'Boa noite');
-  addMsg(`${sd}, Alessandro. Sou a <strong>Maestra</strong>, tenho acesso aos dados do HUB. Pergunta o que quiser sobre leads, parceiros, receita, funil, estoque ou performance da IA.`, 'ai');
-}
-greet();
-document.querySelectorAll('.nav-item').forEach(nav => {
-  nav.addEventListener('click', () => {
-    if (nav.dataset.action === 'support') { openSupport(); return; }
-    if (nav.dataset.screen) show(nav.dataset.screen);
-  });
-});
-
-// ===== Support modal =====
-const supportModal = document.getElementById('supportModal');
-const supportClose = document.getElementById('supportClose');
-const supportForm = document.getElementById('supportForm');
-const successMsg = document.getElementById('successMsg');
-const ticketList = document.getElementById('ticketList');
-const submitBtn = document.getElementById('submitTicket');
-
-function loadTickets() {
-  try { return JSON.parse(localStorage.getItem('orq_tickets') || '[]'); }
-  catch(e) { return []; }
-}
-function saveTickets(t) { localStorage.setItem('orq_tickets', JSON.stringify(t)); }
-function nextTicketId() {
-  const t = loadTickets();
-  const ids = t.map(x => parseInt(x.id.split('-')[1])).filter(n => !isNaN(n));
-  const last = ids.length ? Math.max(...ids) : 2340;
-  return 'BRV-' + (last + 1);
-}
-function seedTickets() {
-  if (loadTickets().length === 0) {
-    saveTickets([
-      { id: 'BRV-2339', type: 'feature', priority: 'media', module: 'funil', title: 'Filtro por origem no Kanban', description: 'Adicionar filtro Meta/Google/Indicação nas colunas.', createdAt: '2026-05-12T10:00:00', status: 'em-desenvolvimento' },
-      { id: 'BRV-2336', type: 'ajuste', priority: 'baixa', module: 'parceiros', title: 'Card vencido sumir do topo', description: 'Parceiros em revisão estão fixos no topo, deveriam ir pro final.', createdAt: '2026-05-08T14:30:00', status: 'resolvido' },
-      { id: 'BRV-2334', type: 'melhoria', priority: 'media', module: 'lead-detail', title: 'Atalho ⌘K pra envio rápido de imóveis', description: 'Acelerar o fluxo Maestra → catálogo.', createdAt: '2026-05-05T09:15:00', status: 'em-analise' },
-    ]);
-  }
-}
-function statusLabel(s) {
-  return { 'aberto':'Aberto', 'em-analise':'Em análise', 'em-desenvolvimento':'Em dev', 'resolvido':'Resolvido' }[s] || s;
-}
-function renderTickets() {
-  const t = loadTickets().slice(0, 4);
-  if (t.length === 0) { ticketList.innerHTML = '<div style="font-size:12px;color:rgb(var(--c-muted));padding:8px 10px;">Nenhum chamado aberto ainda.</div>'; return; }
-  ticketList.innerHTML = t.map(x => `
-    <div class="ticket-row">
-      <span class="ticket-id">${x.id}</span>
-      <span class="ticket-title">${x.title}</span>
-      <span class="ticket-status ts-${x.status}">${statusLabel(x.status)}</span>
-    </div>
-  `).join('');
-}
-
-function openSupport() {
-  seedTickets();
-  renderTickets();
-  successMsg.classList.remove('show');
-  // pre-fill módulo afetado com tela ativa
-  const active = document.querySelector('.screen.active');
-  if (active) document.getElementById('ticketModule').value = active.id;
-  supportModal.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setTimeout(() => document.getElementById('ticketTitle').focus(), 200);
-}
-function closeSupport() {
-  supportModal.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-supportClose.addEventListener('click', closeSupport);
-supportModal.addEventListener('click', (e) => { if (e.target === supportModal) closeSupport(); });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && supportModal.classList.contains('open')) closeSupport(); });
-
-// Chip group selection (single-select per group)
-function setupChipGroup(groupId) {
-  document.querySelectorAll(`#${groupId} .chip-opt`).forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll(`#${groupId} .chip-opt`).forEach(c => c.classList.remove('selected'));
-      chip.classList.add('selected');
-    });
-  });
-}
-setupChipGroup('typeChips');
-setupChipGroup('prioChips');
-
-supportForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const type = document.querySelector('#typeChips .chip-opt.selected').dataset.type;
-  const priority = document.querySelector('#prioChips .chip-opt.selected').dataset.prio;
-  const module_ = document.getElementById('ticketModule').value;
-  const contact = document.getElementById('ticketContact').value;
-  const title = document.getElementById('ticketTitle').value.trim();
-  const description = document.getElementById('ticketDesc').value.trim();
-  if (!title || !description) return;
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Enviando...';
-
-  setTimeout(() => {
-    const id = nextTicketId();
-    const ticket = { id, type, priority, module: module_, contact, title, description, createdAt: new Date().toISOString(), status: 'aberto' };
-    const list = loadTickets();
-    list.unshift(ticket);
-    saveTickets(list);
-
-    const slaTxt = priority === 'urgente' ? '2 horas' : (priority === 'alta' ? '4 horas' : '1 dia útil');
-    successMsg.innerHTML = `Chamado <strong>${id}</strong> criado e encaminhado pra equipe Brava Company. Resposta inicial em <strong>${slaTxt}</strong> via ${contact === 'email' ? 'e-mail' : (contact === 'whatsapp' ? 'WhatsApp' : 'reunião')}.`;
-    successMsg.classList.add('show');
-    renderTickets();
-
-    // Reset form
-    supportForm.reset();
-    document.querySelectorAll('#typeChips .chip-opt').forEach(c => c.classList.remove('selected'));
-    document.querySelector('#typeChips .chip-opt[data-type="ajuste"]').classList.add('selected');
-    document.querySelectorAll('#prioChips .chip-opt').forEach(c => c.classList.remove('selected'));
-    document.querySelector('#prioChips .chip-opt[data-prio="media"]').classList.add('selected');
-
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Enviar chamado →';
-
-    // scroll modal to top to show success
-    successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, 600);
-});
-
-// Auth gate (desativado no modo demo)
-// if (localStorage.getItem('orquestra_auth') !== '1') {
-//   window.location.href = 'login.html';
-// }
-
-// Hidrata nome do user logado, se existir
-try {
-  const u = JSON.parse(localStorage.getItem('orquestra_user') || '{}');
-  if (u.name) document.querySelector('aside.sidebar .text-sm.font-semibold').textContent = u.name;
-} catch(e) {}
-
-// Theme toggle
-(function() {
-  const root = document.documentElement;
-  const btn = document.getElementById('themeToggle');
-  const icon = document.getElementById('themeIcon');
-  const SUN = '<path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/><circle cx="12" cy="12" r="4"/>';
-  const MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-  function apply(theme) {
-    root.classList.toggle('dark', theme === 'dark');
-    icon.innerHTML = theme === 'dark' ? SUN : MOON;
-  }
-  apply(localStorage.getItem('theme') || 'light');
-  btn.addEventListener('click', () => {
-    const next = root.classList.contains('dark') ? 'light' : 'dark';
-    localStorage.setItem('theme', next);
-    apply(next);
-  });
-})();
-
-// Logout
-document.getElementById('logoutBtn').addEventListener('click', () => {
-  localStorage.removeItem('orquestra_auth');
-  localStorage.removeItem('orquestra_user');
-  window.location.href = 'login.html';
-});
+  document.querySelectorAll('[data-s]').forEach(e=>e.addEventListener('click',()=>show(e.dataset.s)));
 </script>
-
 </body>
 </html>
