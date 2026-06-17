@@ -28,6 +28,13 @@ async function evo(path, method = 'GET', body) {
   return { ok: r.ok, status: r.status, body: j };
 }
 
+// corte de espelhamento: inbox só mostra conversas a partir desta data
+async function getCutoff() {
+  try { const r = await db('select espelho_desde from canais_whatsapp where instancia=$1', [INSTANCE]);
+    return r.rows[0] && r.rows[0].espelho_desde ? new Date(r.rows[0].espelho_desde) : null; }
+  catch (_) { return null; }
+}
+
 // extrai texto legível de qualquer tipo de mensagem do WhatsApp
 function msgText(rec) {
   const M = (rec && rec.message) || {};
@@ -70,11 +77,19 @@ module.exports = async (req, res) => {
       return;
     }
 
+    // ---- ZERAR espelho (passa a mostrar só daqui pra frente) ----
+    if (action === 'zerar') {
+      await db(`update canais_whatsapp set espelho_desde=now(), updated_at=now() where instancia=$1`, [INSTANCE]);
+      res.status(200).json({ ok: true, zerado: true });
+      return;
+    }
+
     // ---- LISTA DE CONVERSAS (espelho) ----
     if (action === 'chats') {
+      const cutoff = await getCutoff();
       const r = await evo('/chat/findChats/' + INSTANCE, 'POST', {});
       const arr = Array.isArray(r.body) ? r.body : [];
-      const chats = arr.map(c => ({
+      let chats = arr.map(c => ({
         jid: c.remoteJid,
         nome: c.pushName || (c.remoteJid ? String(c.remoteJid).split('@')[0] : 'Contato'),
         foto: c.profilePicUrl || null,
@@ -85,6 +100,7 @@ module.exports = async (req, res) => {
         fromMe: !!(c.lastMessage && c.lastMessage.key && c.lastMessage.key.fromMe)
       })).filter(c => c.jid)
         .sort((a, b) => new Date(b.atualizado || 0) - new Date(a.atualizado || 0));
+      if (cutoff) chats = chats.filter(c => c.atualizado && new Date(c.atualizado) >= cutoff);
       res.status(200).json({ chats });
       return;
     }
@@ -93,9 +109,10 @@ module.exports = async (req, res) => {
     if (action === 'messages') {
       const jid = req.query && req.query.jid;
       if (!jid) { res.status(400).json({ error: 'jid obrigatorio' }); return; }
+      const cutoff = await getCutoff();
       const r = await evo('/chat/findMessages/' + INSTANCE, 'POST', { where: { key: { remoteJid: jid } }, limit: 60 });
       const recs = (r.body && r.body.messages && r.body.messages.records) || [];
-      const msgs = recs.map(m => ({
+      let msgs = recs.map(m => ({
         id: m.key && m.key.id,
         fromMe: !!(m.key && m.key.fromMe),
         texto: msgText(m),
@@ -103,6 +120,7 @@ module.exports = async (req, res) => {
         ts: m.messageTimestamp ? Number(m.messageTimestamp) : null,
         autor: m.pushName || null
       })).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+      if (cutoff) { const c = cutoff.getTime(); msgs = msgs.filter(m => m.ts && m.ts * 1000 >= c); }
       res.status(200).json({ jid, msgs });
       return;
     }

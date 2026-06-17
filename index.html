@@ -795,7 +795,10 @@ tailwind.config = {
           <div><div class="font-bold text-sm">${wa.perfil||'AI Logic Hub'}</div><div class="text-[11px] text-muted">${wa.numero?('+'+wa.numero):WA_NUM} · instância ${WA_INST}</div></div>
           <span class="badge" style="background:rgb(var(--c-ok)/.12);color:rgb(var(--c-ok));display:inline-flex;align-items:center;gap:6px"><span class="pulse"></span>Conectado</span>
         </div>
-        <button onclick="waDisconnect()" class="px-3 py-1.5 rounded-lg bg-panel2 border border-border text-xs font-semibold text-danger">Desconectar</button>
+        <div class="flex items-center gap-2">
+          <button onclick="waZerar()" class="px-3 py-1.5 rounded-lg bg-panel2 border border-border text-xs font-semibold" title="A inbox passa a mostrar só mensagens novas (não apaga seu WhatsApp)">Zerar conversas</button>
+          <button onclick="waDisconnect()" class="px-3 py-1.5 rounded-lg bg-panel2 border border-border text-xs font-semibold text-danger">Desconectar</button>
+        </div>
       </div>
       <div class="card overflow-hidden" style="height:calc(100vh - 240px);display:flex">
         <div style="width:320px;flex-shrink:0;border-right:1px solid rgb(var(--c-border));display:flex;flex-direction:column">
@@ -853,6 +856,7 @@ tailwind.config = {
   async function waConnect(){ waLoading('Gerando QR code...'); try{ const d=await waApi('connect'); if(d.qr){ waQrData=d.qr; wa.status='aguardando_qr'; renderWa(); } else { waErro('O servidor não retornou o QR. Tente de novo.'); } }catch(e){ waErro(e.message); } }
   function waNovoQr(){ waConnect(); }
   function waCancel(){ waStop(); wa.status='desconectado'; waQrData=null; renderWa(); }
+  async function waZerar(){ if(!confirm('Zerar as conversas da plataforma? A inbox passa a mostrar só mensagens NOVAS a partir de agora (não apaga nada do seu WhatsApp).'))return; try{ await waApi('zerar'); waChats=[]; waOpenJid=null; waMsgs=[]; renderWa(); }catch(e){ alert('Falha ao zerar: '+e.message); } }
   async function waDisconnect(){ if(!confirm('Desconectar o número do Hub?'))return; waLoading('Desconectando...'); try{ await waApi('disconnect'); wa.status='desconectado'; waQrData=null; waCache(); renderWa(); }catch(e){ waErro(e.message); } }
   async function waRefresh(){ try{ const d=await waApi('status'); wa.status=d.status; wa.numero=d.numero; wa.perfil=d.perfil; waCache(); if(wa.status==='aguardando_qr' && !waQrData){ await waConnect(); return; } renderWa(); }catch(e){ renderWa(); } }
 
