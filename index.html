@@ -262,14 +262,7 @@ tailwind.config = {
 
       <!-- ============ WHATSAPP AUDITORIA ============ -->
       <section id="whatsapp" class="screen">
-        <div class="card">
-          <div class="empty">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-            <div class="t">WhatsApp aguardando conexão</div>
-            <div class="d">O número central do Hub <strong>(11) 9 3623-8387</strong> está em aquecimento. Quando ativo, todas as conversas das imobiliárias passam por aqui com auditoria automática (detecção anti-burla).</div>
-            <button class="mt-4 px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold">Conectar número</button>
-          </div>
-        </div>
+        <div id="wa-screen"></div>
       </section>
 
       <!-- ============ E-MAILS ============ -->
@@ -723,6 +716,91 @@ tailwind.config = {
   }
   function limparFunil(){ if(confirm('Remover todos os negócios do funil?')){ KSTAGES.forEach(s=>kdata[s.k]=[]); ksave(); renderFunil(); } }
   kload(); renderFunil();
+
+  // ===== WHATSAPP — conexão plug-and-play (estilo Evolution Manager / Brava) =====
+  // SEGURANÇA: em produção o QR e o status vêm do BACKEND do Hub, que fala com o
+  // Evolution server-side. A URL/apikey do Evolution NUNCA ficam no front (repo público).
+  // Aqui é o fluxo de UI + estado de demo (persistido em localStorage).
+  const WAKEY='ailh_wa_v1', WA_INST='ailogic-hub-principal', WA_NUM='+55 (11) 9 3623-8387';
+  const WA_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>';
+  let wa={}, waTimer=null, waLeft=0;
+  function waLoad(){ try{wa=JSON.parse(localStorage.getItem(WAKEY))||{};}catch(e){wa={};} if(!wa.status)wa.status='desconectado'; }
+  function waSave(){ localStorage.setItem(WAKEY,JSON.stringify(wa)); }
+  function waQr(){ const tk='AILH-'+WA_INST+'-'+Math.random().toString(36).slice(2,12).toUpperCase(); return 'https://api.qrserver.com/v1/create-qr-code/?size=230x230&margin=0&data='+encodeURIComponent(tk); }
+  function renderWa(){
+    const el=document.getElementById('wa-screen'); if(!el) return;
+    if(waTimer){ clearInterval(waTimer); waTimer=null; }
+    if(wa.status==='conectado'){
+      el.innerHTML=`<div class="card p-6 mb-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgb(var(--c-ok)/.12);color:rgb(var(--c-ok))">${WA_SVG}</div>
+            <div><div class="font-bold text-sm">AI Logic Hub · Tecnologia Imobiliária</div><div class="text-[11px] text-muted">${WA_NUM} · instância ${WA_INST}</div></div>
+          </div>
+          <span class="badge" style="background:rgb(var(--c-ok)/.12);color:rgb(var(--c-ok));display:inline-flex;align-items:center;gap:6px"><span class="pulse"></span>Conectado</span>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5 pt-4 border-t border-border text-center">
+          <div><div class="num text-lg">0</div><div class="text-[10px] text-muted">Conversas hoje</div></div>
+          <div><div class="num text-lg">0</div><div class="text-[10px] text-muted">Mensagens</div></div>
+          <div><div class="num text-lg text-ok">100%</div><div class="text-[10px] text-muted">Entrega</div></div>
+          <div><div class="num text-lg">linkado</div><div class="text-[10px] text-muted">Dispositivo</div></div>
+        </div>
+        <div class="text-[11px] text-muted mt-3">Conectado em ${wa.conectadoEm||'agora'} · coexiste com o app no celular (não desloga).</div>
+      </div>
+      <div class="card"><div class="empty" style="padding:40px 24px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 11 2 2 4-4"/></svg>
+        <div class="t">Auditoria ativa · 0 conversas</div>
+        <div class="d">As conversas das imobiliárias passam por aqui com detecção anti-burla (modelo Uber). Quando os corretores começarem a atender, histórico e alertas aparecem nesta tela.</div>
+        <button onclick="waDisconnect()" class="mt-4 px-4 py-2 rounded-lg bg-panel2 border border-border text-sm font-semibold text-danger">Desconectar número</button>
+      </div></div>`;
+    } else if(wa.status==='aguardando_qr'){
+      el.innerHTML=`<div class="card p-6">
+        <div class="flex items-center justify-between mb-5 pb-4 border-b border-border">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:rgb(var(--c-accent)/.1);color:rgb(var(--c-accent))">${WA_SVG}</div>
+            <div><div class="font-bold text-sm">Instância ${WA_INST}</div><div class="text-[11px] text-muted">${WA_NUM}</div></div>
+          </div>
+          <span class="badge" style="background:rgb(var(--c-warn)/.12);color:rgb(var(--c-warn));display:inline-flex;align-items:center;gap:6px"><span class="pulse" style="background:#f59e0b;box-shadow:0 0 8px #f59e0b"></span>Aguardando leitura · <span id="wa-count">45s</span></span>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 items-center">
+          <div class="flex flex-col items-center">
+            <div class="p-3 bg-white rounded-xl border border-border"><img src="${wa.qr}" width="230" height="230" alt="QR code" style="display:block"></div>
+            <button onclick="waNovoQr()" class="mt-3 text-xs text-accent2 font-semibold">Gerar novo QR</button>
+          </div>
+          <div>
+            <div class="font-bold text-sm mb-3">Como conectar</div>
+            <ol class="text-[13px] text-muted" style="list-style:decimal;padding-left:18px;line-height:1.9">
+              <li>Abra o <strong>WhatsApp Business</strong> no celular do Hub</li>
+              <li>Toque em <strong>Aparelhos conectados</strong></li>
+              <li>Toque em <strong>Conectar um aparelho</strong></li>
+              <li>Aponte a câmera para este QR code</li>
+            </ol>
+            <div class="mt-5 flex gap-2">
+              <button onclick="waConfirm()" class="px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold">Simular conexão</button>
+              <button onclick="waCancel()" class="px-4 py-2 rounded-lg bg-panel2 border border-border text-sm font-semibold">Cancelar</button>
+            </div>
+            <div class="text-[10px] text-muted mt-3">Demo: "Simular conexão" representa o app escaneando o QR. Em produção, o status vem do backend do Hub automaticamente.</div>
+          </div>
+        </div>
+      </div>`;
+      waLeft=45;
+      const tick=()=>{ const c=document.getElementById('wa-count'); if(!c){ if(waTimer)clearInterval(waTimer); return; } c.textContent=waLeft+'s'; if(waLeft<=0){ waNovoQr(); return; } waLeft--; };
+      tick(); waTimer=setInterval(tick,1000);
+    } else {
+      el.innerHTML=`<div class="card"><div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <div class="t">WhatsApp do Hub desconectado</div>
+        <div class="d">Conecte o número central <strong>${WA_NUM}</strong> para centralizar e auditar as conversas das imobiliárias (anti-burla, modelo Uber). A conexão é por QR code, igual ao WhatsApp Web.</div>
+        <button onclick="waConnect()" class="mt-4 px-5 py-2 rounded-lg bg-accent text-white text-sm font-semibold">Conectar número</button>
+      </div></div>`;
+    }
+  }
+  function waConnect(){ wa.status='aguardando_qr'; wa.qr=waQr(); waSave(); renderWa(); }
+  function waNovoQr(){ wa.qr=waQr(); waSave(); renderWa(); }
+  function waCancel(){ wa.status='desconectado'; waSave(); renderWa(); }
+  function waConfirm(){ wa.status='conectado'; wa.conectadoEm=new Date().toLocaleString('pt-BR'); waSave(); renderWa(); }
+  function waDisconnect(){ if(confirm('Desconectar o número do Hub?')){ wa.status='desconectado'; waSave(); renderWa(); } }
+  waLoad(); renderWa();
 
   // ===== LOGIN (e-mails hipotéticos da demo) =====
   const CONTAS = [
