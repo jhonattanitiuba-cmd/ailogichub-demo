@@ -135,7 +135,7 @@ tailwind.config = {
   <aside class="sidebar w-60 flex flex-col flex-shrink-0">
     <div class="p-5 border-b border-white/10">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent2 to-accent flex items-center justify-center font-extrabold text-white text-sm tracking-tight">AI</div>
+        <div id="hub-logo-box" onclick="pickImg('hub')" title="Clique para trocar o logo do Hub" class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent2 to-accent flex items-center justify-center font-extrabold text-white text-sm tracking-tight" style="cursor:pointer;overflow:hidden;background-size:cover;background-position:center">AI</div>
         <div>
           <div class="font-extrabold text-white text-[15px] leading-none">AI Logic Hub</div>
           <div class="text-[10px] text-side-muted font-semibold mt-1">Tecnologia Imobiliária</div>
@@ -176,7 +176,7 @@ tailwind.config = {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configurações · IA</a>
     </nav>
     <div class="p-4 border-t border-white/10 flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-accent2 to-accent flex items-center justify-center text-white text-xs font-bold" id="side-ini">AF</div>
+      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-accent2 to-accent flex items-center justify-center text-white text-xs font-bold" id="side-ini" onclick="pickImg('avatar')" title="Clique para trocar sua foto" style="cursor:pointer;overflow:hidden;background-size:cover;background-position:center">AF</div>
       <div class="flex-1 min-w-0"><div class="text-[13px] font-semibold text-white truncate">Alessandro Ferreira</div><div class="text-[10px] text-side-muted">Diretoria · Admin do Hub</div></div>
     </div>
   </aside>
@@ -426,6 +426,8 @@ tailwind.config = {
   </main>
 </div>
 
+<input type="file" id="img-picker" accept="image/*" style="display:none">
+
 <!-- ============ MODAL NOVA/EDITAR IMOBILIÁRIA ============ -->
 <div id="imob-modal" style="position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(6,22,41,.55)">
   <div class="card" style="position:relative;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:28px 30px;box-shadow:0 24px 60px rgba(0,0,0,.4)">
@@ -436,6 +438,11 @@ tailwind.config = {
     <input type="hidden" id="f-id">
     <div class="grid md:grid-cols-2 gap-3 text-[13px]">
       <label class="block md:col-span-2"><span class="text-[11px] font-semibold text-muted">Nome da imobiliária *</span><input id="f-nome" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <div class="md:col-span-2 flex items-center gap-3">
+        <div id="f-logo-prev" class="w-12 h-12 rounded-lg bg-panel2 border border-border flex items-center justify-center text-muted text-[10px]" style="background-size:cover;background-position:center;flex-shrink:0">Logo</div>
+        <button type="button" onclick="pickImg('imob')" class="px-3 py-2 rounded-lg bg-panel2 border border-border text-xs font-semibold">Anexar logo da imobiliária</button>
+        <button type="button" onclick="clearImobLogo()" class="text-xs text-muted">remover</button>
+      </div>
       <label class="block"><span class="text-[11px] font-semibold text-muted">CRECI</span><input id="f-creci" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
       <label class="block"><span class="text-[11px] font-semibold text-muted">Segmento</span><input id="f-segmento" placeholder="Residencial e comercial" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
       <label class="block"><span class="text-[11px] font-semibold text-muted">Telefone / WhatsApp</span><input id="f-telefone" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
@@ -550,7 +557,7 @@ tailwind.config = {
     return `<div class="card card-h p-5">
       <div class="flex items-start justify-between mb-4">
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-white font-bold text-lg">${esc(im.sigla||sigla(im.nome))}</div>
+          ${im.logo?`<div class="w-12 h-12 rounded-lg" style="background:url('${im.logo}') center/cover;flex-shrink:0"></div>`:`<div class="w-12 h-12 rounded-lg bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-white font-bold text-lg">${esc(im.sigla||sigla(im.nome))}</div>`}
           <div><div class="font-bold text-[15px]">${esc(im.nome)}</div>
           <div class="text-[11px] text-muted">${im.creci?'CRECI '+esc(im.creci)+' · ':''}${esc(im.segmento||'')}${im.cidade?' · '+esc(im.cidade):''}</div></div>
         </div>
@@ -610,6 +617,8 @@ tailwind.config = {
     document.getElementById('f-regioes').value = im&&im.regioes?im.regioes.join(', '):'';
     document.getElementById('f-tipos').value = im&&im.tipos?im.tipos.join(', '):'';
     if(!im) document.getElementById('f-status').value='Implantando';
+    _imobLogoTmp = im&&im.logo?im.logo:'';
+    const _p=document.getElementById('f-logo-prev'); if(_p){ if(_imobLogoTmp){ _p.textContent=''; _p.style.backgroundImage='url('+_imobLogoTmp+')'; } else { _p.style.backgroundImage=''; _p.textContent='Logo'; } }
     document.getElementById('imob-modal').style.display='flex';
   }
   function closeImob(){ document.getElementById('imob-modal').style.display='none'; }
@@ -624,7 +633,7 @@ tailwind.config = {
       endereco:get('f-endereco'), cidade:get('f-cidade'), regiao:get('f-regiao'),
       regioes:listToArr(get('f-regioes')), tipos:listToArr(get('f-tipos')),
       lat:get('f-lat')?parseFloat(get('f-lat')):null, lng:get('f-lng')?parseFloat(get('f-lng')):null,
-      raio:get('f-raio')?parseInt(get('f-raio')):4500, status:get('f-status')
+      raio:get('f-raio')?parseInt(get('f-raio')):4500, status:get('f-status'), logo:_imobLogoTmp
     };
     if(id){ const i=LOJAS.findIndex(x=>x.id===id); if(i>=0) LOJAS[i]={...LOJAS[i],...o}; }
     else { LOJAS.push({id:luid(nome), cor:'#0077B6', corretores:0, imoveis:0, leads:0, google:'—', ...o}); }
@@ -636,23 +645,50 @@ tailwind.config = {
     LOJAS=LOJAS.filter(x=>x.id!==id); lsave(); renderLojas();
   }
   document.getElementById('imob-modal').addEventListener('click',e=>{ if(e.target.id==='imob-modal') closeImob(); });
+
+  // ----- Upload de imagens (logo Hub, foto do usuário, logo da imobiliária) -----
+  let _imgTarget=null, _imobLogoTmp='';
+  function pickImg(kind){ _imgTarget=kind; document.getElementById('img-picker').click(); }
+  function applyHubLogo(url){ const b=document.getElementById('hub-logo-box'); if(!b)return; if(url){ b.textContent=''; b.style.backgroundImage='url('+url+')'; } else { b.style.backgroundImage=''; b.textContent='AI'; } }
+  function applyAvatar(url){ const b=document.getElementById('side-ini'); if(!b)return; if(url){ b.textContent=''; b.style.backgroundImage='url('+url+')'; } else { b.style.backgroundImage=''; } }
+  function imobLogoPicked(url){ _imobLogoTmp=url; const p=document.getElementById('f-logo-prev'); if(p){ p.textContent=''; p.style.backgroundImage='url('+url+')'; } }
+  function clearImobLogo(){ _imobLogoTmp=''; const p=document.getElementById('f-logo-prev'); if(p){ p.style.backgroundImage=''; p.textContent='Logo'; } }
+  document.getElementById('img-picker').addEventListener('change',function(e){
+    const f=e.target.files&&e.target.files[0]; if(!f){ return; }
+    if(f.size>2*1024*1024){ alert('Imagem muito grande (máx 2MB).'); e.target.value=''; return; }
+    const r=new FileReader();
+    r.onload=()=>{ const url=r.result;
+      if(_imgTarget==='hub'){ try{localStorage.setItem('ailh_hublogo',url);}catch(_){ } applyHubLogo(url); }
+      else if(_imgTarget==='avatar'){ const em=window._contaEmail||'default'; try{localStorage.setItem('ailh_avatar_'+em,url);}catch(_){ } applyAvatar(url); }
+      else if(_imgTarget==='imob'){ imobLogoPicked(url); }
+      e.target.value='';
+    };
+    r.readAsDataURL(f);
+  });
+  function brandInit(){ const h=localStorage.getItem('ailh_hublogo'); if(h) applyHubLogo(h); }
+  brandInit();
   lload(); renderLojas();
 
   // ===== FUNIL (Kanban plug-and-play: criar / apagar / arrastar / reordenar) =====
-  const KSTAGES=[
-    {k:'interesse',t:'Interesse'},{k:'visita',t:'Visita'},{k:'proposta',t:'Proposta'},
-    {k:'assinatura',t:'Assinatura'},{k:'posvenda',t:'Pós-venda',ok:true}
-  ];
-  const KKEY='ailh_funil_v1';
-  let kdata={};
-  function kload(){ try{kdata=JSON.parse(localStorage.getItem(KKEY))||{};}catch(e){kdata={};} KSTAGES.forEach(s=>{if(!Array.isArray(kdata[s.k]))kdata[s.k]=[];}); }
+  const KKEY='ailh_funil_v1', KCOLS='ailh_funil_cols_v1';
+  const KDEFAULT=[{k:'interesse',t:'Interesse'},{k:'visita',t:'Visita'},{k:'proposta',t:'Proposta'},{k:'assinatura',t:'Assinatura'},{k:'posvenda',t:'Pós-venda',ok:true}];
+  let kdata={}, kcols=[];
+  function kload(){
+    try{kdata=JSON.parse(localStorage.getItem(KKEY))||{};}catch(e){kdata={};}
+    try{kcols=JSON.parse(localStorage.getItem(KCOLS));}catch(e){kcols=null;}
+    if(!Array.isArray(kcols)||!kcols.length) kcols=JSON.parse(JSON.stringify(KDEFAULT));
+    kcols.forEach(s=>{if(!Array.isArray(kdata[s.k]))kdata[s.k]=[];});
+  }
   function ksave(){ localStorage.setItem(KKEY,JSON.stringify(kdata)); }
+  function kcolsSave(){ localStorage.setItem(KCOLS,JSON.stringify(kcols)); }
   function kuid(){ return 'c'+Math.random().toString(36).slice(2,9); }
   function kesc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
   function renderFunil(){
     const board=document.getElementById('kanban'); if(!board) return;
-    board.innerHTML = KSTAGES.map(s=>{
+    board.className='';
+    board.style.cssText='display:grid;grid-auto-flow:column;grid-auto-columns:minmax(225px,1fr);gap:12px;overflow-x:auto;padding-bottom:6px;align-items:start';
+    board.innerHTML = kcols.map(s=>{
       const cards=(kdata[s.k]||[]).map(c=>`
         <div class="kcard" draggable="true" data-id="${c.id}">
           <span class="kx" data-del="${c.id}" title="Remover">×</span>
@@ -661,19 +697,22 @@ tailwind.config = {
         </div>`).join('');
       return `<div>
         <div class="flex items-center justify-between mb-3 px-1">
-          <span class="text-xs font-bold uppercase tracking-wide${s.ok?' text-ok':''}">${s.t}</span>
-          <span class="num text-xs text-muted" data-count="${s.k}">${(kdata[s.k]||[]).length}</span>
+          <span class="text-xs font-bold uppercase tracking-wide${s.ok?' text-ok':''}" data-renamecol="${s.k}" title="Clique duas vezes para renomear" style="cursor:default">${kesc(s.t)}</span>
+          <span style="display:flex;align-items:center;gap:8px"><span class="num text-xs text-muted" data-count="${s.k}">${(kdata[s.k]||[]).length}</span><span data-delcol="${s.k}" title="Excluir etapa" style="cursor:pointer;color:rgb(var(--c-muted));font-size:15px;line-height:1;opacity:.55">×</span></span>
         </div>
         <div class="kcol p-2.5" data-stage="${s.k}">${cards}</div>
         <button class="kadd" data-add="${s.k}">+ Adicionar negócio</button>
       </div>`;
-    }).join('');
+    }).join('') + `<div><div class="flex items-center mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide text-muted">Nova etapa</span></div><button onclick="addCol()" class="kadd" style="min-height:70px;display:flex;align-items:center;justify-content:center">+ Adicionar etapa</button></div>`;
   }
-  function kcounts(){ KSTAGES.forEach(s=>{const el=document.querySelector(`[data-count="${s.k}"]`); if(el)el.textContent=(kdata[s.k]||[]).length;}); }
+  function kcounts(){ kcols.forEach(s=>{const el=document.querySelector(`[data-count="${s.k}"]`); if(el)el.textContent=(kdata[s.k]||[]).length;}); }
+  function addCol(){ const t=prompt('Nome da nova etapa do funil:'); if(!t||!t.trim())return; const k='col'+kuid(); kcols.push({k,t:t.trim()}); kdata[k]=[]; kcolsSave(); ksave(); renderFunil(); }
+  function delCol(k){ const c=kcols.find(x=>x.k===k); if(!c)return; const n=(kdata[k]||[]).length; if(!confirm('Excluir a etapa "'+c.t+'"'+(n?(' e seus '+n+' negócio(s)'):'')+'?'))return; kcols=kcols.filter(x=>x.k!==k); delete kdata[k]; kcolsSave(); ksave(); renderFunil(); }
+  function renameCol(k){ const c=kcols.find(x=>x.k===k); if(!c)return; const t=prompt('Renomear etapa:',c.t); if(t==null||!t.trim())return; c.t=t.trim(); kcolsSave(); renderFunil(); }
 
   // sincroniza estado a partir da ordem atual do DOM (após arrastar)
   function ksyncFromDOM(){
-    KSTAGES.forEach(s=>{
+    kcols.forEach(s=>{
       const col=document.querySelector(`.kcol[data-stage="${s.k}"]`); if(!col)return;
       kdata[s.k]=[...col.querySelectorAll('.kcard')].map(el=>({
         id:el.dataset.id,
@@ -701,13 +740,16 @@ tailwind.config = {
         if(v&&v.trim()){ const [titulo,...rest]=v.split('·'); kdata[add.dataset.add].push({id:kuid(),titulo:titulo.trim(),sub:rest.join('·').trim()}); ksave(); renderFunil(); }
         return;
       }
+      const dc=e.target.closest('[data-delcol]');
+      if(dc){ delCol(dc.dataset.delcol); return; }
       const del=e.target.closest('[data-del]');
       if(del){
         const id=del.dataset.del;
-        KSTAGES.forEach(s=>kdata[s.k]=(kdata[s.k]||[]).filter(c=>c.id!==id));
+        kcols.forEach(s=>kdata[s.k]=(kdata[s.k]||[]).filter(c=>c.id!==id));
         ksave(); renderFunil();
       }
     });
+    _board.addEventListener('dblclick',e=>{ const rc=e.target.closest('[data-renamecol]'); if(rc) renameCol(rc.dataset.renamecol); });
     // drag & drop
     let kdrag=null;
     _board.addEventListener('dragstart',e=>{ const c=e.target.closest('.kcard'); if(!c)return; kdrag=c; c.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
@@ -874,7 +916,10 @@ tailwind.config = {
     if(nome) nome.textContent=conta.nome;
     const papel=nome ? nome.nextElementSibling : null;
     if(papel) papel.textContent=conta.papel;
-    document.getElementById('side-ini').textContent=conta.ini;
+    const sideIni=document.getElementById('side-ini');
+    sideIni.textContent=conta.ini; sideIni.style.backgroundImage='';
+    window._contaEmail=conta.email;
+    const av=localStorage.getItem('ailh_avatar_'+conta.email); if(av) applyAvatar(av);
     document.getElementById('login').style.display='none';
     document.getElementById('app').style.display='flex';
   }
