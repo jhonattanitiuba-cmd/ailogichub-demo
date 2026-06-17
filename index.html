@@ -53,7 +53,18 @@ tailwind.config = {
   th{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:rgb(var(--c-muted));font-weight:700;text-align:left;padding:11px 14px;border-bottom:1px solid rgb(var(--c-border))}
   td{padding:13px 14px;border-bottom:1px solid rgb(var(--c-border));font-size:13px}
   tbody tr:hover{background:rgb(var(--c-panel2))}
-  .kcol{background:rgb(var(--c-panel2));border:1px solid rgb(var(--c-border));border-radius:12px;min-height:200px}
+  .kcol{background:rgb(var(--c-panel2));border:1px solid rgb(var(--c-border));border-radius:12px;min-height:120px;transition:background .12s,outline .12s}
+  .kcol.kover{outline:2px dashed rgb(var(--c-accent));outline-offset:-4px;background:rgb(var(--c-accent)/.05)}
+  .kcard{position:relative;background:rgb(var(--c-panel));border:1px solid rgb(var(--c-border));border-radius:10px;padding:9px 11px;margin-bottom:8px;cursor:grab;font-size:13px;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:box-shadow .12s,border-color .12s}
+  .kcard:hover{border-color:rgb(var(--c-accent)/.4);box-shadow:0 3px 10px rgb(var(--c-accent)/.08)}
+  .kcard:active{cursor:grabbing}
+  .kcard.dragging{opacity:.35}
+  .kcard .kt{font-weight:600;line-height:1.3;padding-right:14px}
+  .kcard .ks{color:rgb(var(--c-muted));font-size:11px;margin-top:2px}
+  .kcard .kx{position:absolute;top:7px;right:9px;color:rgb(var(--c-muted));cursor:pointer;font-size:15px;line-height:1;opacity:.45;transition:all .12s}
+  .kcard .kx:hover{opacity:1;color:rgb(var(--c-danger))}
+  .kadd{width:100%;margin-top:8px;padding:8px;border:1px dashed rgb(var(--c-border));border-radius:10px;color:rgb(var(--c-muted));font-size:12px;font-weight:600;cursor:pointer;background:transparent;transition:all .12s}
+  .kadd:hover{border-color:rgb(var(--c-accent));color:rgb(var(--c-accent));background:rgb(var(--c-accent)/.04)}
   .scrollbar::-webkit-scrollbar{width:6px;height:6px}
   .scrollbar::-webkit-scrollbar-thumb{background:rgb(var(--c-border));border-radius:3px}
   .conv-b{max-width:78%;padding:9px 13px;border-radius:13px;font-size:12.5px;line-height:1.5}
@@ -278,16 +289,13 @@ tailwind.config = {
       <!-- ============ FUNIL ============ -->
       <section id="funil" class="screen">
         <div class="flex items-center justify-between mb-5">
-          <p class="text-sm text-muted">Funil padronizado pelo Hub · arraste os cards entre etapas</p>
-          <select class="px-4 py-2 rounded-lg bg-panel border border-border text-sm"><option>Cirag Boutique Imobiliária</option></select>
+          <p class="text-sm text-muted">Funil padronizado pelo Hub · arraste os cards entre etapas · clique no × para remover</p>
+          <div class="flex items-center gap-2">
+            <button onclick="limparFunil()" class="px-3 py-2 rounded-lg bg-panel border border-border text-xs font-semibold text-muted hover:text-danger">Limpar tudo</button>
+            <select class="px-4 py-2 rounded-lg bg-panel border border-border text-sm"><option>Cirag Boutique Imobiliária</option></select>
+          </div>
         </div>
-        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
-          <div><div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Interesse</span><span class="num text-xs text-muted">0</span></div><div class="kcol p-2.5"></div></div>
-          <div><div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Visita</span><span class="num text-xs text-muted">0</span></div><div class="kcol p-2.5"></div></div>
-          <div><div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Proposta</span><span class="num text-xs text-muted">0</span></div><div class="kcol p-2.5"></div></div>
-          <div><div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Assinatura</span><span class="num text-xs text-muted">0</span></div><div class="kcol p-2.5"></div></div>
-          <div><div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide text-ok">Pós-venda</span><span class="num text-xs text-muted">0</span></div><div class="kcol p-2.5"></div></div>
-        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3" id="kanban"></div>
       </section>
 
       <!-- ============ AGENDA ============ -->
@@ -520,6 +528,93 @@ tailwind.config = {
     _map.setView([-23.5615,-46.6562],13);
   }
   document.getElementById('mapa-imob').addEventListener('change',e=>{ if(_map) desenharImobs(e.target.value); });
+
+  // ===== FUNIL (Kanban plug-and-play: criar / apagar / arrastar / reordenar) =====
+  const KSTAGES=[
+    {k:'interesse',t:'Interesse'},{k:'visita',t:'Visita'},{k:'proposta',t:'Proposta'},
+    {k:'assinatura',t:'Assinatura'},{k:'posvenda',t:'Pós-venda',ok:true}
+  ];
+  const KKEY='ailh_funil_v1';
+  let kdata={};
+  function kload(){ try{kdata=JSON.parse(localStorage.getItem(KKEY))||{};}catch(e){kdata={};} KSTAGES.forEach(s=>{if(!Array.isArray(kdata[s.k]))kdata[s.k]=[];}); }
+  function ksave(){ localStorage.setItem(KKEY,JSON.stringify(kdata)); }
+  function kuid(){ return 'c'+Math.random().toString(36).slice(2,9); }
+  function kesc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  function renderFunil(){
+    const board=document.getElementById('kanban'); if(!board) return;
+    board.innerHTML = KSTAGES.map(s=>{
+      const cards=(kdata[s.k]||[]).map(c=>`
+        <div class="kcard" draggable="true" data-id="${c.id}">
+          <span class="kx" data-del="${c.id}" title="Remover">×</span>
+          <div class="kt">${kesc(c.titulo)}</div>
+          ${c.sub?`<div class="ks">${kesc(c.sub)}</div>`:''}
+        </div>`).join('');
+      return `<div>
+        <div class="flex items-center justify-between mb-3 px-1">
+          <span class="text-xs font-bold uppercase tracking-wide${s.ok?' text-ok':''}">${s.t}</span>
+          <span class="num text-xs text-muted" data-count="${s.k}">${(kdata[s.k]||[]).length}</span>
+        </div>
+        <div class="kcol p-2.5" data-stage="${s.k}">${cards}</div>
+        <button class="kadd" data-add="${s.k}">+ Adicionar negócio</button>
+      </div>`;
+    }).join('');
+  }
+  function kcounts(){ KSTAGES.forEach(s=>{const el=document.querySelector(`[data-count="${s.k}"]`); if(el)el.textContent=(kdata[s.k]||[]).length;}); }
+
+  // sincroniza estado a partir da ordem atual do DOM (após arrastar)
+  function ksyncFromDOM(){
+    KSTAGES.forEach(s=>{
+      const col=document.querySelector(`.kcol[data-stage="${s.k}"]`); if(!col)return;
+      kdata[s.k]=[...col.querySelectorAll('.kcard')].map(el=>({
+        id:el.dataset.id,
+        titulo:el.querySelector('.kt').textContent,
+        sub:el.querySelector('.ks')?el.querySelector('.ks').textContent:''
+      }));
+    });
+    ksave(); kcounts();
+  }
+  function kafter(col,y){
+    const els=[...col.querySelectorAll('.kcard:not(.dragging)')];
+    return els.reduce((closest,child)=>{
+      const box=child.getBoundingClientRect(); const offset=y-box.top-box.height/2;
+      return (offset<0 && offset>closest.offset)?{offset,el:child}:closest;
+    },{offset:-Infinity}).el;
+  }
+
+  const _board=document.getElementById('kanban');
+  if(_board){
+    // adicionar / remover (delegação de clique)
+    _board.addEventListener('click',e=>{
+      const add=e.target.closest('[data-add]');
+      if(add){
+        const v=prompt('Novo negócio (ex: João Silva · Apto Itaim, R$ 850 mil):');
+        if(v&&v.trim()){ const [titulo,...rest]=v.split('·'); kdata[add.dataset.add].push({id:kuid(),titulo:titulo.trim(),sub:rest.join('·').trim()}); ksave(); renderFunil(); }
+        return;
+      }
+      const del=e.target.closest('[data-del]');
+      if(del){
+        const id=del.dataset.del;
+        KSTAGES.forEach(s=>kdata[s.k]=(kdata[s.k]||[]).filter(c=>c.id!==id));
+        ksave(); renderFunil();
+      }
+    });
+    // drag & drop
+    let kdrag=null;
+    _board.addEventListener('dragstart',e=>{ const c=e.target.closest('.kcard'); if(!c)return; kdrag=c; c.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+    _board.addEventListener('dragend',e=>{ const c=e.target.closest('.kcard'); if(c)c.classList.remove('dragging'); document.querySelectorAll('.kcol.kover').forEach(k=>k.classList.remove('kover')); kdrag=null; ksyncFromDOM(); });
+    _board.addEventListener('dragover',e=>{
+      const col=e.target.closest('.kcol'); if(!col||!kdrag)return; e.preventDefault();
+      document.querySelectorAll('.kcol.kover').forEach(k=>{if(k!==col)k.classList.remove('kover');});
+      col.classList.add('kover');
+      const after=kafter(col,e.clientY);
+      if(after==null) col.appendChild(kdrag); else col.insertBefore(kdrag,after);
+    });
+    _board.addEventListener('dragleave',e=>{ const col=e.target.closest('.kcol'); if(col&&!col.contains(e.relatedTarget))col.classList.remove('kover'); });
+    _board.addEventListener('drop',e=>{ e.preventDefault(); document.querySelectorAll('.kcol.kover').forEach(k=>k.classList.remove('kover')); });
+  }
+  function limparFunil(){ if(confirm('Remover todos os negócios do funil?')){ KSTAGES.forEach(s=>kdata[s.k]=[]); ksave(); renderFunil(); } }
+  kload(); renderFunil();
 
   // ===== LOGIN (e-mails hipotéticos da demo) =====
   const CONTAS = [
