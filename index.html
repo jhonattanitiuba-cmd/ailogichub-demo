@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
@@ -143,6 +145,8 @@ tailwind.config = {
       <div class="px-5 mt-6 mb-2 text-[10px] uppercase tracking-widest text-side-muted font-bold">Catálogo</div>
       <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="imoveis">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Imóveis</a>
+      <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="mapa">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Mapa de Atuação</a>
       <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="assinaturas">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>Assinaturas · Docs</a>
       <a class="nav-item flex items-center gap-3 px-5 py-2.5 text-sm" data-s="anuncios">
@@ -524,6 +528,59 @@ tailwind.config = {
         </div>
       </section>
 
+      <!-- ============ MAPA DE ATUAÇÃO ============ -->
+      <section id="mapa" class="screen">
+        <div class="flex gap-4" style="height:calc(100vh - 180px)">
+          <!-- painel lateral -->
+          <div class="w-72 flex-shrink-0 flex flex-col gap-4 overflow-y-auto scrollbar">
+            <div class="card p-5">
+              <div class="text-[10px] uppercase tracking-widest text-muted font-bold mb-3">Filtro</div>
+              <label class="block text-[11px] font-semibold text-muted mb-1.5">Imobiliária</label>
+              <select id="mapa-imob" class="w-full px-3 py-2.5 rounded-lg bg-panel2 border border-border text-sm mb-3">
+                <option value="all">Todas as imobiliárias</option>
+                <option value="0">Robotão Imóveis</option>
+                <option value="1">Paulista Prime</option>
+                <option value="2">Vila Nova Negócios</option>
+                <option value="3">Jardins Realty</option>
+                <option value="4">Centro SP Imóveis</option>
+              </select>
+              <label class="block text-[11px] font-semibold text-muted mb-1.5">Tipo de imóvel</label>
+              <select id="mapa-tipo" class="w-full px-3 py-2.5 rounded-lg bg-panel2 border border-border text-sm">
+                <option value="all">Todos</option>
+                <option>Apartamento</option><option>Casa</option><option>Cobertura</option><option>Comercial</option>
+              </select>
+            </div>
+            <div class="card p-5">
+              <div class="text-[10px] uppercase tracking-widest text-muted font-bold mb-3">Resumo</div>
+              <div class="space-y-2.5 text-[13px]">
+                <div class="flex justify-between"><span>Imobiliárias no mapa</span><span class="num" id="m-imob">5</span></div>
+                <div class="flex justify-between"><span>Imóveis ativos</span><span class="num" id="m-imov">902</span></div>
+                <div class="flex justify-between"><span>Raio médio de atuação</span><span class="num">6,2 km</span></div>
+                <div class="flex justify-between"><span>Leads no raio (mês)</span><span class="num text-accent2">1.077</span></div>
+                <div class="flex justify-between pt-2 border-t border-border"><span>Cobertura sobreposta</span><span class="num text-warn">3 zonas</span></div>
+              </div>
+            </div>
+            <div class="card p-5">
+              <div class="text-[10px] uppercase tracking-widest text-muted font-bold mb-3">Top regiões por imóvel</div>
+              <div class="space-y-2.5 text-[13px]">
+                <div class="flex justify-between"><span>Pinheiros</span><span class="num">312</span></div>
+                <div class="h-1.5 rounded bg-accent" style="width:90%"></div>
+                <div class="flex justify-between"><span>Jardins</span><span class="num">241</span></div>
+                <div class="h-1.5 rounded bg-accent2" style="width:70%"></div>
+                <div class="flex justify-between"><span>Morumbi</span><span class="num">187</span></div>
+                <div class="h-1.5 rounded bg-warn" style="width:54%"></div>
+                <div class="flex justify-between"><span>Centro</span><span class="num">64</span></div>
+                <div class="h-1.5 rounded bg-muted" style="width:20%"></div>
+              </div>
+            </div>
+          </div>
+          <!-- mapa -->
+          <div class="card flex-1 overflow-hidden p-0">
+            <div id="leaflet-map" style="width:100%;height:100%;border-radius:14px"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- ============ RELATÓRIOS ============ -->
       <section id="relatorios" class="screen">
         <div class="grid lg:grid-cols-2 gap-4 mb-4">
@@ -689,6 +746,7 @@ tailwind.config = {
     whatsapp:['WhatsApp · Auditoria','Monitoramento das conversas das imobiliárias (modelo Uber)'],
     emails:['E-mails','Caixa central do Hub · admin.ailogichub'],
     imoveis:['Imóveis','Catálogo cross-imobiliária'],
+    mapa:['Mapa de Atuação','Raio das imobiliárias e densidade de imóveis por região'],
     assinaturas:['Assinaturas · Documentos','Controle de contratos · integração D4Sign (Fase 2)'],
     anuncios:['Anúncios · Rodízios','Distribuição de leads e anúncios pagos (Fase 2)'],
     relatorios:['Relatórios','Geração dinâmica · custo de WhatsApp · receita'],
@@ -700,8 +758,48 @@ tailwind.config = {
     document.querySelectorAll('.nav-item').forEach(e=>e.classList.toggle('active', e.dataset.s===s));
     if(titles[s]){document.getElementById('page-title').textContent=titles[s][0];document.getElementById('page-sub').textContent=titles[s][1];}
     document.querySelector('main').scrollTop=0;
+    if(s==='mapa') initMapa();
   }
   document.querySelectorAll('[data-s]').forEach(e=>e.addEventListener('click',()=>show(e.dataset.s)));
+
+  // ===== MAPA DE ATUAÇÃO (Leaflet) =====
+  // Imobiliárias com coordenadas (bairros de São Paulo), raio de atuação e nº de imóveis
+  const IMOBS = [
+    {nome:'Robotão Imóveis',    lat:-23.5640, lng:-46.6920, raio:7000, imoveis:312, cor:'#003B5C', bairro:'Pinheiros'},
+    {nome:'Paulista Prime',     lat:-23.5614, lng:-46.6560, raio:5500, imoveis:187, cor:'#0077B6', bairro:'Av. Paulista'},
+    {nome:'Vila Nova Negócios', lat:-23.5950, lng:-46.6340, raio:4500, imoveis:98,  cor:'#16A34A', bairro:'Vila Mariana'},
+    {nome:'Jardins Realty',     lat:-23.5710, lng:-46.6680, raio:6000, imoveis:241, cor:'#7C3AED', bairro:'Jardins'},
+    {nome:'Centro SP Imóveis',  lat:-23.5450, lng:-46.6360, raio:5000, imoveis:64,  cor:'#F59E0B', bairro:'Centro'}
+  ];
+  let _map=null, _layers=[];
+  function initMapa(){
+    if(_map){ setTimeout(()=>_map.invalidateSize(),60); return; }
+    _map = L.map('leaflet-map',{zoomControl:true,scrollWheelZoom:true}).setView([-23.561,-46.656],11);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+      attribution:'© OpenStreetMap · © CARTO', maxZoom:19
+    }).addTo(_map);
+    desenharImobs('all');
+    setTimeout(()=>_map.invalidateSize(),80);
+  }
+  function desenharImobs(filtro){
+    _layers.forEach(l=>_map.removeLayer(l)); _layers=[];
+    IMOBS.forEach((im,i)=>{
+      if(filtro!=='all' && String(i)!==String(filtro)) return;
+      const circ = L.circle([im.lat,im.lng],{radius:im.raio,color:im.cor,weight:1.5,fillColor:im.cor,fillOpacity:0.12}).addTo(_map);
+      const mk = L.circleMarker([im.lat,im.lng],{radius:8+im.imoveis/40,color:'#fff',weight:2,fillColor:im.cor,fillOpacity:0.95}).addTo(_map);
+      mk.bindPopup(`<b>${im.nome}</b><br>${im.bairro}<br>${im.imoveis} imóveis · raio ${(im.raio/1000).toFixed(1)} km`);
+      _layers.push(circ,mk);
+    });
+    // ajusta zoom ao filtro
+    if(filtro!=='all'){ const im=IMOBS[filtro]; _map.setView([im.lat,im.lng],13); }
+    else { _map.setView([-23.561,-46.656],11); }
+    // atualiza resumo
+    const sel = filtro==='all' ? IMOBS : [IMOBS[filtro]];
+    document.getElementById('m-imob').textContent = sel.length;
+    document.getElementById('m-imov').textContent = sel.reduce((a,b)=>a+b.imoveis,0).toLocaleString('pt-BR');
+  }
+  // filtros do mapa
+  document.getElementById('mapa-imob').addEventListener('change',e=>{ if(_map) desenharImobs(e.target.value); });
 
   // Contas da demo (e-mails hipotéticos · não existem de verdade)
   const CONTAS = [
