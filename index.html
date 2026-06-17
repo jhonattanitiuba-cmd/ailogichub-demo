@@ -539,7 +539,15 @@ tailwind.config = {
     corretores:0, imoveis:0, leads:0, google:'4,4', googleN:'35', status:'Implantando'
   }];
   let LOJAS=[];
-  function lload(){ try{LOJAS=JSON.parse(localStorage.getItem(LKEY));}catch(e){LOJAS=null;} if(!Array.isArray(LOJAS)||!LOJAS.length) LOJAS=JSON.parse(JSON.stringify(CIRAG_SEED)); }
+  // backend real (Supabase via /api/data). localStorage vira só cache offline.
+  async function dataApi(ent,action,body){
+    const r=await fetch('/api/data?ent='+ent+'&action='+action,{method:action==='list'?'GET':'POST',headers:{'Content-Type':'application/json'},body:action==='list'?undefined:JSON.stringify(body||{}),cache:'no-store'});
+    let d={}; try{d=await r.json();}catch(e){} if(!r.ok) throw new Error(d.error||('HTTP '+r.status)); return d;
+  }
+  async function lload(){
+    try{ const d=await dataApi('imobiliarias','list'); LOJAS=d.rows||[]; localStorage.setItem(LKEY,JSON.stringify(LOJAS)); }
+    catch(e){ try{LOJAS=JSON.parse(localStorage.getItem(LKEY))||[];}catch(_){LOJAS=[];} }
+  }
   function lsave(){ localStorage.setItem(LKEY,JSON.stringify(LOJAS)); }
   function luid(n){ return (String(n||'imob').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,16)||'imob')+'-'+Math.random().toString(36).slice(2,6); }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -654,7 +662,7 @@ tailwind.config = {
     document.getElementById('imob-modal').style.display='flex';
   }
   function closeImob(){ document.getElementById('imob-modal').style.display='none'; }
-  function saveImob(){
+  async function saveImob(){
     const get=id=>document.getElementById(id).value.trim();
     const nome=get('f-nome'); if(!nome){ alert('Informe o nome da imobiliária.'); return; }
     const id=get('f-id');
@@ -667,14 +675,17 @@ tailwind.config = {
       lat:get('f-lat')?parseFloat(get('f-lat')):null, lng:get('f-lng')?parseFloat(get('f-lng')):null,
       raio:get('f-raio')?parseInt(get('f-raio')):4500, status:get('f-status'), logo:_imobLogoTmp
     };
-    if(id){ const i=LOJAS.findIndex(x=>x.id===id); if(i>=0) LOJAS[i]={...LOJAS[i],...o}; }
-    else { LOJAS.push({id:luid(nome), cor:'#0077B6', corretores:0, imoveis:0, leads:0, google:'—', ...o}); }
-    lsave(); renderLojas(); closeImob();
+    const payload = id ? {id, ...o} : {cor:'#0077B6', corretores:0, leads:0, google:'—', ...o};
+    const btn=event&&event.target; if(btn)btn.disabled=true;
+    try{ await dataApi('imobiliarias','save',payload); await lload(); renderLojas(); renderImoveis(); closeImob(); }
+    catch(e){ alert('Falha ao salvar no banco: '+e.message); }
+    finally{ if(btn)btn.disabled=false; }
   }
-  function delImob(id){
+  async function delImob(id){
     const im=LOJAS.find(x=>x.id===id); if(!im) return;
-    if(!confirm('Excluir "'+im.nome+'" da plataforma?')) return;
-    LOJAS=LOJAS.filter(x=>x.id!==id); lsave(); renderLojas();
+    if(!confirm('Excluir "'+im.nome+'" da plataforma? Os imóveis dela também serão removidos.')) return;
+    try{ await dataApi('imobiliarias','delete',{id}); await lload(); renderLojas(); renderImoveis(); }
+    catch(e){ alert('Falha ao excluir: '+e.message); }
   }
   document.getElementById('imob-modal').addEventListener('click',e=>{ if(e.target.id==='imob-modal') closeImob(); });
 
@@ -703,7 +714,10 @@ tailwind.config = {
   // ===== IMÓVEIS (cadastro plug-and-play) =====
   const IVKEY='ailh_imoveis_v1';
   let IMOVEIS=[], _ivFiltro='all', _imovelFotoTmp='';
-  function ivLoad(){ try{IMOVEIS=JSON.parse(localStorage.getItem(IVKEY));}catch(e){IMOVEIS=null;} if(!Array.isArray(IMOVEIS))IMOVEIS=[]; }
+  async function ivLoad(){
+    try{ const d=await dataApi('imoveis','list'); IMOVEIS=d.rows||[]; localStorage.setItem(IVKEY,JSON.stringify(IMOVEIS)); }
+    catch(e){ try{IMOVEIS=JSON.parse(localStorage.getItem(IVKEY))||[];}catch(_){IMOVEIS=[];} }
+  }
   function ivSave(){ localStorage.setItem(IVKEY,JSON.stringify(IMOVEIS)); }
   function ivUid(){ return 'iv-'+Math.random().toString(36).slice(2,9); }
   function imovelCount(imobId){ return IMOVEIS.filter(x=>x.imobiliaria_id===imobId).length; }
@@ -765,23 +779,28 @@ tailwind.config = {
     document.getElementById('imovel-modal').style.display='flex';
   }
   function closeImovel(){ document.getElementById('imovel-modal').style.display='none'; }
-  function saveImovel(){
+  async function saveImovel(){
     const g=k=>document.getElementById('iv-'+k).value.trim();
     const titulo=g('titulo'); if(!titulo){ alert('Informe o título do imóvel.'); return; }
+    if(!g('imob')){ alert('Cadastre uma imobiliária antes (o imóvel precisa estar vinculado).'); return; }
     const id=g('id');
     const num=k=>{ const v=g(k).replace(/\D/g,''); return v?parseInt(v):null; };
     const o={ titulo, imobiliaria_id:g('imob'), codigo:g('codigo'), tipo:g('tipo'), finalidade:g('finalidade'), status:g('status'),
       preco:num('preco'), area:num('area'), quartos:num('quartos'), suites:num('suites'), banheiros:num('banheiros'), vagas:num('vagas'),
       endereco:g('endereco'), bairro:g('bairro'), cidade:g('cidade'), descricao:g('descricao'), foto:_imovelFotoTmp };
-    if(id){ const i=IMOVEIS.findIndex(x=>x.id===id); if(i>=0) IMOVEIS[i]={...IMOVEIS[i],...o}; }
-    else { IMOVEIS.push({id:ivUid(),...o}); }
-    ivSave(); renderImoveis(); renderLojas(); closeImovel();
+    const payload = id?{id,...o}:o;
+    const btn=event&&event.target; if(btn)btn.disabled=true;
+    try{ await dataApi('imoveis','save',payload); await ivLoad(); renderImoveis(); renderLojas(); closeImovel(); }
+    catch(e){ alert('Falha ao salvar no banco: '+e.message); }
+    finally{ if(btn)btn.disabled=false; }
   }
-  function delImovel(id){ const o=IMOVEIS.find(x=>x.id===id); if(!o)return; if(!confirm('Excluir o imóvel "'+o.titulo+'"?'))return; IMOVEIS=IMOVEIS.filter(x=>x.id!==id); ivSave(); renderImoveis(); renderLojas(); }
+  async function delImovel(id){ const o=IMOVEIS.find(x=>x.id===id); if(!o)return; if(!confirm('Excluir o imóvel "'+o.titulo+'"?'))return;
+    try{ await dataApi('imoveis','delete',{id}); await ivLoad(); renderImoveis(); renderLojas(); }
+    catch(e){ alert('Falha ao excluir: '+e.message); } }
   document.getElementById('imovel-modal').addEventListener('click',e=>{ if(e.target.id==='imovel-modal') closeImovel(); });
 
-  ivLoad(); brandInit();
-  lload(); renderLojas(); renderImoveis();
+  // init assíncrono (carrega do banco; localStorage é só cache offline)
+  (async()=>{ brandInit(); await lload(); await ivLoad(); renderLojas(); renderImoveis(); })();
 
   // ===== FUNIL (Kanban plug-and-play: criar / apagar / arrastar / reordenar) =====
   const KKEY='ailh_funil_v1', KCOLS='ailh_funil_cols_v1';
