@@ -66,7 +66,52 @@ tailwind.config = {
 </head>
 <body class="min-h-screen">
 
-<div class="flex h-screen overflow-hidden">
+<!-- ============ LOGIN ============ -->
+<div id="login" style="position:fixed;inset:0;z-index:200;background:rgb(var(--c-side-bg));display:flex;align-items:center;justify-content:center;padding:24px">
+  <div style="position:absolute;inset:0;background:radial-gradient(circle at 30% 20%, rgba(0,119,182,.18), transparent 55%), radial-gradient(circle at 80% 80%, rgba(77,163,217,.12), transparent 50%)"></div>
+  <div class="card" style="position:relative;width:100%;max-width:400px;padding:36px 34px;box-shadow:0 24px 60px rgba(0,0,0,.4)">
+    <div class="flex items-center gap-3 mb-7">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent2 to-accent flex items-center justify-center font-extrabold text-white tracking-tight">AI</div>
+      <div>
+        <div class="font-extrabold text-[17px] leading-none">AI Logic Hub</div>
+        <div class="text-[11px] text-muted font-semibold mt-1">Tecnologia Imobiliária</div>
+      </div>
+    </div>
+    <h1 class="text-lg font-bold">Acesse sua conta</h1>
+    <p class="text-xs text-muted mt-1 mb-6">Plataforma de gestão imobiliária do Hub</p>
+
+    <label class="block text-[12px] font-bold mb-1.5">E-mail</label>
+    <div style="position:relative;margin-bottom:14px">
+      <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgb(var(--c-muted))" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+      <input id="lg-email" type="email" placeholder="voce@ailogichub.app" autocomplete="off"
+        style="width:100%;padding:12px 14px 12px 38px;background:rgb(var(--c-panel2));border:1.5px solid rgb(var(--c-border));border-radius:10px;font-size:13px;font-family:'Montserrat',sans-serif;color:rgb(var(--c-text))">
+    </div>
+
+    <label class="block text-[12px] font-bold mb-1.5">Senha</label>
+    <div style="position:relative;margin-bottom:10px">
+      <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgb(var(--c-muted))" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <input id="lg-pass" type="password" placeholder="Sua senha" autocomplete="off"
+        style="width:100%;padding:12px 14px 12px 38px;background:rgb(var(--c-panel2));border:1.5px solid rgb(var(--c-border));border-radius:10px;font-size:13px;font-family:'Montserrat',sans-serif;color:rgb(var(--c-text))">
+    </div>
+
+    <div class="flex items-center justify-between mb-6 text-[12px]">
+      <label class="flex items-center gap-2 cursor-pointer text-muted"><input type="checkbox" style="accent-color:rgb(var(--c-accent))"> Lembrar-me</label>
+      <a class="font-semibold cursor-pointer" style="color:rgb(var(--c-accent2))">Esqueci a senha</a>
+    </div>
+
+    <button onclick="entrar()" style="width:100%;padding:13px;background:rgb(var(--c-accent));color:#fff;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .15s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">Entrar</button>
+    <p id="lg-err" style="display:none;color:rgb(var(--c-danger));font-size:12px;margin-top:10px;font-weight:600">Credenciais não reconhecidas.</p>
+
+    <div class="flex items-center gap-3 my-5"><div style="flex:1;height:1px;background:rgb(var(--c-border))"></div><span class="text-[11px] text-muted">ou</span><div style="flex:1;height:1px;background:rgb(var(--c-border))"></div></div>
+    <button onclick="entrar()" style="width:100%;padding:11px;background:rgb(var(--c-panel));border:1.5px solid rgb(var(--c-border));border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;font-family:'Montserrat',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;color:rgb(var(--c-text))">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+      Entrar com Google Workspace
+    </button>
+    <p class="text-[11px] text-muted text-center mt-5">admin@ailogichub.app  ·  Acesso restrito</p>
+  </div>
+</div>
+
+<div id="app" class="flex h-screen overflow-hidden" style="display:none">
   <!-- SIDEBAR -->
   <aside class="sidebar w-60 flex flex-col flex-shrink-0">
     <div class="p-5 border-b border-white/10">
@@ -657,6 +702,34 @@ tailwind.config = {
     document.querySelector('main').scrollTop=0;
   }
   document.querySelectorAll('[data-s]').forEach(e=>e.addEventListener('click',()=>show(e.dataset.s)));
+
+  // Login (demo: qualquer e-mail/senha entra; lista de aceitos pode ser preenchida abaixo)
+  const CONTAS_VALIDAS = [
+    // {email:'...', senha:'...', nome:'...', papel:'...'}  ← preencher com os e-mails fake
+  ];
+  function entrar(){
+    const email=(document.getElementById('lg-email').value||'').trim().toLowerCase();
+    const pass=document.getElementById('lg-pass').value||'';
+    const err=document.getElementById('lg-err');
+    let ok=true, conta=null;
+    if(CONTAS_VALIDAS.length){
+      conta=CONTAS_VALIDAS.find(c=>c.email.toLowerCase()===email && c.senha===pass);
+      ok=!!conta;
+    }
+    if(!ok){ err.style.display='block'; return; }
+    err.style.display='none';
+    // Personaliza usuário logado, se houver conta
+    if(conta){
+      const nome=document.querySelector('#app aside .text-\\[13px\\].font-semibold');
+      if(nome) nome.textContent=conta.nome||nome.textContent;
+      const av=document.querySelector('#app aside .rounded-full.bg-gradient-to-br');
+      if(av && conta.nome) av.textContent=conta.nome.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
+    }
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').style.display='flex';
+  }
+  // Enter envia o login
+  ['lg-email','lg-pass'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter') entrar(); }));
 </script>
 </body>
 </html>
