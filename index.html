@@ -182,9 +182,9 @@ tailwind.config = {
         <p id="page-sub" class="text-xs text-muted mt-0.5">Operação consolidada das imobiliárias parceiras</p>
       </div>
       <div class="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-panel2 border border-border text-xs">
-        <span class="pulse"></span><span class="font-semibold">Sistema ativo</span><span class="text-muted">· 1 imobiliária</span>
+        <span class="pulse"></span><span class="font-semibold">Sistema ativo</span><span class="text-muted">· <span id="hdr-imob">1 imobiliária</span></span>
       </div>
-      <button class="px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold hover:opacity-90 transition">+ Nova Imobiliária</button>
+      <button onclick="openImob()" class="px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold hover:opacity-90 transition">+ Nova Imobiliária</button>
     </header>
 
     <div class="p-8">
@@ -202,15 +202,13 @@ tailwind.config = {
           <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Leads no mês</div><div class="num text-3xl mt-2">0</div><div class="text-[11px] text-muted font-semibold mt-1">aguardando primeiros leads</div></div>
           <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Qualificados pela IA</div><div class="num text-3xl mt-2">0</div><div class="text-[11px] text-muted font-semibold mt-1">IA pronta para ativar</div></div>
           <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Negócios em andamento</div><div class="num text-3xl mt-2">0</div><div class="text-[11px] text-muted font-semibold mt-1">R$ 0 em pipeline</div></div>
-          <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Imobiliárias ativas</div><div class="num text-3xl mt-2">1</div><div class="text-[11px] text-ok font-semibold mt-1">Cirag Boutique</div></div>
+          <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Imobiliárias ativas</div><div class="num text-3xl mt-2" id="dash-imob-n">1</div><div class="text-[11px] text-ok font-semibold mt-1" id="dash-imob-sub">Cirag Boutique</div></div>
         </div>
         <div class="card p-6">
           <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">Imobiliárias na plataforma</h3><a class="text-xs text-accent2 font-semibold cursor-pointer" data-s="imobiliarias">Ver todas →</a></div>
           <table>
             <thead><tr><th>Imobiliária</th><th>CRECI</th><th>Região</th><th>Leads</th><th>Imóveis</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr><td class="font-semibold">Cirag Boutique Imobiliária</td><td class="num">J25194</td><td>Jardins · Av. Paulista</td><td class="num">0</td><td class="num">0</td><td><span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Implantando</span></td></tr>
-            </tbody>
+            <tbody id="dash-imob-rows"></tbody>
           </table>
         </div>
       </section>
@@ -218,57 +216,10 @@ tailwind.config = {
       <!-- ============ IMOBILIÁRIAS ============ -->
       <section id="imobiliarias" class="screen">
         <div class="flex items-center justify-between mb-5">
-          <div class="flex gap-2"><span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todas · 1</span><span class="chip">Implantando · 1</span></div>
-          <input placeholder="Buscar imobiliária..." class="px-4 py-2 rounded-lg bg-panel border border-border text-sm w-64">
+          <div class="flex gap-2" id="imob-chips"></div>
+          <button onclick="openImob()" class="px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold hover:opacity-90 transition">+ Nova Imobiliária</button>
         </div>
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- CIRAG -->
-          <div class="card card-h p-5 lg:col-span-2">
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-white font-bold text-lg">CI</div>
-                <div>
-                  <div class="font-bold text-[15px]">Cirag Boutique Imobiliária</div>
-                  <div class="text-[11px] text-muted">CRECI J25194 · Boutique de alto padrão · São Paulo/SP</div>
-                </div>
-              </div>
-              <span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Implantando</span>
-            </div>
-            <div class="grid md:grid-cols-2 gap-x-8 gap-y-2.5 text-[12.5px] mb-4">
-              <div class="flex justify-between border-b border-border pb-2"><span class="text-muted">Razão social</span><span class="font-semibold">Cirag Boutique Imobiliária LTDA</span></div>
-              <div class="flex justify-between border-b border-border pb-2"><span class="text-muted">Segmento</span><span class="font-semibold">Residencial e comercial</span></div>
-              <div class="flex justify-between border-b border-border pb-2"><span class="text-muted">Telefone / WhatsApp</span><span class="font-semibold">(11) 99790-7684</span></div>
-              <div class="flex justify-between border-b border-border pb-2"><span class="text-muted">E-mail</span><span class="font-semibold">atendimento@cirag.com.br</span></div>
-              <div class="flex justify-between border-b border-border pb-2"><span class="text-muted">Site</span><span class="font-semibold">cirag.com.br</span></div>
-              <div class="flex justify-between border-b border-border pb-2"><span class="text-muted">Instagram</span><span class="font-semibold">@ciragimobiliaria</span></div>
-              <div class="flex justify-between border-b border-border pb-2 md:col-span-2"><span class="text-muted">Endereço</span><span class="font-semibold">Av. Paulista, 1636 · CJ 706 · Cerqueira César · São Paulo/SP</span></div>
-            </div>
-            <div class="mb-4">
-              <div class="text-[11px] text-muted font-semibold mb-2">Regiões de atuação</div>
-              <div class="flex flex-wrap gap-1.5">
-                <span class="chip">Jardim Paulista</span><span class="chip">Cerqueira César</span><span class="chip">Jardins</span><span class="chip">Itaim Bibi</span><span class="chip">Av. Paulista</span>
-              </div>
-            </div>
-            <div class="mb-4">
-              <div class="text-[11px] text-muted font-semibold mb-2">Tipos de imóvel · serviços</div>
-              <div class="flex flex-wrap gap-1.5">
-                <span class="chip">Apartamentos</span><span class="chip">Casas</span><span class="chip">Salas comerciais</span><span class="chip">Lofts</span><span class="chip">Locação</span><span class="chip">Temporada</span><span class="chip">Tours 360°</span>
-              </div>
-            </div>
-            <div class="grid grid-cols-4 gap-2 text-center pt-3 border-t border-border">
-              <div><div class="num text-lg">0</div><div class="text-[10px] text-muted">Corretores</div></div>
-              <div><div class="num text-lg">0</div><div class="text-[10px] text-muted">Imóveis</div></div>
-              <div><div class="num text-lg">0</div><div class="text-[10px] text-muted">Leads</div></div>
-              <div><div class="num text-lg">4,4</div><div class="text-[10px] text-muted">Google (35)</div></div>
-            </div>
-          </div>
-          <!-- add card -->
-          <div class="card card-h p-5 flex flex-col items-center justify-center text-center cursor-pointer" style="border-style:dashed">
-            <div class="w-11 h-11 rounded-full bg-accent/10 flex items-center justify-center text-accent text-2xl font-bold mb-2">+</div>
-            <div class="font-semibold text-sm">Nova imobiliária parceira</div>
-            <div class="text-[11px] text-muted mt-1">Cadastrar CRECI, plano e equipe</div>
-          </div>
-        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="imob-grid"></div>
       </section>
 
       <!-- ============ LEADS ============ -->
@@ -475,6 +426,39 @@ tailwind.config = {
   </main>
 </div>
 
+<!-- ============ MODAL NOVA/EDITAR IMOBILIÁRIA ============ -->
+<div id="imob-modal" style="position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(6,22,41,.55)">
+  <div class="card" style="position:relative;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:28px 30px;box-shadow:0 24px 60px rgba(0,0,0,.4)">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="text-base font-bold" id="imob-modal-title">Nova Imobiliária</h3>
+      <span onclick="closeImob()" style="cursor:pointer;font-size:20px;color:rgb(var(--c-muted));line-height:1">&times;</span>
+    </div>
+    <input type="hidden" id="f-id">
+    <div class="grid md:grid-cols-2 gap-3 text-[13px]">
+      <label class="block md:col-span-2"><span class="text-[11px] font-semibold text-muted">Nome da imobiliária *</span><input id="f-nome" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">CRECI</span><input id="f-creci" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Segmento</span><input id="f-segmento" placeholder="Residencial e comercial" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Telefone / WhatsApp</span><input id="f-telefone" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">E-mail</span><input id="f-email" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Site</span><input id="f-site" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Instagram</span><input id="f-instagram" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block md:col-span-2"><span class="text-[11px] font-semibold text-muted">Endereço</span><input id="f-endereco" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Cidade/UF</span><input id="f-cidade" placeholder="São Paulo/SP" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Região (rótulo curto)</span><input id="f-regiao" placeholder="Jardins · Av. Paulista" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block md:col-span-2"><span class="text-[11px] font-semibold text-muted">Regiões de atuação (separadas por vírgula)</span><input id="f-regioes" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block md:col-span-2"><span class="text-[11px] font-semibold text-muted">Tipos de imóvel · serviços (vírgula)</span><input id="f-tipos" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Latitude</span><input id="f-lat" placeholder="-23.5615" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Longitude</span><input id="f-lng" placeholder="-46.6562" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Raio de atuação (metros)</span><input id="f-raio" placeholder="4500" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Status</span><select id="f-status" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"><option>Implantando</option><option>Ativo</option><option>Pausado</option></select></label>
+    </div>
+    <div class="flex justify-end gap-2 mt-6">
+      <button onclick="closeImob()" class="px-4 py-2 rounded-lg bg-panel2 border border-border text-sm font-semibold">Cancelar</button>
+      <button onclick="saveImob()" class="px-5 py-2 rounded-lg bg-accent text-white text-sm font-semibold">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const titles = {
     dashboard:['Visão Geral','Operação consolidada das imobiliárias parceiras'],
@@ -501,33 +485,157 @@ tailwind.config = {
   }
   document.querySelectorAll('[data-s]').forEach(e=>e.addEventListener('click',()=>show(e.dataset.s)));
 
-  // ===== MAPA DE ATUAÇÃO (Leaflet) =====
-  const IMOBS = [
-    {nome:'Cirag Boutique Imobiliária', lat:-23.5615, lng:-46.6562, raio:4500, imoveis:0, cor:'#003B5C', bairro:'Av. Paulista, 1636 · Cerqueira César'}
-  ];
+  // ===== IMOBILIÁRIAS (fonte de dados central · plug-and-play) =====
+  const LKEY='ailh_lojas_v1';
+  const CIRAG_SEED=[{
+    id:'cirag', nome:'Cirag Boutique Imobiliária', sigla:'CI', creci:'J25194',
+    segmento:'Residencial e comercial', telefone:'(11) 99790-7684', email:'atendimento@cirag.com.br',
+    site:'cirag.com.br', instagram:'@ciragimobiliaria',
+    endereco:'Av. Paulista, 1636 · CJ 706 · Cerqueira César · São Paulo/SP',
+    cidade:'São Paulo/SP', regiao:'Jardins · Av. Paulista',
+    regioes:['Jardim Paulista','Cerqueira César','Jardins','Itaim Bibi','Av. Paulista'],
+    tipos:['Apartamentos','Casas','Salas comerciais','Lofts','Locação','Temporada','Tours 360°'],
+    lat:-23.5615, lng:-46.6562, raio:4500, cor:'#003B5C',
+    corretores:0, imoveis:0, leads:0, google:'4,4', googleN:'35', status:'Implantando'
+  }];
+  let LOJAS=[];
+  function lload(){ try{LOJAS=JSON.parse(localStorage.getItem(LKEY));}catch(e){LOJAS=null;} if(!Array.isArray(LOJAS)||!LOJAS.length) LOJAS=JSON.parse(JSON.stringify(CIRAG_SEED)); }
+  function lsave(){ localStorage.setItem(LKEY,JSON.stringify(LOJAS)); }
+  function luid(n){ return (String(n||'imob').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,16)||'imob')+'-'+Math.random().toString(36).slice(2,6); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function sigla(n){ return (n||'').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'IM'; }
+  function statusCor(s){ return s==='Ativo'?'var(--c-ok)':s==='Pausado'?'var(--c-warn)':'var(--c-accent2)'; }
+  function badgeStyle(s){ const v=statusCor(s); return `background:rgb(${v}/.12);color:rgb(${v})`; }
+
+  // ----- Mapa (Leaflet) usa LOJAS -----
   let _map=null, _layers=[];
+  function mapaCentro(){ return LOJAS[0]?[LOJAS[0].lat,LOJAS[0].lng]:[-23.5615,-46.6562]; }
   function initMapa(){
     if(_map){ setTimeout(()=>_map.invalidateSize(),60); return; }
-    _map = L.map('leaflet-map',{zoomControl:true,scrollWheelZoom:true}).setView([-23.5615,-46.6562],13);
+    _map = L.map('leaflet-map',{zoomControl:true,scrollWheelZoom:true}).setView(mapaCentro(),13);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap · © CARTO', maxZoom:19}).addTo(_map);
-    desenharImobs('all');
+    desenharImobs(document.getElementById('mapa-imob').value||'all');
     setTimeout(()=>_map.invalidateSize(),80);
   }
   function desenharImobs(filtro){
+    if(!_map) return;
     _layers.forEach(l=>_map.removeLayer(l)); _layers=[];
-    IMOBS.forEach((im,i)=>{
+    LOJAS.forEach((im,i)=>{
       if(filtro!=='all' && String(i)!==String(filtro)) return;
-      const circ = L.circle([im.lat,im.lng],{radius:im.raio,color:im.cor,weight:1.5,fillColor:im.cor,fillOpacity:0.12}).addTo(_map);
-      const mk = L.circleMarker([im.lat,im.lng],{radius:11,color:'#fff',weight:2,fillColor:im.cor,fillOpacity:0.95}).addTo(_map);
-      mk.bindPopup(`<b>${im.nome}</b><br>${im.bairro}<br>raio ${(im.raio/1000).toFixed(1)} km`);
+      if(im.lat==null||im.lng==null) return;
+      const cor=im.cor||'#003B5C';
+      const circ = L.circle([im.lat,im.lng],{radius:im.raio||4500,color:cor,weight:1.5,fillColor:cor,fillOpacity:0.12}).addTo(_map);
+      const mk = L.circleMarker([im.lat,im.lng],{radius:11,color:'#fff',weight:2,fillColor:cor,fillOpacity:0.95}).addTo(_map);
+      mk.bindPopup(`<b>${esc(im.nome)}</b><br>${esc(im.regiao||im.cidade||'')}<br>raio ${((im.raio||4500)/1000).toFixed(1)} km`);
       _layers.push(circ,mk);
     });
-    const sel = filtro==='all' ? IMOBS : [IMOBS[filtro]];
+    const sel = filtro==='all' ? LOJAS : [LOJAS[filtro]].filter(Boolean);
     document.getElementById('m-imob').textContent = sel.length;
-    document.getElementById('m-imov').textContent = sel.reduce((a,b)=>a+b.imoveis,0).toLocaleString('pt-BR');
-    _map.setView([-23.5615,-46.6562],13);
+    document.getElementById('m-imov').textContent = sel.reduce((a,b)=>a+(+b.imoveis||0),0).toLocaleString('pt-BR');
+    if(sel[0]&&sel[0].lat!=null) _map.setView([sel[0].lat,sel[0].lng],13);
+  }
+  function rebuildMapaSelect(){
+    const s=document.getElementById('mapa-imob'); if(!s)return;
+    const cur=s.value;
+    s.innerHTML='<option value="all">Todas as imobiliárias</option>'+LOJAS.map((im,i)=>`<option value="${i}">${esc(im.nome)}</option>`).join('');
+    s.value=[...s.options].some(o=>o.value===cur)?cur:'all';
   }
   document.getElementById('mapa-imob').addEventListener('change',e=>{ if(_map) desenharImobs(e.target.value); });
+
+  // ----- Renderização (dashboard + tela + header) -----
+  function lojaCard(im){
+    const regioes=(im.regioes||[]).map(r=>`<span class="chip">${esc(r)}</span>`).join('');
+    const tipos=(im.tipos||[]).map(r=>`<span class="chip">${esc(r)}</span>`).join('');
+    return `<div class="card card-h p-5">
+      <div class="flex items-start justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-white font-bold text-lg">${esc(im.sigla||sigla(im.nome))}</div>
+          <div><div class="font-bold text-[15px]">${esc(im.nome)}</div>
+          <div class="text-[11px] text-muted">${im.creci?'CRECI '+esc(im.creci)+' · ':''}${esc(im.segmento||'')}${im.cidade?' · '+esc(im.cidade):''}</div></div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="badge" style="${badgeStyle(im.status)}">${esc(im.status||'Implantando')}</span>
+        </div>
+      </div>
+      <div class="grid gap-y-2 text-[12.5px] mb-3">
+        ${im.telefone?`<div class="flex justify-between border-b border-border pb-1.5"><span class="text-muted">Telefone</span><span class="font-semibold">${esc(im.telefone)}</span></div>`:''}
+        ${im.email?`<div class="flex justify-between border-b border-border pb-1.5"><span class="text-muted">E-mail</span><span class="font-semibold">${esc(im.email)}</span></div>`:''}
+        ${im.site?`<div class="flex justify-between border-b border-border pb-1.5"><span class="text-muted">Site</span><span class="font-semibold">${esc(im.site)}</span></div>`:''}
+        ${im.endereco?`<div class="flex justify-between border-b border-border pb-1.5"><span class="text-muted">Endereço</span><span class="font-semibold text-right">${esc(im.endereco)}</span></div>`:''}
+      </div>
+      ${regioes?`<div class="mb-3"><div class="text-[11px] text-muted font-semibold mb-1.5">Regiões de atuação</div><div class="flex flex-wrap gap-1.5">${regioes}</div></div>`:''}
+      ${tipos?`<div class="mb-3"><div class="text-[11px] text-muted font-semibold mb-1.5">Tipos · serviços</div><div class="flex flex-wrap gap-1.5">${tipos}</div></div>`:''}
+      <div class="grid grid-cols-4 gap-2 text-center pt-3 border-t border-border mb-3">
+        <div><div class="num text-lg">${+im.corretores||0}</div><div class="text-[10px] text-muted">Corretores</div></div>
+        <div><div class="num text-lg">${+im.imoveis||0}</div><div class="text-[10px] text-muted">Imóveis</div></div>
+        <div><div class="num text-lg">${+im.leads||0}</div><div class="text-[10px] text-muted">Leads</div></div>
+        <div><div class="num text-lg">${esc(im.google||'—')}</div><div class="text-[10px] text-muted">Google${im.googleN?' ('+esc(im.googleN)+')':''}</div></div>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button onclick="openImob('${im.id}')" class="px-3 py-1.5 rounded-lg bg-panel2 border border-border text-xs font-semibold">Editar</button>
+        <button onclick="delImob('${im.id}')" class="px-3 py-1.5 rounded-lg bg-panel2 border border-border text-xs font-semibold text-danger">Excluir</button>
+      </div>
+    </div>`;
+  }
+  function renderLojas(){
+    const n=LOJAS.length;
+    // header
+    const h=document.getElementById('hdr-imob'); if(h) h.textContent=n+' imobiliária'+(n!==1?'s':'');
+    // dashboard card
+    const dn=document.getElementById('dash-imob-n'); if(dn) dn.textContent=n;
+    const ds=document.getElementById('dash-imob-sub'); if(ds) ds.textContent = n===1?LOJAS[0].nome.replace(/ Imobiliária$/,''):n+' parceiras';
+    // dashboard table
+    const rows=document.getElementById('dash-imob-rows');
+    if(rows) rows.innerHTML=LOJAS.map(im=>`<tr><td class="font-semibold">${esc(im.nome)}</td><td class="num">${esc(im.creci||'—')}</td><td>${esc(im.regiao||im.cidade||'—')}</td><td class="num">${+im.leads||0}</td><td class="num">${+im.imoveis||0}</td><td><span class="badge" style="${badgeStyle(im.status)}">${esc(im.status||'Implantando')}</span></td></tr>`).join('');
+    // chips
+    const chips=document.getElementById('imob-chips');
+    if(chips){ const impl=LOJAS.filter(x=>x.status==='Implantando').length, atv=LOJAS.filter(x=>x.status==='Ativo').length;
+      chips.innerHTML=`<span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todas · ${n}</span>`+(atv?`<span class="chip">Ativas · ${atv}</span>`:'')+(impl?`<span class="chip">Implantando · ${impl}</span>`:''); }
+    // grid de cards + tile de adicionar
+    const grid=document.getElementById('imob-grid');
+    if(grid) grid.innerHTML=LOJAS.map(lojaCard).join('')+`<div onclick="openImob()" class="card card-h p-5 flex flex-col items-center justify-center text-center cursor-pointer" style="border-style:dashed"><div class="w-11 h-11 rounded-full bg-accent/10 flex items-center justify-center text-accent text-2xl font-bold mb-2">+</div><div class="font-semibold text-sm">Nova imobiliária parceira</div><div class="text-[11px] text-muted mt-1">Cadastrar CRECI, plano e equipe</div></div>`;
+    // mapa
+    rebuildMapaSelect();
+    if(_map) desenharImobs(document.getElementById('mapa-imob').value||'all');
+  }
+
+  // ----- Modal CRUD -----
+  const _fields=['nome','creci','segmento','telefone','email','site','instagram','endereco','cidade','regiao','lat','lng','raio','status'];
+  function openImob(id){
+    document.getElementById('imob-modal-title').textContent = id?'Editar Imobiliária':'Nova Imobiliária';
+    const im = id?LOJAS.find(x=>x.id===id):null;
+    document.getElementById('f-id').value = im?im.id:'';
+    _fields.forEach(f=>{ const el=document.getElementById('f-'+f); if(el) el.value = im&&im[f]!=null?im[f]:''; });
+    document.getElementById('f-regioes').value = im&&im.regioes?im.regioes.join(', '):'';
+    document.getElementById('f-tipos').value = im&&im.tipos?im.tipos.join(', '):'';
+    if(!im) document.getElementById('f-status').value='Implantando';
+    document.getElementById('imob-modal').style.display='flex';
+  }
+  function closeImob(){ document.getElementById('imob-modal').style.display='none'; }
+  function saveImob(){
+    const get=id=>document.getElementById(id).value.trim();
+    const nome=get('f-nome'); if(!nome){ alert('Informe o nome da imobiliária.'); return; }
+    const id=get('f-id');
+    const listToArr=s=>s.split(',').map(x=>x.trim()).filter(Boolean);
+    const o={
+      nome, sigla:sigla(nome), creci:get('f-creci'), segmento:get('f-segmento'),
+      telefone:get('f-telefone'), email:get('f-email'), site:get('f-site'), instagram:get('f-instagram'),
+      endereco:get('f-endereco'), cidade:get('f-cidade'), regiao:get('f-regiao'),
+      regioes:listToArr(get('f-regioes')), tipos:listToArr(get('f-tipos')),
+      lat:get('f-lat')?parseFloat(get('f-lat')):null, lng:get('f-lng')?parseFloat(get('f-lng')):null,
+      raio:get('f-raio')?parseInt(get('f-raio')):4500, status:get('f-status')
+    };
+    if(id){ const i=LOJAS.findIndex(x=>x.id===id); if(i>=0) LOJAS[i]={...LOJAS[i],...o}; }
+    else { LOJAS.push({id:luid(nome), cor:'#0077B6', corretores:0, imoveis:0, leads:0, google:'—', ...o}); }
+    lsave(); renderLojas(); closeImob();
+  }
+  function delImob(id){
+    const im=LOJAS.find(x=>x.id===id); if(!im) return;
+    if(!confirm('Excluir "'+im.nome+'" da plataforma?')) return;
+    LOJAS=LOJAS.filter(x=>x.id!==id); lsave(); renderLojas();
+  }
+  document.getElementById('imob-modal').addEventListener('click',e=>{ if(e.target.id==='imob-modal') closeImob(); });
+  lload(); renderLojas();
 
   // ===== FUNIL (Kanban plug-and-play: criar / apagar / arrastar / reordenar) =====
   const KSTAGES=[
