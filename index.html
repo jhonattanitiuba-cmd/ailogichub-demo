@@ -287,16 +287,10 @@ tailwind.config = {
       <!-- ============ IMÓVEIS ============ -->
       <section id="imoveis" class="screen">
         <div class="flex items-center justify-between mb-5">
-          <div class="flex gap-2"><span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todos · 0</span><span class="chip">Venda</span><span class="chip">Locação</span></div>
-          <button class="px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold">+ Cadastrar imóvel</button>
+          <div class="flex gap-2" id="imovel-chips"></div>
+          <button onclick="openImovel()" class="px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold">+ Cadastrar imóvel</button>
         </div>
-        <div class="card">
-          <div class="empty">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            <div class="t">Nenhum imóvel cadastrado</div>
-            <div class="d">A Cirag Boutique cadastra seus imóveis aqui (ou importa do Imobzi). Cada imóvel fica vinculado à imobiliária, e os leads são roteados automaticamente ao dono do imóvel.</div>
-          </div>
-        </div>
+        <div id="imovel-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </section>
 
       <!-- ============ MAPA DE ATUAÇÃO ============ -->
@@ -466,6 +460,44 @@ tailwind.config = {
   </div>
 </div>
 
+<!-- ============ MODAL NOVO/EDITAR IMÓVEL ============ -->
+<div id="imovel-modal" style="position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(6,22,41,.55)">
+  <div class="card" style="position:relative;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;padding:28px 30px;box-shadow:0 24px 60px rgba(0,0,0,.4)">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="text-base font-bold" id="imovel-modal-title">Novo Imóvel</h3>
+      <span onclick="closeImovel()" style="cursor:pointer;font-size:20px;color:rgb(var(--c-muted));line-height:1">&times;</span>
+    </div>
+    <input type="hidden" id="iv-id">
+    <div class="grid md:grid-cols-2 gap-3 text-[13px]">
+      <label class="block md:col-span-2"><span class="text-[11px] font-semibold text-muted">Título do imóvel *</span><input id="iv-titulo" placeholder="Apto 3 dorm · Jardins" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <div class="md:col-span-2 flex items-center gap-3">
+        <div id="iv-foto-prev" class="w-16 h-12 rounded-lg bg-panel2 border border-border flex items-center justify-center text-muted text-[10px]" style="background-size:cover;background-position:center;flex-shrink:0">Foto</div>
+        <button type="button" onclick="pickImg('imovel')" class="px-3 py-2 rounded-lg bg-panel2 border border-border text-xs font-semibold">Anexar foto de capa</button>
+        <button type="button" onclick="clearImovelFoto()" class="text-xs text-muted">remover</button>
+      </div>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Imobiliária</span><select id="iv-imob" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></select></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Código</span><input id="iv-codigo" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Tipo</span><select id="iv-tipo" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"><option>Apartamento</option><option>Casa</option><option>Sala comercial</option><option>Loft</option><option>Cobertura</option><option>Terreno</option><option>Galpão</option><option>Outro</option></select></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Finalidade</span><select id="iv-finalidade" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"><option>Venda</option><option>Locação</option><option>Temporada</option></select></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Preço (R$)</span><input id="iv-preco" inputmode="numeric" placeholder="850000" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Status</span><select id="iv-status" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"><option>Disponível</option><option>Reservado</option><option>Vendido</option><option>Locado</option><option>Inativo</option></select></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Área (m²)</span><input id="iv-area" inputmode="numeric" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Quartos</span><input id="iv-quartos" inputmode="numeric" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Suítes</span><input id="iv-suites" inputmode="numeric" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Banheiros</span><input id="iv-banheiros" inputmode="numeric" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Vagas</span><input id="iv-vagas" inputmode="numeric" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block md:col-span-2"><span class="text-[11px] font-semibold text-muted">Endereço</span><input id="iv-endereco" placeholder="Av. Paulista, 1636" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Bairro</span><input id="iv-bairro" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block"><span class="text-[11px] font-semibold text-muted">Cidade/UF</span><input id="iv-cidade" placeholder="São Paulo/SP" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></label>
+      <label class="block md:col-span-2"><span class="text-[11px] font-semibold text-muted">Descrição</span><textarea id="iv-descricao" rows="2" class="w-full mt-1 px-3 py-2 rounded-lg bg-panel2 border border-border"></textarea></label>
+    </div>
+    <div class="flex justify-end gap-2 mt-6">
+      <button onclick="closeImovel()" class="px-4 py-2 rounded-lg bg-panel2 border border-border text-sm font-semibold">Cancelar</button>
+      <button onclick="saveImovel()" class="px-5 py-2 rounded-lg bg-accent text-white text-sm font-semibold">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const titles = {
     dashboard:['Visão Geral','Operação consolidada das imobiliárias parceiras'],
@@ -539,7 +571,7 @@ tailwind.config = {
     });
     const sel = filtro==='all' ? LOJAS : [LOJAS[filtro]].filter(Boolean);
     document.getElementById('m-imob').textContent = sel.length;
-    document.getElementById('m-imov').textContent = sel.reduce((a,b)=>a+(+b.imoveis||0),0).toLocaleString('pt-BR');
+    document.getElementById('m-imov').textContent = sel.reduce((a,b)=>a+imovelCount(b.id),0).toLocaleString('pt-BR');
     if(sel[0]&&sel[0].lat!=null) _map.setView([sel[0].lat,sel[0].lng],13);
   }
   function rebuildMapaSelect(){
@@ -575,7 +607,7 @@ tailwind.config = {
       ${tipos?`<div class="mb-3"><div class="text-[11px] text-muted font-semibold mb-1.5">Tipos · serviços</div><div class="flex flex-wrap gap-1.5">${tipos}</div></div>`:''}
       <div class="grid grid-cols-4 gap-2 text-center pt-3 border-t border-border mb-3">
         <div><div class="num text-lg">${+im.corretores||0}</div><div class="text-[10px] text-muted">Corretores</div></div>
-        <div><div class="num text-lg">${+im.imoveis||0}</div><div class="text-[10px] text-muted">Imóveis</div></div>
+        <div><div class="num text-lg">${imovelCount(im.id)}</div><div class="text-[10px] text-muted">Imóveis</div></div>
         <div><div class="num text-lg">${+im.leads||0}</div><div class="text-[10px] text-muted">Leads</div></div>
         <div><div class="num text-lg">${esc(im.google||'—')}</div><div class="text-[10px] text-muted">Google${im.googleN?' ('+esc(im.googleN)+')':''}</div></div>
       </div>
@@ -594,7 +626,7 @@ tailwind.config = {
     const ds=document.getElementById('dash-imob-sub'); if(ds) ds.textContent = n===1?LOJAS[0].nome.replace(/ Imobiliária$/,''):n+' parceiras';
     // dashboard table
     const rows=document.getElementById('dash-imob-rows');
-    if(rows) rows.innerHTML=LOJAS.map(im=>`<tr><td class="font-semibold">${esc(im.nome)}</td><td class="num">${esc(im.creci||'—')}</td><td>${esc(im.regiao||im.cidade||'—')}</td><td class="num">${+im.leads||0}</td><td class="num">${+im.imoveis||0}</td><td><span class="badge" style="${badgeStyle(im.status)}">${esc(im.status||'Implantando')}</span></td></tr>`).join('');
+    if(rows) rows.innerHTML=LOJAS.map(im=>`<tr><td class="font-semibold">${esc(im.nome)}</td><td class="num">${esc(im.creci||'—')}</td><td>${esc(im.regiao||im.cidade||'—')}</td><td class="num">${+im.leads||0}</td><td class="num">${imovelCount(im.id)}</td><td><span class="badge" style="${badgeStyle(im.status)}">${esc(im.status||'Implantando')}</span></td></tr>`).join('');
     // chips
     const chips=document.getElementById('imob-chips');
     if(chips){ const impl=LOJAS.filter(x=>x.status==='Implantando').length, atv=LOJAS.filter(x=>x.status==='Ativo').length;
@@ -661,13 +693,95 @@ tailwind.config = {
       if(_imgTarget==='hub'){ try{localStorage.setItem('ailh_hublogo',url);}catch(_){ } applyHubLogo(url); }
       else if(_imgTarget==='avatar'){ const em=window._contaEmail||'default'; try{localStorage.setItem('ailh_avatar_'+em,url);}catch(_){ } applyAvatar(url); }
       else if(_imgTarget==='imob'){ imobLogoPicked(url); }
+      else if(_imgTarget==='imovel'){ imovelFotoPicked(url); }
       e.target.value='';
     };
     r.readAsDataURL(f);
   });
   function brandInit(){ const h=localStorage.getItem('ailh_hublogo'); if(h) applyHubLogo(h); }
-  brandInit();
-  lload(); renderLojas();
+
+  // ===== IMÓVEIS (cadastro plug-and-play) =====
+  const IVKEY='ailh_imoveis_v1';
+  let IMOVEIS=[], _ivFiltro='all', _imovelFotoTmp='';
+  function ivLoad(){ try{IMOVEIS=JSON.parse(localStorage.getItem(IVKEY));}catch(e){IMOVEIS=null;} if(!Array.isArray(IMOVEIS))IMOVEIS=[]; }
+  function ivSave(){ localStorage.setItem(IVKEY,JSON.stringify(IMOVEIS)); }
+  function ivUid(){ return 'iv-'+Math.random().toString(36).slice(2,9); }
+  function imovelCount(imobId){ return IMOVEIS.filter(x=>x.imobiliaria_id===imobId).length; }
+  function brl(v){ v=Number(v); if(!v) return '—'; return 'R$ '+v.toLocaleString('pt-BR'); }
+  function imobNome(id){ const i=LOJAS.find(x=>x.id===id); return i?i.nome:'sem imobiliária'; }
+  function ivStatusCor(s){ return s==='Disponível'?'var(--c-ok)':(s==='Vendido'||s==='Locado')?'var(--c-muted)':s==='Reservado'?'var(--c-warn)':'var(--c-accent2)'; }
+  function imovelCard(o){
+    const specs=[];
+    if(o.quartos)specs.push(o.quartos+' dorm'); if(o.suites)specs.push(o.suites+' suíte'+(o.suites>1?'s':'')); if(o.vagas)specs.push(o.vagas+' vaga'+(o.vagas>1?'s':'')); if(o.area)specs.push(o.area+' m²');
+    const v=ivStatusCor(o.status);
+    return `<div class="card card-h overflow-hidden" style="display:flex;flex-direction:column">
+      <div style="height:140px;background:${o.foto?`url('${o.foto}') center/cover`:'rgb(var(--c-panel2))'};position:relative;display:flex">
+        ${o.foto?'':'<svg viewBox="0 0 24 24" fill="none" stroke="rgb(var(--c-border))" stroke-width="1.5" style="width:42px;height:42px;margin:auto"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'}
+        <span class="badge" style="position:absolute;top:8px;left:8px;background:rgb(${v}/.95);color:#fff">${esc(o.status||'Disponível')}</span>
+        <span class="badge" style="position:absolute;top:8px;right:8px;background:rgba(6,22,41,.7);color:#fff">${esc(o.finalidade||'Venda')}</span>
+      </div>
+      <div class="p-4" style="flex:1;display:flex;flex-direction:column">
+        <div class="font-bold text-sm">${esc(o.titulo||'Imóvel')}</div>
+        <div class="text-[11px] text-muted mt-0.5">${esc(o.tipo||'')}${o.bairro?' · '+esc(o.bairro):''}${o.cidade?' · '+esc(o.cidade):''}</div>
+        <div class="num text-lg text-accent mt-2">${brl(o.preco)}</div>
+        ${specs.length?`<div class="text-[11px] text-muted mt-1">${specs.join(' · ')}</div>`:''}
+        <div class="text-[10px] text-muted mt-2 pt-2 border-t border-border">${esc(imobNome(o.imobiliaria_id))}${o.codigo?' · cód '+esc(o.codigo):''}</div>
+        <div class="flex justify-end gap-2 mt-3">
+          <button onclick="openImovel('${o.id}')" class="px-3 py-1.5 rounded-lg bg-panel2 border border-border text-xs font-semibold">Editar</button>
+          <button onclick="delImovel('${o.id}')" class="px-3 py-1.5 rounded-lg bg-panel2 border border-border text-xs font-semibold text-danger">Excluir</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  function renderImoveis(){
+    const grid=document.getElementById('imovel-grid'); if(!grid) return;
+    const chips=document.getElementById('imovel-chips');
+    const venda=IMOVEIS.filter(x=>x.finalidade==='Venda').length, loc=IMOVEIS.filter(x=>x.finalidade==='Locação').length;
+    const on='background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))';
+    if(chips){ chips.innerHTML=
+      `<span onclick="filterImovel('all')" class="chip" style="cursor:pointer;${_ivFiltro==='all'?on:''}">Todos · ${IMOVEIS.length}</span>`+
+      `<span onclick="filterImovel('Venda')" class="chip" style="cursor:pointer;${_ivFiltro==='Venda'?on:''}">Venda · ${venda}</span>`+
+      `<span onclick="filterImovel('Locação')" class="chip" style="cursor:pointer;${_ivFiltro==='Locação'?on:''}">Locação · ${loc}</span>`;
+    }
+    const list=IMOVEIS.filter(o=>_ivFiltro==='all'||o.finalidade===_ivFiltro);
+    if(!list.length){ grid.innerHTML='<div class="card" style="grid-column:1/-1"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><div class="t">Nenhum imóvel cadastrado</div><div class="d">Clique em "+ Cadastrar imóvel". Cada imóvel fica vinculado a uma imobiliária e conta nos painéis.</div></div></div>'; return; }
+    grid.innerHTML=list.map(imovelCard).join('');
+  }
+  function filterImovel(f){ _ivFiltro=f; renderImoveis(); }
+  function ivImobOptions(sel){ return LOJAS.map(i=>`<option value="${i.id}"${i.id===sel?' selected':''}>${esc(i.nome)}</option>`).join('')||'<option value="">(cadastre uma imobiliária)</option>'; }
+  function imovelFotoPicked(url){ _imovelFotoTmp=url; const p=document.getElementById('iv-foto-prev'); if(p){p.textContent='';p.style.backgroundImage='url('+url+')';} }
+  function clearImovelFoto(){ _imovelFotoTmp=''; const p=document.getElementById('iv-foto-prev'); if(p){p.style.backgroundImage='';p.textContent='Foto';} }
+  function openImovel(id){
+    document.getElementById('imovel-modal-title').textContent=id?'Editar Imóvel':'Novo Imóvel';
+    const o=id?IMOVEIS.find(x=>x.id===id):null;
+    document.getElementById('iv-id').value=o?o.id:'';
+    document.getElementById('iv-imob').innerHTML=ivImobOptions(o?o.imobiliaria_id:(LOJAS[0]&&LOJAS[0].id));
+    const g=(k)=>{ const el=document.getElementById('iv-'+k); if(el) el.value=(o&&o[k]!=null?o[k]:''); };
+    ['titulo','codigo','preco','area','quartos','suites','banheiros','vagas','endereco','bairro','cidade','descricao'].forEach(g);
+    document.getElementById('iv-tipo').value=o&&o.tipo?o.tipo:'Apartamento';
+    document.getElementById('iv-finalidade').value=o&&o.finalidade?o.finalidade:'Venda';
+    document.getElementById('iv-status').value=o&&o.status?o.status:'Disponível';
+    _imovelFotoTmp=o&&o.foto?o.foto:''; const p=document.getElementById('iv-foto-prev'); if(p){ if(_imovelFotoTmp){p.textContent='';p.style.backgroundImage='url('+_imovelFotoTmp+')';} else {p.style.backgroundImage='';p.textContent='Foto';} }
+    document.getElementById('imovel-modal').style.display='flex';
+  }
+  function closeImovel(){ document.getElementById('imovel-modal').style.display='none'; }
+  function saveImovel(){
+    const g=k=>document.getElementById('iv-'+k).value.trim();
+    const titulo=g('titulo'); if(!titulo){ alert('Informe o título do imóvel.'); return; }
+    const id=g('id');
+    const num=k=>{ const v=g(k).replace(/\D/g,''); return v?parseInt(v):null; };
+    const o={ titulo, imobiliaria_id:g('imob'), codigo:g('codigo'), tipo:g('tipo'), finalidade:g('finalidade'), status:g('status'),
+      preco:num('preco'), area:num('area'), quartos:num('quartos'), suites:num('suites'), banheiros:num('banheiros'), vagas:num('vagas'),
+      endereco:g('endereco'), bairro:g('bairro'), cidade:g('cidade'), descricao:g('descricao'), foto:_imovelFotoTmp };
+    if(id){ const i=IMOVEIS.findIndex(x=>x.id===id); if(i>=0) IMOVEIS[i]={...IMOVEIS[i],...o}; }
+    else { IMOVEIS.push({id:ivUid(),...o}); }
+    ivSave(); renderImoveis(); renderLojas(); closeImovel();
+  }
+  function delImovel(id){ const o=IMOVEIS.find(x=>x.id===id); if(!o)return; if(!confirm('Excluir o imóvel "'+o.titulo+'"?'))return; IMOVEIS=IMOVEIS.filter(x=>x.id!==id); ivSave(); renderImoveis(); renderLojas(); }
+  document.getElementById('imovel-modal').addEventListener('click',e=>{ if(e.target.id==='imovel-modal') closeImovel(); });
+
+  ivLoad(); brandInit();
+  lload(); renderLojas(); renderImoveis();
 
   // ===== FUNIL (Kanban plug-and-play: criar / apagar / arrastar / reordenar) =====
   const KKEY='ailh_funil_v1', KCOLS='ailh_funil_cols_v1';
