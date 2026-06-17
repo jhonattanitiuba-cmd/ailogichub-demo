@@ -54,16 +54,15 @@ tailwind.config = {
   td{padding:13px 14px;border-bottom:1px solid rgb(var(--c-border));font-size:13px}
   tbody tr:hover{background:rgb(var(--c-panel2))}
   .kcol{background:rgb(var(--c-panel2));border:1px solid rgb(var(--c-border));border-radius:12px;min-height:200px}
-  .kcard{background:rgb(var(--c-panel));border:1px solid rgb(var(--c-border));border-radius:10px;padding:12px;margin-bottom:10px;cursor:grab;transition:all .15s}
-  .kcard:hover{border-color:rgb(var(--c-accent)/.5);box-shadow:0 4px 12px rgb(var(--c-accent)/.1);transform:translateY(-2px)}
   .scrollbar::-webkit-scrollbar{width:6px;height:6px}
   .scrollbar::-webkit-scrollbar-thumb{background:rgb(var(--c-border));border-radius:3px}
   .conv-b{max-width:78%;padding:9px 13px;border-radius:13px;font-size:12.5px;line-height:1.5}
-  .conv-lead{background:rgb(var(--c-panel2));border:1px solid rgb(var(--c-border))}
-  .conv-ia{background:rgb(var(--c-accent)/.1);border:1px solid rgb(var(--c-accent)/.22);margin-left:auto}
-  .flag{background:rgb(var(--c-danger)/.1);border:1px solid rgb(var(--c-danger)/.35);color:rgb(var(--c-danger));font-weight:600}
   .pulse{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e;animation:p 2s infinite;display:inline-block}
   @keyframes p{0%,100%{opacity:1}50%{opacity:.4}}
+  .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:56px 24px;color:rgb(var(--c-muted))}
+  .empty svg{width:42px;height:42px;margin-bottom:14px;color:rgb(var(--c-border));stroke:rgb(var(--c-accent2));opacity:.7}
+  .empty .t{font-weight:700;color:rgb(var(--c-text));font-size:15px;margin-bottom:5px}
+  .empty .d{font-size:12.5px;max-width:380px;line-height:1.5}
 </style>
 </head>
 <body class="min-h-screen">
@@ -159,21 +158,20 @@ tailwind.config = {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configurações · IA</a>
     </nav>
     <div class="p-4 border-t border-white/10 flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-accent2 to-accent flex items-center justify-center text-white text-xs font-bold">AF</div>
-      <div class="flex-1 min-w-0"><div class="text-[13px] font-semibold text-white truncate">Alessandro F.</div><div class="text-[10px] text-side-muted">Administrador do Hub</div></div>
+      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-accent2 to-accent flex items-center justify-center text-white text-xs font-bold" id="side-ini">AF</div>
+      <div class="flex-1 min-w-0"><div class="text-[13px] font-semibold text-white truncate">Alessandro Ferreira</div><div class="text-[10px] text-side-muted">Diretoria · Admin do Hub</div></div>
     </div>
   </aside>
 
   <!-- MAIN -->
   <main class="flex-1 overflow-y-auto scrollbar">
-    <!-- TOPBAR -->
     <header class="sticky top-0 z-20 bg-panel/90 backdrop-blur border-b border-border px-8 py-4 flex items-center gap-4">
       <div class="flex-1">
         <h1 id="page-title" class="text-lg font-bold">Visão Geral</h1>
-        <p id="page-sub" class="text-xs text-muted mt-0.5">Operação consolidada de todas as imobiliárias parceiras</p>
+        <p id="page-sub" class="text-xs text-muted mt-0.5">Operação consolidada das imobiliárias parceiras</p>
       </div>
       <div class="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-panel2 border border-border text-xs">
-        <span class="pulse"></span><span class="font-semibold">Sistema estável</span><span class="text-muted">· 6 imobiliárias ativas</span>
+        <span class="pulse"></span><span class="font-semibold">Sistema ativo</span><span class="text-muted">· 1 imobiliária</span>
       </div>
       <button class="px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold hover:opacity-90 transition">+ Nova Imobiliária</button>
     </header>
@@ -182,71 +180,25 @@ tailwind.config = {
 
       <!-- ============ DASHBOARD ============ -->
       <section id="dashboard" class="screen active">
+        <div class="card p-5 mb-6 flex items-start gap-4" style="background:rgb(var(--c-accent2)/.06);border-color:rgb(var(--c-accent2)/.25)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgb(var(--c-accent2))" stroke-width="1.8" style="flex-shrink:0;margin-top:2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div>
+            <div class="font-bold text-sm">Operação em implantação</div>
+            <div class="text-[12.5px] text-muted mt-1">Imobiliária <strong>Cirag Boutique</strong> cadastrada. Próximos passos: conectar o WhatsApp do Hub, cadastrar os imóveis e ativar a IA de qualificação para começar a captar leads.</div>
+          </div>
+        </div>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div class="card card-h p-5">
-            <div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Leads no mês</div>
-            <div class="num text-3xl mt-2">1.284</div>
-            <div class="text-[11px] text-ok font-semibold mt-1">23% vs. mês anterior</div>
-          </div>
-          <div class="card card-h p-5">
-            <div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Qualificados pela IA</div>
-            <div class="num text-3xl mt-2">847</div>
-            <div class="text-[11px] text-muted font-semibold mt-1">66% de taxa de qualificação</div>
-          </div>
-          <div class="card card-h p-5">
-            <div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Negócios em andamento</div>
-            <div class="num text-3xl mt-2">192</div>
-            <div class="text-[11px] text-ok font-semibold mt-1">R$ 48,6M em pipeline</div>
-          </div>
-          <div class="card card-h p-5">
-            <div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Fechados no mês</div>
-            <div class="num text-3xl mt-2">31</div>
-            <div class="text-[11px] text-ok font-semibold mt-1">R$ 9,2M · comissão R$ 552k</div>
-          </div>
+          <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Leads no mês</div><div class="num text-3xl mt-2">0</div><div class="text-[11px] text-muted font-semibold mt-1">aguardando primeiros leads</div></div>
+          <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Qualificados pela IA</div><div class="num text-3xl mt-2">0</div><div class="text-[11px] text-muted font-semibold mt-1">IA pronta para ativar</div></div>
+          <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Negócios em andamento</div><div class="num text-3xl mt-2">0</div><div class="text-[11px] text-muted font-semibold mt-1">R$ 0 em pipeline</div></div>
+          <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Imobiliárias ativas</div><div class="num text-3xl mt-2">1</div><div class="text-[11px] text-ok font-semibold mt-1">Cirag Boutique</div></div>
         </div>
-
-        <div class="grid lg:grid-cols-3 gap-4 mb-6">
-          <div class="card p-6 lg:col-span-2">
-            <div class="flex items-center justify-between mb-5">
-              <h3 class="text-sm font-bold">Funil de Conversão · consolidado</h3>
-              <span class="chip">Últimos 30 dias</span>
-            </div>
-            <div class="space-y-3">
-              <div><div class="flex justify-between text-xs mb-1"><span class="font-semibold">Novos leads</span><span class="num text-muted">1.284</span></div><div class="h-7 rounded-md bg-accent" style="width:100%"></div></div>
-              <div><div class="flex justify-between text-xs mb-1"><span class="font-semibold">Qualificados</span><span class="num text-muted">847</span></div><div class="h-7 rounded-md bg-accent/80" style="width:66%"></div></div>
-              <div><div class="flex justify-between text-xs mb-1"><span class="font-semibold">Em atendimento (corretor)</span><span class="num text-muted">421</span></div><div class="h-7 rounded-md bg-accent2" style="width:33%"></div></div>
-              <div><div class="flex justify-between text-xs mb-1"><span class="font-semibold">Proposta / Visita</span><span class="num text-muted">192</span></div><div class="h-7 rounded-md bg-accent2/70" style="width:15%"></div></div>
-              <div><div class="flex justify-between text-xs mb-1"><span class="font-semibold">Fechados</span><span class="num text-muted">31</span></div><div class="h-7 rounded-md bg-ok" style="width:8%"></div></div>
-            </div>
-          </div>
-          <div class="card p-6">
-            <h3 class="text-sm font-bold mb-4">Leads por fonte</h3>
-            <div class="space-y-3 text-[13px]">
-              <div class="flex items-center justify-between"><span>WhatsApp (Click-to)</span><span class="num">512</span></div>
-              <div class="h-1.5 rounded bg-accent" style="width:80%"></div>
-              <div class="flex items-center justify-between"><span>Portais (ZAP/VivaReal)</span><span class="num">389</span></div>
-              <div class="h-1.5 rounded bg-accent2" style="width:60%"></div>
-              <div class="flex items-center justify-between"><span>Anúncios pagos</span><span class="num">241</span></div>
-              <div class="h-1.5 rounded bg-warn" style="width:38%"></div>
-              <div class="flex items-center justify-between"><span>Site / Landing</span><span class="num">142</span></div>
-              <div class="h-1.5 rounded bg-muted" style="width:22%"></div>
-            </div>
-          </div>
-        </div>
-
         <div class="card p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-bold">Desempenho por imobiliária</h3>
-            <a class="text-xs text-accent2 font-semibold cursor-pointer" data-s="imobiliarias">Ver todas →</a>
-          </div>
+          <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">Imobiliárias na plataforma</h3><a class="text-xs text-accent2 font-semibold cursor-pointer" data-s="imobiliarias">Ver todas →</a></div>
           <table>
-            <thead><tr><th>Imobiliária</th><th>Leads recebidos</th><th>Atendidos no SLA</th><th>Negócios</th><th>Conversão</th><th>Plano</th></tr></thead>
+            <thead><tr><th>Imobiliária</th><th>CRECI</th><th>Região</th><th>Leads</th><th>Imóveis</th><th>Status</th></tr></thead>
             <tbody>
-              <tr><td class="font-semibold">Robotão Imóveis</td><td class="num">387</td><td class="num text-ok">94%</td><td class="num">12</td><td class="num">8,2%</td><td><span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">Plano fixo</span></td></tr>
-              <tr><td class="font-semibold">Paulista Prime</td><td class="num">214</td><td class="num text-ok">88%</td><td class="num">7</td><td class="num">6,1%</td><td><span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Comissão</span></td></tr>
-              <tr><td class="font-semibold">Vila Nova Negócios</td><td class="num">176</td><td class="num text-warn">71%</td><td class="num">5</td><td class="num">5,4%</td><td><span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Comissão</span></td></tr>
-              <tr><td class="font-semibold">Jardins Realty</td><td class="num">158</td><td class="num text-ok">91%</td><td class="num">4</td><td class="num">4,8%</td><td><span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">Plano fixo</span></td></tr>
-              <tr><td class="font-semibold">Centro SP Imóveis</td><td class="num">142</td><td class="num text-danger">58%</td><td class="num">2</td><td class="num">3,1%</td><td><span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Comissão</span></td></tr>
+              <tr><td class="font-semibold">Cirag Boutique Imobiliária</td><td class="num">J25194</td><td>Jardins · Av. Paulista</td><td class="num">0</td><td class="num">0</td><td><span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Implantando</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -255,107 +207,52 @@ tailwind.config = {
       <!-- ============ IMOBILIÁRIAS ============ -->
       <section id="imobiliarias" class="screen">
         <div class="flex items-center justify-between mb-5">
-          <div class="flex gap-2">
-            <span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todas · 6</span>
-            <span class="chip">Plano fixo · 2</span>
-            <span class="chip">Comissão · 4</span>
-          </div>
+          <div class="flex gap-2"><span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todas · 1</span><span class="chip">Implantando · 1</span></div>
           <input placeholder="Buscar imobiliária..." class="px-4 py-2 rounded-lg bg-panel border border-border text-sm w-64">
         </div>
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- card imobiliária -->
-          <div class="card card-h p-5">
-            <div class="flex items-start justify-between mb-3">
+          <!-- CIRAG -->
+          <div class="card card-h p-5 lg:col-span-2">
+            <div class="flex items-start justify-between mb-4">
               <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-lg bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-white font-bold">RI</div>
-                <div><div class="font-bold text-sm">Robotão Imóveis</div><div class="text-[11px] text-muted">CRECI 12.345-J · São Paulo/SP</div></div>
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-white font-bold text-lg">CI</div>
+                <div>
+                  <div class="font-bold text-[15px]">Cirag Boutique Imobiliária</div>
+                  <div class="text-[11px] text-muted">CRECI J25194 · Boutique de alto padrão · São Paulo/SP</div>
+                </div>
               </div>
-              <span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">Plano fixo</span>
+              <span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Implantando</span>
             </div>
-            <div class="grid grid-cols-3 gap-2 text-center my-4">
-              <div><div class="num text-lg">14</div><div class="text-[10px] text-muted">Corretores</div></div>
-              <div><div class="num text-lg">312</div><div class="text-[10px] text-muted">Imóveis</div></div>
-              <div><div class="num text-lg">387</div><div class="text-[10px] text-muted">Leads/mês</div></div>
+            <div class="grid md:grid-cols-2 gap-x-8 gap-y-2.5 text-[12.5px] mb-4">
+              <div class="flex justify-between border-b border-border pb-2"><span class="text-muted">Razão social</span><span class="font-semibold">Cirag Boutique Imobiliária LTDA</span></div>
+              <div class="flex justify-between border-b border-border pb-2"><span class="text-muted">Segmento</span><span class="font-semibold">Residencial e comercial</span></div>
+              <div class="flex justify-between border-b border-border pb-2"><span class="text-muted">Telefone / WhatsApp</span><span class="font-semibold">(11) 99790-7684</span></div>
+              <div class="flex justify-between border-b border-border pb-2"><span class="text-muted">E-mail</span><span class="font-semibold">atendimento@cirag.com.br</span></div>
+              <div class="flex justify-between border-b border-border pb-2"><span class="text-muted">Site</span><span class="font-semibold">cirag.com.br</span></div>
+              <div class="flex justify-between border-b border-border pb-2"><span class="text-muted">Instagram</span><span class="font-semibold">@ciragimobiliaria</span></div>
+              <div class="flex justify-between border-b border-border pb-2 md:col-span-2"><span class="text-muted">Endereço</span><span class="font-semibold">Av. Paulista, 1636 · CJ 706 · Cerqueira César · São Paulo/SP</span></div>
             </div>
-            <div class="flex items-center justify-between text-xs pt-3 border-t border-border">
-              <span class="flex items-center gap-1.5"><span class="pulse"></span>SLA 94%</span>
-              <a class="text-accent2 font-semibold cursor-pointer" data-s="whatsapp">Ver conversas →</a>
-            </div>
-          </div>
-          <div class="card card-h p-5">
-            <div class="flex items-start justify-between mb-3">
-              <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-lg bg-gradient-to-br from-accent2 to-accent flex items-center justify-center text-white font-bold">PP</div>
-                <div><div class="font-bold text-sm">Paulista Prime</div><div class="text-[11px] text-muted">CRECI 23.811-J · São Paulo/SP</div></div>
+            <div class="mb-4">
+              <div class="text-[11px] text-muted font-semibold mb-2">Regiões de atuação</div>
+              <div class="flex flex-wrap gap-1.5">
+                <span class="chip">Jardim Paulista</span><span class="chip">Cerqueira César</span><span class="chip">Jardins</span><span class="chip">Itaim Bibi</span><span class="chip">Av. Paulista</span>
               </div>
-              <span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Comissão</span>
             </div>
-            <div class="grid grid-cols-3 gap-2 text-center my-4">
-              <div><div class="num text-lg">8</div><div class="text-[10px] text-muted">Corretores</div></div>
-              <div><div class="num text-lg">187</div><div class="text-[10px] text-muted">Imóveis</div></div>
-              <div><div class="num text-lg">214</div><div class="text-[10px] text-muted">Leads/mês</div></div>
-            </div>
-            <div class="flex items-center justify-between text-xs pt-3 border-t border-border">
-              <span class="flex items-center gap-1.5"><span class="pulse"></span>SLA 88%</span>
-              <a class="text-accent2 font-semibold cursor-pointer" data-s="whatsapp">Ver conversas →</a>
-            </div>
-          </div>
-          <div class="card card-h p-5">
-            <div class="flex items-start justify-between mb-3">
-              <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-lg bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-white font-bold">VN</div>
-                <div><div class="font-bold text-sm">Vila Nova Negócios</div><div class="text-[11px] text-muted">CRECI 31.002-J · São Paulo/SP</div></div>
+            <div class="mb-4">
+              <div class="text-[11px] text-muted font-semibold mb-2">Tipos de imóvel · serviços</div>
+              <div class="flex flex-wrap gap-1.5">
+                <span class="chip">Apartamentos</span><span class="chip">Casas</span><span class="chip">Salas comerciais</span><span class="chip">Lofts</span><span class="chip">Locação</span><span class="chip">Temporada</span><span class="chip">Tours 360°</span>
               </div>
-              <span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">SLA baixo</span>
             </div>
-            <div class="grid grid-cols-3 gap-2 text-center my-4">
-              <div><div class="num text-lg">5</div><div class="text-[10px] text-muted">Corretores</div></div>
-              <div><div class="num text-lg">98</div><div class="text-[10px] text-muted">Imóveis</div></div>
-              <div><div class="num text-lg">176</div><div class="text-[10px] text-muted">Leads/mês</div></div>
-            </div>
-            <div class="flex items-center justify-between text-xs pt-3 border-t border-border">
-              <span class="flex items-center gap-1.5 text-warn font-semibold">SLA 71%</span>
-              <a class="text-accent2 font-semibold cursor-pointer" data-s="whatsapp">Ver conversas →</a>
-            </div>
-          </div>
-          <div class="card card-h p-5">
-            <div class="flex items-start justify-between mb-3">
-              <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-lg bg-gradient-to-br from-accent2 to-accent flex items-center justify-center text-white font-bold">JR</div>
-                <div><div class="font-bold text-sm">Jardins Realty</div><div class="text-[11px] text-muted">CRECI 18.547-J · São Paulo/SP</div></div>
-              </div>
-              <span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">Plano fixo</span>
-            </div>
-            <div class="grid grid-cols-3 gap-2 text-center my-4">
-              <div><div class="num text-lg">11</div><div class="text-[10px] text-muted">Corretores</div></div>
-              <div><div class="num text-lg">241</div><div class="text-[10px] text-muted">Imóveis</div></div>
-              <div><div class="num text-lg">158</div><div class="text-[10px] text-muted">Leads/mês</div></div>
-            </div>
-            <div class="flex items-center justify-between text-xs pt-3 border-t border-border">
-              <span class="flex items-center gap-1.5"><span class="pulse"></span>SLA 91%</span>
-              <a class="text-accent2 font-semibold cursor-pointer" data-s="whatsapp">Ver conversas →</a>
-            </div>
-          </div>
-          <div class="card card-h p-5">
-            <div class="flex items-start justify-between mb-3">
-              <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-lg bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-white font-bold">CS</div>
-                <div><div class="font-bold text-sm">Centro SP Imóveis</div><div class="text-[11px] text-muted">CRECI 09.220-J · São Paulo/SP</div></div>
-              </div>
-              <span class="badge" style="background:rgb(var(--c-danger)/.12);color:rgb(var(--c-danger))">Crítico</span>
-            </div>
-            <div class="grid grid-cols-3 gap-2 text-center my-4">
-              <div><div class="num text-lg">4</div><div class="text-[10px] text-muted">Corretores</div></div>
-              <div><div class="num text-lg">64</div><div class="text-[10px] text-muted">Imóveis</div></div>
-              <div><div class="num text-lg">142</div><div class="text-[10px] text-muted">Leads/mês</div></div>
-            </div>
-            <div class="flex items-center justify-between text-xs pt-3 border-t border-border">
-              <span class="flex items-center gap-1.5 text-danger font-semibold">SLA 58%</span>
-              <a class="text-accent2 font-semibold cursor-pointer" data-s="whatsapp">Ver conversas →</a>
+            <div class="grid grid-cols-4 gap-2 text-center pt-3 border-t border-border">
+              <div><div class="num text-lg">0</div><div class="text-[10px] text-muted">Corretores</div></div>
+              <div><div class="num text-lg">0</div><div class="text-[10px] text-muted">Imóveis</div></div>
+              <div><div class="num text-lg">0</div><div class="text-[10px] text-muted">Leads</div></div>
+              <div><div class="num text-lg">4,4</div><div class="text-[10px] text-muted">Google (35)</div></div>
             </div>
           </div>
           <!-- add card -->
-          <div class="card card-h p-5 border-dashed flex flex-col items-center justify-center text-center cursor-pointer" style="border-style:dashed">
+          <div class="card card-h p-5 flex flex-col items-center justify-center text-center cursor-pointer" style="border-style:dashed">
             <div class="w-11 h-11 rounded-full bg-accent/10 flex items-center justify-center text-accent text-2xl font-bold mb-2">+</div>
             <div class="font-semibold text-sm">Nova imobiliária parceira</div>
             <div class="text-[11px] text-muted mt-1">Cadastrar CRECI, plano e equipe</div>
@@ -366,25 +263,15 @@ tailwind.config = {
       <!-- ============ LEADS ============ -->
       <section id="leads" class="screen">
         <div class="flex items-center justify-between mb-5">
-          <div class="flex gap-2">
-            <span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todos</span>
-            <span class="chip">Novos</span><span class="chip">Qualificados</span><span class="chip">Em atendimento</span><span class="chip">Descartados</span>
-          </div>
+          <div class="flex gap-2"><span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todos · 0</span><span class="chip">Novos</span><span class="chip">Qualificados</span><span class="chip">Em atendimento</span></div>
           <input placeholder="Buscar lead..." class="px-4 py-2 rounded-lg bg-panel border border-border text-sm w-64">
         </div>
-        <div class="card overflow-hidden">
-          <table>
-            <thead><tr><th>Lead</th><th>Fonte</th><th>Interesse</th><th>Score IA</th><th>Imobiliária</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr class="cursor-pointer" data-s="whatsapp"><td><div class="font-semibold">Marina Costa</div><div class="text-[11px] text-muted">(11) 98***-**21</div></td><td><span class="chip">WhatsApp</span></td><td>Apto 2dorm · Pinheiros · até R$ 850k</td><td><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">92 · Quente</span></td><td>Robotão Imóveis</td><td><span class="badge" style="background:rgb(var(--c-accent2)/.15);color:rgb(var(--c-accent2))">Em atendimento</span></td></tr>
-              <tr><td><div class="font-semibold">Rafael Lima</div><div class="text-[11px] text-muted">(11) 99***-**08</div></td><td><span class="chip">Portal ZAP</span></td><td>Casa 3dorm · Morumbi · até R$ 1,4M</td><td><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">87 · Quente</span></td><td>Paulista Prime</td><td><span class="badge" style="background:rgb(var(--c-accent2)/.15);color:rgb(var(--c-accent2))">Em atendimento</span></td></tr>
-              <tr><td><div class="font-semibold">Juliana Reis</div><div class="text-[11px] text-muted">(11) 97***-**44</div></td><td><span class="chip">Anúncio Meta</span></td><td>Apto 1dorm · Centro · locação</td><td><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">64 · Morno</span></td><td>Jardins Realty</td><td><span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">Qualificado</span></td></tr>
-              <tr><td><div class="font-semibold">Pedro Alves</div><div class="text-[11px] text-muted">(11) 96***-**73</div></td><td><span class="chip">WhatsApp</span></td><td>Cobertura · Jardins · até R$ 3M</td><td><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">95 · Quente</span></td><td>·</td><td><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Roteando...</span></td></tr>
-              <tr><td><div class="font-semibold">Camila Souza</div><div class="text-[11px] text-muted">(11) 95***-**12</div></td><td><span class="chip">Site</span></td><td>Apto 2dorm · Vila Mariana · até R$ 700k</td><td><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">58 · Morno</span></td><td>Vila Nova Negócios</td><td><span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">Qualificado</span></td></tr>
-              <tr><td><div class="font-semibold">Bruno Martins</div><div class="text-[11px] text-muted">(11) 94***-**90</div></td><td><span class="chip">Portal Viva</span></td><td>Galpão comercial · ABC · locação</td><td><span class="badge" style="background:rgb(var(--c-muted)/.2);color:rgb(var(--c-muted))">22 · Frio</span></td><td>·</td><td><span class="badge" style="background:rgb(var(--c-muted)/.15);color:rgb(var(--c-muted))">Descartado</span></td></tr>
-              <tr><td><div class="font-semibold">Letícia Gomes</div><div class="text-[11px] text-muted">(11) 93***-**56</div></td><td><span class="chip">WhatsApp</span></td><td>Apto 3dorm · Moema · até R$ 1,2M</td><td><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">89 · Quente</span></td><td>Robotão Imóveis</td><td><span class="badge" style="background:rgb(var(--c-accent2)/.15);color:rgb(var(--c-accent2))">Em atendimento</span></td></tr>
-            </tbody>
-          </table>
+        <div class="card">
+          <div class="empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+            <div class="t">Nenhum lead ainda</div>
+            <div class="d">Os leads aparecem aqui automaticamente quando chegarem pelo WhatsApp, site, portais ou anúncios. A IA qualifica e roteia para a imobiliária dona do imóvel.</div>
+          </div>
         </div>
       </section>
 
@@ -392,94 +279,48 @@ tailwind.config = {
       <section id="funil" class="screen">
         <div class="flex items-center justify-between mb-5">
           <p class="text-sm text-muted">Funil padronizado pelo Hub · arraste os cards entre etapas</p>
-          <select class="px-4 py-2 rounded-lg bg-panel border border-border text-sm"><option>Todas as imobiliárias</option><option>Robotão Imóveis</option><option>Paulista Prime</option></select>
+          <select class="px-4 py-2 rounded-lg bg-panel border border-border text-sm"><option>Cirag Boutique Imobiliária</option></select>
         </div>
         <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
-          <div>
-            <div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Interesse</span><span class="num text-xs text-muted">48</span></div>
-            <div class="kcol p-2.5">
-              <div class="kcard"><div class="font-semibold text-[13px]">Marina Costa</div><div class="text-[11px] text-muted mt-1">Apto 2dorm · Pinheiros</div><div class="flex items-center justify-between mt-2"><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">R$ 850k</span><span class="text-[10px] text-muted">Robotão</span></div></div>
-              <div class="kcard"><div class="font-semibold text-[13px]">Letícia Gomes</div><div class="text-[11px] text-muted mt-1">Apto 3dorm · Moema</div><div class="flex items-center justify-between mt-2"><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">R$ 1,2M</span><span class="text-[10px] text-muted">Robotão</span></div></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Visita</span><span class="num text-xs text-muted">23</span></div>
-            <div class="kcol p-2.5">
-              <div class="kcard"><div class="font-semibold text-[13px]">Rafael Lima</div><div class="text-[11px] text-muted mt-1">Casa 3dorm · Morumbi</div><div class="flex items-center justify-between mt-2"><span class="badge" style="background:rgb(var(--c-accent2)/.15);color:rgb(var(--c-accent2))">R$ 1,4M</span><span class="text-[10px] text-muted">Paulista</span></div></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Proposta</span><span class="num text-xs text-muted">12</span></div>
-            <div class="kcol p-2.5">
-              <div class="kcard"><div class="font-semibold text-[13px]">Pedro Alves</div><div class="text-[11px] text-muted mt-1">Cobertura · Jardins</div><div class="flex items-center justify-between mt-2"><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">R$ 3M</span><span class="text-[10px] text-muted">Jardins R.</span></div></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Assinatura</span><span class="num text-xs text-muted">5</span></div>
-            <div class="kcol p-2.5">
-              <div class="kcard"><div class="font-semibold text-[13px]">Fernanda Dias</div><div class="text-[11px] text-muted mt-1">Apto 2dorm · Itaim</div><div class="flex items-center justify-between mt-2"><span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">D4Sign </span><span class="text-[10px] text-muted">Paulista</span></div></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide text-ok">Pós-venda</span><span class="num text-xs text-muted">31</span></div>
-            <div class="kcol p-2.5">
-              <div class="kcard" style="border-color:rgb(var(--c-ok)/.4)"><div class="font-semibold text-[13px]">Carlos Nunes</div><div class="text-[11px] text-muted mt-1">Casa · Alto de Pinheiros</div><div class="flex items-center justify-between mt-2"><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">✓ R$ 2,1M</span><span class="text-[10px] text-muted">Robotão</span></div></div>
-            </div>
+          <div><div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Interesse</span><span class="num text-xs text-muted">0</span></div><div class="kcol p-2.5"></div></div>
+          <div><div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Visita</span><span class="num text-xs text-muted">0</span></div><div class="kcol p-2.5"></div></div>
+          <div><div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Proposta</span><span class="num text-xs text-muted">0</span></div><div class="kcol p-2.5"></div></div>
+          <div><div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide">Assinatura</span><span class="num text-xs text-muted">0</span></div><div class="kcol p-2.5"></div></div>
+          <div><div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold uppercase tracking-wide text-ok">Pós-venda</span><span class="num text-xs text-muted">0</span></div><div class="kcol p-2.5"></div></div>
+        </div>
+      </section>
+
+      <!-- ============ AGENDA ============ -->
+      <section id="agenda" class="screen">
+        <div class="card">
+          <div class="empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div class="t">Agenda vazia</div>
+            <div class="d">Visitas e tarefas dos corretores aparecem aqui. A agenda integra com o Google Calendar da conta admin@ailogichub.app.</div>
           </div>
         </div>
       </section>
 
       <!-- ============ WHATSAPP AUDITORIA ============ -->
       <section id="whatsapp" class="screen">
-        <div class="grid lg:grid-cols-3 gap-4">
-          <!-- lista conversas -->
-          <div class="card overflow-hidden">
-            <div class="p-4 border-b border-border flex items-center justify-between">
-              <span class="text-sm font-bold">Conversas monitoradas</span>
-              <span class="badge flag">2 alertas</span>
-            </div>
-            <div class="divide-y divide-border max-h-[560px] overflow-y-auto scrollbar">
-              <div class="p-4 bg-panel2 cursor-pointer border-l-2 border-accent">
-                <div class="flex justify-between items-center"><span class="font-semibold text-sm">Marina Costa</span><span class="text-[10px] text-muted">14:32</span></div>
-                <div class="text-[11px] text-muted mt-1">Robotão Imóveis · IA ativa</div>
-                <div class="text-[12px] mt-1.5 truncate">Perfeito! Vou agendar a visita...</div>
-              </div>
-              <div class="p-4 cursor-pointer">
-                <div class="flex justify-between items-center"><span class="font-semibold text-sm">Rafael Lima</span><span class="text-[10px] text-muted">13:08</span></div>
-                <div class="text-[11px] text-muted mt-1">Paulista Prime · Corretor</div>
-                <div class="text-[12px] mt-1.5 truncate flag inline-block px-2 py-0.5 rounded">Tentativa de contato externo</div>
-              </div>
-              <div class="p-4 cursor-pointer">
-                <div class="flex justify-between items-center"><span class="font-semibold text-sm">Pedro Alves</span><span class="text-[10px] text-muted">11:45</span></div>
-                <div class="text-[11px] text-muted mt-1">Jardins Realty · Corretor</div>
-                <div class="text-[12px] mt-1.5 truncate">Vou te enviar a proposta hoje</div>
-              </div>
-              <div class="p-4 cursor-pointer">
-                <div class="flex justify-between items-center"><span class="font-semibold text-sm">Juliana Reis</span><span class="text-[10px] text-muted">10:20</span></div>
-                <div class="text-[11px] text-muted mt-1">Vila Nova · IA ativa</div>
-                <div class="text-[12px] mt-1.5 truncate flag inline-block px-2 py-0.5 rounded">"me chama no zap pessoal"</div>
-              </div>
-            </div>
+        <div class="card">
+          <div class="empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            <div class="t">WhatsApp aguardando conexão</div>
+            <div class="d">O número central do Hub <strong>(11) 9 3623-8387</strong> está em aquecimento. Quando ativo, todas as conversas das imobiliárias passam por aqui com auditoria automática (detecção anti-burla).</div>
+            <button class="mt-4 px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold">Conectar número</button>
           </div>
-          <!-- chat -->
-          <div class="card lg:col-span-2 flex flex-col" style="max-height:620px">
-            <div class="p-4 border-b border-border flex items-center justify-between">
-              <div><div class="font-bold text-sm">Marina Costa ↔ Robotão Imóveis</div><div class="text-[11px] text-muted flex items-center gap-1.5 mt-0.5"><span class="pulse"></span>IA conduzindo · janela 24h ativa</div></div>
-              <div class="flex gap-2"><span class="chip">Assumir conversa</span><span class="chip" style="color:rgb(var(--c-accent2))">Auditar</span></div>
-            </div>
-            <div class="flex-1 overflow-y-auto scrollbar p-5 space-y-3 bg-panel2">
-              <div class="conv-b conv-lead">Oi, vi o apê de 2 dormitórios em Pinheiros. Ainda está disponível?</div>
-              <div class="conv-b conv-ia">Olá, Marina! Sim, está disponível. É um 2 dormitórios de 68m² na Rua dos Pinheiros, R$ 845.000. Você procura para morar ou investir?</div>
-              <div class="conv-b conv-lead">Para morar. Tenho uma entrada de uns 200 mil.</div>
-              <div class="conv-b conv-ia">Ótimo! Com essa entrada, o financiamento fica bem tranquilo. Você prefere visitar nesta semana? Tenho horários quinta e sábado.</div>
-              <div class="conv-b conv-lead">Sábado de manhã seria perfeito.</div>
-              <div class="conv-b conv-ia">Perfeito! Vou agendar a visita para sábado às 10h e já transferir você para o corretor responsável, o Marcelo. Ele confirma os detalhes. 🏡</div>
-              <div class="text-center"><span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">→ Lead qualificado (score 92) e roteado para Robotão Imóveis</span></div>
-            </div>
-            <div class="p-3 border-t border-border flex items-center gap-2">
-              <input placeholder="Modo auditoria · somente leitura" disabled class="flex-1 px-4 py-2.5 rounded-full bg-panel2 border border-border text-sm">
-              <span class="text-[11px] text-muted">🔒 Hub monitora · não interfere</span>
-            </div>
+        </div>
+      </section>
+
+      <!-- ============ E-MAILS ============ -->
+      <section id="emails" class="screen">
+        <div class="card overflow-hidden">
+          <div class="p-4 border-b border-border flex items-center justify-between"><span class="text-sm font-bold">Caixa do Hub · admin@ailogichub.app</span><span class="chip">0 não lidos</span></div>
+          <div class="empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+            <div class="t">Caixa de entrada vazia</div>
+            <div class="d">E-mails das imobiliárias, notificações de assinatura e relatórios de campanha chegam aqui, centralizados na conta corporativa admin@ailogichub.app.</div>
           </div>
         </div>
       </section>
@@ -487,96 +328,80 @@ tailwind.config = {
       <!-- ============ IMÓVEIS ============ -->
       <section id="imoveis" class="screen">
         <div class="flex items-center justify-between mb-5">
-          <div class="flex gap-2">
-            <span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todos · 902</span>
-            <span class="chip">Venda</span><span class="chip">Locação</span><span class="chip">Disponíveis</span>
-          </div>
-          <input placeholder="Buscar por código, região..." class="px-4 py-2 rounded-lg bg-panel border border-border text-sm w-64">
+          <div class="flex gap-2"><span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todos · 0</span><span class="chip">Venda</span><span class="chip">Locação</span></div>
+          <button class="px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold">+ Cadastrar imóvel</button>
         </div>
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div class="card card-h overflow-hidden">
-            <div class="h-36 bg-gradient-to-br from-accent/20 to-accent2/20 flex items-center justify-center text-muted text-xs gap-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>Foto do imóvel</div>
-            <div class="p-4">
-              <div class="flex items-center justify-between"><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Disponível</span><span class="text-[11px] text-muted">#RB-3120</span></div>
-              <div class="font-bold text-sm mt-2">Apto 2 dorm · Pinheiros</div>
-              <div class="text-[12px] text-muted">68m² · 1 vaga · Robotão Imóveis</div>
-              <div class="num text-lg text-accent mt-2">R$ 845.000</div>
-            </div>
+        <div class="card">
+          <div class="empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <div class="t">Nenhum imóvel cadastrado</div>
+            <div class="d">A Cirag Boutique cadastra seus imóveis aqui (ou importa do Imobzi). Cada imóvel fica vinculado à imobiliária, e os leads são roteados automaticamente ao dono do imóvel.</div>
           </div>
-          <div class="card card-h overflow-hidden">
-            <div class="h-36 bg-gradient-to-br from-accent2/20 to-accent/20 flex items-center justify-center text-muted text-xs gap-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>Foto do imóvel</div>
-            <div class="p-4">
-              <div class="flex items-center justify-between"><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Reservado</span><span class="text-[11px] text-muted">#PP-0871</span></div>
-              <div class="font-bold text-sm mt-2">Casa 3 dorm · Morumbi</div>
-              <div class="text-[12px] text-muted">220m² · 4 vagas · Paulista Prime</div>
-              <div class="num text-lg text-accent mt-2">R$ 1.420.000</div>
-            </div>
-          </div>
-          <div class="card card-h overflow-hidden">
-            <div class="h-36 bg-gradient-to-br from-accent/20 to-accent2/20 flex items-center justify-center text-muted text-xs gap-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>Foto do imóvel</div>
-            <div class="p-4">
-              <div class="flex items-center justify-between"><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Disponível</span><span class="text-[11px] text-muted">#JR-2044</span></div>
-              <div class="font-bold text-sm mt-2">Cobertura · Jardins</div>
-              <div class="text-[12px] text-muted">310m² · 5 vagas · Jardins Realty</div>
-              <div class="num text-lg text-accent mt-2">R$ 3.050.000</div>
-            </div>
-          </div>
-        </div>
-        <div class="card p-4 mt-4 flex items-center gap-3 text-[13px]" style="background:rgb(var(--c-accent2)/.06)">
-          <span class="badge" style="background:rgb(var(--c-accent2)/.15);color:rgb(var(--c-accent2))">Cross-imobiliária</span>
-          <span class="text-muted">Imóveis podem ser compartilhados entre parceiras para permutas e indicações · comissão dividida pelo Hub.</span>
         </div>
       </section>
 
       <!-- ============ MAPA DE ATUAÇÃO ============ -->
       <section id="mapa" class="screen">
         <div class="flex gap-4" style="height:calc(100vh - 180px)">
-          <!-- painel lateral -->
           <div class="w-72 flex-shrink-0 flex flex-col gap-4 overflow-y-auto scrollbar">
             <div class="card p-5">
               <div class="text-[10px] uppercase tracking-widest text-muted font-bold mb-3">Filtro</div>
               <label class="block text-[11px] font-semibold text-muted mb-1.5">Imobiliária</label>
               <select id="mapa-imob" class="w-full px-3 py-2.5 rounded-lg bg-panel2 border border-border text-sm mb-3">
                 <option value="all">Todas as imobiliárias</option>
-                <option value="0">Robotão Imóveis</option>
-                <option value="1">Paulista Prime</option>
-                <option value="2">Vila Nova Negócios</option>
-                <option value="3">Jardins Realty</option>
-                <option value="4">Centro SP Imóveis</option>
+                <option value="0">Cirag Boutique Imobiliária</option>
               </select>
               <label class="block text-[11px] font-semibold text-muted mb-1.5">Tipo de imóvel</label>
               <select id="mapa-tipo" class="w-full px-3 py-2.5 rounded-lg bg-panel2 border border-border text-sm">
-                <option value="all">Todos</option>
-                <option>Apartamento</option><option>Casa</option><option>Cobertura</option><option>Comercial</option>
+                <option value="all">Todos</option><option>Apartamento</option><option>Casa</option><option>Sala comercial</option><option>Loft</option>
               </select>
             </div>
             <div class="card p-5">
               <div class="text-[10px] uppercase tracking-widest text-muted font-bold mb-3">Resumo</div>
               <div class="space-y-2.5 text-[13px]">
-                <div class="flex justify-between"><span>Imobiliárias no mapa</span><span class="num" id="m-imob">5</span></div>
-                <div class="flex justify-between"><span>Imóveis ativos</span><span class="num" id="m-imov">902</span></div>
-                <div class="flex justify-between"><span>Raio médio de atuação</span><span class="num">6,2 km</span></div>
-                <div class="flex justify-between"><span>Leads no raio (mês)</span><span class="num text-accent2">1.077</span></div>
-                <div class="flex justify-between pt-2 border-t border-border"><span>Cobertura sobreposta</span><span class="num text-warn">3 zonas</span></div>
+                <div class="flex justify-between"><span>Imobiliárias no mapa</span><span class="num" id="m-imob">1</span></div>
+                <div class="flex justify-between"><span>Imóveis ativos</span><span class="num" id="m-imov">0</span></div>
+                <div class="flex justify-between"><span>Raio de atuação</span><span class="num">4,5 km</span></div>
+                <div class="flex justify-between pt-2 border-t border-border"><span>Leads no raio (mês)</span><span class="num text-muted">0</span></div>
               </div>
             </div>
             <div class="card p-5">
-              <div class="text-[10px] uppercase tracking-widest text-muted font-bold mb-3">Top regiões por imóvel</div>
-              <div class="space-y-2.5 text-[13px]">
-                <div class="flex justify-between"><span>Pinheiros</span><span class="num">312</span></div>
-                <div class="h-1.5 rounded bg-accent" style="width:90%"></div>
-                <div class="flex justify-between"><span>Jardins</span><span class="num">241</span></div>
-                <div class="h-1.5 rounded bg-accent2" style="width:70%"></div>
-                <div class="flex justify-between"><span>Morumbi</span><span class="num">187</span></div>
-                <div class="h-1.5 rounded bg-warn" style="width:54%"></div>
-                <div class="flex justify-between"><span>Centro</span><span class="num">64</span></div>
-                <div class="h-1.5 rounded bg-muted" style="width:20%"></div>
-              </div>
+              <div class="text-[10px] uppercase tracking-widest text-muted font-bold mb-3">Sede</div>
+              <div class="text-[12.5px]"><div class="font-semibold">Cirag Boutique Imobiliária</div><div class="text-muted mt-1">Av. Paulista, 1636 · CJ 706 · Cerqueira César</div></div>
             </div>
           </div>
-          <!-- mapa -->
-          <div class="card flex-1 overflow-hidden p-0">
-            <div id="leaflet-map" style="width:100%;height:100%;border-radius:14px"></div>
+          <div class="card flex-1 overflow-hidden p-0"><div id="leaflet-map" style="width:100%;height:100%;border-radius:14px"></div></div>
+        </div>
+      </section>
+
+      <!-- ============ ASSINATURAS ============ -->
+      <section id="assinaturas" class="screen">
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex gap-2"><span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todos · 0</span></div>
+          <span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Integração D4Sign · Fase 2</span>
+        </div>
+        <div class="card">
+          <div class="empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
+            <div class="t">Nenhum documento</div>
+            <div class="d">Contratos e propostas com assinatura eletrônica (D4Sign) aparecem aqui quando os negócios avançarem para a etapa de fechamento.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ANÚNCIOS E RODÍZIOS ============ -->
+      <section id="anuncios" class="screen">
+        <div class="card p-4 mb-4 flex items-center gap-3 text-[13px]" style="background:rgb(var(--c-warn)/.08)">
+          <span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Fase 2</span>
+          <span class="text-muted">Distribuição de leads e gestão de anúncios pagos por imobiliária. Lógica modelada; ativação na Fase 2.</span>
+        </div>
+        <div class="card p-6">
+          <h3 class="text-sm font-bold mb-4">Regra de distribuição (rodízio)</h3>
+          <div class="space-y-3 text-[13px]">
+            <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span>Lead → imobiliária dona do imóvel</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Ativo</span></div>
+            <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span>SLA de aceite</span><span class="num">15 min</span></div>
+            <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span>Reatribuição se não aceitar</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Ativo</span></div>
+            <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border" style="opacity:.6"><span>Rodízio interno entre corretores</span><span class="badge" style="background:rgb(var(--c-muted)/.15);color:rgb(var(--c-muted))">Imobiliária decide</span></div>
           </div>
         </div>
       </section>
@@ -585,124 +410,30 @@ tailwind.config = {
       <section id="relatorios" class="screen">
         <div class="grid lg:grid-cols-2 gap-4 mb-4">
           <div class="card p-6">
-            <h3 class="text-sm font-bold mb-4">Receita do Hub · últimos 6 meses</h3>
-            <div class="flex items-end gap-2 h-44">
-              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-accent/30" style="height:40%"></div><span class="text-[10px] text-muted">Jan</span></div>
-              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-accent/45" style="height:55%"></div><span class="text-[10px] text-muted">Fev</span></div>
-              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-accent/60" style="height:62%"></div><span class="text-[10px] text-muted">Mar</span></div>
-              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-accent/75" style="height:78%"></div><span class="text-[10px] text-muted">Abr</span></div>
-              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-accent/90" style="height:88%"></div><span class="text-[10px] text-muted">Mai</span></div>
-              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-accent" style="height:100%"></div><span class="text-[10px] text-muted">Jun</span></div>
+            <h3 class="text-sm font-bold mb-4">Receita do Hub</h3>
+            <div class="empty" style="padding:30px 0">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <div class="t">Sem dados ainda</div>
+              <div class="d">Os gráficos de receita aparecem após os primeiros fechamentos.</div>
             </div>
           </div>
           <div class="card p-6">
             <h3 class="text-sm font-bold mb-4">Relatório dinâmico <span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">vs. Imobzi engessado</span></h3>
             <div class="space-y-3 text-[13px]">
               <select class="w-full px-3 py-2.5 rounded-lg bg-panel2 border border-border"><option>Por imobiliária</option><option>Por região</option><option>Por fonte de lead</option><option>Por corretor</option></select>
-              <select class="w-full px-3 py-2.5 rounded-lg bg-panel2 border border-border"><option>Faixa: R$ 800k · R$ 1,5M</option><option>Alto padrão (R$ 1,5M+)</option></select>
+              <select class="w-full px-3 py-2.5 rounded-lg bg-panel2 border border-border"><option>Período: mês atual</option><option>Últimos 90 dias</option></select>
               <button class="w-full px-4 py-2.5 rounded-lg bg-accent text-white font-semibold text-sm">Gerar relatório (instantâneo)</button>
               <p class="text-[11px] text-muted">No Imobzi era preciso solicitar à equipe. No Hub o gestor monta sozinho.</p>
             </div>
           </div>
         </div>
         <div class="card p-6">
-          <h3 class="text-sm font-bold mb-4">Custo de WhatsApp por categoria · junho</h3>
+          <h3 class="text-sm font-bold mb-4">Custo de WhatsApp · mês atual</h3>
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
-            <div><div class="num text-2xl text-ok">Grátis</div><div class="text-[11px] text-muted mt-1">Service (janela 24h) · 8.412 msgs</div></div>
-            <div><div class="num text-2xl">R$ 184</div><div class="text-[11px] text-muted mt-1">Utility · 2.300 msgs</div></div>
-            <div><div class="num text-2xl">R$ 0</div><div class="text-[11px] text-muted mt-1">Marketing · desativado</div></div>
-            <div><div class="num text-2xl text-accent">R$ 184</div><div class="text-[11px] text-muted mt-1">Total · teto R$ 500</div></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ============ AGENDA ============ -->
-      <section id="agenda" class="screen">
-        <div class="flex items-center justify-between mb-5">
-          <div class="flex gap-2"><span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Semana</span><span class="chip">Hoje · 8</span><span class="chip">Visitas</span><span class="chip">Tarefas</span></div>
-          <select class="px-4 py-2 rounded-lg bg-panel border border-border text-sm"><option>Todas as imobiliárias</option><option>Robotão Imóveis</option></select>
-        </div>
-        <div class="grid lg:grid-cols-2 gap-4">
-          <div class="card p-6">
-            <h3 class="text-sm font-bold mb-4">Hoje · 16 jun</h3>
-            <div class="space-y-3 text-[13px]">
-              <div class="flex gap-3 p-3 rounded-lg bg-panel2 border border-border"><div class="num text-accent font-bold">10:00</div><div><div class="font-semibold">Visita · Apto Pinheiros</div><div class="text-[11px] text-muted">Marina Costa · Robotão · corretor Marcelo</div></div></div>
-              <div class="flex gap-3 p-3 rounded-lg bg-panel2 border border-border"><div class="num text-accent font-bold">14:30</div><div><div class="font-semibold">Proposta · Cobertura Jardins</div><div class="text-[11px] text-muted">Pedro Alves · Jardins Realty</div></div></div>
-              <div class="flex gap-3 p-3 rounded-lg bg-panel2 border border-border"><div class="num text-accent font-bold">17:00</div><div><div class="font-semibold">Retorno · lead morno</div><div class="text-[11px] text-muted">Camila Souza · Vila Nova</div></div></div>
-            </div>
-          </div>
-          <div class="card p-6">
-            <h3 class="text-sm font-bold mb-4">Próximos dias</h3>
-            <div class="space-y-3 text-[13px]">
-              <div class="flex gap-3 p-3 rounded-lg bg-panel2 border border-border"><div class="num text-muted font-bold text-center" style="min-width:42px"><div>17</div><div class="text-[9px]">QUA</div></div><div><div class="font-semibold">Assinatura D4Sign · Apto Itaim</div><div class="text-[11px] text-muted">Fernanda Dias · Paulista Prime</div></div></div>
-              <div class="flex gap-3 p-3 rounded-lg bg-panel2 border border-border"><div class="num text-muted font-bold text-center" style="min-width:42px"><div>18</div><div class="text-[9px]">QUI</div></div><div><div class="font-semibold">Visita · Casa Morumbi</div><div class="text-[11px] text-muted">Rafael Lima · Paulista Prime</div></div></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ============ E-MAILS ============ -->
-      <section id="emails" class="screen">
-        <div class="card overflow-hidden">
-          <div class="p-4 border-b border-border flex items-center justify-between">
-            <span class="text-sm font-bold">Caixa do Hub · admin.ailogichub@gmail.com</span>
-            <span class="chip">3 não lidos</span>
-          </div>
-          <div class="divide-y divide-border">
-            <div class="p-4 flex items-center gap-4 hover:bg-panel2 cursor-pointer"><span class="pulse"></span><div class="flex-1"><div class="font-semibold text-sm">Robotão Imóveis</div><div class="text-[12px] text-muted truncate">Confirmação da visita de sábado · Marina Costa</div></div><span class="text-[11px] text-muted">14:20</span></div>
-            <div class="p-4 flex items-center gap-4 hover:bg-panel2 cursor-pointer"><span class="w-1.5 h-1.5 rounded-full bg-accent2 inline-block"></span><div class="flex-1"><div class="font-semibold text-sm">D4Sign</div><div class="text-[12px] text-muted truncate">Documento assinado por todos os signatários · Apto Itaim</div></div><span class="text-[11px] text-muted">11:05</span></div>
-            <div class="p-4 flex items-center gap-4 hover:bg-panel2 cursor-pointer"><span class="w-1.5 h-1.5 rounded-full bg-accent2 inline-block"></span><div class="flex-1"><div class="font-semibold text-sm">Google Ads</div><div class="text-[12px] text-muted truncate">Relatório semanal de campanhas · 241 leads</div></div><span class="text-[11px] text-muted">09:30</span></div>
-            <div class="p-4 flex items-center gap-4 hover:bg-panel2 cursor-pointer opacity-60"><span class="w-1.5 h-1.5 inline-block"></span><div class="flex-1"><div class="font-semibold text-sm">Paulista Prime</div><div class="text-[12px] text-muted truncate">Dúvida sobre comissão · plano fixo vs %</div></div><span class="text-[11px] text-muted">ontem</span></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ============ ASSINATURAS E DOCUMENTOS ============ -->
-      <section id="assinaturas" class="screen">
-        <div class="flex items-center justify-between mb-5">
-          <div class="flex gap-2"><span class="chip" style="background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))">Todos</span><span class="chip">Pendentes · 4</span><span class="chip">Concluídos</span></div>
-          <span class="badge" style="background:rgb(var(--c-accent2)/.12);color:rgb(var(--c-accent2))">Integração D4Sign · Fase 2</span>
-        </div>
-        <div class="card overflow-hidden">
-          <table>
-            <thead><tr><th>Documento</th><th>Negócio</th><th>Imobiliária</th><th>Signatários</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr><td class="font-semibold">Contrato de compra e venda</td><td>Apto Itaim · R$ 980k</td><td>Paulista Prime</td><td>2 de 3 assinaram</td><td><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Aguardando</span></td></tr>
-              <tr><td class="font-semibold">Proposta de locação</td><td>Apto Centro · loc.</td><td>Jardins Realty</td><td>1 de 2 assinaram</td><td><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Aguardando</span></td></tr>
-              <tr><td class="font-semibold">Contrato de compra e venda</td><td>Casa Alto Pinheiros · R$ 2,1M</td><td>Robotão Imóveis</td><td>3 de 3 assinaram</td><td><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">✓ Concluído</span></td></tr>
-              <tr><td class="font-semibold">Autorização de venda</td><td>Cobertura Jardins · R$ 3M</td><td>Jardins Realty</td><td>0 de 2 assinaram</td><td><span class="badge" style="background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent))">Enviado</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- ============ ANÚNCIOS E RODÍZIOS (Fase 2) ============ -->
-      <section id="anuncios" class="screen">
-        <div class="card p-4 mb-4 flex items-center gap-3 text-[13px]" style="background:rgb(var(--c-warn)/.08)">
-          <span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Fase 2</span>
-          <span class="text-muted">Lógica modelada desde já · distribuição de leads e gestão de anúncios pagos por imobiliária. Ativação na Fase 2.</span>
-        </div>
-        <div class="grid lg:grid-cols-2 gap-4">
-          <div class="card p-6">
-            <h3 class="text-sm font-bold mb-4">Regra de distribuição (rodízio)</h3>
-            <div class="space-y-3 text-[13px]">
-              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span>Lead → imobiliária dona do imóvel</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Ativo</span></div>
-              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span>SLA de aceite</span><span class="num">15 min</span></div>
-              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span>Reatribuição se não aceitar</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Ativo</span></div>
-              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border opacity-60"><span>Rodízio interno entre corretores</span><span class="badge" style="background:rgb(var(--c-muted)/.15);color:rgb(var(--c-muted))">Imobiliária decide</span></div>
-            </div>
-          </div>
-          <div class="card p-6">
-            <h3 class="text-sm font-bold mb-4">Anúncios pagos · custo por canal</h3>
-            <div class="space-y-3 text-[13px]">
-              <div class="flex items-center justify-between"><span>Google Ads</span><span class="num">R$ 4.200 · 241 leads</span></div>
-              <div class="h-1.5 rounded bg-accent" style="width:70%"></div>
-              <div class="flex items-center justify-between"><span>Meta Ads</span><span class="num">R$ 2.800 · 156 leads</span></div>
-              <div class="h-1.5 rounded bg-accent2" style="width:48%"></div>
-              <div class="flex items-center justify-between"><span>Portais (impulsionar)</span><span class="num">R$ 1.500 · 89 leads</span></div>
-              <div class="h-1.5 rounded bg-warn" style="width:30%"></div>
-              <div class="pt-2 mt-2 border-t border-border flex justify-between font-semibold"><span>CAC médio</span><span class="num text-accent">R$ 17,30 / lead</span></div>
-            </div>
+            <div><div class="num text-2xl text-ok">R$ 0</div><div class="text-[11px] text-muted mt-1">Service (janela 24h)</div></div>
+            <div><div class="num text-2xl">R$ 0</div><div class="text-[11px] text-muted mt-1">Utility</div></div>
+            <div><div class="num text-2xl">R$ 0</div><div class="text-[11px] text-muted mt-1">Marketing (desativado)</div></div>
+            <div><div class="num text-2xl text-accent">R$ 0</div><div class="text-[11px] text-muted mt-1">Total · teto R$ 500</div></div>
           </div>
         </div>
       </section>
@@ -713,7 +444,7 @@ tailwind.config = {
           <div class="card p-6">
             <h3 class="text-sm font-bold mb-4">Agente de IA · qualificação</h3>
             <div class="space-y-4 text-[13px]">
-              <div><label class="block text-xs font-bold mb-1.5">Modelo</label><select class="w-full px-3 py-2.5 rounded-lg bg-panel2 border border-border"><option>IA Logic Hub (padrão)</option></select></div>
+              <div><label class="block text-xs font-bold mb-1.5">Modelo</label><select class="w-full px-3 py-2.5 rounded-lg bg-panel2 border border-border"><option>AI Logic Hub (padrão)</option></select></div>
               <div><label class="block text-xs font-bold mb-1.5">Persona / tom de voz</label><textarea class="w-full px-3 py-2.5 rounded-lg bg-panel2 border border-border" rows="3">Atendente cordial e ágil. Qualifica intenção (compra/locação), tipo de imóvel, região, faixa de preço e prazo. Nunca passa contato externo.</textarea></div>
               <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span>Detecção anti-burla (modelo Uber)</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Ativo</span></div>
               <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span>Handoff automático para corretor</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Ativo</span></div>
@@ -722,11 +453,11 @@ tailwind.config = {
           <div class="card p-6">
             <h3 class="text-sm font-bold mb-4">Integrações</h3>
             <div class="space-y-3 text-[13px]">
-              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span class="font-semibold">WhatsApp · +55 (11) 9 3623-8387</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Conectado</span></div>
+              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span class="font-semibold">WhatsApp · (11) 9 3623-8387</span><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Aquecendo</span></div>
+              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span class="font-semibold">Google Workspace · admin@ailogichub.app</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Conectado</span></div>
               <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span class="font-semibold">Portais (ZAP / VivaReal / OLX)</span><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Fase 2</span></div>
               <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span class="font-semibold">D4Sign · assinatura eletrônica</span><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Fase 2</span></div>
               <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span class="font-semibold">Open Finance · Pix recorrente</span><span class="badge" style="background:rgb(var(--c-warn)/.15);color:rgb(var(--c-warn))">Fase 2</span></div>
-              <div class="flex items-center justify-between p-3 rounded-lg bg-panel2 border border-border"><span class="font-semibold">Google · admin.ailogichub</span><span class="badge" style="background:rgb(var(--c-ok)/.15);color:rgb(var(--c-ok))">Conectado</span></div>
             </div>
           </div>
         </div>
@@ -738,13 +469,13 @@ tailwind.config = {
 
 <script>
   const titles = {
-    dashboard:['Visão Geral','Operação consolidada de todas as imobiliárias parceiras'],
+    dashboard:['Visão Geral','Operação consolidada das imobiliárias parceiras'],
     imobiliarias:['Imobiliárias','Rede de parceiras do Hub · entidade central'],
     leads:['Leads','Captação multi-fonte e roteamento automático'],
     funil:['Funil de Negócios','Pipeline padronizado pelo Hub'],
     agenda:['Agenda','Visitas e tarefas dos corretores'],
     whatsapp:['WhatsApp · Auditoria','Monitoramento das conversas das imobiliárias (modelo Uber)'],
-    emails:['E-mails','Caixa central do Hub · admin.ailogichub'],
+    emails:['E-mails','Caixa central do Hub · admin@ailogichub.app'],
     imoveis:['Imóveis','Catálogo cross-imobiliária'],
     mapa:['Mapa de Atuação','Raio das imobiliárias e densidade de imóveis por região'],
     assinaturas:['Assinaturas · Documentos','Controle de contratos · integração D4Sign (Fase 2)'],
@@ -763,21 +494,14 @@ tailwind.config = {
   document.querySelectorAll('[data-s]').forEach(e=>e.addEventListener('click',()=>show(e.dataset.s)));
 
   // ===== MAPA DE ATUAÇÃO (Leaflet) =====
-  // Imobiliárias com coordenadas (bairros de São Paulo), raio de atuação e nº de imóveis
   const IMOBS = [
-    {nome:'Robotão Imóveis',    lat:-23.5640, lng:-46.6920, raio:7000, imoveis:312, cor:'#003B5C', bairro:'Pinheiros'},
-    {nome:'Paulista Prime',     lat:-23.5614, lng:-46.6560, raio:5500, imoveis:187, cor:'#0077B6', bairro:'Av. Paulista'},
-    {nome:'Vila Nova Negócios', lat:-23.5950, lng:-46.6340, raio:4500, imoveis:98,  cor:'#16A34A', bairro:'Vila Mariana'},
-    {nome:'Jardins Realty',     lat:-23.5710, lng:-46.6680, raio:6000, imoveis:241, cor:'#7C3AED', bairro:'Jardins'},
-    {nome:'Centro SP Imóveis',  lat:-23.5450, lng:-46.6360, raio:5000, imoveis:64,  cor:'#F59E0B', bairro:'Centro'}
+    {nome:'Cirag Boutique Imobiliária', lat:-23.5615, lng:-46.6562, raio:4500, imoveis:0, cor:'#003B5C', bairro:'Av. Paulista, 1636 · Cerqueira César'}
   ];
   let _map=null, _layers=[];
   function initMapa(){
     if(_map){ setTimeout(()=>_map.invalidateSize(),60); return; }
-    _map = L.map('leaflet-map',{zoomControl:true,scrollWheelZoom:true}).setView([-23.561,-46.656],11);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
-      attribution:'© OpenStreetMap · © CARTO', maxZoom:19
-    }).addTo(_map);
+    _map = L.map('leaflet-map',{zoomControl:true,scrollWheelZoom:true}).setView([-23.5615,-46.6562],13);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap · © CARTO', maxZoom:19}).addTo(_map);
     desenharImobs('all');
     setTimeout(()=>_map.invalidateSize(),80);
   }
@@ -786,22 +510,18 @@ tailwind.config = {
     IMOBS.forEach((im,i)=>{
       if(filtro!=='all' && String(i)!==String(filtro)) return;
       const circ = L.circle([im.lat,im.lng],{radius:im.raio,color:im.cor,weight:1.5,fillColor:im.cor,fillOpacity:0.12}).addTo(_map);
-      const mk = L.circleMarker([im.lat,im.lng],{radius:8+im.imoveis/40,color:'#fff',weight:2,fillColor:im.cor,fillOpacity:0.95}).addTo(_map);
-      mk.bindPopup(`<b>${im.nome}</b><br>${im.bairro}<br>${im.imoveis} imóveis · raio ${(im.raio/1000).toFixed(1)} km`);
+      const mk = L.circleMarker([im.lat,im.lng],{radius:11,color:'#fff',weight:2,fillColor:im.cor,fillOpacity:0.95}).addTo(_map);
+      mk.bindPopup(`<b>${im.nome}</b><br>${im.bairro}<br>raio ${(im.raio/1000).toFixed(1)} km`);
       _layers.push(circ,mk);
     });
-    // ajusta zoom ao filtro
-    if(filtro!=='all'){ const im=IMOBS[filtro]; _map.setView([im.lat,im.lng],13); }
-    else { _map.setView([-23.561,-46.656],11); }
-    // atualiza resumo
     const sel = filtro==='all' ? IMOBS : [IMOBS[filtro]];
     document.getElementById('m-imob').textContent = sel.length;
     document.getElementById('m-imov').textContent = sel.reduce((a,b)=>a+b.imoveis,0).toLocaleString('pt-BR');
+    _map.setView([-23.5615,-46.6562],13);
   }
-  // filtros do mapa
   document.getElementById('mapa-imob').addEventListener('change',e=>{ if(_map) desenharImobs(e.target.value); });
 
-  // Contas da demo (e-mails hipotéticos · não existem de verdade)
+  // ===== LOGIN (e-mails hipotéticos da demo) =====
   const CONTAS = [
     {email:'diretoria@ailogichub.app', senha:'Alessandro@2026', nome:'Alessandro Ferreira', papel:'Diretoria · Admin do Hub', ini:'AF'},
     {email:'tecnologia@ailogichub.app', senha:'Jhonattan@2026', nome:'Jhonattan Itiuba', papel:'Tecnologia · Brava', ini:'JI'}
@@ -817,12 +537,10 @@ tailwind.config = {
     if(nome) nome.textContent=conta.nome;
     const papel=nome ? nome.nextElementSibling : null;
     if(papel) papel.textContent=conta.papel;
-    const av=document.querySelector('#app aside .rounded-full.bg-gradient-to-br');
-    if(av) av.textContent=conta.ini;
+    document.getElementById('side-ini').textContent=conta.ini;
     document.getElementById('login').style.display='none';
     document.getElementById('app').style.display='flex';
   }
-  // Enter envia o login
   ['lg-email','lg-pass'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter') entrar(); }));
 </script>
 </body>
