@@ -65,6 +65,13 @@ tailwind.config = {
   .kcard .kx:hover{opacity:1;color:rgb(var(--c-danger))}
   .kadd{width:100%;margin-top:8px;padding:8px;border:1px dashed rgb(var(--c-border));border-radius:10px;color:rgb(var(--c-muted));font-size:12px;font-weight:600;cursor:pointer;background:transparent;transition:all .12s}
   .kadd:hover{border-color:rgb(var(--c-accent));color:rgb(var(--c-accent));background:rgb(var(--c-accent)/.04)}
+  .wa-chat{padding:10px 12px;border-bottom:1px solid rgb(var(--c-border));cursor:pointer;display:flex;gap:10px;align-items:center}
+  .wa-chat:hover{background:rgb(var(--c-panel2))}
+  .wa-chat-on{background:rgb(var(--c-accent)/.07)}
+  .wa-av{width:38px;height:38px;border-radius:50%;background:rgb(var(--c-accent)/.12);color:rgb(var(--c-accent));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+  .wa-bub{max-width:75%;padding:7px 11px;border-radius:12px;font-size:13px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+  .wa-in{background:rgb(var(--c-panel));border:1px solid rgb(var(--c-border));align-self:flex-start;border-bottom-left-radius:4px}
+  .wa-out{background:rgb(var(--c-accent));color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
   .scrollbar::-webkit-scrollbar{width:6px;height:6px}
   .scrollbar::-webkit-scrollbar-thumb{background:rgb(var(--c-border));border-radius:3px}
   .conv-b{max-width:78%;padding:9px 13px;border-radius:13px;font-size:12.5px;line-height:1.5}
@@ -725,9 +732,13 @@ tailwind.config = {
   const WAKEY='ailh_wa_v1', WA_INST='ailogic-hub-principal', WA_NUM='+55 (11) 9 3623-8387';
   const WA_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>';
   let wa={status:'desconectado'}, waTimer=null, waPoll=null, waLeft=0, waQrData=null;
+  let waChats=[], waOpenJid=null, waMsgs=[], waInboxTimer=null;
+  function waHora(ts){ if(!ts) return ''; try{ return new Date(ts*1000).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
+  function waIni(n){ return (n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?'; }
+  async function waPost(action,body){ const r=await fetch('/api/wa?action='+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store'}); let d={}; try{d=await r.json();}catch(e){} if(!r.ok) throw new Error(d.error||('HTTP '+r.status)); return d; }
   function waCache(){ try{localStorage.setItem(WAKEY,JSON.stringify({status:wa.status,numero:wa.numero,perfil:wa.perfil}));}catch(e){} }
   function waLoadCache(){ try{Object.assign(wa,JSON.parse(localStorage.getItem(WAKEY))||{});}catch(e){} if(!wa.status)wa.status='desconectado'; }
-  function waStop(){ if(waTimer){clearInterval(waTimer);waTimer=null;} if(waPoll){clearInterval(waPoll);waPoll=null;} }
+  function waStop(){ if(waTimer){clearInterval(waTimer);waTimer=null;} if(waPoll){clearInterval(waPoll);waPoll=null;} if(waInboxTimer){clearInterval(waInboxTimer);waInboxTimer=null;} }
   async function waApi(action){ const r=await fetch('/api/wa?action='+action,{cache:'no-store'}); let d={}; try{d=await r.json();}catch(e){} if(!r.ok) throw new Error(d.error||('HTTP '+r.status)); return d; }
   function waBox(h){ const el=document.getElementById('wa-screen'); if(el) el.innerHTML=h; }
   function waLoading(msg){ waStop(); waBox('<div class="card"><div class="empty"><div class="t">'+msg+'</div><div class="d">Aguarde um instante...</div></div></div>'); }
@@ -736,28 +747,25 @@ tailwind.config = {
     const el=document.getElementById('wa-screen'); if(!el) return;
     waStop();
     if(wa.status==='conectado'){
-      el.innerHTML=`<div class="card p-6 mb-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgb(var(--c-ok)/.12);color:rgb(var(--c-ok))">${WA_SVG}</div>
-            <div><div class="font-bold text-sm">${wa.perfil||'AI Logic Hub'} · Tecnologia Imobiliária</div><div class="text-[11px] text-muted">${wa.numero?('+'+wa.numero):WA_NUM} · instância ${WA_INST}</div></div>
-          </div>
+      el.innerHTML=`<div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:rgb(var(--c-ok)/.12);color:rgb(var(--c-ok))">${WA_SVG}</div>
+          <div><div class="font-bold text-sm">${wa.perfil||'AI Logic Hub'}</div><div class="text-[11px] text-muted">${wa.numero?('+'+wa.numero):WA_NUM} · instância ${WA_INST}</div></div>
           <span class="badge" style="background:rgb(var(--c-ok)/.12);color:rgb(var(--c-ok));display:inline-flex;align-items:center;gap:6px"><span class="pulse"></span>Conectado</span>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5 pt-4 border-t border-border text-center">
-          <div><div class="num text-lg">0</div><div class="text-[10px] text-muted">Conversas hoje</div></div>
-          <div><div class="num text-lg">0</div><div class="text-[10px] text-muted">Mensagens</div></div>
-          <div><div class="num text-lg text-ok">100%</div><div class="text-[10px] text-muted">Entrega</div></div>
-          <div><div class="num text-lg">linkado</div><div class="text-[10px] text-muted">Dispositivo</div></div>
-        </div>
-        <div class="text-[11px] text-muted mt-3">Conectado em ${wa.conectadoEm||'agora'} · coexiste com o app no celular (não desloga).</div>
+        <button onclick="waDisconnect()" class="px-3 py-1.5 rounded-lg bg-panel2 border border-border text-xs font-semibold text-danger">Desconectar</button>
       </div>
-      <div class="card"><div class="empty" style="padding:40px 24px">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 11 2 2 4-4"/></svg>
-        <div class="t">Auditoria ativa · 0 conversas</div>
-        <div class="d">As conversas das imobiliárias passam por aqui com detecção anti-burla (modelo Uber). Quando os corretores começarem a atender, histórico e alertas aparecem nesta tela.</div>
-        <button onclick="waDisconnect()" class="mt-4 px-4 py-2 rounded-lg bg-panel2 border border-border text-sm font-semibold text-danger">Desconectar número</button>
-      </div></div>`;
+      <div class="card overflow-hidden" style="height:calc(100vh - 240px);display:flex">
+        <div style="width:320px;flex-shrink:0;border-right:1px solid rgb(var(--c-border));display:flex;flex-direction:column">
+          <div class="p-2.5 border-b border-border"><input id="wa-search" oninput="renderChatList()" placeholder="Buscar conversa..." class="w-full px-3 py-2 rounded-lg bg-panel2 border border-border text-sm"></div>
+          <div id="wa-chats" class="flex-1 overflow-y-auto scrollbar"><div class="text-xs text-muted p-4 text-center">Carregando conversas...</div></div>
+        </div>
+        <div id="wa-conv" class="flex-1 flex flex-col" style="min-width:0">
+          <div class="empty" style="margin:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><div class="t">Selecione uma conversa</div><div class="d">As conversas do WhatsApp do Hub aparecem à esquerda, espelhadas em tempo real.</div></div>
+        </div>
+      </div>`;
+      waLoadChats();
+      waInboxTimer=setInterval(()=>{ waLoadChats(); if(waOpenJid) waLoadMsgs(false); }, 7000);
     } else if(wa.status==='aguardando_qr'){
       el.innerHTML=`<div class="card p-6">
         <div class="flex items-center justify-between mb-5 pb-4 border-b border-border">
@@ -805,6 +813,49 @@ tailwind.config = {
   function waCancel(){ waStop(); wa.status='desconectado'; waQrData=null; renderWa(); }
   async function waDisconnect(){ if(!confirm('Desconectar o número do Hub?'))return; waLoading('Desconectando...'); try{ await waApi('disconnect'); wa.status='desconectado'; waQrData=null; waCache(); renderWa(); }catch(e){ waErro(e.message); } }
   async function waRefresh(){ try{ const d=await waApi('status'); wa.status=d.status; wa.numero=d.numero; wa.perfil=d.perfil; waCache(); if(wa.status==='aguardando_qr' && !waQrData){ await waConnect(); return; } renderWa(); }catch(e){ renderWa(); } }
+
+  // ----- Inbox (espelho do WhatsApp dentro da plataforma) -----
+  async function waLoadChats(){ try{ const d=await waApi('chats'); waChats=d.chats||[]; renderChatList(); }catch(e){} }
+  function renderChatList(){
+    const el=document.getElementById('wa-chats'); if(!el) return;
+    const si=document.getElementById('wa-search'); const q=(si?si.value:'').toLowerCase();
+    const list=waChats.filter(c=>!q||(c.nome||'').toLowerCase().includes(q)||(c.ultima||'').toLowerCase().includes(q));
+    if(!list.length){ el.innerHTML='<div class="text-xs text-muted p-4 text-center">Nenhuma conversa</div>'; return; }
+    el.innerHTML=list.map(c=>`<div class="wa-chat ${c.jid===waOpenJid?'wa-chat-on':''}" onclick="waOpenChat('${c.jid}')">
+      <div class="wa-av">${c.grupo?'#':waIni(c.nome)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span class="font-semibold text-[13px] truncate">${esc(c.nome)}</span>${c.janelaAtiva?'<span class="pulse" title="janela 24h ativa"></span>':''}</div>
+        <div class="text-[11px] text-muted truncate">${c.fromMe?'Você: ':''}${esc(c.ultima||'')}</div>
+      </div></div>`).join('');
+  }
+  async function waOpenChat(jid){ waOpenJid=jid; renderChatList(); renderConv(); await waLoadMsgs(true); }
+  function renderConv(){
+    const el=document.getElementById('wa-conv'); if(!el) return;
+    const c=waChats.find(x=>x.jid===waOpenJid)||{nome:waOpenJid,jid:waOpenJid};
+    el.innerHTML=`<div class="flex items-center gap-3 px-4 py-3 border-b border-border">
+      <div class="wa-av">${c.grupo?'#':waIni(c.nome)}</div>
+      <div style="flex:1;min-width:0"><div class="font-semibold text-sm truncate">${esc(c.nome)}</div><div class="text-[11px] text-muted">${c.grupo?'Grupo':(c.janelaAtiva?'Janela 24h ativa':'Fora da janela 24h (só template)')}</div></div>
+    </div>
+    <div id="wa-msgs" class="flex-1 overflow-y-auto scrollbar p-4" style="display:flex;flex-direction:column;gap:6px;background:rgb(var(--c-bg))"></div>
+    <div class="p-3 border-t border-border" style="display:flex;gap:8px">
+      <input id="wa-input" onkeydown="if(event.key==='Enter')waSend()" placeholder="Escreva uma mensagem..." class="flex-1 px-3 py-2 rounded-lg bg-panel2 border border-border text-sm">
+      <button onclick="waSend()" class="px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold">Enviar</button>
+    </div>`;
+    renderMsgs(true);
+  }
+  function renderMsgs(scroll){
+    const el=document.getElementById('wa-msgs'); if(!el) return;
+    el.innerHTML=waMsgs.map(m=>`<div class="wa-bub ${m.fromMe?'wa-out':'wa-in'}">${esc(m.texto)}<div style="font-size:9px;opacity:.6;margin-top:2px;text-align:right">${waHora(m.ts)}</div></div>`).join('')||'<div class="text-xs text-muted" style="margin:auto">Sem mensagens nesta conversa</div>';
+    if(scroll) el.scrollTop=el.scrollHeight;
+  }
+  async function waLoadMsgs(scroll){ if(!waOpenJid) return; try{ const d=await waApi('messages&jid='+encodeURIComponent(waOpenJid)); waMsgs=d.msgs||[]; renderMsgs(scroll); }catch(e){} }
+  async function waSend(){
+    const i=document.getElementById('wa-input'); const t=i?i.value.trim():''; if(!t||!waOpenJid) return;
+    i.value=''; i.disabled=true;
+    try{ await waPost('send',{jid:waOpenJid,text:t}); setTimeout(()=>waLoadMsgs(true),700); }
+    catch(e){ alert('Falha ao enviar: '+e.message); i.value=t; }
+    finally{ i.disabled=false; i.focus(); }
+  }
   waLoadCache(); renderWa(); waRefresh();
 
   // ===== LOGIN (e-mails hipotéticos da demo) =====
