@@ -703,28 +703,25 @@ tailwind.config = {
   }
   document.querySelectorAll('[data-s]').forEach(e=>e.addEventListener('click',()=>show(e.dataset.s)));
 
-  // Login (demo: qualquer e-mail/senha entra; lista de aceitos pode ser preenchida abaixo)
-  const CONTAS_VALIDAS = [
-    // {email:'...', senha:'...', nome:'...', papel:'...'}  ← preencher com os e-mails fake
+  // Contas reconhecidas na demo (SEM senha no client-side por segurança;
+  // valida apenas o e-mail conhecido + qualquer senha não vazia)
+  const CONTAS = [
+    {email:'diretoria@ailogichub.app', nome:'Alessandro Ferreira', papel:'Diretoria · Admin do Hub', ini:'AF'},
+    {email:'tecnologia@ailogichub.app', nome:'Jhonattan Itiuba', papel:'Tecnologia · Brava', ini:'JI'}
   ];
   function entrar(){
     const email=(document.getElementById('lg-email').value||'').trim().toLowerCase();
     const pass=document.getElementById('lg-pass').value||'';
     const err=document.getElementById('lg-err');
-    let ok=true, conta=null;
-    if(CONTAS_VALIDAS.length){
-      conta=CONTAS_VALIDAS.find(c=>c.email.toLowerCase()===email && c.senha===pass);
-      ok=!!conta;
-    }
-    if(!ok){ err.style.display='block'; return; }
+    const conta=CONTAS.find(c=>c.email.toLowerCase()===email);
+    if(!conta || !pass){ err.style.display='block'; return; }
     err.style.display='none';
-    // Personaliza usuário logado, se houver conta
-    if(conta){
-      const nome=document.querySelector('#app aside .text-\\[13px\\].font-semibold');
-      if(nome) nome.textContent=conta.nome||nome.textContent;
-      const av=document.querySelector('#app aside .rounded-full.bg-gradient-to-br');
-      if(av && conta.nome) av.textContent=conta.nome.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
-    }
+    const nome=document.querySelector('#app aside .text-\\[13px\\].font-semibold');
+    if(nome) nome.textContent=conta.nome;
+    const papel=nome ? nome.nextElementSibling : null;
+    if(papel) papel.textContent=conta.papel;
+    const av=document.querySelector('#app aside .rounded-full.bg-gradient-to-br');
+    if(av) av.textContent=conta.ini;
     document.getElementById('login').style.display='none';
     document.getElementById('app').style.display='flex';
   }
