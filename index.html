@@ -703,18 +703,17 @@ tailwind.config = {
   }
   document.querySelectorAll('[data-s]').forEach(e=>e.addEventListener('click',()=>show(e.dataset.s)));
 
-  // Contas reconhecidas na demo (SEM senha no client-side por segurança;
-  // valida apenas o e-mail conhecido + qualquer senha não vazia)
+  // Contas da demo (e-mails hipotéticos · não existem de verdade)
   const CONTAS = [
-    {email:'diretoria@ailogichub.app', nome:'Alessandro Ferreira', papel:'Diretoria · Admin do Hub', ini:'AF'},
-    {email:'tecnologia@ailogichub.app', nome:'Jhonattan Itiuba', papel:'Tecnologia · Brava', ini:'JI'}
+    {email:'diretoria@ailogichub.app', senha:'Alessandro@2026', nome:'Alessandro Ferreira', papel:'Diretoria · Admin do Hub', ini:'AF'},
+    {email:'tecnologia@ailogichub.app', senha:'Jhonattan@2026', nome:'Jhonattan Itiuba', papel:'Tecnologia · Brava', ini:'JI'}
   ];
   function entrar(){
     const email=(document.getElementById('lg-email').value||'').trim().toLowerCase();
     const pass=document.getElementById('lg-pass').value||'';
     const err=document.getElementById('lg-err');
-    const conta=CONTAS.find(c=>c.email.toLowerCase()===email);
-    if(!conta || !pass){ err.style.display='block'; return; }
+    const conta=CONTAS.find(c=>c.email.toLowerCase()===email && c.senha===pass);
+    if(!conta){ err.style.display='block'; return; }
     err.style.display='none';
     const nome=document.querySelector('#app aside .text-\\[13px\\].font-semibold');
     if(nome) nome.textContent=conta.nome;
