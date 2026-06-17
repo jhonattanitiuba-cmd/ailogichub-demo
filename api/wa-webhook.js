@@ -8,7 +8,7 @@ const EVO_BASE = (process.env.EVO_BASE || '').replace(/\/$/, '');
 const EVO_KEY  = process.env.EVO_KEY || '';
 const INSTANCE = process.env.WA_INSTANCE || 'ailogic-hub-principal';
 const DB_URL   = process.env.DB_URL || '';
-const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || '';
+const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
 const NUM_ALESSANDRO = '5511995568148';
 
 const PERSONA_PADRAO = 'Você é o assistente virtual do AI Logic Hub, plataforma imobiliária. ' +
@@ -74,20 +74,17 @@ function respostaBasica(t) {
 
 async function respostaIA(persona, contexto, messages) {
   const ultimaUser = (messages[messages.length - 1] || {}).content || '';
-  if (!ANTHROPIC_KEY) return respostaBasica(ultimaUser);
+  if (!OPENAI_KEY) return respostaBasica(ultimaUser);
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const sys = { role: 'system', content: (persona || PERSONA_PADRAO) + '\n\n' + contexto };
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
-      headers: { 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5', max_tokens: 400,
-        system: (persona || PERSONA_PADRAO) + '\n\n' + contexto,
-        messages
-      })
+      headers: { 'Authorization': 'Bearer ' + OPENAI_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'gpt-4o-mini', max_tokens: 400, messages: [sys, ...messages] })
     });
     const j = await r.json();
-    const txt = j && j.content && j.content[0] && j.content[0].text;
-    return txt || respostaBasica(ultimaUser);
+    const txt = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+    return (txt && txt.trim()) || respostaBasica(ultimaUser);
   } catch (_) { return respostaBasica(ultimaUser); }
 }
 
@@ -124,7 +121,7 @@ module.exports = async (req, res) => {
 
     const resposta = await respostaIA(cfg.ia_persona, contexto, messages);
     await evoSend(remoteJid, resposta);
-    res.status(200).json({ ok: true, respondido: true, motor: ANTHROPIC_KEY ? 'claude' : 'basico', turns: messages.length });
+    res.status(200).json({ ok: true, respondido: true, motor: OPENAI_KEY ? 'openai' : 'basico', turns: messages.length });
   } catch (e) {
     res.status(200).json({ ok: false, erro: String((e && e.message) || e) });
   }
