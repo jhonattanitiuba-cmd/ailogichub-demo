@@ -84,6 +84,26 @@ module.exports = async (req, res) => {
       return;
     }
 
+    // ---- CONFIG DA IA: ler ----
+    if (action === 'config') {
+      const r = await db('select ia_ativa, ia_persona, ia_allowlist from canais_whatsapp where instancia=$1', [INSTANCE]);
+      res.status(200).json(r.rows[0] || {});
+      return;
+    }
+    // ---- CONFIG DA IA: salvar (persona/ativa) ----
+    if (action === 'config-save') {
+      let b = req.body; if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
+      b = b || {};
+      await db(`update canais_whatsapp set
+          ia_ativa = coalesce($1, ia_ativa),
+          ia_persona = coalesce($2, ia_persona),
+          updated_at = now()
+        where instancia=$3`,
+        [typeof b.ia_ativa === 'boolean' ? b.ia_ativa : null, (b.ia_persona != null ? String(b.ia_persona) : null), INSTANCE]);
+      res.status(200).json({ ok: true });
+      return;
+    }
+
     // ---- LISTA DE CONVERSAS (espelho) ----
     if (action === 'chats') {
       const cutoff = await getCutoff();

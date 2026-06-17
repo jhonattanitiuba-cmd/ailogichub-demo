@@ -65,6 +65,16 @@ async function historico(remoteJid, currentId, cutoff) {
   } catch (_) { return []; }
 }
 
+// remove travessão (cara de bot) e normaliza
+function limparBot(t) {
+  if (!t) return t;
+  return String(t)
+    .replace(/\s*[—–]\s*/g, ', ')   // travessão/en-dash -> vírgula
+    .replace(/\s+,/g, ',')
+    .replace(/,\s*,/g, ',')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
 function respostaBasica(t) {
   const s = (t || '').toLowerCase();
   if (/alug/.test(s)) return 'Perfeito! Para locação, me diga a região e a faixa de aluguel que procura.';
@@ -83,7 +93,8 @@ async function respostaIA(persona, contexto, messages) {
       body: JSON.stringify({ model: 'gpt-4o-mini', max_tokens: 400, messages: [sys, ...messages] })
     });
     const j = await r.json();
-    const txt = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+    let txt = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+    txt = limparBot(txt);
     return (txt && txt.trim()) || respostaBasica(ultimaUser);
   } catch (_) { return respostaBasica(ultimaUser); }
 }
