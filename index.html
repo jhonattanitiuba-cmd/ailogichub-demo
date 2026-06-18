@@ -131,6 +131,13 @@ tailwind.config = {
   .h3{font-size:14px;font-weight:700}
   .lk{font-size:12px;color:rgb(var(--c-accent2));font-weight:600;cursor:pointer}
   @media (max-width:1100px){ .dash-grid{grid-template-columns:1fr !important} }
+  /* ===== FUNIL v2 ===== */
+  .fcol{min-width:232px;flex-shrink:0}
+  .fcol-body{padding:8px;border-radius:12px;background:rgb(var(--c-panel2));min-height:110px}
+  .fcard{background:rgb(var(--c-panel));border:1px solid rgb(var(--c-border));border-radius:10px;padding:9px 10px;margin-bottom:8px;cursor:pointer;transition:box-shadow .15s,transform .15s}
+  .fcard:hover{box-shadow:0 4px 14px rgb(0 0 0/.08);transform:translateY(-1px)}
+  .fchip{display:inline-block;font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:6px;background:rgb(var(--c-accent)/.1);color:rgb(var(--c-accent))}
+  .obadge{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:20px}
 </style>
 </head>
 <body class="min-h-screen">
@@ -544,7 +551,7 @@ tailwind.config = {
     dashboard:['Central de Operações do Hub','Controle completo das imobiliárias, leads, imóveis, IA e funil comercial'],
     imobiliarias:['Imobiliárias','Rede de parceiras do Hub · entidade central'],
     leads:['Leads','Captação multi-fonte e roteamento automático'],
-    funil:['Funil de Negócios','Pipeline padronizado pelo Hub'],
+    funil:['Funil de Negócios','Pipeline unificado do Hub para acompanhar leads, qualificação, distribuição, atendimentos e fechamentos de todas as imobiliárias.'],
     agenda:['Agenda','Visitas e tarefas dos corretores'],
     whatsapp:['WhatsApp · Auditoria','Monitoramento das conversas das imobiliárias (modelo Uber)'],
     emails:['E-mails','Caixa central do Hub · admin@ailogichub.app'],
@@ -621,7 +628,9 @@ tailwind.config = {
     home:sv('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>'),
     bot:sv('<rect x="3" y="8" width="18" height="12" rx="2"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M12 8V4M8 4h8"/>'),
     pin:sv('<path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>'),
-    trend:sv('<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>')
+    trend:sv('<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>'),
+    search:sv('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',15),
+    shield:sv('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>')
   };
   const WALOGO='<svg viewBox="0 0 32 32" width="20" height="20" style="display:inline-block;vertical-align:middle"><path fill="#25D366" d="M16 0a16 16 0 0 0-13.6 24.4L0 32l7.8-2.3A16 16 0 1 0 16 0z"/><path fill="#fff" d="M12.1 8.6c-.3-.6-.5-.6-.8-.7h-.7c-.2 0-.6.1-.9.4-.3.3-1.2 1.2-1.2 2.9s1.2 3.4 1.4 3.6c.2.2 2.4 3.8 5.9 5.2 2.9 1.2 3.5 1 4.2.9.6-.1 2-.8 2.3-1.6.3-.8.3-1.5.2-1.6-.1-.1-.3-.2-.6-.4l-2-1c-.3-.1-.5-.2-.7.1l-.8 1c-.1.2-.3.2-.6.1-.8-.3-1.7-.7-2.7-1.7-.8-.7-1.3-1.6-1.5-1.9-.1-.3 0-.4.1-.6l.5-.6c.2-.2.2-.3.3-.5.1-.2.1-.4 0-.5l-1.1-2.6z"/></svg>';
   function renderDash2(d){
@@ -694,17 +703,21 @@ tailwind.config = {
   function funilCard(c){
     const cor=ORIGEM_COR[c.origem]||'#64748b';
     const vendaOk=c.sla==='Venda concluída';
-    return `<div class="card p-2.5 mb-2" style="cursor:pointer" onclick='showDeal(${JSON.stringify(c).replace(/'/g,"&#39;")})'>
-      <div class="font-semibold text-[12.5px]">${esc(c.lead_nome)}</div>
-      <div class="text-[10.5px] text-muted">${esc(c.imovel_desc||'')}</div>
-      ${c.imob_nome?`<div class="mt-1.5"><span class="badge" style="background:rgb(var(--c-accent)/.1);color:rgb(var(--c-accent));font-size:9px">${esc(c.imob_nome)}</span></div>`:''}
-      <div class="flex items-center justify-between mt-2">
-        ${c.valor?`<span class="num text-[12px] font-bold text-accent">R$ ${(c.valor).toLocaleString('pt-BR')}</span>`:'<span class="text-[11px] text-muted">a definir</span>'}
-        <span class="badge" style="background:${cor}1f;color:${cor};font-size:9px">${esc(c.origem||'')}</span>
+    const slaCol=(vendaOk||c.sla==='Dentro do SLA')?'rgb(var(--c-ok))':'rgb(var(--c-warn))';
+    return `<div class="fcard" onclick='showDeal(${JSON.stringify(c).replace(/'/g,"&#39;")})'>
+      <div class="flex items-start justify-between gap-1">
+        <div class="font-semibold text-[12.5px]" style="line-height:1.2">${esc(c.lead_nome)}</div>
+        <span style="font-size:15px;line-height:.7;color:rgb(var(--c-muted));cursor:pointer">⋮</span>
+      </div>
+      <div class="text-[10.5px] text-muted mt-0.5">${esc(c.imovel_desc||'')}</div>
+      ${c.imob_nome?`<div class="mt-1.5"><span class="fchip">${esc(c.imob_nome)}</span></div>`:''}
+      <div class="flex items-center justify-between mt-2 gap-1">
+        ${c.valor?`<span class="num text-[12.5px] font-bold">R$ ${(c.valor).toLocaleString('pt-BR')}</span>`:'<span class="text-[11px] text-muted">a definir</span>'}
+        ${c.origem?`<span class="obadge" style="background:${cor}1f;color:${cor}"><span style="width:6px;height:6px;border-radius:50%;background:${cor};display:inline-block"></span>${esc(c.origem)}</span>`:''}
       </div>
       ${c.motivo_perda
         ? `<div class="text-[10px] mt-1.5" style="color:rgb(var(--c-danger))">Motivo: ${esc(c.motivo_perda)}</div>`
-        : `<div class="flex items-center justify-between mt-1.5 text-[10px] text-muted"><span>Tent.: ${c.tentativas||1}${c.ultimo_contato?' · '+esc(c.ultimo_contato):''}</span>${c.sla?`<span style="color:${vendaOk?'rgb(var(--c-ok))':c.sla==='Dentro do SLA'?'rgb(var(--c-ok))':'rgb(var(--c-warn))'};font-weight:600">${esc(c.sla)}</span>`:''}</div>${c.status_label?`<div class="text-[10px] text-accent2 mt-0.5">${esc(c.status_label)}</div>`:''}`}
+        : `<div class="flex items-center justify-between mt-1.5 text-[10px]"><span class="text-muted">Tent.: ${c.tentativas||1}${c.ultimo_contato?' · '+esc(c.ultimo_contato):''}</span>${c.sla?`<span style="color:${slaCol};font-weight:700">${esc(c.sla)}</span>`:''}</div>${c.status_label?`<div class="text-[10px] text-accent2 mt-1 font-semibold">${esc(c.status_label)}</div>`:''}`}
     </div>`;
   }
   function showDeal(c){
@@ -732,36 +745,55 @@ tailwind.config = {
   function renderFunil2(){
     const el=document.getElementById('funil2'); if(!el) return;
     const f=(_dashData&&_dashData.funil)||{}; const cards=_funilCards||[];
-    const kpis=(f.kpis||[]).map(x=>kpiC(x.label,x.valor,x.var,!x.down,'','vs. período anterior')).join('');
-    const resumo=(f.resumo||[]).map((s,i)=>`<div style="flex:1;min-width:92px;text-align:center"><div class="text-[9.5px] text-muted font-semibold uppercase" style="line-height:1.2">${esc(s.nome)}</div><div class="num text-base mt-1">${s.n}</div><div class="text-[10px] text-accent2 font-semibold">${s.pct}</div></div>`).join('<div style="align-self:center;color:rgb(var(--c-border))">›</div>');
-    const cols=(f.etapas||[]).map(e=>{
+    const kIco=[ICN.users,ICN.dollar,ICN.cal,ICN.file,ICN.check,ICN.clock];
+    const kpis=(f.kpis||[]).map((x,i)=>{const down=!!x.down;const col=down?'rgb(var(--c-danger))':'rgb(var(--c-ok))';return `<div class="kc"><div class="flex items-center gap-2.5"><span class="kc-ic">${kIco[i]||ICN.chart}</span><span class="kc-lb">${esc(x.label)}</span></div><div class="num kc-v">${esc(x.valor)}</div><div class="mt-2 text-[11.5px]"><span class="font-bold" style="color:${col}">${down?'↓':'↑'} ${esc(x.var)}</span> <span class="text-muted">vs. período anterior</span></div></div>`;}).join('');
+    const resumo=(f.resumo||[]).map((s)=>`<div style="flex:1;min-width:86px;text-align:center"><div class="text-[8.5px] text-muted font-bold uppercase" style="line-height:1.15;min-height:22px">${esc(s.nome)}</div><div class="num text-[17px] font-extrabold mt-1">${s.n}</div><div class="text-[10px] text-accent2 font-bold">${s.pct}</div></div>`).join('<span class="fconn" style="font-size:13px;align-self:flex-start;margin-top:14px">›</span>');
+    const nEt=(f.etapas||[]).length;
+    const cols=(f.etapas||[]).map((e,i)=>{
       const list=cards.filter(c=>c.etapa===e.key);
-      const isPerd=e.key==='perdido';
-      return `<div style="min-width:225px;flex-shrink:0">
-        <div class="mb-2 px-1"><div class="flex items-center justify-between"><span class="text-[11px] font-bold uppercase tracking-wide${isPerd?' text-danger':''}">${esc(e.nome)}</span></div>
-          <div class="text-[10px] text-muted">${e.negocios} negócios${e.valor?' · '+esc(e.valor):''}</div></div>
-        <div class="p-2 rounded-xl" style="background:rgb(var(--c-panel2));min-height:120px">${list.map(funilCard).join('')||'<div class="text-[10px] text-muted text-center p-3">—</div>'}
-          ${e.negocios>list.length?`<div class="text-[10px] text-accent2 text-center font-semibold py-1 cursor-pointer">+ Ver mais ${e.negocios-list.length}</div>`:''}</div>
+      const cc=(i===2||i===6)?'rgb(var(--c-warn))':i===nEt-2?'rgb(var(--c-ok))':i===nEt-1?'rgb(var(--c-danger))':'rgb(var(--c-text))';
+      return `<div class="fcol">
+        <div class="mb-2 px-0.5"><div class="text-[11px] font-bold" style="color:${cc}">${i+1}. ${esc(e.nome)}</div>
+          <div class="text-[10px] text-muted mt-0.5">${e.negocios} negócios${e.valor?' · '+esc(e.valor):''}</div></div>
+        <div class="fcol-body" style="border-top:2px solid ${cc}">${list.map(funilCard).join('')||'<div class="text-[10px] text-muted text-center p-3">—</div>'}
+          ${e.negocios>list.length?`<div class="text-[10px] text-accent2 text-center font-semibold py-1.5 cursor-pointer">+ Ver mais ${e.negocios-list.length}</div>`:''}</div>
       </div>`;
     }).join('');
     const op=(f.operacional||[]).map(o=>`<div class="flex items-center justify-between text-[12px] py-1.5"><span>${esc(o.label)}</span><span class="num font-bold" style="color:rgb(${CORV[o.cor]||'var(--c-muted)'})">${o.n}</span></div>`).join('');
-    const rk=(f.rankingFunil||[]).map(r=>`<div class="flex items-center justify-between text-[12px] py-1.5"><span><span class="text-accent font-bold">${r.pos}</span> ${esc(r.nome)}</span><span class="text-muted">${r.n} · <span class="num">${esc(r.valor)}</span></span></div>`).join('');
-    const ac=(f.proximasAcoes||[]).map(a=>`<div class="flex gap-3 py-1.5"><span class="num text-[12px] font-bold text-accent" style="width:38px">${esc(a.h)}</span><div><div class="text-[12px] font-semibold">${esc(a.t)}</div><div class="text-[10px] text-muted">${esc(a.d)}</div></div></div>`).join('');
-    const mp=(f.motivosPerda||[]).map(m=>`<div class="flex items-center justify-between text-[12px] py-1"><span>${esc(m.label)}</span><span class="num text-muted">${m.n}</span></div>`).join('');
-    const chips=['Todos','Com atenção','Sem atendimento','Parados +7 dias','Fechados','Perdidos'].map((x,i)=>`<span class="chip" style="${i===0?'background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))':''}">${x}</span>`).join('');
+    const rkIco=[ICN.bld,ICN.home,ICN.bld];
+    const rk=(f.rankingFunil||[]).map((r,i)=>`<div class="flex items-center justify-between text-[12px] py-1.5"><span class="flex items-center gap-2"><span class="font-bold text-accent" style="width:14px">${r.pos}</span><span class="kc-ic" style="width:24px;height:24px;border-radius:7px">${rkIco[i]||ICN.bld}</span>${esc(r.nome)}</span><span class="text-muted text-right"><span class="num font-bold" style="color:rgb(var(--c-text))">${r.n}</span><br><span class="num text-[11px]">${esc(r.valor)}</span></span></div>`).join('');
+    const rankTabs=`<div class="flex gap-1 mb-3 p-0.5 rounded-lg text-[11px]" style="background:rgb(var(--c-panel2))"><span class="px-2.5 py-1 rounded-md text-white font-semibold" style="background:rgb(var(--c-accent))">Por negócios</span><span class="px-2.5 py-1 text-muted cursor-pointer">Por valor em pipeline</span></div>`;
+    const ac=(f.proximasAcoes||[]).map(a=>`<div class="flex gap-3 py-1.5"><span class="num text-[12px] font-bold text-accent" style="width:40px">${esc(a.h)}</span><div><div class="text-[12px] font-semibold">${esc(a.t)}</div><div class="text-[10px] text-muted">${esc(a.d)}</div></div></div>`).join('');
+    const mpCor=['#ef4444','#f59e0b','#eab308','#a855f7','#3b82f6','#64748b'];
+    const mp=(f.motivosPerda||[]).map((m,i)=>`<div class="flex items-center justify-between text-[12px] py-1"><span class="flex items-center gap-2"><span style="width:8px;height:8px;border-radius:50%;background:${mpCor[i]||'#64748b'};display:inline-block"></span>${esc(m.label)}</span><span class="num text-muted font-semibold">${m.n}</span></div>`).join('');
+    const chipData=[['Todos','148','',1],['Com atenção','12','#f59e0b',0],['Sem atendimento','9','#ef4444',0],['Parados +7 dias','6','#eab308',0],['Fechados','12','#22c55e',0],['Perdidos','18','#ef4444',0]];
+    const chips=chipData.map(([lb,n,dot,active])=>`<span class="chip flex items-center gap-1.5" style="${active?'background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))':''}">${dot?`<span style="width:7px;height:7px;border-radius:50%;background:${dot};display:inline-block"></span>`:''}${lb} <span class="num font-bold" style="opacity:.9">${n}</span></span>`).join('');
+    const drops=['Origem','Status','Responsável','Região','Ordenar por'].map(x=>`<span class="chip flex items-center gap-1 text-muted">${x} ▾</span>`).join('');
 
     el.innerHTML=`
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">${kpis}</div>
-      <div class="card p-4 mb-4"><div class="flex items-center justify-between mb-2"><h3 class="text-sm font-bold">Resumo do funil</h3><span class="text-[12px]">Taxa de conversão geral: <span class="num font-bold text-ok">${esc(f.conversao||'—')}</span></span></div>
-        <div style="display:flex;gap:2px;overflow-x:auto;padding-bottom:4px">${resumo}</div></div>
-      <div class="flex gap-2 mb-4 flex-wrap">${chips}</div>
-      <div class="grid lg:grid-cols-4 gap-4">
-        <div class="lg:col-span-3"><div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px">${cols}</div></div>
+      <div class="flex items-center justify-end flex-wrap gap-2 mb-4">
+        <span class="chip flex items-center gap-1.5">${ICN.cal} Período: ${esc(f.periodo||'01/05/2025 – 31/05/2025')}</span>
+        <span class="chip flex items-center gap-1">Todas as imobiliárias ▾</span>
+        <span class="chip flex items-center gap-1">Todos os corretores ▾</span>
+        <button class="px-3.5 py-2 rounded-lg text-white text-xs font-semibold" style="background:rgb(var(--c-accent))">+ Novo negócio</button>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-4">${kpis}</div>
+      <div class="card p-4 mb-4"><div class="flex items-center justify-between mb-2 flex-wrap gap-2"><h3 class="h3">Resumo do funil <span class="text-[11px] text-muted font-normal">(conversão total)</span></h3><span class="text-[12px]">Taxa de conversão geral: <span class="num font-extrabold text-ok text-[15px]">${esc(f.conversao||'—')}</span></span></div>
+        <div style="display:flex;gap:3px;overflow-x:auto;padding-bottom:4px">${resumo}</div></div>
+      <div class="card p-3 mb-4">
+        <div class="flex gap-2 flex-wrap items-center">${chips}</div>
+        <div class="flex items-center gap-2 flex-wrap mt-2.5">
+          <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-border" style="flex:1;min-width:220px;background:rgb(var(--c-panel))"><span class="text-muted">${ICN.search}</span><input placeholder="Buscar cliente, imóvel, imobiliária ou corretor..." class="text-[12px] outline-none" style="flex:1;background:transparent;border:none;color:inherit"></div>
+          ${drops}
+        </div>
+      </div>
+      <div class="grid dash-grid gap-4" style="grid-template-columns:minmax(0,1fr) 300px">
+        <div style="min-width:0"><div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px">${cols}</div></div>
         <div class="space-y-4">
-          <div class="card p-4"><h3 class="text-[13px] font-bold mb-1">Resumo operacional</h3>${op}</div>
-          <div class="card p-4"><h3 class="text-[13px] font-bold mb-1">Ranking por imobiliária</h3>${rk}</div>
-          <div class="card p-4"><h3 class="text-[13px] font-bold mb-1">Próximas ações</h3>${ac}</div>
-          <div class="card p-4"><h3 class="text-[13px] font-bold mb-1">Motivos de perda / recusa</h3>${mp}</div>
+          <div class="card p-4"><h3 class="h3 mb-2 flex items-center gap-2">${ICN.chart} Resumo operacional</h3>${op}<div class="lk mt-2 text-center">Ver todas as alertas ›</div></div>
+          <div class="card p-4"><h3 class="h3 mb-2 flex items-center gap-2">${ICN.trophy} Ranking por imobiliária</h3>${rankTabs}${rk}<div class="lk mt-2 text-center">Ver ranking completo ›</div></div>
+          <div class="card p-4"><h3 class="h3 mb-2 flex items-center gap-2">${ICN.cal} Próximas ações</h3>${ac}<div class="lk mt-2 text-center">Ver agenda completa ›</div></div>
+          <div class="card p-4"><h3 class="h3 mb-2 flex items-center gap-2">${ICN.shield} Motivos de perda / recusa</h3>${mp}</div>
         </div>
       </div>
       <div class="card p-5 mt-4" id="deal-detail"></div>`;
