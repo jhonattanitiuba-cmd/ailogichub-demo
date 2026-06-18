@@ -43,8 +43,15 @@ tailwind.config = {
   .nav-item.active{background:rgba(124,196,240,.12);color:#fff;border-left-color:rgb(var(--c-side-active))}
   .nav-item.active svg{color:rgb(var(--c-side-active))}
   .screen{display:none}
-  .screen.active{display:block;animation:fade .35s ease}
-  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .screen.active{display:block;animation:fade .42s cubic-bezier(.22,.61,.36,1)}
+  @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  /* entrada escalonada dos cards/linhas ao abrir a tela */
+  .screen.active .card,.screen.active tbody tr{animation:rise .5s cubic-bezier(.22,.61,.36,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  /* pop dos modais/overlays */
+  @keyframes pop{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+  #imob-modal>.card,#imovel-modal>.card,#imovel-view>.card{animation:pop .28s cubic-bezier(.22,.61,.36,1)}
+  @media (prefers-reduced-motion: reduce){ .screen.active,.screen.active .card,.screen.active tbody tr,#imob-modal>.card,#imovel-modal>.card,#imovel-view>.card{animation:none} }
   .card{background:rgb(var(--c-panel));border:1px solid rgb(var(--c-border));border-radius:14px}
   .card-h{transition:all .18s}.card-h:hover{border-color:rgb(var(--c-accent)/.4);box-shadow:0 6px 20px rgb(var(--c-accent)/.08);transform:translateY(-2px)}
   .badge{font-size:10px;padding:3px 9px;border-radius:5px;font-weight:700;letter-spacing:.4px}
@@ -566,8 +573,32 @@ tailwind.config = {
     if(s==='mapa') initMapa();
     if(s==='whatsapp' && typeof waRefresh==='function') waRefresh();
     if(s==='config' && typeof loadIaConfig==='function') loadIaConfig();
+    try{ animateCountersIn(document.getElementById(s)); }catch(e){}
     closeSidebar();
   }
+  // ----- Contador animado (count-up) -----
+  function countUp(el){
+    if(!el || el.dataset.counting) return;
+    const txt=(el.textContent||'').trim();
+    const m=txt.match(/^(\D*?)([\d.,]+)(\D*)$/);
+    if(!m) return;
+    const prefix=m[1], numStr=m[2], suffix=m[3];
+    const hasComma=numStr.includes(',');
+    const target=parseFloat(numStr.replace(/\./g,'').replace(',','.'));
+    if(!isFinite(target) || target<=0) return;
+    const decimals=hasComma?((numStr.split(',')[1]||'').length):0;
+    const fmt=v=>decimals>0?v.toLocaleString('pt-BR',{minimumFractionDigits:decimals,maximumFractionDigits:decimals}):Math.round(v).toLocaleString('pt-BR');
+    const dur=Math.min(1100,420+Math.log10(target+1)*220), t0=performance.now();
+    el.dataset.counting='1';
+    function step(now){
+      const p=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-p,3);
+      el.textContent=prefix+fmt(target*e)+suffix;
+      if(p<1) requestAnimationFrame(step); else { el.textContent=txt; delete el.dataset.counting; }
+    }
+    el.textContent=prefix+fmt(0)+suffix;
+    requestAnimationFrame(step);
+  }
+  function animateCountersIn(scope){ if(!scope) return; scope.querySelectorAll('.num').forEach(countUp); }
   function toggleSidebar(){ const s=document.querySelector('#app aside.sidebar'); const b=document.getElementById('sidebar-backdrop'); if(!s)return; const open=s.classList.toggle('open'); if(b)b.classList.toggle('show',open); }
   function closeSidebar(){ const s=document.querySelector('#app aside.sidebar'); const b=document.getElementById('sidebar-backdrop'); if(s)s.classList.remove('open'); if(b)b.classList.remove('show'); }
   // ===== Editor da IA (persona editável no sistema) =====
@@ -1170,6 +1201,7 @@ tailwind.config = {
     const av=localStorage.getItem('ailh_avatar_'+conta.email); if(av) applyAvatar(av);
     document.getElementById('login').style.display='none';
     document.getElementById('app').style.display='flex';
+    setTimeout(()=>{ try{ animateCountersIn(document.getElementById('dashboard')); }catch(e){} },90);
   }
   ['lg-email','lg-pass'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter') entrar(); }));
 </script>
