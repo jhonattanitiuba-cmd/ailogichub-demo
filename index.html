@@ -81,6 +81,32 @@ tailwind.config = {
   .empty svg{width:42px;height:42px;margin-bottom:14px;color:rgb(var(--c-border));stroke:rgb(var(--c-accent2));opacity:.7}
   .empty .t{font-weight:700;color:rgb(var(--c-text));font-size:15px;margin-bottom:5px}
   .empty .d{font-size:12.5px;max-width:380px;line-height:1.5}
+  /* ===== MOBILE ===== */
+  .hamburger{display:none}
+  #sidebar-backdrop{display:none}
+  @media (max-width: 860px){
+    .hamburger{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:9px;border:1px solid rgb(var(--c-border));background:rgb(var(--c-panel2));cursor:pointer;flex-shrink:0}
+    aside.sidebar{position:fixed;left:0;top:0;bottom:0;width:255px;z-index:120;transform:translateX(-100%);transition:transform .25s ease;box-shadow:0 0 50px rgba(0,0,0,.45)}
+    aside.sidebar.open{transform:translateX(0)}
+    #sidebar-backdrop{position:fixed;inset:0;background:rgba(6,22,41,.55);z-index:110}
+    #sidebar-backdrop.show{display:block}
+    main > .p-8{padding:14px !important}
+    header.sticky{padding-left:14px !important;padding-right:14px !important;gap:10px}
+    h1#page-title{font-size:15px}
+    header.sticky button{padding:8px 12px;font-size:12px}
+    /* tabelas rolam */
+    section table{display:block;overflow-x:auto;white-space:nowrap}
+    /* mapa empilha */
+    #mapa > .flex{flex-direction:column;height:auto !important}
+    #mapa .w-72{width:100% !important;flex-direction:row;flex-wrap:wrap}
+    #leaflet-map{height:58vh !important;min-height:340px}
+    /* whatsapp inbox empilha */
+    .wa-inbox{flex-direction:column !important;height:auto !important}
+    .wa-list{width:100% !important;border-right:none !important;border-bottom:1px solid rgb(var(--c-border));max-height:42vh}
+    #wa-conv{min-height:56vh}
+    /* anúncio em tela cheia: imagem menor */
+    #imovel-view .card > div[style*="height:360px"]{height:230px !important}
+  }
 </style>
 </head>
 <body class="min-h-screen">
@@ -131,6 +157,7 @@ tailwind.config = {
 </div>
 
 <div id="app" class="flex h-screen overflow-hidden" style="display:none">
+  <div id="sidebar-backdrop" onclick="closeSidebar()"></div>
   <!-- SIDEBAR -->
   <aside class="sidebar w-60 flex flex-col flex-shrink-0">
     <div class="p-5 border-b border-white/10">
@@ -184,7 +211,10 @@ tailwind.config = {
   <!-- MAIN -->
   <main class="flex-1 overflow-y-auto scrollbar">
     <header class="sticky top-0 z-20 bg-panel/90 backdrop-blur border-b border-border px-8 py-4 flex items-center gap-4">
-      <div class="flex-1">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="flex-1 min-w-0">
         <h1 id="page-title" class="text-lg font-bold">Visão Geral</h1>
         <p id="page-sub" class="text-xs text-muted mt-0.5">Operação consolidada das imobiliárias parceiras</p>
       </div>
@@ -536,7 +566,10 @@ tailwind.config = {
     if(s==='mapa') initMapa();
     if(s==='whatsapp' && typeof waRefresh==='function') waRefresh();
     if(s==='config' && typeof loadIaConfig==='function') loadIaConfig();
+    closeSidebar();
   }
+  function toggleSidebar(){ const s=document.querySelector('#app aside.sidebar'); const b=document.getElementById('sidebar-backdrop'); if(!s)return; const open=s.classList.toggle('open'); if(b)b.classList.toggle('show',open); }
+  function closeSidebar(){ const s=document.querySelector('#app aside.sidebar'); const b=document.getElementById('sidebar-backdrop'); if(s)s.classList.remove('open'); if(b)b.classList.remove('show'); }
   // ===== Editor da IA (persona editável no sistema) =====
   let _iaAtiva=false;
   function setAtivaBtn(){ const b=document.getElementById('cfg-ativa-btn'); if(!b)return;
@@ -1011,8 +1044,8 @@ tailwind.config = {
           <button onclick="waDisconnect()" class="px-3 py-1.5 rounded-lg bg-panel2 border border-border text-xs font-semibold text-danger">Desconectar</button>
         </div>
       </div>
-      <div class="card overflow-hidden" style="height:calc(100vh - 240px);display:flex">
-        <div style="width:320px;flex-shrink:0;border-right:1px solid rgb(var(--c-border));display:flex;flex-direction:column">
+      <div class="card overflow-hidden wa-inbox" style="height:calc(100vh - 240px);display:flex">
+        <div class="wa-list" style="width:320px;flex-shrink:0;border-right:1px solid rgb(var(--c-border));display:flex;flex-direction:column">
           <div class="p-2.5 border-b border-border"><input id="wa-search" oninput="renderChatList()" placeholder="Buscar conversa..." class="w-full px-3 py-2 rounded-lg bg-panel2 border border-border text-sm"></div>
           <div id="wa-chats" class="flex-1 overflow-y-auto scrollbar"><div class="text-xs text-muted p-4 text-center">Carregando conversas...</div></div>
         </div>
