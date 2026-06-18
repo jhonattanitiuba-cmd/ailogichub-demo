@@ -508,6 +508,9 @@ tailwind.config = {
   </div>
 </div>
 
+<!-- ============ VIEW IMÓVEL (anúncio completo, tela cheia) ============ -->
+<div id="imovel-view" style="position:fixed;inset:0;z-index:160;display:none;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;background:rgba(6,22,41,.72)"></div>
+
 <script>
   const titles = {
     dashboard:['Visão Geral','Operação consolidada das imobiliárias parceiras'],
@@ -759,7 +762,7 @@ tailwind.config = {
     const specs=[];
     if(o.quartos)specs.push(o.quartos+' dorm'); if(o.suites)specs.push(o.suites+' suíte'+(o.suites>1?'s':'')); if(o.vagas)specs.push(o.vagas+' vaga'+(o.vagas>1?'s':'')); if(o.area)specs.push(o.area+' m²');
     const v=ivStatusCor(o.status);
-    return `<div class="card card-h overflow-hidden" style="display:flex;flex-direction:column">
+    return `<div class="card card-h overflow-hidden" style="display:flex;flex-direction:column;cursor:pointer" onclick="openImovelView('${o.id}')">
       <div style="height:140px;background:${o.foto?`url('${o.foto}') center/cover`:'rgb(var(--c-panel2))'};position:relative;display:flex">
         ${o.foto?'':'<svg viewBox="0 0 24 24" fill="none" stroke="rgb(var(--c-border))" stroke-width="1.5" style="width:42px;height:42px;margin:auto"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'}
         <span class="badge" style="position:absolute;top:8px;left:8px;background:rgb(${v}/.95);color:#fff">${esc(o.status||'Disponível')}</span>
@@ -772,8 +775,8 @@ tailwind.config = {
         ${specs.length?`<div class="text-[11px] text-muted mt-1">${specs.join(' · ')}</div>`:''}
         <div class="text-[10px] text-muted mt-2 pt-2 border-t border-border">${esc(imobNome(o.imobiliaria_id))}${o.codigo?' · cód '+esc(o.codigo):''}</div>
         <div class="flex justify-end gap-2 mt-3">
-          <button onclick="openImovel('${o.id}')" class="px-3 py-1.5 rounded-lg bg-panel2 border border-border text-xs font-semibold">Editar</button>
-          <button onclick="delImovel('${o.id}')" class="px-3 py-1.5 rounded-lg bg-panel2 border border-border text-xs font-semibold text-danger">Excluir</button>
+          <button onclick="event.stopPropagation();openImovel('${o.id}')" class="px-3 py-1.5 rounded-lg bg-panel2 border border-border text-xs font-semibold">Editar</button>
+          <button onclick="event.stopPropagation();delImovel('${o.id}')" class="px-3 py-1.5 rounded-lg bg-panel2 border border-border text-xs font-semibold text-danger">Excluir</button>
         </div>
       </div>
     </div>`;
@@ -793,6 +796,50 @@ tailwind.config = {
     grid.innerHTML=list.map(imovelCard).join('');
   }
   function filterImovel(f){ _ivFiltro=f; renderImoveis(); }
+  // ----- Anúncio completo em tela cheia -----
+  function ivEspec(o){ const a=[]; if(o.quartos)a.push([o.quartos,'Dormitórios']); if(o.suites)a.push([o.suites,'Suítes']); if(o.banheiros)a.push([o.banheiros,'Banheiros']); if(o.vagas)a.push([o.vagas,'Vagas']); if(o.area)a.push([o.area+' m²','Área']); return a; }
+  function openImovelView(id){
+    const o=IMOVEIS.find(x=>x.id===id); if(!o) return;
+    const imob=LOJAS.find(x=>x.id===o.imobiliaria_id)||{};
+    const v=ivStatusCor(o.status);
+    const espec=ivEspec(o).map(s=>`<div style="text-align:center"><div class="num text-lg">${esc(String(s[0]))}</div><div class="text-[10px] text-muted uppercase tracking-wide">${s[1]}</div></div>`).join('');
+    const loc=[o.endereco,o.bairro,o.cidade].filter(Boolean).map(esc).join(' · ');
+    const el=document.getElementById('imovel-view');
+    el.innerHTML=`<div class="card" style="position:relative;width:100%;max-width:960px;margin:auto;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.45)">
+      <span onclick="closeImovelView()" style="position:absolute;top:12px;right:14px;z-index:2;width:34px;height:34px;border-radius:50%;background:rgba(6,22,41,.6);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;line-height:1">&times;</span>
+      <div style="height:360px;background:${o.foto?`url('${o.foto}') center/cover`:'rgb(var(--c-panel2))'};position:relative">
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:18px 24px;background:linear-gradient(transparent,rgba(6,22,41,.85))">
+          <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+            <span class="badge" style="background:rgb(${v});color:#fff">${esc(o.status||'Disponível')}</span>
+            <span class="badge" style="background:rgba(255,255,255,.22);color:#fff">${esc(o.finalidade||'Venda')}</span>
+            <span class="badge" style="background:rgba(255,255,255,.22);color:#fff">${esc(o.tipo||'')}</span>
+          </div>
+          <div style="color:#fff;font-weight:700;font-size:20px;line-height:1.2">${esc(o.titulo||'Imóvel')}</div>
+          <div style="color:#dbe6f5;font-size:12.5px;margin-top:3px">${loc||esc(o.cidade||'')}</div>
+        </div>
+      </div>
+      <div class="p-6">
+        <div class="flex items-center justify-between flex-wrap gap-3 mb-5">
+          <div class="num text-2xl text-accent">${brl(o.preco)}${o.finalidade==='Locação'?'<span class="text-xs text-muted" style="font-weight:400"> /mês</span>':''}</div>
+          ${o.codigo?`<div class="text-[11px] text-muted">Código ${esc(o.codigo)}</div>`:''}
+        </div>
+        ${espec?`<div class="grid grid-cols-2 md:grid-cols-5 gap-3 p-4 rounded-xl bg-panel2 border border-border mb-5">${espec}</div>`:''}
+        ${o.descricao?`<div class="mb-5"><div class="text-xs font-bold mb-1.5">Descrição</div><div class="text-[13px] text-muted" style="line-height:1.6">${esc(o.descricao)}</div></div>`:''}
+        <div class="mb-5"><div class="text-xs font-bold mb-1.5">Localização</div><div class="text-[13px]">${loc||'Não informada'}</div></div>
+        <div class="p-4 rounded-xl flex items-center gap-3 mb-5" style="background:rgb(var(--c-panel2));border:1px solid rgb(var(--c-border))">
+          ${imob.logo?`<div class="w-11 h-11 rounded-lg" style="background:url('${imob.logo}') center/cover;flex-shrink:0"></div>`:`<div class="w-11 h-11 rounded-lg bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-white font-bold" style="flex-shrink:0">${esc(imob.sigla||sigla(imob.nome||'IM'))}</div>`}
+          <div style="flex:1;min-width:0"><div class="text-[10px] text-muted uppercase tracking-wide">Imobiliária responsável</div><div class="font-bold text-sm">${esc(imob.nome||'—')}</div><div class="text-[11px] text-muted">${esc(imob.creci?'CRECI '+imob.creci:'')}${imob.telefone?' · '+esc(imob.telefone):''}</div></div>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button onclick="closeImovelView()" class="px-4 py-2 rounded-lg bg-panel2 border border-border text-sm font-semibold">Fechar</button>
+          <button onclick="closeImovelView();openImovel('${o.id}')" class="px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold">Editar imóvel</button>
+        </div>
+      </div>
+    </div>`;
+    el.style.display='flex';
+  }
+  function closeImovelView(){ const el=document.getElementById('imovel-view'); if(el) el.style.display='none'; }
+  (function(){ const el=document.getElementById('imovel-view'); if(el) el.addEventListener('click',e=>{ if(e.target.id==='imovel-view') closeImovelView(); }); document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeImovelView(); }); })();
   function ivImobOptions(sel){ return LOJAS.map(i=>`<option value="${i.id}"${i.id===sel?' selected':''}>${esc(i.nome)}</option>`).join('')||'<option value="">(cadastre uma imobiliária)</option>'; }
   function imovelFotoPicked(url){ _imovelFotoTmp=url; const p=document.getElementById('iv-foto-prev'); if(p){p.textContent='';p.style.backgroundImage='url('+url+')';} }
   function clearImovelFoto(){ _imovelFotoTmp=''; const p=document.getElementById('iv-foto-prev'); if(p){p.style.backgroundImage='';p.textContent='Foto';} }
