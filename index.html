@@ -623,6 +623,7 @@ tailwind.config = {
     pin:sv('<path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>'),
     trend:sv('<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>')
   };
+  const WALOGO='<svg viewBox="0 0 32 32" width="20" height="20" style="display:inline-block;vertical-align:middle"><path fill="#25D366" d="M16 0a16 16 0 0 0-13.6 24.4L0 32l7.8-2.3A16 16 0 1 0 16 0z"/><path fill="#fff" d="M12.1 8.6c-.3-.6-.5-.6-.8-.7h-.7c-.2 0-.6.1-.9.4-.3.3-1.2 1.2-1.2 2.9s1.2 3.4 1.4 3.6c.2.2 2.4 3.8 5.9 5.2 2.9 1.2 3.5 1 4.2.9.6-.1 2-.8 2.3-1.6.3-.8.3-1.5.2-1.6-.1-.1-.3-.2-.6-.4l-2-1c-.3-.1-.5-.2-.7.1l-.8 1c-.1.2-.3.2-.6.1-.8-.3-1.7-.7-2.7-1.7-.8-.7-1.3-1.6-1.5-1.9-.1-.3 0-.4.1-.6l.5-.6c.2-.2.2-.3.3-.5.1-.2.1-.4 0-.5l-1.1-2.6z"/></svg>';
   function renderDash2(d){
     const el=document.getElementById('dash2'); if(!el) return;
     const k=d.kpis, im=k.imobiliarias;
@@ -650,7 +651,7 @@ tailwind.config = {
     const insIco=[ICN.pin,ICN.dollar,ICN.trend];
     const ins=d.insights.map((i,x)=>`<div class="ins flex gap-3"><span class="ins-ic">${insIco[x]||ICN.spark}</span><div><div class="text-[12.5px] font-bold text-accent2">${esc(i.t)}</div><div class="text-[11.5px] text-muted mt-0.5" style="line-height:1.5">${esc(i.d)}</div></div></div>`).join('');
     const rank=d.ranking.map(r=>`<tr><td class="num" style="width:22px;color:rgb(var(--c-accent));font-weight:700">${r.pos}</td><td class="font-semibold">${esc(r.nome)}</td><td class="num">${r.leads}</td><td>${esc(r.conv)}</td><td>${esc(r.resp)}</td><td class="num font-semibold">${esc(r.receita)}</td></tr>`).join('');
-    const imob=d.imobiliarias.map(r=>`<tr><td class="font-semibold">${esc(r.nome)}</td><td class="num">${esc(r.creci)}</td><td>${esc(r.regiao)}</td><td>${statusPill(r.status)}</td><td><span style="color:rgb(var(--c-ok))" title="WhatsApp">${ICN.wa}</span></td><td>${statusPill(r.ia)}</td><td class="num">${r.imoveis}</td><td class="num">${r.leads}</td><td>${esc(r.resp)}</td><td class="num">${esc(r.pipeline)}</td><td>${esc(r.conv)}</td><td class="text-[11px] text-muted">${esc(r.atividade)}</td></tr>`).join('');
+    const imob=d.imobiliarias.map(r=>`<tr><td class="font-semibold">${esc(r.nome)}</td><td class="num">${esc(r.creci)}</td><td>${esc(r.regiao)}</td><td>${statusPill(r.status)}</td><td title="WhatsApp">${WALOGO}</td><td>${statusPill(r.ia)}</td><td class="num">${r.imoveis}</td><td class="num">${r.leads}</td><td>${esc(r.resp)}</td><td class="num">${esc(r.pipeline)}</td><td>${esc(r.conv)}</td><td class="text-[11px] text-muted">${esc(r.atividade)}</td></tr>`).join('');
     const ag=d.agenda.map(a=>`<div class="flex items-center gap-3 p-3 rounded-xl" style="background:rgb(var(--c-panel2))"><div class="num text-2xl font-bold text-accent" style="width:42px;text-align:center">${a.n}</div><div><div class="text-[13px] font-semibold">${esc(a.label)}</div><div class="text-[11px] text-muted">${esc(a.sub)}</div></div></div>`).join('');
 
     el.innerHTML=`
@@ -1368,7 +1369,7 @@ tailwind.config = {
     const av=localStorage.getItem('ailh_avatar_'+conta.email); if(av) applyAvatar(av);
     document.getElementById('login').style.display='none';
     document.getElementById('app').style.display='flex';
-    setTimeout(()=>{ try{ loadDash(); }catch(e){} },60);
+    setTimeout(()=>{ try{ show('dashboard'); }catch(e){} },60);
   }
   ['lg-email','lg-pass'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter') entrar(); }));
 </script>
