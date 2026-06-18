@@ -114,6 +114,23 @@ tailwind.config = {
     /* anúncio em tela cheia: imagem menor */
     #imovel-view .card > div[style*="height:360px"]{height:230px !important}
   }
+  /* ===== DASHBOARD v2 (fiel ao mockup) ===== */
+  .kc{background:rgb(var(--c-panel));border:1px solid rgb(var(--c-border));border-radius:16px;padding:17px 18px}
+  .kc-ic{width:34px;height:34px;border-radius:9px;background:rgb(var(--c-accent2)/.1);color:rgb(var(--c-accent2));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .kc-lb{font-size:11px;font-weight:700;color:rgb(var(--c-muted));text-transform:uppercase;letter-spacing:.2px}
+  .kc-v{font-size:30px;font-weight:800;line-height:1.05;margin-top:9px;letter-spacing:-.5px}
+  .fst{flex:1;min-width:94px;text-align:center;background:rgb(var(--c-panel2));border-radius:12px;padding:13px 6px 11px}
+  .fst-ic{width:30px;height:30px;border-radius:9px;background:rgb(var(--c-panel));border:1px solid rgb(var(--c-border));display:flex;align-items:center;justify-content:center;margin:0 auto 7px;color:rgb(var(--c-accent2))}
+  .fst.last{background:rgb(var(--c-accent));color:#fff}
+  .fst.last .fst-ic{background:rgba(255,255,255,.15);border-color:transparent;color:#fff}
+  .fconn{align-self:center;color:rgb(var(--c-border));flex-shrink:0}
+  .alc{display:flex;gap:11px;align-items:flex-start;padding:13px;border-radius:13px;background:rgb(var(--c-panel2))}
+  .alc-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .ins{padding:13px;border-radius:12px;background:rgb(var(--c-panel2))}
+  .ins-ic{width:30px;height:30px;border-radius:9px;background:rgb(var(--c-accent2)/.1);color:rgb(var(--c-accent2));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .h3{font-size:14px;font-weight:700}
+  .lk{font-size:12px;color:rgb(var(--c-accent2));font-weight:600;cursor:pointer}
+  @media (max-width:1100px){ .dash-grid{grid-template-columns:1fr !important} }
 </style>
 </head>
 <body class="min-h-screen">
@@ -586,70 +603,79 @@ tailwind.config = {
     renderDash2(_dashData);
   }
   function statusPill(s){ const m={'Ativa':'ok','Implantando':'accent2','Atenção':'warn','Pausada':'muted','Ativo':'ok','Treinando':'accent2'}; const c=m[s]||'muted'; const v=c==='muted'?'var(--c-muted)':CORV[c]; return `<span class="badge" style="background:rgb(${v}/.14);color:rgb(${v})">${esc(s)}</span>`; }
+  const SV='1.7'; const sv=(p,sz)=>`<svg width="${sz||17}" height="${sz||17}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${SV}" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+  const ICN={
+    bld:sv('<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><line x1="9" y1="6" x2="9.01" y2="6"/><line x1="15" y1="6" x2="15.01" y2="6"/><line x1="9" y1="10" x2="9.01" y2="10"/><line x1="15" y1="10" x2="15.01" y2="10"/>'),
+    users:sv('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'),
+    spark:sv('<path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="M12 8l1.5 2.5L16 12l-2.5 1.5L12 16l-1.5-2.5L8 12l2.5-1.5z"/>'),
+    bag:sv('<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>'),
+    chart:sv('<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>'),
+    dollar:sv('<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'),
+    check:sv('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'),
+    headset:sv('<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>'),
+    cal:sv('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'),
+    file:sv('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'),
+    trophy:sv('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M5 9a2 2 0 0 1-2-2V5h4M19 9a2 2 0 0 0 2-2V5h-4"/>'),
+    clock:sv('<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/>'),
+    wa:sv('<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>'),
+    home:sv('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>'),
+    bot:sv('<rect x="3" y="8" width="18" height="12" rx="2"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M12 8V4M8 4h8"/>'),
+    pin:sv('<path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>'),
+    trend:sv('<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>')
+  };
   function renderDash2(d){
     const el=document.getElementById('dash2'); if(!el) return;
     const k=d.kpis, im=k.imobiliarias;
-    // KPIs
-    const kpis=`
-      <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide mb-2">Imobiliárias Ativas</div><div class="num text-3xl">${im.total}</div>
-        <div class="flex gap-4 mt-3 text-center">
-          <div><div class="num text-sm text-ok">${im.ativas}</div><div class="text-[9px] text-muted uppercase">Ativas</div></div>
-          <div><div class="num text-sm text-accent2">${im.implantacao}</div><div class="text-[9px] text-muted uppercase">Implantação</div></div>
-          <div><div class="num text-sm text-warn">${im.pausadas}</div><div class="text-[9px] text-muted uppercase">Pausadas</div></div>
-        </div></div>
-      ${kpiC('Leads no Período',(k.leads.valor).toLocaleString('pt-BR'),k.leads.var,k.leads.up,'',k.leads.sub)}
-      ${kpiC('Qualificados pela IA',(k.qualificados.valor).toLocaleString('pt-BR'),'',true,k.qualificados.pct,k.qualificados.sub)}
-      ${kpiC('Negócios em Andamento',(k.negocios.valor).toLocaleString('pt-BR'),'',true,k.negocios.extra,k.negocios.sub)}
-      ${kpiC('Conversão Geral',k.conversao.valor,k.conversao.var,k.conversao.up,'',k.conversao.sub)}
-      ${kpiC('Valor Potencial',k.valorPotencial.valor,'',true,k.valorPotencial.extra,k.valorPotencial.sub)}`;
-    // atenção
-    const aten=d.atencao.map(a=>`<div class="card p-3.5" style="border-left:3px solid rgb(${CORV[a.cor]})"><div class="num text-2xl" style="color:rgb(${CORV[a.cor]})">${a.n}</div><div class="text-[12px] font-semibold mt-0.5">${esc(a.label)}</div><div class="text-[10px] text-muted">${esc(a.sub)}</div></div>`).join('');
-    // funil leads (chevrons)
-    const funil=d.funilLeads.map((s,i)=>`<div style="flex:1;min-width:108px;text-align:center;padding:12px 8px;border-radius:10px;background:${i===d.funilLeads.length-1?'rgb(var(--c-accent))':'rgb(var(--c-panel2))'};color:${i===d.funilLeads.length-1?'#fff':'inherit'}">
-        <div class="text-[10px] font-semibold uppercase" style="opacity:.7">${esc(s.nome)}</div><div class="num text-xl mt-1">${s.n.toLocaleString('pt-BR')}</div><div class="text-[11px] font-semibold" style="color:${i===d.funilLeads.length-1?'#fff':'rgb(var(--c-accent2))'}">${s.pct}</div></div>`).join('<div style="align-self:center;color:rgb(var(--c-border));font-size:18px">›</div>');
-    // donut origem
+    const kc=(ic,lb,v,foot)=>`<div class="kc"><div class="flex items-center gap-2.5"><span class="kc-ic">${ic}</span><span class="kc-lb">${esc(lb)}</span></div><div class="num kc-v">${v}</div><div class="mt-2 text-[11.5px]">${foot}</div></div>`;
+    const up=(t)=>`<span class="font-bold" style="color:rgb(var(--c-ok))">↑ ${esc(t)}</span>`;
+    const kpis=
+      `<div class="kc"><div class="flex items-center gap-2.5"><span class="kc-ic">${ICN.bld}</span><span class="kc-lb">Imobiliárias Ativas</span></div><div class="num kc-v">${im.total}</div>
+        <div class="flex gap-4 mt-3">
+          <div><span class="num text-[15px] font-bold" style="color:rgb(var(--c-ok))">${im.ativas}</span><div class="text-[9px] text-muted uppercase">Ativas</div></div>
+          <div><span class="num text-[15px] font-bold" style="color:rgb(var(--c-accent2))">${im.implantacao}</span><div class="text-[9px] text-muted uppercase">Implantação</div></div>
+          <div><span class="num text-[15px] font-bold" style="color:rgb(var(--c-warn))">${im.pausadas}</span><div class="text-[9px] text-muted uppercase">Pausadas</div></div>
+        </div></div>`+
+      kc(ICN.users,'Leads no Período',(k.leads.valor).toLocaleString('pt-BR'),`${up(k.leads.var)}<div class="text-muted mt-0.5">${esc(k.leads.sub)}</div>`)+
+      kc(ICN.spark,'Qualificados pela IA',(k.qualificados.valor).toLocaleString('pt-BR'),`<span class="font-bold text-accent2">${esc(k.qualificados.pct)}</span> <span class="text-muted">${esc(k.qualificados.sub)}</span>`)+
+      kc(ICN.bag,'Negócios em Andamento',(k.negocios.valor).toLocaleString('pt-BR'),`<span class="font-bold text-accent2">${esc(k.negocios.extra)}</span> <span class="text-muted">${esc(k.negocios.sub)}</span>`)+
+      kc(ICN.chart,'Conversão Geral',esc(k.conversao.valor),`${up(k.conversao.var)}<div class="text-muted mt-0.5">${esc(k.conversao.sub)}</div>`)+
+      kc(ICN.dollar,'Valor Potencial',esc(k.valorPotencial.valor),`<span class="font-bold text-accent2">${esc(k.valorPotencial.extra)}</span> <span class="text-muted">${esc(k.valorPotencial.sub)}</span>`);
+    const aIco={danger:ICN.clock,ok:ICN.wa,warn:ICN.bag,accent2:ICN.home}; const aIco2=[ICN.clock,ICN.wa,ICN.bag,ICN.home,ICN.bot];
+    const aten=d.atencao.map((a,i)=>{const col=CORV[a.cor];return `<div class="alc"><span class="alc-ic" style="background:rgb(${col}/.13);color:rgb(${col})">${aIco2[i]||ICN.clock}</span><div><div class="num text-2xl font-bold" style="color:rgb(${col})">${a.n}</div><div class="text-[12px] font-semibold">${esc(a.label)}</div><div class="text-[10px] text-muted">${esc(a.sub)}</div></div></div>`;}).join('');
+    const fIco=[ICN.users,ICN.spark,ICN.check,ICN.headset,ICN.cal,ICN.file,ICN.trophy];
+    const funil=d.funilLeads.map((s,i)=>{const last=i===d.funilLeads.length-1;return `<div class="fst${last?' last':''}"><div class="fst-ic">${fIco[i]||''}</div><div class="num text-lg">${s.n.toLocaleString('pt-BR')}</div><div class="text-[10.5px] font-bold" style="color:${last?'#fff':'rgb(var(--c-accent2))'}">${s.pct}</div><div class="text-[9px] mt-1" style="opacity:.72;line-height:1.1">${esc(s.nome)}</div></div>`;}).join('<span class="fconn">›</span>');
     let acc=0; const stops=d.fontes.map(f=>{const a=acc,b=acc+f.pct;acc=b;return `${f.cor} ${a}% ${b}%`;}).join(',');
     const totalLeads=d.fontes.reduce((s,f)=>s+f.n,0);
-    const legenda=d.fontes.map(f=>`<div class="flex items-center justify-between text-[12px] py-1"><div class="flex items-center gap-2"><span style="width:9px;height:9px;border-radius:2px;background:${f.cor};display:inline-block"></span>${esc(f.nome)}</div><div class="text-muted">${String(f.pct).replace('.',',')}% · <span class="num">${f.n}</span></div></div>`).join('');
-    // insights
-    const ins=d.insights.map(i=>`<div class="p-3 rounded-lg" style="background:rgb(var(--c-panel2))"><div class="text-[12.5px] font-bold text-accent2">${esc(i.t)}</div><div class="text-[11.5px] text-muted mt-1" style="line-height:1.5">${esc(i.d)}</div></div>`).join('');
-    // ranking
-    const rank=d.ranking.map(r=>`<tr><td class="num" style="width:24px;color:rgb(var(--c-accent))">${r.pos}</td><td class="font-semibold">${esc(r.nome)}</td><td class="num">${r.leads}</td><td>${esc(r.conv)}</td><td>${esc(r.resp)}</td><td class="num">${esc(r.receita)}</td></tr>`).join('');
-    // imobiliarias table
-    const imob=d.imobiliarias.map(r=>`<tr>
-      <td class="font-semibold">${esc(r.nome)}</td><td class="num">${esc(r.creci)}</td><td>${esc(r.regiao)}</td><td>${statusPill(r.status)}</td>
-      <td>${statusPill(r.ia)}</td><td class="num">${r.imoveis}</td><td class="num">${r.leads}</td><td>${esc(r.resp)}</td><td class="num">${esc(r.pipeline)}</td><td>${esc(r.conv)}</td><td class="text-[11px] text-muted">${esc(r.atividade)}</td></tr>`).join('');
-    // agenda
-    const ag=d.agenda.map(a=>`<div class="flex items-center gap-3 p-3 rounded-lg" style="background:rgb(var(--c-panel2))"><div class="num text-xl text-accent" style="width:38px;text-align:center">${a.n}</div><div><div class="text-[13px] font-semibold">${esc(a.label)}</div><div class="text-[11px] text-muted">${esc(a.sub)}</div></div></div>`).join('');
+    const legenda=d.fontes.map(f=>`<div class="flex items-center justify-between text-[12px] py-1"><div class="flex items-center gap-2"><span style="width:9px;height:9px;border-radius:3px;background:${f.cor};display:inline-block"></span>${esc(f.nome)}</div><div class="text-muted"><span class="font-semibold" style="color:rgb(var(--c-text))">${String(f.pct).replace('.',',')}%</span> · <span class="num">${f.n}</span></div></div>`).join('');
+    const insIco=[ICN.pin,ICN.dollar,ICN.trend];
+    const ins=d.insights.map((i,x)=>`<div class="ins flex gap-3"><span class="ins-ic">${insIco[x]||ICN.spark}</span><div><div class="text-[12.5px] font-bold text-accent2">${esc(i.t)}</div><div class="text-[11.5px] text-muted mt-0.5" style="line-height:1.5">${esc(i.d)}</div></div></div>`).join('');
+    const rank=d.ranking.map(r=>`<tr><td class="num" style="width:22px;color:rgb(var(--c-accent));font-weight:700">${r.pos}</td><td class="font-semibold">${esc(r.nome)}</td><td class="num">${r.leads}</td><td>${esc(r.conv)}</td><td>${esc(r.resp)}</td><td class="num font-semibold">${esc(r.receita)}</td></tr>`).join('');
+    const imob=d.imobiliarias.map(r=>`<tr><td class="font-semibold">${esc(r.nome)}</td><td class="num">${esc(r.creci)}</td><td>${esc(r.regiao)}</td><td>${statusPill(r.status)}</td><td><span style="color:rgb(var(--c-ok))" title="WhatsApp">${ICN.wa}</span></td><td>${statusPill(r.ia)}</td><td class="num">${r.imoveis}</td><td class="num">${r.leads}</td><td>${esc(r.resp)}</td><td class="num">${esc(r.pipeline)}</td><td>${esc(r.conv)}</td><td class="text-[11px] text-muted">${esc(r.atividade)}</td></tr>`).join('');
+    const ag=d.agenda.map(a=>`<div class="flex items-center gap-3 p-3 rounded-xl" style="background:rgb(var(--c-panel2))"><div class="num text-2xl font-bold text-accent" style="width:42px;text-align:center">${a.n}</div><div><div class="text-[13px] font-semibold">${esc(a.label)}</div><div class="text-[11px] text-muted">${esc(a.sub)}</div></div></div>`).join('');
 
     el.innerHTML=`
       <div class="flex items-center justify-end flex-wrap gap-2 mb-5">
-        <span class="chip">Período: ${esc(d.periodo||'—')}</span>
-        <button class="px-3 py-2 rounded-lg bg-panel2 border border-border text-xs font-semibold">Relatório</button>
+        <span class="chip flex items-center gap-1.5">${ICN.cal} Período: ${esc(d.periodo||'—')}</span>
+        <button class="px-3 py-2 rounded-lg bg-panel2 border border-border text-xs font-semibold flex items-center gap-1.5">${ICN.file} Relatório</button>
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-5">${kpis}</div>
-      <div class="card p-5 mb-5">
-        <div class="flex items-center justify-between mb-3"><h3 class="text-sm font-bold">Atenção necessária</h3></div>
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">${aten}</div>
-      </div>
-      <div class="grid lg:grid-cols-3 gap-5 mb-5">
-        <div class="card p-5 lg:col-span-2">
-          <h3 class="text-sm font-bold mb-4">Funil Geral de Leads</h3>
-          <div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:4px">${funil}</div>
-          <div class="flex items-center gap-5 mt-6 pt-5 border-t border-border flex-wrap">
-            <div style="width:130px;height:130px;border-radius:50%;background:conic-gradient(${stops});position:relative;flex-shrink:0"><div style="position:absolute;inset:20px;border-radius:50%;background:rgb(var(--c-panel));display:flex;flex-direction:column;align-items:center;justify-content:center"><div class="num font-bold text-lg">${totalLeads.toLocaleString('pt-BR')}</div><div class="text-[10px] text-muted">leads</div></div></div>
-            <div style="flex:1;min-width:200px"><div class="text-[11px] text-muted font-semibold uppercase mb-1">Origem dos leads</div>${legenda}</div>
+      <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-5">${kpis}</div>
+      <div class="grid dash-grid gap-5" style="grid-template-columns:minmax(0,1fr) 320px">
+        <div class="space-y-5" style="min-width:0">
+          <div class="card p-5"><div class="flex items-center justify-between mb-3"><h3 class="h3">Atenção necessária</h3><span class="lk">Ver todas ›</span></div><div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">${aten}</div></div>
+          <div class="grid dash-grid gap-5" style="grid-template-columns:minmax(0,1fr) 290px">
+            <div class="card p-5" style="min-width:0"><div class="flex items-center justify-between mb-4"><h3 class="h3">Funil Geral de Leads</h3><span class="lk" onclick="show('funil')">Ver funil completo ›</span></div><div style="display:flex;gap:5px;overflow-x:auto;padding-bottom:4px">${funil}</div></div>
+            <div class="card p-5"><div class="flex flex-col items-center"><div style="width:140px;height:140px;border-radius:50%;background:conic-gradient(${stops});position:relative;flex-shrink:0"><div style="position:absolute;inset:21px;border-radius:50%;background:rgb(var(--c-panel));display:flex;flex-direction:column;align-items:center;justify-content:center"><div class="num font-extrabold text-xl">${totalLeads.toLocaleString('pt-BR')}</div><div class="text-[10px] text-muted">leads</div></div></div><div style="width:100%;margin-top:14px">${legenda}</div></div></div>
+          </div>
+          <div class="grid dash-grid gap-5" style="grid-template-columns:320px minmax(0,1fr)">
+            <div class="card p-5" style="min-width:0"><h3 class="h3 mb-3">Ranking de Performance</h3><table><thead><tr><th>#</th><th>Imobiliária</th><th>Leads</th><th>Conv.</th><th>Resp.</th><th>Receita</th></tr></thead><tbody>${rank}</tbody></table></div>
+            <div class="card p-5" style="min-width:0"><div class="flex items-center justify-between mb-3"><h3 class="h3">Imobiliárias na Plataforma</h3><span class="lk" onclick="show('imobiliarias')">Ver todas ›</span></div><div style="overflow-x:auto"><table><thead><tr><th>Imobiliária</th><th>CRECI</th><th>Região</th><th>Status</th><th>WA</th><th>IA</th><th>Imóveis</th><th>Leads</th><th>Resp.</th><th>Pipeline</th><th>Conv.</th><th>Atividade</th></tr></thead><tbody>${imob}</tbody></table></div></div>
           </div>
         </div>
-        <div class="card p-5"><h3 class="text-sm font-bold mb-3">Insights da IA</h3><div class="space-y-3">${ins}</div></div>
-      </div>
-      <div class="grid lg:grid-cols-3 gap-5 mb-5">
-        <div class="card p-5"><h3 class="text-sm font-bold mb-3">Ranking de Performance</h3><table><thead><tr><th>#</th><th>Imobiliária</th><th>Leads</th><th>Conv.</th><th>Resp.</th><th>Receita</th></tr></thead><tbody>${rank}</tbody></table></div>
-        <div class="card p-5 lg:col-span-2"><div class="flex items-center justify-between mb-3"><h3 class="text-sm font-bold">Imobiliárias na Plataforma</h3><a class="text-xs text-accent2 font-semibold cursor-pointer" onclick="show('imobiliarias')">Ver todas →</a></div>
-          <div style="overflow-x:auto"><table><thead><tr><th>Imobiliária</th><th>CRECI</th><th>Região</th><th>Status</th><th>IA</th><th>Imóveis</th><th>Leads</th><th>Resp.</th><th>Pipeline</th><th>Conv.</th><th>Atividade</th></tr></thead><tbody>${imob}</tbody></table></div>
+        <div class="space-y-5">
+          <div class="card p-5"><div class="flex items-center justify-between mb-3"><h3 class="h3 flex items-center gap-2">${ICN.spark} Insights da IA</h3></div><div class="space-y-3">${ins}</div><div class="lk mt-3 text-center">Ver todos os insights ›</div></div>
+          <div class="card p-5"><h3 class="h3 flex items-center gap-2 mb-3">${ICN.cal} Agenda do Hub</h3><div class="space-y-3">${ag}</div><div class="lk mt-3 text-center">Ver agenda completa ›</div></div>
         </div>
-      </div>
-      <div class="card p-5"><h3 class="text-sm font-bold mb-3">Agenda do Hub</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-3">${ag}</div></div>`;
+      </div>`;
     animateCountersIn(el);
   }
   function kpiC(label,valor,varStr,up,extra,sub){
