@@ -264,14 +264,7 @@ tailwind.config = {
 
       <!-- ============ FUNIL ============ -->
       <section id="funil" class="screen">
-        <div class="flex items-center justify-between mb-5">
-          <p class="text-sm text-muted">Funil padronizado pelo Hub · arraste os cards entre etapas · clique no × para remover</p>
-          <div class="flex items-center gap-2">
-            <button onclick="limparFunil()" class="px-3 py-2 rounded-lg bg-panel border border-border text-xs font-semibold text-muted hover:text-danger">Limpar tudo</button>
-            <select class="px-4 py-2 rounded-lg bg-panel border border-border text-sm"><option>Cirag Boutique Imobiliária</option></select>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3" id="kanban"></div>
+        <div id="funil2"><div class="empty" style="padding:60px"><div class="t">Carregando funil...</div></div></div>
       </section>
 
       <!-- ============ AGENDA ============ -->
@@ -661,6 +654,91 @@ tailwind.config = {
   }
   function kpiC(label,valor,varStr,up,extra,sub){
     return `<div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide mb-2">${esc(label)}</div><div class="num text-3xl">${esc(valor)}</div>${varStr?`<div class="text-[12px] font-semibold mt-1 ${up?'text-ok':'text-danger'}">${up?'↑':'↓'} ${esc(varStr)}</div>`:''}<div class="text-[11px] text-muted mt-1">${extra?'<span class="font-semibold" style="color:rgb(var(--c-accent2))">'+esc(extra)+'</span> · ':''}${esc(sub||'')}</div></div>`;
+  }
+
+  // ===== FUNIL DE NEGÓCIOS — render do print 2 =====
+  const ORIGEM_COR={WhatsApp:'#22c55e',Instagram:'#e1306c',Portal:'#0077B6',Site:'#64748b',Google:'#f59e0b','Indicação':'#a855f7'};
+  let _funilCards=null;
+  async function loadFunil2(){
+    if(!_dashData){ try{const r=await fetch('/api/dash',{cache:'no-store'});_dashData=await r.json();}catch(e){} }
+    if(!_funilCards){ try{const r=await fetch('/api/dash?action=funil',{cache:'no-store'});_funilCards=(await r.json()).cards||[];}catch(e){_funilCards=[];} }
+    renderFunil2();
+  }
+  function funilCard(c){
+    const cor=ORIGEM_COR[c.origem]||'#64748b';
+    const vendaOk=c.sla==='Venda concluída';
+    return `<div class="card p-2.5 mb-2" style="cursor:pointer" onclick='showDeal(${JSON.stringify(c).replace(/'/g,"&#39;")})'>
+      <div class="font-semibold text-[12.5px]">${esc(c.lead_nome)}</div>
+      <div class="text-[10.5px] text-muted">${esc(c.imovel_desc||'')}</div>
+      ${c.imob_nome?`<div class="mt-1.5"><span class="badge" style="background:rgb(var(--c-accent)/.1);color:rgb(var(--c-accent));font-size:9px">${esc(c.imob_nome)}</span></div>`:''}
+      <div class="flex items-center justify-between mt-2">
+        ${c.valor?`<span class="num text-[12px] font-bold text-accent">R$ ${(c.valor).toLocaleString('pt-BR')}</span>`:'<span class="text-[11px] text-muted">a definir</span>'}
+        <span class="badge" style="background:${cor}1f;color:${cor};font-size:9px">${esc(c.origem||'')}</span>
+      </div>
+      ${c.motivo_perda
+        ? `<div class="text-[10px] mt-1.5" style="color:rgb(var(--c-danger))">Motivo: ${esc(c.motivo_perda)}</div>`
+        : `<div class="flex items-center justify-between mt-1.5 text-[10px] text-muted"><span>Tent.: ${c.tentativas||1}${c.ultimo_contato?' · '+esc(c.ultimo_contato):''}</span>${c.sla?`<span style="color:${vendaOk?'rgb(var(--c-ok))':c.sla==='Dentro do SLA'?'rgb(var(--c-ok))':'rgb(var(--c-warn))'};font-weight:600">${esc(c.sla)}</span>`:''}</div>${c.status_label?`<div class="text-[10px] text-accent2 mt-0.5">${esc(c.status_label)}</div>`:''}`}
+    </div>`;
+  }
+  function showDeal(c){
+    const el=document.getElementById('deal-detail'); if(!el) return;
+    const com=c.valor?Math.round(c.valor*0.03):0, hub=Math.round(com*0.15);
+    const tl=[['Primeiro contato via WhatsApp','Cliente demonstrou interesse no imóvel.',c.ultimo_contato||'Há 20 min'],
+      ['Ligação realizada','Cliente atendeu e solicitou mais informações.','Há 15 min'],
+      ['Anotações adicionadas','Cliente busca imóvel com '+(c.imovel_desc||'as características').toLowerCase()+'.','Há 10 min']];
+    el.innerHTML=`<div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">Detalhe do negócio selecionado</h3><span onclick="document.getElementById('deal-detail').innerHTML=''" style="cursor:pointer;color:rgb(var(--c-muted))">&times;</span></div>
+      <div class="flex items-start gap-4 flex-wrap">
+        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-white font-bold flex-shrink-0">${esc((c.lead_nome||'?').split(' ').slice(0,2).map(w=>w[0]).join(''))}</div>
+        <div style="flex:1;min-width:200px"><div class="font-bold">${esc(c.lead_nome)}</div><div class="text-[11px] text-muted">${esc(c.imovel_desc||'')} · ${esc(c.imob_nome||'')}</div>${c.valor?`<div class="num text-lg text-accent mt-1">R$ ${c.valor.toLocaleString('pt-BR')}</div>`:''}</div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-[12px]">
+        <div><div class="text-[10px] text-muted uppercase">Corretor</div><div class="font-semibold">${esc(c.corretor_nome||'—')}</div></div>
+        <div><div class="text-[10px] text-muted uppercase">Origem</div><div class="font-semibold">${esc(c.origem||'—')}</div></div>
+        <div><div class="text-[10px] text-muted uppercase">Comissão estimada</div><div class="font-semibold">R$ ${com.toLocaleString('pt-BR')} <span class="text-muted">(3%)</span></div></div>
+        <div><div class="text-[10px] text-muted uppercase">Receita Hub</div><div class="font-semibold text-ok">R$ ${hub.toLocaleString('pt-BR')} <span class="text-muted">(15%)</span></div></div>
+      </div>
+      <div class="mt-4 pt-4 border-t border-border"><div class="text-xs font-bold mb-2">Histórico / Timeline</div>
+        ${tl.map(t=>`<div class="flex gap-3 mb-2"><div style="width:8px;height:8px;border-radius:50%;background:rgb(var(--c-accent2));margin-top:5px;flex-shrink:0"></div><div><div class="text-[12px] font-semibold">${esc(t[0])} <span class="text-[10px] text-muted font-normal">· ${esc(t[2])}</span></div><div class="text-[11px] text-muted">${esc(t[1])}</div></div></div>`).join('')}
+      </div>`;
+    el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+  function renderFunil2(){
+    const el=document.getElementById('funil2'); if(!el) return;
+    const f=(_dashData&&_dashData.funil)||{}; const cards=_funilCards||[];
+    const kpis=(f.kpis||[]).map(x=>kpiC(x.label,x.valor,x.var,!x.down,'','vs. período anterior')).join('');
+    const resumo=(f.resumo||[]).map((s,i)=>`<div style="flex:1;min-width:92px;text-align:center"><div class="text-[9.5px] text-muted font-semibold uppercase" style="line-height:1.2">${esc(s.nome)}</div><div class="num text-base mt-1">${s.n}</div><div class="text-[10px] text-accent2 font-semibold">${s.pct}</div></div>`).join('<div style="align-self:center;color:rgb(var(--c-border))">›</div>');
+    const cols=(f.etapas||[]).map(e=>{
+      const list=cards.filter(c=>c.etapa===e.key);
+      const isPerd=e.key==='perdido';
+      return `<div style="min-width:225px;flex-shrink:0">
+        <div class="mb-2 px-1"><div class="flex items-center justify-between"><span class="text-[11px] font-bold uppercase tracking-wide${isPerd?' text-danger':''}">${esc(e.nome)}</span></div>
+          <div class="text-[10px] text-muted">${e.negocios} negócios${e.valor?' · '+esc(e.valor):''}</div></div>
+        <div class="p-2 rounded-xl" style="background:rgb(var(--c-panel2));min-height:120px">${list.map(funilCard).join('')||'<div class="text-[10px] text-muted text-center p-3">—</div>'}
+          ${e.negocios>list.length?`<div class="text-[10px] text-accent2 text-center font-semibold py-1 cursor-pointer">+ Ver mais ${e.negocios-list.length}</div>`:''}</div>
+      </div>`;
+    }).join('');
+    const op=(f.operacional||[]).map(o=>`<div class="flex items-center justify-between text-[12px] py-1.5"><span>${esc(o.label)}</span><span class="num font-bold" style="color:rgb(${CORV[o.cor]||'var(--c-muted)'})">${o.n}</span></div>`).join('');
+    const rk=(f.rankingFunil||[]).map(r=>`<div class="flex items-center justify-between text-[12px] py-1.5"><span><span class="text-accent font-bold">${r.pos}</span> ${esc(r.nome)}</span><span class="text-muted">${r.n} · <span class="num">${esc(r.valor)}</span></span></div>`).join('');
+    const ac=(f.proximasAcoes||[]).map(a=>`<div class="flex gap-3 py-1.5"><span class="num text-[12px] font-bold text-accent" style="width:38px">${esc(a.h)}</span><div><div class="text-[12px] font-semibold">${esc(a.t)}</div><div class="text-[10px] text-muted">${esc(a.d)}</div></div></div>`).join('');
+    const mp=(f.motivosPerda||[]).map(m=>`<div class="flex items-center justify-between text-[12px] py-1"><span>${esc(m.label)}</span><span class="num text-muted">${m.n}</span></div>`).join('');
+    const chips=['Todos','Com atenção','Sem atendimento','Parados +7 dias','Fechados','Perdidos'].map((x,i)=>`<span class="chip" style="${i===0?'background:rgb(var(--c-accent));color:#fff;border-color:rgb(var(--c-accent))':''}">${x}</span>`).join('');
+
+    el.innerHTML=`
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">${kpis}</div>
+      <div class="card p-4 mb-4"><div class="flex items-center justify-between mb-2"><h3 class="text-sm font-bold">Resumo do funil</h3><span class="text-[12px]">Taxa de conversão geral: <span class="num font-bold text-ok">${esc(f.conversao||'—')}</span></span></div>
+        <div style="display:flex;gap:2px;overflow-x:auto;padding-bottom:4px">${resumo}</div></div>
+      <div class="flex gap-2 mb-4 flex-wrap">${chips}</div>
+      <div class="grid lg:grid-cols-4 gap-4">
+        <div class="lg:col-span-3"><div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px">${cols}</div></div>
+        <div class="space-y-4">
+          <div class="card p-4"><h3 class="text-[13px] font-bold mb-1">Resumo operacional</h3>${op}</div>
+          <div class="card p-4"><h3 class="text-[13px] font-bold mb-1">Ranking por imobiliária</h3>${rk}</div>
+          <div class="card p-4"><h3 class="text-[13px] font-bold mb-1">Próximas ações</h3>${ac}</div>
+          <div class="card p-4"><h3 class="text-[13px] font-bold mb-1">Motivos de perda / recusa</h3>${mp}</div>
+        </div>
+      </div>
+      <div class="card p-5 mt-4" id="deal-detail"></div>`;
+    animateCountersIn(el);
   }
   function toggleSidebar(){ const s=document.querySelector('#app aside.sidebar'); const b=document.getElementById('sidebar-backdrop'); if(!s)return; const open=s.classList.toggle('open'); if(b)b.classList.toggle('show',open); }
   function closeSidebar(){ const s=document.querySelector('#app aside.sidebar'); const b=document.getElementById('sidebar-backdrop'); if(s)s.classList.remove('open'); if(b)b.classList.remove('show'); }
