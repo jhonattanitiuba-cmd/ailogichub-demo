@@ -235,26 +235,7 @@ tailwind.config = {
 
       <!-- ============ DASHBOARD ============ -->
       <section id="dashboard" class="screen active">
-        <div class="card p-5 mb-6 flex items-start gap-4" style="background:rgb(var(--c-accent2)/.06);border-color:rgb(var(--c-accent2)/.25)">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgb(var(--c-accent2))" stroke-width="1.8" style="flex-shrink:0;margin-top:2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          <div>
-            <div class="font-bold text-sm">Operação em implantação</div>
-            <div class="text-[12.5px] text-muted mt-1">Imobiliária <strong>Cirag Boutique</strong> cadastrada. Próximos passos: conectar o WhatsApp do Hub, cadastrar os imóveis e ativar a IA de qualificação para começar a captar leads.</div>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Leads no mês</div><div class="num text-3xl mt-2">0</div><div class="text-[11px] text-muted font-semibold mt-1">aguardando primeiros leads</div></div>
-          <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Qualificados pela IA</div><div class="num text-3xl mt-2">0</div><div class="text-[11px] text-muted font-semibold mt-1">IA pronta para ativar</div></div>
-          <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Negócios em andamento</div><div class="num text-3xl mt-2">0</div><div class="text-[11px] text-muted font-semibold mt-1">R$ 0 em pipeline</div></div>
-          <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide">Imobiliárias ativas</div><div class="num text-3xl mt-2" id="dash-imob-n">1</div><div class="text-[11px] text-ok font-semibold mt-1" id="dash-imob-sub">Cirag Boutique</div></div>
-        </div>
-        <div class="card p-6">
-          <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">Imobiliárias na plataforma</h3><a class="text-xs text-accent2 font-semibold cursor-pointer" data-s="imobiliarias">Ver todas →</a></div>
-          <table>
-            <thead><tr><th>Imobiliária</th><th>CRECI</th><th>Região</th><th>Leads</th><th>Imóveis</th><th>Status</th></tr></thead>
-            <tbody id="dash-imob-rows"></tbody>
-          </table>
-        </div>
+        <div id="dash2"><div class="empty" style="padding:60px"><div class="t">Carregando painel...</div></div></div>
       </section>
 
       <!-- ============ IMOBILIÁRIAS ============ -->
@@ -550,7 +531,7 @@ tailwind.config = {
 
 <script>
   const titles = {
-    dashboard:['Visão Geral','Operação consolidada das imobiliárias parceiras'],
+    dashboard:['Central de Operações do Hub','Controle completo das imobiliárias, leads, imóveis, IA e funil comercial'],
     imobiliarias:['Imobiliárias','Rede de parceiras do Hub · entidade central'],
     leads:['Leads','Captação multi-fonte e roteamento automático'],
     funil:['Funil de Negócios','Pipeline padronizado pelo Hub'],
@@ -573,6 +554,8 @@ tailwind.config = {
     if(s==='mapa') initMapa();
     if(s==='whatsapp' && typeof waRefresh==='function') waRefresh();
     if(s==='config' && typeof loadIaConfig==='function') loadIaConfig();
+    if(s==='dashboard' && typeof loadDash==='function') loadDash();
+    if(s==='funil' && typeof loadFunil2==='function') loadFunil2();
     try{ animateCountersIn(document.getElementById(s)); }catch(e){}
     closeSidebar();
   }
@@ -599,6 +582,86 @@ tailwind.config = {
     requestAnimationFrame(step);
   }
   function animateCountersIn(scope){ if(!scope) return; scope.querySelectorAll('.num').forEach(countUp); }
+
+  // ===== VISÃO GERAL (Central de Operações) — render do print =====
+  const CORV={danger:'var(--c-danger)',ok:'var(--c-ok)',warn:'var(--c-warn)',accent2:'var(--c-accent2)',accent:'var(--c-accent)'};
+  let _dashData=null;
+  async function loadDash(){
+    if(_dashData){ renderDash2(_dashData); return; }
+    try{ const r=await fetch('/api/dash',{cache:'no-store'}); _dashData=await r.json(); }catch(e){ _dashData=null; }
+    if(!_dashData||!_dashData.kpis){ const el=document.getElementById('dash2'); if(el)el.innerHTML='<div class="empty" style="padding:60px"><div class="t">Painel indisponível</div><div class="d">Verifique a conexão com o banco.</div></div>'; return; }
+    renderDash2(_dashData);
+  }
+  function statusPill(s){ const m={'Ativa':'ok','Implantando':'accent2','Atenção':'warn','Pausada':'muted','Ativo':'ok','Treinando':'accent2'}; const c=m[s]||'muted'; const v=c==='muted'?'var(--c-muted)':CORV[c]; return `<span class="badge" style="background:rgb(${v}/.14);color:rgb(${v})">${esc(s)}</span>`; }
+  function renderDash2(d){
+    const el=document.getElementById('dash2'); if(!el) return;
+    const k=d.kpis, im=k.imobiliarias;
+    // KPIs
+    const kpis=`
+      <div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide mb-2">Imobiliárias Ativas</div><div class="num text-3xl">${im.total}</div>
+        <div class="flex gap-4 mt-3 text-center">
+          <div><div class="num text-sm text-ok">${im.ativas}</div><div class="text-[9px] text-muted uppercase">Ativas</div></div>
+          <div><div class="num text-sm text-accent2">${im.implantacao}</div><div class="text-[9px] text-muted uppercase">Implantação</div></div>
+          <div><div class="num text-sm text-warn">${im.pausadas}</div><div class="text-[9px] text-muted uppercase">Pausadas</div></div>
+        </div></div>
+      ${kpiC('Leads no Período',(k.leads.valor).toLocaleString('pt-BR'),k.leads.var,k.leads.up,'',k.leads.sub)}
+      ${kpiC('Qualificados pela IA',(k.qualificados.valor).toLocaleString('pt-BR'),'',true,k.qualificados.pct,k.qualificados.sub)}
+      ${kpiC('Negócios em Andamento',(k.negocios.valor).toLocaleString('pt-BR'),'',true,k.negocios.extra,k.negocios.sub)}
+      ${kpiC('Conversão Geral',k.conversao.valor,k.conversao.var,k.conversao.up,'',k.conversao.sub)}
+      ${kpiC('Valor Potencial',k.valorPotencial.valor,'',true,k.valorPotencial.extra,k.valorPotencial.sub)}`;
+    // atenção
+    const aten=d.atencao.map(a=>`<div class="card p-3.5" style="border-left:3px solid rgb(${CORV[a.cor]})"><div class="num text-2xl" style="color:rgb(${CORV[a.cor]})">${a.n}</div><div class="text-[12px] font-semibold mt-0.5">${esc(a.label)}</div><div class="text-[10px] text-muted">${esc(a.sub)}</div></div>`).join('');
+    // funil leads (chevrons)
+    const funil=d.funilLeads.map((s,i)=>`<div style="flex:1;min-width:108px;text-align:center;padding:12px 8px;border-radius:10px;background:${i===d.funilLeads.length-1?'rgb(var(--c-accent))':'rgb(var(--c-panel2))'};color:${i===d.funilLeads.length-1?'#fff':'inherit'}">
+        <div class="text-[10px] font-semibold uppercase" style="opacity:.7">${esc(s.nome)}</div><div class="num text-xl mt-1">${s.n.toLocaleString('pt-BR')}</div><div class="text-[11px] font-semibold" style="color:${i===d.funilLeads.length-1?'#fff':'rgb(var(--c-accent2))'}">${s.pct}</div></div>`).join('<div style="align-self:center;color:rgb(var(--c-border));font-size:18px">›</div>');
+    // donut origem
+    let acc=0; const stops=d.fontes.map(f=>{const a=acc,b=acc+f.pct;acc=b;return `${f.cor} ${a}% ${b}%`;}).join(',');
+    const totalLeads=d.fontes.reduce((s,f)=>s+f.n,0);
+    const legenda=d.fontes.map(f=>`<div class="flex items-center justify-between text-[12px] py-1"><div class="flex items-center gap-2"><span style="width:9px;height:9px;border-radius:2px;background:${f.cor};display:inline-block"></span>${esc(f.nome)}</div><div class="text-muted">${String(f.pct).replace('.',',')}% · <span class="num">${f.n}</span></div></div>`).join('');
+    // insights
+    const ins=d.insights.map(i=>`<div class="p-3 rounded-lg" style="background:rgb(var(--c-panel2))"><div class="text-[12.5px] font-bold text-accent2">${esc(i.t)}</div><div class="text-[11.5px] text-muted mt-1" style="line-height:1.5">${esc(i.d)}</div></div>`).join('');
+    // ranking
+    const rank=d.ranking.map(r=>`<tr><td class="num" style="width:24px;color:rgb(var(--c-accent))">${r.pos}</td><td class="font-semibold">${esc(r.nome)}</td><td class="num">${r.leads}</td><td>${esc(r.conv)}</td><td>${esc(r.resp)}</td><td class="num">${esc(r.receita)}</td></tr>`).join('');
+    // imobiliarias table
+    const imob=d.imobiliarias.map(r=>`<tr>
+      <td class="font-semibold">${esc(r.nome)}</td><td class="num">${esc(r.creci)}</td><td>${esc(r.regiao)}</td><td>${statusPill(r.status)}</td>
+      <td>${statusPill(r.ia)}</td><td class="num">${r.imoveis}</td><td class="num">${r.leads}</td><td>${esc(r.resp)}</td><td class="num">${esc(r.pipeline)}</td><td>${esc(r.conv)}</td><td class="text-[11px] text-muted">${esc(r.atividade)}</td></tr>`).join('');
+    // agenda
+    const ag=d.agenda.map(a=>`<div class="flex items-center gap-3 p-3 rounded-lg" style="background:rgb(var(--c-panel2))"><div class="num text-xl text-accent" style="width:38px;text-align:center">${a.n}</div><div><div class="text-[13px] font-semibold">${esc(a.label)}</div><div class="text-[11px] text-muted">${esc(a.sub)}</div></div></div>`).join('');
+
+    el.innerHTML=`
+      <div class="flex items-center justify-end flex-wrap gap-2 mb-5">
+        <span class="chip">Período: ${esc(d.periodo||'—')}</span>
+        <button class="px-3 py-2 rounded-lg bg-panel2 border border-border text-xs font-semibold">Relatório</button>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-5">${kpis}</div>
+      <div class="card p-5 mb-5">
+        <div class="flex items-center justify-between mb-3"><h3 class="text-sm font-bold">Atenção necessária</h3></div>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">${aten}</div>
+      </div>
+      <div class="grid lg:grid-cols-3 gap-5 mb-5">
+        <div class="card p-5 lg:col-span-2">
+          <h3 class="text-sm font-bold mb-4">Funil Geral de Leads</h3>
+          <div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:4px">${funil}</div>
+          <div class="flex items-center gap-5 mt-6 pt-5 border-t border-border flex-wrap">
+            <div style="width:130px;height:130px;border-radius:50%;background:conic-gradient(${stops});position:relative;flex-shrink:0"><div style="position:absolute;inset:20px;border-radius:50%;background:rgb(var(--c-panel));display:flex;flex-direction:column;align-items:center;justify-content:center"><div class="num font-bold text-lg">${totalLeads.toLocaleString('pt-BR')}</div><div class="text-[10px] text-muted">leads</div></div></div>
+            <div style="flex:1;min-width:200px"><div class="text-[11px] text-muted font-semibold uppercase mb-1">Origem dos leads</div>${legenda}</div>
+          </div>
+        </div>
+        <div class="card p-5"><h3 class="text-sm font-bold mb-3">Insights da IA</h3><div class="space-y-3">${ins}</div></div>
+      </div>
+      <div class="grid lg:grid-cols-3 gap-5 mb-5">
+        <div class="card p-5"><h3 class="text-sm font-bold mb-3">Ranking de Performance</h3><table><thead><tr><th>#</th><th>Imobiliária</th><th>Leads</th><th>Conv.</th><th>Resp.</th><th>Receita</th></tr></thead><tbody>${rank}</tbody></table></div>
+        <div class="card p-5 lg:col-span-2"><div class="flex items-center justify-between mb-3"><h3 class="text-sm font-bold">Imobiliárias na Plataforma</h3><a class="text-xs text-accent2 font-semibold cursor-pointer" onclick="show('imobiliarias')">Ver todas →</a></div>
+          <div style="overflow-x:auto"><table><thead><tr><th>Imobiliária</th><th>CRECI</th><th>Região</th><th>Status</th><th>IA</th><th>Imóveis</th><th>Leads</th><th>Resp.</th><th>Pipeline</th><th>Conv.</th><th>Atividade</th></tr></thead><tbody>${imob}</tbody></table></div>
+        </div>
+      </div>
+      <div class="card p-5"><h3 class="text-sm font-bold mb-3">Agenda do Hub</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-3">${ag}</div></div>`;
+    animateCountersIn(el);
+  }
+  function kpiC(label,valor,varStr,up,extra,sub){
+    return `<div class="card p-5"><div class="text-[11px] text-muted font-semibold uppercase tracking-wide mb-2">${esc(label)}</div><div class="num text-3xl">${esc(valor)}</div>${varStr?`<div class="text-[12px] font-semibold mt-1 ${up?'text-ok':'text-danger'}">${up?'↑':'↓'} ${esc(varStr)}</div>`:''}<div class="text-[11px] text-muted mt-1">${extra?'<span class="font-semibold" style="color:rgb(var(--c-accent2))">'+esc(extra)+'</span> · ':''}${esc(sub||'')}</div></div>`;
+  }
   function toggleSidebar(){ const s=document.querySelector('#app aside.sidebar'); const b=document.getElementById('sidebar-backdrop'); if(!s)return; const open=s.classList.toggle('open'); if(b)b.classList.toggle('show',open); }
   function closeSidebar(){ const s=document.querySelector('#app aside.sidebar'); const b=document.getElementById('sidebar-backdrop'); if(s)s.classList.remove('open'); if(b)b.classList.remove('show'); }
   // ===== Editor da IA (persona editável no sistema) =====
@@ -1201,7 +1264,7 @@ tailwind.config = {
     const av=localStorage.getItem('ailh_avatar_'+conta.email); if(av) applyAvatar(av);
     document.getElementById('login').style.display='none';
     document.getElementById('app').style.display='flex';
-    setTimeout(()=>{ try{ animateCountersIn(document.getElementById('dashboard')); }catch(e){} },90);
+    setTimeout(()=>{ try{ loadDash(); }catch(e){} },60);
   }
   ['lg-email','lg-pass'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter') entrar(); }));
 </script>
