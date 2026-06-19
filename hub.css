@@ -97,8 +97,15 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
 .hub-rise{ opacity:0; animation:hubRise .55s cubic-bezier(.22,.61,.36,1) forwards; }
 /* navegação fluida: sem pulinho; só uma leve escala no item, suave */
 .nav-item{ transition:transform .2s cubic-bezier(.22,.61,.36,1), background .15s ease, box-shadow .15s ease; transform-origin:left center; }
-.nav-item:hover{ transform:scale(1.02); }
+.nav-item:hover{ background:rgba(255,255,255,.06); }
+.nav-item:hover:not(.active){ transform:translateX(2px); }
 .nav-item.active{ transform:scale(1.03); }
+/* setas do funil em navy (estavam quase invisíveis) */
+.fconn{ color:#061629 !important; }
+/* botões/pills do header: menores, minimalistas, com hover e clique */
+.pill,.btn{ height:34px !important; padding:0 13px !important; font-size:12px !important; border-radius:10px !important; transition:transform .14s ease, box-shadow .14s ease, background .14s ease; }
+.pill:hover,.btn:hover{ transform:translateY(-1px); box-shadow:0 8px 18px rgba(15,23,42,.12); }
+.pill:active,.btn:active{ transform:translateY(0) scale(.97); }
 .kpi,.card,.panel{ transition:transform .18s ease, box-shadow .18s ease; }
 .kpi:hover,.card:hover{ transform:translateY(-2px); box-shadow:0 18px 40px rgba(15,23,42,.12); }
 .kpi,.card,.panel{ transition:transform .18s ease, box-shadow .18s ease; }

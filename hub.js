@@ -235,7 +235,7 @@
       swapStyles(doc);
       var cur=document.querySelector('.main'); if(cur) cur.parentNode.replaceChild(newMain, cur);
       if(doc.title) document.title=doc.title;
-      try{ replaceIconHosts(); cleanText(); active(); runPageScripts(doc); revealContent(newMain, false); }catch(e){}
+      try{ replaceIconHosts(); cleanText(); active(); runPageScripts(doc); revealContent(newMain, true); }catch(e){}
       window.scrollTo(0,0); navving=false;
     }).catch(function(){ location.href=slug; });
   }
