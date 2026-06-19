@@ -13,6 +13,12 @@ p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 
 /* cor padrão da sidebar (tom enviado pelo Jhonattan = v1 #061629, navy chapado) */
 .sidebar{ background:#061629 !important; }
+/* tipografia da sidebar: tudo normal, só o item selecionado em negrito */
+.sidebar .nav-item{ font-weight:400 !important; }
+.sidebar .nav-item.active{ font-weight:700 !important; }
+.sidebar .section-title{ font-weight:500 !important; }
+/* ícones do menu com traço mais fino */
+.nav-item .ico .hub-ic svg{ stroke-width:1.5; }
 
 /* ícones SVG inline (substituem emojis) herdam a cor do contexto */
 .hub-ic{ display:inline-flex; align-items:center; justify-content:center; line-height:0; }
