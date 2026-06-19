@@ -11,6 +11,9 @@ h2,h3,.panel-head h2,.panel-head h3,.brand strong,.card h3{ font-weight:700; }
 .badge,.btn,th,.section-title,.count,.chip2,.pill{ font-weight:700; }
 p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 
+/* cor padrão da sidebar (tom enviado pelo Jhonattan = v1 #061629, navy chapado) */
+.sidebar{ background:#061629 !important; }
+
 /* ícones SVG inline (substituem emojis) herdam a cor do contexto */
 .hub-ic{ display:inline-flex; align-items:center; justify-content:center; line-height:0; }
 .hub-ic svg{ width:1em; height:1em; }
