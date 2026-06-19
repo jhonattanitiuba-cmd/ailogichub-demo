@@ -45,7 +45,8 @@
     inbox:'M3 12h5l2 3h4l2-3h5M5 5h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z',
     camera:'M4 8h3l2-2h6l2 2h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1ZM12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z',
     arrow:'M5 12h14M13 6l6 6-6 6',
-    rocket:'M5 15c-1 1-1.5 4-1.5 4s3-.5 4-1.5M9 13a8 8 0 0 1 8-8h2v2a8 8 0 0 1-8 8M9 13l2 2M14 7.5a1.2 1.2 0 1 0 0 .01'
+    rocket:'M5 15c-1 1-1.5 4-1.5 4s3-.5 4-1.5M9 13a8 8 0 0 1 8-8h2v2a8 8 0 0 1-8 8M9 13l2 2M14 7.5a1.2 1.2 0 1 0 0 .01',
+    apt:'M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17M3 21h18M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2M10 21v-3h4v3'
   };
   function svg(name){ var d=P[name]; if(!d) return null;
     return '<span class="hub-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'
@@ -54,7 +55,7 @@
   /* ---------- 1) ícones do menu (por href) ---------- */
   var NAV={ 'index.html':'home','imobiliarias.html':'building','corretores.html':'users','pessoas.html':'idcard',
     'leads.html':'target','funil.html':'funnel','agenda.html':'calendar','whatsapp.html':'chat','emails.html':'mail',
-    'imoveis.html':'box','mapa.html':'map','captacao.html':'download','assinaturas.html':'pen','anuncios.html':'megaphone',
+    'imoveis.html':'apt','mapa.html':'map','captacao.html':'download','assinaturas.html':'pen','anuncios.html':'megaphone',
     'credito.html':'dollar','locacao.html':'swap','relatorios.html':'chart','insights.html':'sparkle',
     'integracoes.html':'plug','site.html':'globe','financeiro.html':'wallet','suporte.html':'help',
     'administrador.html':'gear','config-ia.html':'sliders' };
@@ -166,6 +167,23 @@
     items.forEach(function(el,i){ el.classList.add('hub-side-item'); el.style.animationDelay=Math.round(i*(span/(n-1)))+'ms'; });
   }
 
-  function run(){ try{ replaceIconHosts(); cleanText(); active(); cascadeSidebar(); riseIn(); animateCounters(); }catch(e){} }
+  /* ---------- 8) recolher/expandir sidebar (mini rail) ---------- */
+  function setupCollapse(){
+    var app=document.querySelector('.app'), side=document.querySelector('.sidebar'); if(!app||!side) return;
+    // envolve o texto (label) de cada nav-item para poder ocultar no modo mini
+    side.querySelectorAll('.nav-item').forEach(function(a){
+      [].slice.call(a.childNodes).forEach(function(nd){
+        if(nd.nodeType===3 && nd.nodeValue.trim()){ var sp=document.createElement('span'); sp.className='nav-label'; sp.textContent=nd.nodeValue.trim(); a.replaceChild(sp,nd); }
+      });
+    });
+    // botão discreto "<" no rodapé da sidebar
+    var btn=document.createElement('button'); btn.className='sb-toggle'; btn.type='button'; btn.title='Recolher menu';
+    btn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
+    side.appendChild(btn);
+    if(localStorage.getItem('ailogic_sb')==='1') app.classList.add('sb-collapsed');
+    btn.addEventListener('click',function(){ var c=app.classList.toggle('sb-collapsed'); btn.title=c?'Expandir menu':'Recolher menu'; try{localStorage.setItem('ailogic_sb',c?'1':'0');}catch(_){} });
+  }
+
+  function run(){ try{ replaceIconHosts(); cleanText(); active(); setupCollapse(); cascadeSidebar(); riseIn(); animateCounters(); }catch(e){} }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();

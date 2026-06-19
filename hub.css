@@ -35,6 +35,24 @@ p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 /* ícones do menu com traço mais fino */
 .nav-item .ico .hub-ic svg{ stroke-width:1.5; }
 
+/* ===== recolher sidebar (mini rail) ===== */
+.app{ transition:grid-template-columns .25s ease; }
+.sb-toggle{ display:flex; align-items:center; justify-content:center; width:34px; height:34px; margin:16px auto 2px; padding:0; background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.10); border-radius:9px; color:#8aa6d2; cursor:pointer; transition:background .15s,color .15s,transform .2s; }
+.sb-toggle:hover{ background:rgba(255,255,255,.10); color:#dce8ff; }
+.app.sb-collapsed{ grid-template-columns:74px 1fr !important; }
+.app.sb-collapsed .sidebar{ padding:22px 11px; }
+.app.sb-collapsed .nav-item{ justify-content:center; padding:11px 0; }
+.app.sb-collapsed .nav-label{ display:none; }
+.app.sb-collapsed .section-title{ height:1px; padding:0; margin:16px 8px; overflow:hidden; color:transparent; background:rgba(255,255,255,.08); }
+.app.sb-collapsed .brand{ justify-content:center; }
+.app.sb-collapsed .brand > div:last-child{ display:none; }
+.app.sb-collapsed .support{ justify-content:center; padding:13px 0; }
+.app.sb-collapsed .support > div:last-child{ display:none; }
+.app.sb-collapsed .profile{ justify-content:center; padding-left:0; padding-right:0; }
+.app.sb-collapsed .profile > div:last-child{ display:none; }
+.app.sb-collapsed .sb-toggle{ transform:rotate(180deg); }
+@media (max-width:1050px){ .sb-toggle{ display:none; } .app.sb-collapsed{ grid-template-columns:1fr; } }
+
 /* ícones SVG inline (substituem emojis) herdam a cor do contexto */
 .hub-ic{ display:inline-flex; align-items:center; justify-content:center; line-height:0; }
 .hub-ic svg{ width:1em; height:1em; }
