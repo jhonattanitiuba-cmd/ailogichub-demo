@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AiLogic Hub · Acesso</title>
-<script>if(localStorage.getItem('ailogic_auth')==='1'){location.replace('index.html');}</script>
+<script>if(localStorage.getItem('ailogic_auth')==='1'){location.replace('/visaogeral');}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -107,7 +107,7 @@ document.getElementById('form').addEventListener('submit',function(e){
   err.textContent='';
   try{ localStorage.setItem('ailogic_auth','1'); localStorage.setItem('ailogic_user',email); }catch(_){}
   var btn=document.querySelector('.btn'); btn.textContent='Entrando...';
-  setTimeout(function(){ location.href='index.html'; },350);
+  setTimeout(function(){ location.href='/visaogeral'; },350);
 });
 </script>
 </body>
