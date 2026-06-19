@@ -131,7 +131,7 @@
     }).filter(Boolean);
     els.sort(function(a,b){ return (a.y-b.y)||(a.x-b.x); });
     els.forEach(function(o,idx){
-      var el=o.el, info=o.info, start=null, dur=950, delay=Math.min(idx*55,1400);
+      var el=o.el, info=o.info, start=null, dur=4000, delay=Math.min(idx*55,1400);
       var done=false;
       el.textContent=fmt(0,info);
       setTimeout(function(){
