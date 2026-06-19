@@ -5,11 +5,26 @@
 :root{ --font:'Montserrat',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif; }
 body{ font-family:var(--font); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
 h1,h2,h3,h4,.headline h1,.panel-head h2,.panel-head h3,.brand strong,.kpi .value,.value{ font-family:var(--font); }
-.headline h1,h1{ font-weight:800; letter-spacing:-.03em; }
+.headline h1,h1{ font-weight:700; letter-spacing:-.02em; }
 h2,h3,.panel-head h2,.panel-head h3,.brand strong,.card h3{ font-weight:700; }
-.kpi .value,.value{ font-weight:800; }
+.kpi .value,.value{ font-weight:700; }
 .badge,.btn,th,.section-title,.count,.chip2,.pill{ font-weight:700; }
 p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
+
+/* ===== padronização (títulos · números · botões · cantos) ===== */
+/* títulos: escala única em todas as telas */
+.headline h1,h1{ font-size:24px !important; font-weight:700 !important; }
+.panel-head h2,.panel-head h3{ font-size:15px !important; font-weight:700 !important; letter-spacing:-.01em; }
+.kpi h3{ font-size:12px !important; font-weight:700 !important; }
+.card h3{ font-size:14px !important; font-weight:700 !important; }
+/* números: sempre Bold (700), nunca extrabold/black */
+.value,.num,.count,.metric strong,.kpi strong,.donut .num,.kpi .value{ font-weight:700 !important; }
+/* botões: fonte uniforme */
+.btn,.pill{ font-size:13px !important; font-weight:700 !important; }
+/* cantos: meio-termo (menos arredondado, diferença notável) */
+:root{ --radius:10px; }
+.panel,.kpi,.card,.alert-cell,.fstage,.fcard,.kbody,.fcol-body,.metric,.rule,.ph-card,.table-wrap table,table,.support{ border-radius:10px !important; }
+.nav-item,.btn,.pill,select,input,.search,.chip2,.kpi-icon,.card-icon,.r-ico,.ai,.logo,.fi,.ph-ico,.fst-ic,.kpi-ic,.alc-ic,.ins-ic{ border-radius:8px !important; }
 
 /* cor padrão da sidebar (tom enviado pelo Jhonattan = v1 #061629, navy chapado) */
 .sidebar{ background:#061629 !important; }
