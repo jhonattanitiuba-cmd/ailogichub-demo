@@ -97,6 +97,8 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
 .hub-rise{ opacity:0; animation:hubRise .55s cubic-bezier(.22,.61,.36,1) forwards; }
 /* navegação fluida: sem pulinho; só uma leve escala no item, suave */
 .nav-item{ transition:transform .2s cubic-bezier(.22,.61,.36,1), background .15s ease, box-shadow .15s ease; transform-origin:left center; }
+.nav-item{ white-space:nowrap; }
+.nav-label{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .nav-item:hover{ background:rgba(255,255,255,.06); }
 .nav-item:hover:not(.active){ transform:translateX(2px); }
 .nav-item.active{ transform:scale(1.03); }

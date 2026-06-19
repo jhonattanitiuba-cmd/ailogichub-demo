@@ -134,15 +134,16 @@
     if(!list.length){G('imv-ger').innerHTML='<div style="padding:40px;text-align:center;color:var(--gray500)">Nenhum imóvel para este filtro.</div>';return;}
     G('imv-ger').innerHTML='<div class="imv-grid">'+list.map(function(p){
       var foto=p.foto||'';var imob=imobMap[p.imobiliaria_id]||'';
-      return '<div class="imv-card"><div class="imv-pw">'+(foto?'<div class="imv-photo" style="background-image:url("'+foto+'")"></div>':'<div class="imv-photo" style="background:#dde6f2"></div>')
+      return '<div class="imv-card"><div class="imv-pw">'+(foto?'<div class="imv-photo" style="background-image:url('+foto+')"></div>':'<div class="imv-photo" style="background:#dde6f2"></div>')
         +'<span class="imv-tag" style="left:10px;background:rgba(22,165,111,.92)">'+esc(p.status||'Disponível')+'</span><span class="imv-tag" style="right:10px;background:rgba(6,22,41,.88)">'+esc(p.finalidade||'Venda')+'</span></div>'
         +'<div class="imv-body"><div style="font-weight:700;font-size:15px;color:#172554">'+esc(p.titulo)+'</div>'
         +'<div style="font-size:11.5px;color:var(--gray500);margin-top:2px">'+esc(p.tipo||'')+' · '+esc(p.bairro||'')+' · '+esc(p.cidade||'')+'</div>'
         +'<div style="font-weight:800;font-size:19px;margin:8px 0;color:#0a1f3c">'+money(p.preco)+'</div>'
         +'<div style="font-size:12px;color:var(--gray700)">'+esc(specs(p))+'</div>'
         +(imob?'<div style="font-size:11px;color:var(--gray500);margin-top:8px">'+esc(imob)+'</div>':'')
-        +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost imv-edit" data-id="'+p.id+'" style="flex:1;height:34px">Editar</button><button class="btn imv-del" data-id="'+p.id+'" style="height:34px;color:var(--red);border-color:var(--red)">Excluir</button></div></div></div>';
+        +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost imv-edit" data-id="'+p.id+'" style="flex:1;height:36px;font-size:12px">Editar</button><button class="btn imv-del" data-id="'+p.id+'" style="flex:1;height:36px;font-size:12px;color:var(--red);border-color:var(--red)">Excluir</button></div></div></div>';
     }).join('')+'</div>';
+    [].forEach.call(G('imv-ger').querySelectorAll('.imv-card'),function(el,i){el.style.animation='hubRise .45s both';el.style.animationDelay=(i*45)+'ms';});
     [].forEach.call(G('imv-ger').querySelectorAll('.imv-del'),function(b){b.addEventListener('click',function(){ if(!confirm('Excluir este imóvel?'))return; fetch(DATA+'?ent=imoveis&action=delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:b.getAttribute('data-id')})}).then(function(){load();}); });});
     [].forEach.call(G('imv-ger').querySelectorAll('.imv-edit'),function(b){b.addEventListener('click',function(){ alert('Edição completa em breve. Use a Visão do Cliente para visualizar.'); });});
   }
@@ -151,7 +152,7 @@
     if(!ttList.length){G('imv-cli').innerHTML='<div style="padding:40px;text-align:center;color:var(--gray500)">Nenhum imóvel para este filtro.</div>';clearInterval(ttTimer);return;}
     var cidades=[];imoveis.forEach(function(p){if(p.cidade&&cidades.indexOf(p.cidade)<0)cidades.push(p.cidade);});
     var slides=ttList.map(function(p,i){var foto=p.foto||'';var imob=imobMap[p.imobiliaria_id]||'';var lk=nLikes(p.codigo)+(liked[p.id]?1:0);
-      return '<div class="tt-slide" style="top:'+(i*100)+'%">'+(foto?'<div class="tt-zoom" style="background-image:url("'+foto+'")"></div>':'<div class="tt-zoom" style="background:#1a2a44"></div>')+'<div class="tt-grad"></div>'
+      return '<div class="tt-slide" style="top:'+(i*100)+'%">'+(foto?'<div class="tt-zoom" style="background-image:url('+foto+')"></div>':'<div class="tt-zoom" style="background:#1a2a44"></div>')+'<div class="tt-grad"></div>'
         +'<div class="tt-info"><div style="margin-bottom:8px"><span class="imv-tag" style="position:static;background:rgba(22,165,111,.95);margin-right:6px">'+esc(p.status||'Disponível')+'</span><span class="imv-tag" style="position:static;background:rgba(255,255,255,.18)">'+esc(p.finalidade||'Venda')+'</span></div>'
         +'<div style="font-size:13px;opacity:.85;display:flex;align-items:center;gap:6px">'+sv(IC.bed)+' '+esc(p.tipo||'Imóvel')+'</div>'
         +'<h2 style="font-size:30px;font-weight:800;margin:6px 0 2px;line-height:1.1">'+esc(p.titulo)+'</h2>'
