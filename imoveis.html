@@ -1,153 +1,80 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script><script>document.documentElement.classList.add("hub-pre");setTimeout(function(){document.documentElement.classList.remove("hub-pre")},4000);</script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AiLogic Hub · Gestão de Imóveis</title>
-  <style>
-    :root{
-      --navy:#061936; --navy2:#09224b; --blue:#0b66ff; --blue2:#eaf2ff;
-      --green:#16a56f; --green2:#eafaf3; --orange:#f59e0b; --orange2:#fff7e6;
-      --red:#e94242; --red2:#fff0f0; --purple:#7257ff; --purple2:#f1efff;
-      --gray900:#0f172a; --gray700:#334155; --gray500:#64748b; --gray300:#d9e2ef;
-      --gray200:#edf2f7; --gray100:#f7f9fc; --white:#fff;
-      --shadow:0 14px 34px rgba(15,23,42,.08); --soft:0 8px 22px rgba(15,23,42,.055);
-      --radius:18px; --font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-    }
-
-    *{box-sizing:border-box}
-    body{margin:0;font-family:var(--font);background:#f6f9fd;color:var(--gray900)}
-    .app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
-
-    .sidebar{background:linear-gradient(180deg,#071b3a,#031126);color:#dce8ff;padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto}
-    .brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}
-    .logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
-    .brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#a8c2ee;font-size:12px;margin-top:3px}
-    .section-title{font-size:11px;color:#7da2d6;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:24px 10px 10px}
-    .nav-item{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:13px;color:#c8d8f4;font-weight:650;font-size:14px;margin:4px 0;text-decoration:none}
-    .nav-item.active{background:linear-gradient(135deg,#0a66ff,#0851cc);color:#fff;box-shadow:0 10px 28px rgba(11,102,255,.28)}
-    .ico{width:21px;text-align:center}
-    .support{margin-top:34px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);border-radius:16px;padding:15px;display:flex;gap:12px;align-items:center}
-    .support small{color:#9bb7e3;display:block;margin-top:2px}
-    .profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0}
-    .avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:white;display:grid;place-items:center;font-weight:800}
-    .profile strong{color:white;font-size:13px;display:block}.profile span{color:#9bb7e3;font-size:11px}
-
-    .main{padding:22px 26px 36px;overflow:hidden}
-    .header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}
-    .headline h1{margin:0;font-size:28px;letter-spacing:-.03em}.headline p{margin:7px 0 0;color:var(--gray500);font-size:14px}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-    .pill,.btn,select,input{border:1px solid var(--gray300);background:#fff;border-radius:12px;height:42px;padding:0 14px;font:inherit;color:var(--gray700);outline:none}
-    .pill{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;white-space:nowrap;box-shadow:var(--soft)}
-    .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(22,165,111,.12)}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-weight:850;color:var(--navy);box-shadow:var(--soft)}
-    .btn.primary{background:linear-gradient(135deg,#082653,#061936);border-color:#061936;color:white}
-    .btn.blue{background:linear-gradient(135deg,#0b66ff,#074cd1);border-color:#0b66ff;color:white}
-    .btn.ghost{box-shadow:none;background:#fbfdff}.btn.danger{color:var(--red);background:#fff;border-color:#ffd8d8}
-
-    .kpis{display:grid;grid-template-columns:repeat(6,minmax(145px,1fr));gap:14px;margin:18px 0}
-    .kpi{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);padding:16px 17px;box-shadow:var(--soft);min-height:112px}
-    .kpi-top{display:flex;justify-content:space-between;gap:8px}.kpi h3{margin:0;color:#1d2b4f;font-size:12px}
-    .kpi .value{margin:8px 0 4px;font-size:25px;font-weight:950;letter-spacing:-.04em}
-    .trend{font-size:11px;color:var(--green);font-weight:850}.trend.red{color:var(--red)}.trend.orange{color:#b86b00}
-    .kpi-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950}
-
-    .panel{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-    .panel-head{padding:15px 16px;border-bottom:1px solid var(--gray200);display:flex;justify-content:space-between;align-items:center;gap:12px}
-    .panel-head h2,.panel-head h3{margin:0;font-size:16px;letter-spacing:-.02em}.panel-head small{display:block;margin-top:3px;color:var(--gray500);font-size:12px}
-
-    .layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
-    .badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:950;white-space:nowrap}
-    .badge.green{background:var(--green2);color:var(--green)}.badge.blue{background:var(--blue2);color:var(--blue)}
-    .badge.orange{background:var(--orange2);color:#b86b00}.badge.red{background:var(--red2);color:var(--red)}
-    .badge.purple{background:var(--purple2);color:var(--purple)}.badge.gray{background:#eef2f7;color:var(--gray700)}
-
-    .toolbar{display:flex;flex-wrap:wrap;gap:10px;padding:14px 16px;border-bottom:1px solid var(--gray200);align-items:center;background:#fbfdff}
-    .tabs{display:flex;gap:6px;overflow:auto}
-    .tabs button{border:0;background:#edf3fb;color:var(--gray700);border-radius:999px;padding:9px 11px;font-weight:850;font-size:12px;cursor:pointer;white-space:nowrap}
-    .tabs button.active{background:var(--navy);color:#fff}
-    .search{min-width:320px;flex:1;height:40px}.toolbar select{height:40px;font-size:12px;min-width:135px}
-
-    .subtoolbar{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--gray200)}
-    .view-toggle{display:flex;gap:6px;background:#eef3fb;padding:4px;border-radius:13px}
-    .view-toggle button{border:0;background:transparent;padding:8px 10px;border-radius:10px;font-weight:850;color:var(--gray700);cursor:pointer}
-    .view-toggle button.active{background:#fff;color:var(--blue);box-shadow:var(--soft)}
-    .bulk{display:flex;gap:8px;flex-wrap:wrap}
-
-    .property-grid{display:grid;grid-template-columns:repeat(3,minmax(260px,1fr));gap:14px;padding:16px;background:#fff}
-    .property-card{border:1px solid var(--gray200);border-radius:20px;overflow:hidden;background:#fff;box-shadow:var(--soft);display:flex;flex-direction:column;min-height:500px}
-    .photo{height:168px;position:relative;overflow:hidden;background:linear-gradient(135deg,#d7e7ff,#f4f7fb)}
-    .photo svg{width:100%;height:100%;display:block}
-    .photo-badges{position:absolute;inset:12px;display:flex;justify-content:space-between;align-items:flex-start}
-    .photo-actions{display:flex;gap:7px}
-    .round{width:32px;height:32px;border:0;border-radius:999px;background:rgba(255,255,255,.92);box-shadow:var(--soft);cursor:pointer;color:#172554;font-weight:900}
-    .card-body{padding:14px;display:flex;flex-direction:column;gap:12px;flex:1}
-    .title-line{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-    .title-line h3{margin:0;color:#172554;font-size:16px;letter-spacing:-.02em;line-height:1.25}
-    .code{color:var(--gray500);font-size:11px;font-weight:850}
-    .address{margin:4px 0 0;color:var(--gray500);font-size:12px}
-    .price{font-size:24px;font-weight:950;letter-spacing:-.04em;color:#0f172a}
-    .specs{display:flex;gap:7px;flex-wrap:wrap}
-    .spec{background:#f8fbff;border:1px solid var(--gray200);border-radius:999px;padding:6px 8px;font-size:11px;font-weight:850;color:#334155}
-    .agency-row{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid var(--gray200);border-bottom:1px solid var(--gray200);padding:10px 0}
-    .agency{display:flex;gap:9px;align-items:center}
-    .agency-logo{width:34px;height:34px;border-radius:11px;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:900;font-size:12px}
-    .agency strong{display:block;font-size:12px;color:#172554}.agency span{display:block;color:var(--gray500);font-size:10px;margin-top:2px}
-    .quality{display:grid;gap:7px}
-    .quality-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#334155;font-weight:800}
-    .bar{height:7px;border-radius:999px;background:#eef2f7;overflow:hidden}.bar b{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#0b66ff,#16a56f)}
-    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-    .metric{background:#fbfdff;border:1px solid var(--gray200);border-radius:14px;padding:8px;text-align:center}
-    .metric strong{display:block;font-size:14px;color:#172554}.metric span{display:block;color:var(--gray500);font-size:10px;margin-top:3px}
-    .social-preview{border:1px solid #e7eef8;border-radius:16px;background:linear-gradient(180deg,#fff,#fbfdff);padding:10px}
-    .social-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    .social-top strong{font-size:11px;color:#172554}.social-top span{font-size:10px;color:var(--gray500)}
-    .social-text{font-size:11px;line-height:1.35;color:#334155;margin:0}
-    .channels{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-    .channel{font-size:10px;font-weight:900;border-radius:999px;padding:5px 7px;background:#eef2ff;color:#334155}
-    .card-actions{display:flex;gap:8px;margin-top:auto}
-    .card-actions .btn{height:38px;flex:1;font-size:12px;box-shadow:none}
-
-    .right-stack{display:grid;gap:14px}
-    .side-list{padding:10px 14px 14px;display:grid;gap:8px}
-    .side-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #eef3f9}
-    .side-row:last-child{border-bottom:0}.side-row strong{display:block;color:#172554;font-size:12px}
-    .side-row span{display:block;color:var(--gray500);font-size:11px;margin-top:2px}
-    .count{font-weight:950;min-width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:#f1f5f9;color:var(--gray700);font-size:12px}
-    .count.red{background:var(--red2);color:var(--red)}.count.orange{background:var(--orange2);color:#b86b00}.count.green{background:var(--green2);color:var(--green)}.count.blue{background:var(--blue2);color:var(--blue)}
-    .insight{padding:13px 14px;border-bottom:1px solid #eef3f9}.insight:last-child{border-bottom:0}
-    .insight strong{display:block;color:#172554;font-size:12px}.insight p{margin:5px 0 0;color:var(--gray500);font-size:11px;line-height:1.45}
-    .score-card{padding:15px 16px;display:grid;gap:12px}
-    .score-main{display:flex;align-items:center;gap:14px}
-    .score-circle{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) 0 78%, #edf2f7 78% 100%);position:relative;font-weight:950;color:#064e3b}
-    .score-circle:before{content:"";position:absolute;width:52px;height:52px;border-radius:50%;background:#fff}.score-circle span{position:relative}
-    .timeline{padding:10px 14px 14px;display:grid;gap:9px}
-    .timeline-item{border-left:3px solid var(--blue);padding:2px 0 2px 10px}.timeline-item strong{font-size:12px;display:block;color:#172554}.timeline-item span{font-size:11px;color:var(--gray500);display:block;margin-top:3px;line-height:1.35}
-
-    .detail-drawer{margin-top:14px;background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--soft);overflow:hidden}
-    .detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--gray200)}
-    .detail-item{padding:13px 14px;border-right:1px solid var(--gray200)}
-    .detail-item:last-child{border-right:0}.detail-item label{display:block;color:var(--gray500);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
-    .detail-item strong{display:block;color:#172554;font-size:12px}.detail-item span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
-
-    .modal{position:fixed;inset:0;background:rgba(3,17,38,.5);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}
-    .modal.open{display:flex}.modal-card{background:#fff;width:min(760px,100%);border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.25);overflow:hidden}
-    .modal-head{padding:20px 22px;border-bottom:1px solid var(--gray200);display:flex;justify-content:space-between;gap:18px}
-    .modal-head h2{margin:0;font-size:20px}.close{border:0;background:#f1f5f9;width:36px;height:36px;border-radius:12px;cursor:pointer;font-size:18px;font-weight:900;color:var(--gray700)}
-    .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:18px 22px 22px}.field label{display:block;font-size:12px;font-weight:850;color:#172554;margin-bottom:6px}
-    .field input,.field select{width:100%;height:42px;box-shadow:none}.field.full{grid-column:1/-1}.field textarea{width:100%;min-height:90px;border:1px solid var(--gray300);border-radius:12px;padding:12px 14px;font:inherit;outline:none;resize:vertical}
-    .modal-actions{display:flex;justify-content:flex-end;gap:10px;padding:0 22px 22px}
-
-    @media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.property-grid{grid-template-columns:repeat(2,minmax(260px,1fr))}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.property-grid{grid-template-columns:1fr}.right-stack{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}}
-    @media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.right-stack,.detail-grid,.form-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
-  </style>
+<!DOCTYPE html><html lang="pt-BR"><head><script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script><script>document.documentElement.classList.add("hub-pre");setTimeout(function(){document.documentElement.classList.remove("hub-pre")},4000);</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AiLogic Hub · Imóveis</title>
+<style>
+:root{
+  --navy:#061936;--blue:#0b66ff;--blue2:#eaf2ff;--green:#16a56f;--green2:#eafaf3;
+  --orange:#f59e0b;--orange2:#fff7e6;--red:#e94242;--red2:#fff0f0;--purple:#7257ff;--purple2:#f1efff;
+  --cyan:#0ea5e9;--cyan2:#ecfeff;--gray900:#0f172a;--gray700:#334155;--gray500:#64748b;
+  --gray300:#d9e2ef;--gray200:#edf2f7;--white:#fff;--shadow:0 14px 34px rgba(15,23,42,.08);
+  --soft:0 8px 22px rgba(15,23,42,.055);--radius:18px;--font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box} body{margin:0;font-family:var(--font);background:#f6f9fd;color:var(--gray900)}
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+.sidebar{background:linear-gradient(180deg,#071b3a,#031126);color:#dce8ff;padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}.logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
+.brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#a8c2ee;font-size:12px;margin-top:3px}
+.section-title{font-size:11px;color:#7da2d6;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:24px 10px 10px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:13px;color:#c8d8f4;font-weight:650;font-size:14px;margin:4px 0;text-decoration:none}
+.nav-item.active{background:linear-gradient(135deg,#0a66ff,#0851cc);color:#fff;box-shadow:0 10px 28px rgba(11,102,255,.28)}.ico{width:22px;text-align:center}
+.support{margin-top:34px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);border-radius:16px;padding:15px;display:flex;gap:12px;align-items:center}.support small{color:#9bb7e3;display:block;margin-top:2px}
+.profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0}.avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:white;display:grid;place-items:center;font-weight:800}.profile strong{color:white;font-size:13px;display:block}.profile span{color:#9bb7e3;font-size:11px}
+.main{padding:22px 26px 36px;overflow:hidden}.header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}.headline h1{margin:0;font-size:28px;letter-spacing:-.03em}.headline p{margin:7px 0 0;color:var(--gray500);font-size:14px;max-width:950px;line-height:1.45}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.pill,.btn,select,input{border:1px solid var(--gray300);background:#fff;border-radius:12px;height:42px;padding:0 14px;font:inherit;color:var(--gray700);outline:none}.pill{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;white-space:nowrap;box-shadow:var(--soft)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(22,165,111,.12)}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-weight:850;color:var(--navy);box-shadow:var(--soft)}.btn.primary{background:linear-gradient(135deg,#082653,#061936);border-color:#061936;color:white}.btn.blue{background:linear-gradient(135deg,#0b66ff,#074cd1);border-color:#0b66ff;color:white}.btn.ghost{box-shadow:none;background:#fbfdff}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(145px,1fr));gap:14px;margin:18px 0}.kpi{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);padding:16px 17px;box-shadow:var(--soft);min-height:112px}.kpi-top{display:flex;justify-content:space-between;gap:8px}.kpi h3{margin:0;color:#1d2b4f;font-size:12px}.kpi .value{margin:8px 0 4px;font-size:25px;font-weight:950;letter-spacing:-.04em}.trend{font-size:11px;color:var(--green);font-weight:850}.trend.red{color:var(--red)}.trend.orange{color:#b86b00}.kpi-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950}
+.panel{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.panel-head{padding:15px 16px;border-bottom:1px solid var(--gray200);display:flex;justify-content:space-between;align-items:center;gap:12px}.panel-head h2,.panel-head h3{margin:0;font-size:16px;letter-spacing:-.02em}.panel-head small{display:block;margin-top:3px;color:var(--gray500);font-size:12px}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:950;white-space:nowrap}.badge.green{background:var(--green2);color:var(--green)}.badge.blue{background:var(--blue2);color:var(--blue)}.badge.orange{background:var(--orange2);color:#b86b00}.badge.red{background:var(--red2);color:var(--red)}.badge.purple{background:var(--purple2);color:var(--purple)}.badge.cyan{background:var(--cyan2);color:var(--cyan)}.badge.gray{background:#eef2f7;color:var(--gray700)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;align-items:start}.right-stack{display:grid;gap:14px}.toolbar{display:flex;flex-wrap:wrap;gap:10px;padding:14px 16px;border-bottom:1px solid var(--gray200);align-items:center;background:#fbfdff}.tabs{display:flex;gap:6px;overflow:auto}.tabs button{border:0;background:#edf3fb;color:var(--gray700);border-radius:999px;padding:9px 11px;font-weight:850;font-size:12px;cursor:pointer;white-space:nowrap}.tabs button.active{background:var(--navy);color:#fff}.search{min-width:320px;flex:1;height:40px}.toolbar select{height:40px;font-size:12px;min-width:135px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(250px,1fr));gap:14px;padding:16px}.card{border:1px solid var(--gray200);border-radius:18px;background:#fff;padding:14px;box-shadow:var(--soft)}.card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}.card h3{margin:0;color:#172554;font-size:15px;line-height:1.25}.card p{margin:5px 0 0;color:var(--gray500);font-size:12px;line-height:1.45}.card-icon{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;flex:0 0 auto}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.metric{background:#fbfdff;border:1px solid var(--gray200);border-radius:13px;padding:8px;text-align:center}.metric strong{display:block;color:#172554;font-size:14px}.metric span{display:block;color:var(--gray500);font-size:10px;margin-top:3px}
+.table-wrap{padding:0 16px 16px;overflow:auto}table{border-collapse:separate;border-spacing:0;width:100%;min-width:880px;background:#fff;border:1px solid var(--gray200);border-radius:16px;overflow:hidden}th,td{padding:12px 13px;border-bottom:1px solid #eef3f9;text-align:left;font-size:12px;vertical-align:middle}th{color:#475569;background:#fbfdff;font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:900}tr:last-child td{border-bottom:0}tr:hover td{background:#fbfdff}
+.side-list{padding:10px 14px 14px;display:grid;gap:8px}.side-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #eef3f9}.side-row:last-child{border-bottom:0}.side-row strong{display:block;color:#172554;font-size:12px}.side-row span{display:block;color:var(--gray500);font-size:11px;margin-top:2px;line-height:1.35}
+.count{font-weight:950;min-width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:#f1f5f9;color:var(--gray700);font-size:12px}.count.red{background:var(--red2);color:var(--red)}.count.orange{background:var(--orange2);color:#b86b00}.count.green{background:var(--green2);color:var(--green)}.count.blue{background:var(--blue2);color:var(--blue)}
+.rules{display:grid;gap:8px;padding:14px}.rule{display:flex;gap:10px;border:1px solid var(--gray200);border-radius:14px;background:#fbfdff;padding:10px}.rule .r-ico{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;flex:0 0 auto}.rule strong{display:block;color:#172554;font-size:12px}.rule span{display:block;color:var(--gray500);font-size:11px;margin-top:3px;line-height:1.35}
+.timeline{padding:10px 14px 14px;display:grid;gap:9px}.timeline-item{border-left:3px solid var(--blue);padding:2px 0 2px 10px}.timeline-item.red{border-left-color:var(--red)}.timeline-item.orange{border-left-color:var(--orange)}.timeline-item.green{border-left-color:var(--green)}.timeline-item strong{font-size:12px;display:block;color:#172554}.timeline-item span{font-size:11px;color:var(--gray500);display:block;margin-top:3px;line-height:1.35}
+.detail{margin-top:14px}.detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--gray200)}.detail-item{padding:13px 14px;border-right:1px solid var(--gray200)}.detail-item:last-child{border-right:0}.detail-item label{display:block;color:var(--gray500);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}.detail-item strong{display:block;color:#172554;font-size:12px}.detail-item span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
+@media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,minmax(250px,1fr))}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(3,1fr)}}@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.right-stack{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}}@media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.grid,.right-stack,.detail-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
+</style>
+<style>
+.seg{display:inline-flex;background:#edf2f7;border:1px solid var(--gray200);border-radius:10px;padding:3px;gap:3px}
+.seg-btn{border:0;background:transparent;color:var(--gray700);font:inherit;font-weight:700;font-size:12px;padding:8px 14px;border-radius:8px;cursor:pointer;transition:all .15s}
+.seg-btn.on{background:#061629;color:#fff}
+.imv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.imv-card{background:#fff;border:1px solid var(--gray200);border-radius:14px;overflow:hidden;box-shadow:var(--soft);transition:transform .18s,box-shadow .18s}
+.imv-card:hover{transform:translateY(-4px);box-shadow:0 18px 42px rgba(15,23,42,.16)}
+.imv-pw{height:182px;overflow:hidden;position:relative}
+.imv-photo{height:100%;background-size:cover;background-position:center;transition:transform .35s}
+.imv-card:hover .imv-photo{transform:scale(1.06)}
+.imv-tag{position:absolute;top:10px;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:800;color:#fff;backdrop-filter:blur(4px)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 16px}
+.fchip2{border:1px solid var(--gray300);background:#fff;border-radius:999px;padding:7px 13px;font-weight:700;font-size:12px;cursor:pointer;transition:all .15s;color:var(--gray700)}
+.fchip2.on{background:#061629;color:#fff;border-color:#061629}
+.fchip2:hover{transform:scale(1.05)}
+.tt{position:relative;height:calc(100vh - 168px);min-height:520px;border-radius:20px;overflow:hidden;background:#0a0a0a;box-shadow:var(--shadow)}
+.tt-strip{position:absolute;inset:0;transition:transform .6s cubic-bezier(.22,.61,.36,1)}
+.tt-slide{position:absolute;left:0;width:100%;height:100%;overflow:hidden}
+.tt-zoom{position:absolute;inset:-4%;background-size:cover;background-position:center;animation:ttZoom 13s ease-in-out infinite alternate}
+@keyframes ttZoom{from{transform:scale(1.02)}to{transform:scale(1.14)}}
+.tt-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.15) 50%,rgba(0,0,0,.4) 100%)}
+.tt-info{position:absolute;left:0;right:78px;bottom:0;padding:28px;color:#fff;z-index:2}
+.tt-rail{position:absolute;right:16px;bottom:34px;display:flex;flex-direction:column;gap:18px;z-index:4;align-items:center}
+.tt-act{display:flex;flex-direction:column;align-items:center;gap:4px;color:#fff;cursor:pointer;font-size:11px;font-weight:700}
+.tt-act .ic{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.16);display:grid;place-items:center;transition:transform .15s,background .15s}
+.tt-act:hover .ic{transform:scale(1.14);background:rgba(255,255,255,.28)}
+.tt-act.on .ic{background:#fff}
+.tt-act.on.like .ic{color:#ff3b5c}
+.tt-price{display:inline-block;border:1.5px solid rgba(255,255,255,.55);border-radius:12px;padding:8px 16px;font-size:26px;font-weight:800;margin:8px 0}
+.tt-specs{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px}
+.tt-spec{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600}
+.tt-spec b{font-size:16px}
+.tt-top{position:absolute;top:0;left:0;right:0;z-index:5;padding:16px 18px;display:flex;gap:8px;flex-wrap:wrap;background:linear-gradient(to bottom,rgba(0,0,0,.5),transparent)}
+.tt-cf{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.tt-cf.on{background:#fff;color:#0a1f3c}
+.tt-prog{position:absolute;left:0;top:0;height:3px;background:#fff;z-index:6;transition:width .2s linear}
+@media(max-width:860px){.imv-grid{grid-template-columns:1fr 1fr}.tt{height:calc(100vh - 120px)}.tt-info{right:66px;padding:18px}.tt-price{font-size:22px}}
+@media(max-width:560px){.imv-grid{grid-template-columns:1fr}}
+</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="hub.css">
-</head>
-<body>
-  <div class="app">
-    <aside class="sidebar">
+</head><body><div class="app"><aside class="sidebar">
   <div class="brand"><div class="logo">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
   <div class="section-title">Operação</div>
   <a class="nav-item" href="visaogeral"><span class="ico">⌂</span>Visão Geral</a>
@@ -180,316 +107,88 @@
   <div class="support"><div class="ico">☏</div><div><strong>Suporte</strong><small>Central de Ajuda</small></div></div>
   <div class="profile"><div class="avatar">AF</div><div><strong>Alessandro Ferreira</strong><span>Diretoria · Admin do Hub</span></div></div>
 </aside>
-
-    <main class="main">
-      <header class="header">
-        <div class="headline">
-          <h1>Imóveis</h1>
-          <p>Catálogo cross-imobiliária para gestão interna do Hub: qualidade dos anúncios, canais, leads, exposição e disponibilidade.</p>
-        </div>
-        <div class="actions">
-          <div class="pill"><span class="dot"></span>Sistema ativo · 6 imobiliárias</div>
-          <button class="btn" onclick="openModal()">Importar imóveis</button>
-          <button class="btn primary" onclick="openModal()">＋ Cadastrar imóvel</button>
-        </div>
-      </header>
-
-      <section class="kpis">
-        <article class="kpi"><div class="kpi-top"><div><h3>Imóveis ativos</h3><div class="value">1.066</div><div class="trend">↑ 12% vs. mês anterior</div></div><div class="kpi-icon">⌂</div></div></article>
-        <article class="kpi"><div class="kpi-top"><div><h3>Prontos para campanha</h3><div class="value">684</div><div class="trend">score acima de 80</div></div><div class="kpi-icon">↗</div></div></article>
-        <article class="kpi"><div class="kpi-top"><div><h3>Com pendência</h3><div class="value">112</div><div class="trend orange">foto, preço ou descrição</div></div><div class="kpi-icon">!</div></div></article>
-        <article class="kpi"><div class="kpi-top"><div><h3>Valor em carteira</h3><div class="value">R$ 734M</div><div class="trend">comissão potencial estimada</div></div><div class="kpi-icon">$</div></div></article>
-        <article class="kpi"><div class="kpi-top"><div><h3>Leads gerados</h3><div class="value">325</div><div class="trend">no mês atual</div></div><div class="kpi-icon">♙</div></div></article>
-        <article class="kpi"><div class="kpi-top"><div><h3>Score médio</h3><div class="value">78%</div><div class="trend orange">melhorar base visual</div></div><div class="kpi-icon">✓</div></div></article>
-      </section>
-
-      <section class="layout">
-        <div>
-          <section class="panel">
-            <div class="panel-head">
-              <div>
-                <h2>Catálogo de Imóveis · Gestão do Hub</h2>
-                <small>Controle interno dos imóveis cadastrados, com visão de rede social, qualidade comercial e prontidão para divulgação.</small>
-              </div>
-              <button class="btn blue" onclick="openModal()">Gerar descrição com IA</button>
-            </div>
-
-            <div class="toolbar">
-              <div class="tabs">
-                <button class="active">Todos 1.066</button>
-                <button>Venda 820</button>
-                <button>Locação 246</button>
-                <button>Alto padrão 184</button>
-                <button>Pendentes 112</button>
-                <button>Impulsionados 38</button>
-              </div>
-              <input class="search" type="search" placeholder="Buscar por imóvel, código, região, imobiliária, corretor ou status..." />
-              <select><option>Todas as imobiliárias</option><option>Cirag Boutique</option><option>OMA Imóveis</option><option>Lopes Imóveis</option><option>Lello Imóveis</option><option>Brava Company</option></select>
-              <select><option>Todas as regiões</option><option>Jardins</option><option>Paulista</option><option>Moema</option><option>Pinheiros</option><option>Vila Mariana</option></select>
-              <select><option>Todos os status</option><option>Disponível</option><option>Reservado</option><option>Vendido</option><option>Pendente</option></select>
-            </div>
-
-            <div class="subtoolbar">
-              <div class="bulk">
-                <button class="btn ghost">Selecionar</button>
-                <button class="btn ghost">Publicar selecionados</button>
-                <button class="btn ghost">Auditar qualidade</button>
-                <button class="btn ghost">Exportar</button>
-              </div>
-              <div class="view-toggle">
-                <button class="active">Cards gestão</button>
-                <button>Tabela</button>
-                <button>Feed preview</button>
-                <button>Mapa</button>
-              </div>
-            </div>
-
-            <div class="property-grid">
-              <article class="property-card" onclick="selectProperty('Casa Alto Padrão · Cerqueira César','Brava Company','Cód. 43214','R$ 3.980.000','92%','18 leads','Pronto para campanha','Venda','Disponível')">
-                <div class="photo">
-                  <svg viewBox="0 0 800 360" preserveAspectRatio="none">
-                    <defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#0f2d57"/><stop offset="1" stop-color="#c9dcff"/></linearGradient></defs>
-                    <rect width="800" height="360" fill="url(#g1)"/><rect x="130" y="120" width="290" height="170" rx="12" fill="#f8fafc"/><rect x="420" y="75" width="210" height="215" rx="10" fill="#dbeafe"/><rect x="180" y="165" width="70" height="95" fill="#0f172a"/><rect x="475" y="115" width="95" height="85" fill="#1e3a8a"/><circle cx="95" cy="255" r="50" fill="#14532d"/><rect y="290" width="800" height="70" fill="#1e293b" opacity=".45"/></svg>
-                  <div class="photo-badges"><span class="badge green">Disponível</span><div class="photo-actions"><button class="round">★</button><button class="round">⋯</button></div></div>
-                </div>
-                <div class="card-body">
-                  <div class="title-line"><div><h3>Casa Alto Padrão · Cerqueira César</h3><p class="address">Casa · Cerqueira César · São Paulo/SP</p></div><span class="badge blue">Venda</span></div>
-                  <div class="price">R$ 3.980.000</div>
-                  <div class="specs"><span class="spec">3 dorm</span><span class="spec">2 suítes</span><span class="spec">2 vagas</span><span class="spec">600 m²</span></div>
-                  <div class="agency-row"><div class="agency"><div class="agency-logo">BC</div><div><strong>Brava Company</strong><span>Cód. 43214 · Alto padrão</span></div></div><span class="badge green">Completo</span></div>
-                  <div class="quality"><div class="quality-row"><span>Score de anúncio</span><strong>92%</strong></div><div class="bar"><b style="width:92%"></b></div></div>
-                  <div class="metrics"><div class="metric"><strong>18</strong><span>Leads</span></div><div class="metric"><strong>4</strong><span>Visitas</span></div><div class="metric"><strong>2</strong><span>Propostas</span></div><div class="metric"><strong>R$119k</strong><span>Comissão</span></div></div>
-                  <div class="social-preview"><div class="social-top"><strong>Preview tipo rede social</strong><span>Feed / Reels / Hub</span></div><p class="social-text">Casa contemporânea com estética premium, ambientes amplos e localização estratégica para público de alto padrão.</p><div class="channels"><span class="channel">Instagram</span><span class="channel">TikTok</span><span class="channel">Google</span><span class="channel">Portal</span></div></div>
-                  <div class="card-actions"><button class="btn blue">Ver gestão</button><button class="btn ghost">Editar</button><button class="btn ghost">Impulsionar</button></div>
-                </div>
-              </article>
-
-              <article class="property-card" onclick="selectProperty('Apartamento Boutique · Jardins','Cirag Boutique','Cód. 28771','R$ 1.420.000','84%','26 leads','Ajustar descrição','Venda','Disponível')">
-                <div class="photo">
-                  <svg viewBox="0 0 800 360" preserveAspectRatio="none">
-                    <defs><linearGradient id="g2" x1="0" x2="1"><stop offset="0" stop-color="#e0f2fe"/><stop offset="1" stop-color="#334155"/></linearGradient></defs>
-                    <rect width="800" height="360" fill="url(#g2)"/><rect x="80" y="80" width="230" height="220" rx="18" fill="#f8fafc"/><rect x="335" y="55" width="260" height="245" rx="18" fill="#dbeafe"/><rect x="640" y="130" width="80" height="170" rx="10" fill="#94a3b8"/><rect x="125" y="125" width="135" height="85" rx="8" fill="#1e3a8a"/><rect x="395" y="105" width="135" height="110" rx="8" fill="#0f172a"/><rect y="288" width="800" height="72" fill="#0f172a" opacity=".25"/></svg>
-                  <div class="photo-badges"><span class="badge green">Disponível</span><div class="photo-actions"><button class="round">★</button><button class="round">⋯</button></div></div>
-                </div>
-                <div class="card-body">
-                  <div class="title-line"><div><h3>Apartamento Boutique · Jardins</h3><p class="address">Apartamento · Jardins · São Paulo/SP</p></div><span class="badge blue">Venda</span></div>
-                  <div class="price">R$ 1.420.000</div>
-                  <div class="specs"><span class="spec">2 dorm</span><span class="spec">1 suíte</span><span class="spec">2 vagas</span><span class="spec">118 m²</span></div>
-                  <div class="agency-row"><div class="agency"><div class="agency-logo">CI</div><div><strong>Cirag Boutique</strong><span>Cód. 28771 · Jardins</span></div></div><span class="badge orange">Revisar copy</span></div>
-                  <div class="quality"><div class="quality-row"><span>Score de anúncio</span><strong>84%</strong></div><div class="bar"><b style="width:84%"></b></div></div>
-                  <div class="metrics"><div class="metric"><strong>26</strong><span>Leads</span></div><div class="metric"><strong>6</strong><span>Visitas</span></div><div class="metric"><strong>3</strong><span>Propostas</span></div><div class="metric"><strong>R$42k</strong><span>Comissão</span></div></div>
-                  <div class="social-preview"><div class="social-top"><strong>Preview tipo rede social</strong><span>Carrossel limpo</span></div><p class="social-text">Um imóvel urbano, elegante e pronto para atrair interessados qualificados nos Jardins.</p><div class="channels"><span class="channel">Feed Hub</span><span class="channel">Instagram</span><span class="channel">WhatsApp</span></div></div>
-                  <div class="card-actions"><button class="btn blue">Ver gestão</button><button class="btn ghost">Editar</button><button class="btn ghost">Melhorar IA</button></div>
-                </div>
-              </article>
-
-              <article class="property-card" onclick="selectProperty('Studio Inteligente · Bela Vista','OMA Imóveis','Cód. 5566','R$ 480.000','67%','9 leads','Pendência visual','Venda','Pendente')">
-                <div class="photo">
-                  <svg viewBox="0 0 800 360" preserveAspectRatio="none">
-                    <defs><linearGradient id="g3" x1="0" x2="1"><stop offset="0" stop-color="#dbeafe"/><stop offset="1" stop-color="#fef3c7"/></linearGradient></defs>
-                    <rect width="800" height="360" fill="url(#g3)"/><rect x="190" y="80" width="420" height="220" rx="20" fill="#f8fafc"/><rect x="245" y="125" width="130" height="125" rx="12" fill="#1d4ed8"/><rect x="425" y="125" width="125" height="125" rx="12" fill="#94a3b8"/><rect y="295" width="800" height="65" fill="#334155" opacity=".18"/></svg>
-                  <div class="photo-badges"><span class="badge orange">Pendente</span><div class="photo-actions"><button class="round">★</button><button class="round">⋯</button></div></div>
-                </div>
-                <div class="card-body">
-                  <div class="title-line"><div><h3>Studio Inteligente · Bela Vista</h3><p class="address">Studio · Bela Vista · São Paulo/SP</p></div><span class="badge blue">Venda</span></div>
-                  <div class="price">R$ 480.000</div>
-                  <div class="specs"><span class="spec">1 dorm</span><span class="spec">0 suíte</span><span class="spec">1 vaga</span><span class="spec">42 m²</span></div>
-                  <div class="agency-row"><div class="agency"><div class="agency-logo">OI</div><div><strong>OMA Imóveis</strong><span>Cód. 5566 · Bela Vista</span></div></div><span class="badge red">Faltam fotos</span></div>
-                  <div class="quality"><div class="quality-row"><span>Score de anúncio</span><strong>67%</strong></div><div class="bar"><b style="width:67%"></b></div></div>
-                  <div class="metrics"><div class="metric"><strong>9</strong><span>Leads</span></div><div class="metric"><strong>1</strong><span>Visita</span></div><div class="metric"><strong>0</strong><span>Propostas</span></div><div class="metric"><strong>R$14k</strong><span>Comissão</span></div></div>
-                  <div class="social-preview"><div class="social-top"><strong>Preview tipo rede social</strong><span>Baixa força visual</span></div><p class="social-text">Antes de impulsionar, completar galeria, rever capa e reforçar diferenciais de localização.</p><div class="channels"><span class="channel">Não publicar</span><span class="channel">Revisar</span></div></div>
-                  <div class="card-actions"><button class="btn blue">Ver gestão</button><button class="btn ghost">Editar</button><button class="btn danger">Pendências</button></div>
-                </div>
-              </article>
-
-              <article class="property-card" onclick="selectProperty('Cobertura · Moema','Lopes Imóveis','Cód. 6123','R$ 2.850.000','89%','31 leads','Campanha ativa','Venda','Disponível')">
-                <div class="photo">
-                  <svg viewBox="0 0 800 360" preserveAspectRatio="none">
-                    <defs><linearGradient id="g4" x1="0" x2="1"><stop offset="0" stop-color="#bfdbfe"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs>
-                    <rect width="800" height="360" fill="url(#g4)"/><rect x="110" y="70" width="520" height="230" rx="20" fill="#f8fafc"/><rect x="155" y="120" width="160" height="120" rx="12" fill="#1e40af"/><rect x="360" y="120" width="215" height="120" rx="12" fill="#0f172a"/><circle cx="675" cy="240" r="48" fill="#14532d"/><rect y="292" width="800" height="68" fill="#0f172a" opacity=".35"/></svg>
-                  <div class="photo-badges"><span class="badge green">Disponível</span><div class="photo-actions"><button class="round">★</button><button class="round">⋯</button></div></div>
-                </div>
-                <div class="card-body">
-                  <div class="title-line"><div><h3>Cobertura · Moema</h3><p class="address">Cobertura · Moema · São Paulo/SP</p></div><span class="badge blue">Venda</span></div>
-                  <div class="price">R$ 2.850.000</div>
-                  <div class="specs"><span class="spec">4 dorm</span><span class="spec">3 suítes</span><span class="spec">4 vagas</span><span class="spec">280 m²</span></div>
-                  <div class="agency-row"><div class="agency"><div class="agency-logo">LP</div><div><strong>Lopes Imóveis</strong><span>Cód. 6123 · Moema</span></div></div><span class="badge green">Impulsionado</span></div>
-                  <div class="quality"><div class="quality-row"><span>Score de anúncio</span><strong>89%</strong></div><div class="bar"><b style="width:89%"></b></div></div>
-                  <div class="metrics"><div class="metric"><strong>31</strong><span>Leads</span></div><div class="metric"><strong>8</strong><span>Visitas</span></div><div class="metric"><strong>2</strong><span>Propostas</span></div><div class="metric"><strong>R$85k</strong><span>Comissão</span></div></div>
-                  <div class="social-preview"><div class="social-top"><strong>Preview tipo rede social</strong><span>Campanha ativa</span></div><p class="social-text">Cobertura com forte apelo visual e excelente potencial de anúncio em público de alto padrão.</p><div class="channels"><span class="channel">Google Ads</span><span class="channel">Instagram</span><span class="channel">Portais</span></div></div>
-                  <div class="card-actions"><button class="btn blue">Ver gestão</button><button class="btn ghost">Editar</button><button class="btn ghost">Relatório</button></div>
-                </div>
-              </article>
-
-              <article class="property-card" onclick="selectProperty('Casa de Vila · Pinheiros','Robotton Imóveis','Cód. 7742','R$ 1.980.000','81%','14 leads','Pronto para anúncio','Venda','Disponível')">
-                <div class="photo">
-                  <svg viewBox="0 0 800 360" preserveAspectRatio="none">
-                    <defs><linearGradient id="g5" x1="0" x2="1"><stop offset="0" stop-color="#ecfeff"/><stop offset="1" stop-color="#94a3b8"/></linearGradient></defs>
-                    <rect width="800" height="360" fill="url(#g5)"/><rect x="135" y="115" width="250" height="180" rx="16" fill="#f8fafc"/><polygon points="120,115 270,38 420,115" fill="#1e3a8a"/><rect x="455" y="90" width="180" height="205" rx="14" fill="#dbeafe"/><rect x="205" y="170" width="90" height="95" fill="#0f172a"/><rect y="292" width="800" height="68" fill="#334155" opacity=".25"/></svg>
-                  <div class="photo-badges"><span class="badge green">Disponível</span><div class="photo-actions"><button class="round">★</button><button class="round">⋯</button></div></div>
-                </div>
-                <div class="card-body">
-                  <div class="title-line"><div><h3>Casa de Vila · Pinheiros</h3><p class="address">Casa · Pinheiros · São Paulo/SP</p></div><span class="badge blue">Venda</span></div>
-                  <div class="price">R$ 1.980.000</div>
-                  <div class="specs"><span class="spec">3 dorm</span><span class="spec">1 suíte</span><span class="spec">2 vagas</span><span class="spec">180 m²</span></div>
-                  <div class="agency-row"><div class="agency"><div class="agency-logo">RI</div><div><strong>Robotton Imóveis</strong><span>Cód. 7742 · Pinheiros</span></div></div><span class="badge green">Publicado</span></div>
-                  <div class="quality"><div class="quality-row"><span>Score de anúncio</span><strong>81%</strong></div><div class="bar"><b style="width:81%"></b></div></div>
-                  <div class="metrics"><div class="metric"><strong>14</strong><span>Leads</span></div><div class="metric"><strong>3</strong><span>Visitas</span></div><div class="metric"><strong>1</strong><span>Proposta</span></div><div class="metric"><strong>R$59k</strong><span>Comissão</span></div></div>
-                  <div class="social-preview"><div class="social-top"><strong>Preview tipo rede social</strong><span>Bom potencial</span></div><p class="social-text">Casa de vila com narrativa emocional forte, boa para carrossel com storytelling de lifestyle.</p><div class="channels"><span class="channel">Feed Hub</span><span class="channel">Instagram</span><span class="channel">WhatsApp</span></div></div>
-                  <div class="card-actions"><button class="btn blue">Ver gestão</button><button class="btn ghost">Editar</button><button class="btn ghost">Criar post</button></div>
-                </div>
-              </article>
-
-              <article class="property-card" onclick="selectProperty('Apartamento Locação · Mooca','Lello Imóveis','Cód. 9910','R$ 4.800/mês','74%','7 leads','Revisar preço','Locação','Disponível')">
-                <div class="photo">
-                  <svg viewBox="0 0 800 360" preserveAspectRatio="none">
-                    <defs><linearGradient id="g6" x1="0" x2="1"><stop offset="0" stop-color="#f8fafc"/><stop offset="1" stop-color="#bfdbfe"/></linearGradient></defs>
-                    <rect width="800" height="360" fill="url(#g6)"/><rect x="170" y="70" width="460" height="230" rx="20" fill="#fff"/><rect x="225" y="125" width="115" height="110" rx="10" fill="#0f172a"/><rect x="390" y="125" width="170" height="110" rx="10" fill="#1d4ed8"/><rect y="292" width="800" height="68" fill="#64748b" opacity=".2"/></svg>
-                  <div class="photo-badges"><span class="badge green">Disponível</span><div class="photo-actions"><button class="round">★</button><button class="round">⋯</button></div></div>
-                </div>
-                <div class="card-body">
-                  <div class="title-line"><div><h3>Apartamento Locação · Mooca</h3><p class="address">Apartamento · Mooca · São Paulo/SP</p></div><span class="badge purple">Locação</span></div>
-                  <div class="price">R$ 4.800/mês</div>
-                  <div class="specs"><span class="spec">2 dorm</span><span class="spec">1 suíte</span><span class="spec">1 vaga</span><span class="spec">78 m²</span></div>
-                  <div class="agency-row"><div class="agency"><div class="agency-logo">LI</div><div><strong>Lello Imóveis</strong><span>Cód. 9910 · Mooca</span></div></div><span class="badge orange">Revisar preço</span></div>
-                  <div class="quality"><div class="quality-row"><span>Score de anúncio</span><strong>74%</strong></div><div class="bar"><b style="width:74%"></b></div></div>
-                  <div class="metrics"><div class="metric"><strong>7</strong><span>Leads</span></div><div class="metric"><strong>2</strong><span>Visitas</span></div><div class="metric"><strong>0</strong><span>Propostas</span></div><div class="metric"><strong>R$4,8k</strong><span>Aluguel</span></div></div>
-                  <div class="social-preview"><div class="social-top"><strong>Preview tipo rede social</strong><span>Otimizar CTA</span></div><p class="social-text">Boa localização e ticket competitivo, mas precisa reforçar fotos internas e diferenciais do condomínio.</p><div class="channels"><span class="channel">Portais</span><span class="channel">WhatsApp</span><span class="channel">Hub</span></div></div>
-                  <div class="card-actions"><button class="btn blue">Ver gestão</button><button class="btn ghost">Editar</button><button class="btn ghost">Reavaliar</button></div>
-                </div>
-              </article>
-            </div>
-          </section>
-
-          <section class="detail-drawer">
-            <div class="panel-head">
-              <div>
-                <h3>Detalhe do imóvel selecionado</h3>
-                <small>Visão de gestão interna: publicação, qualidade, performance, corretor e ações recomendadas.</small>
-              </div>
-              <span class="badge green" id="detailStatus">Disponível</span>
-            </div>
-            <div class="detail-grid">
-              <div class="detail-item"><label>Imóvel</label><strong id="dName">Casa Alto Padrão · Cerqueira César</strong><span id="dCode">Cód. 43214</span></div>
-              <div class="detail-item"><label>Imobiliária</label><strong id="dAgency">Brava Company</strong><span>Responsável pela captação</span></div>
-              <div class="detail-item"><label>Valor</label><strong id="dPrice">R$ 3.980.000</strong><span id="dMode">Venda</span></div>
-              <div class="detail-item"><label>Score</label><strong id="dScore">92%</strong><span id="dAction">Pronto para campanha</span></div>
-              <div class="detail-item"><label>Performance</label><strong id="dLeads">18 leads</strong><span>últimos 30 dias</span></div>
-              <div class="detail-item"><label>Próxima ação</label><strong id="dNext">Impulsionar</strong><span>usar melhores canais</span></div>
-            </div>
-          </section>
-        </div>
-
-        <aside class="right-stack">
-          <section class="panel">
-            <div class="panel-head"><div><h3>Resumo operacional</h3><small>Qualidade do catálogo</small></div></div>
-            <div class="side-list">
-              <div class="side-row"><div><strong>Sem fotos profissionais</strong><span>baixa atratividade visual</span></div><div class="count red">38</div></div>
-              <div class="side-row"><div><strong>Sem descrição forte</strong><span>precisa IA/copy</span></div><div class="count orange">74</div></div>
-              <div class="side-row"><div><strong>Preço fora do benchmark</strong><span>revisar avaliação</span></div><div class="count orange">21</div></div>
-              <div class="side-row"><div><strong>Prontos para impulsionar</strong><span>score comercial alto</span></div><div class="count green">684</div></div>
-              <div class="side-row"><div><strong>Duplicados suspeitos</strong><span>mesmo endereço/fotos</span></div><div class="count red">12</div></div>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head"><div><h3>Score médio da base</h3><small>Prontidão comercial</small></div></div>
-            <div class="score-card">
-              <div class="score-main">
-                <div class="score-circle"><span>78%</span></div>
-                <div>
-                  <strong>Base boa, com gargalo visual</strong>
-                  <span style="display:block;color:var(--gray500);font-size:12px;margin-top:5px;">Maior ganho rápido: trocar capas e melhorar descrição dos imóveis pendentes.</span>
-                </div>
-              </div>
-              <div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:850;color:#172554;"><span>Fotos</span><span>72%</span></div><div class="bar"><b style="width:72%"></b></div></div>
-              <div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:850;color:#172554;"><span>Descrição</span><span>76%</span></div><div class="bar"><b style="width:76%"></b></div></div>
-              <div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:850;color:#172554;"><span>Dados completos</span><span>91%</span></div><div class="bar"><b style="width:91%"></b></div></div>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head"><div><h3>Insights da IA</h3><small>Leitura comercial do catálogo</small></div></div>
-            <div class="insight"><strong>Maior demanda</strong><p>Apartamentos de 2 dormitórios entre R$ 700 mil e R$ 1,5 mi em Paulista, Jardins e Moema.</p></div>
-            <div class="insight"><strong>Oportunidade de conteúdo</strong><p>Imóveis com boa fachada e ambientes claros devem virar carrossel tipo rede social antes de impulsionar.</p></div>
-            <div class="insight"><strong>Gargalo detectado</strong><p>112 imóveis têm dados suficientes para cadastro, mas não estão prontos para campanha.</p></div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head"><div><h3>Ranking por imobiliária</h3><small>Imóveis com maior tração</small></div></div>
-            <div class="side-list">
-              <div class="side-row"><div><strong>1. Lopes Imóveis</strong><span>258 imóveis · 86 leads</span></div><div class="count blue">86</div></div>
-              <div class="side-row"><div><strong>2. Cirag Boutique</strong><span>266 imóveis · 84 leads</span></div><div class="count blue">84</div></div>
-              <div class="side-row"><div><strong>3. OMA Imóveis</strong><span>198 imóveis · 72 leads</span></div><div class="count blue">72</div></div>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head"><div><h3>Próximas ações</h3><small>Para equipe do Hub</small></div></div>
-            <div class="timeline">
-              <div class="timeline-item"><strong>Hoje · Revisar 38 capas</strong><span>Priorizar imóveis com score acima de 70 e baixo clique.</span></div>
-              <div class="timeline-item"><strong>Hoje · Criar campanha</strong><span>Cobertura Moema e Casa Cerqueira César para público alto padrão.</span></div>
-              <div class="timeline-item"><strong>Amanhã · Auditar duplicados</strong><span>Validar 12 imóveis com suspeita de repetição.</span></div>
-              <div class="timeline-item"><strong>Semanal · Relatório</strong><span>Enviar performance por imobiliária e recomendações de melhoria.</span></div>
-            </div>
-          </section>
-        </aside>
-      </section>
-    </main>
-  </div>
-
-  <div class="modal" id="modal">
-    <div class="modal-card">
-      <div class="modal-head">
-        <div>
-          <h2>Cadastrar / importar imóvel</h2>
-          <p style="margin:5px 0 0;color:var(--gray500);font-size:13px;">Modelo de gestão interna: dados comerciais, imobiliária, qualidade do anúncio e canais de publicação.</p>
-        </div>
-        <button class="close" onclick="closeModal()">×</button>
-      </div>
-      <div class="form-grid">
-        <div class="field"><label>Imobiliária</label><select><option>Brava Company</option><option>Cirag Boutique</option><option>OMA Imóveis</option><option>Lopes Imóveis</option><option>Lello Imóveis</option></select></div>
-        <div class="field"><label>Tipo de operação</label><select><option>Venda</option><option>Locação</option><option>Venda e locação</option></select></div>
-        <div class="field"><label>Título do imóvel</label><input value="Casa Alto Padrão · Cerqueira César" /></div>
-        <div class="field"><label>Valor</label><input value="R$ 3.980.000" /></div>
-        <div class="field"><label>Região</label><input value="Cerqueira César · São Paulo/SP" /></div>
-        <div class="field"><label>Status de publicação</label><select><option>Disponível</option><option>Pendente</option><option>Reservado</option><option>Vendido</option></select></div>
-        <div class="field full"><label>Descrição / orientação para IA</label><textarea>Gerar descrição premium, objetiva, com foco em diferenciais reais, localização, estilo de vida, potencial comercial e chamada de ação para WhatsApp.</textarea></div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn" onclick="closeModal()">Cancelar</button>
-        <button class="btn blue" onclick="closeModal()">Salvar rascunho</button>
-        <button class="btn primary" onclick="closeModal()">Salvar e auditar</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    function openModal(){ document.getElementById('modal').classList.add('open'); }
-    function closeModal(){ document.getElementById('modal').classList.remove('open'); }
-
-    function selectProperty(name, agency, code, price, score, leads, action, mode, status){
-      document.getElementById('dName').textContent = name;
-      document.getElementById('dAgency').textContent = agency;
-      document.getElementById('dCode').textContent = code;
-      document.getElementById('dPrice').textContent = price;
-      document.getElementById('dScore').textContent = score;
-      document.getElementById('dLeads').textContent = leads;
-      document.getElementById('dAction').textContent = action;
-      document.getElementById('dMode').textContent = mode;
-      document.getElementById('dNext').textContent = action.includes('Pendência') || action.includes('Revisar') || action.includes('Ajustar') ? 'Corrigir pendência' : 'Impulsionar';
-      const badge = document.getElementById('detailStatus');
-      badge.textContent = status;
-      badge.className = 'badge ' + (status === 'Disponível' ? 'green' : status === 'Pendente' ? 'orange' : 'blue');
-      document.querySelector('.detail-drawer').scrollIntoView({behavior:'smooth', block:'nearest'});
-    }
-
-    document.addEventListener('keydown', function(e){
-      if(e.key === 'Escape') closeModal();
-    });
-  </script>
-
-<script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script>
-<script src="hub.js" defer></script>
-</body>
-</html>
+<main class="main">
+<header class="header"><div class="headline"><h1>Imóveis</h1><p>Catálogo cross-imobiliária · espelhado em tempo real do banco.</p></div>
+<div class="actions"><div class="seg" id="imv-seg"><button class="seg-btn on" data-v="ger">Visão Gerencial</button><button class="seg-btn" data-v="cli">Visão do Cliente</button></div><button class="btn primary" id="imv-novo">＋ Novo Imóvel</button></div></header>
+<div class="filters" id="imv-filtros"></div>
+<div id="imv-ger"></div>
+<div id="imv-cli" style="display:none"></div>
+<script>(function(){
+  var DATA='/api/data', imoveis=[], imobMap={}, view='ger', fCidade='', fBairro='', ttIdx=0, ttTimer=null, ttList=[], liked={}, saved={};
+  var G=function(id){return document.getElementById(id);};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function money(v){return v?'R$ '+Number(v).toLocaleString('pt-BR'):'Sob consulta';}
+  function nLikes(cod){var s=0,k=String(cod||'x');for(var i=0;i<k.length;i++)s+=k.charCodeAt(i)*(i+3);return 180+(s*37)%1700;}
+  function specs(p){var a=[];if(p.quartos)a.push(p.quartos+' dorm');if(p.suites)a.push(p.suites+' suíte'+(p.suites>1?'s':''));if(p.vagas)a.push(p.vagas+' vaga'+(p.vagas>1?'s':''));if(p.area)a.push(p.area+' m²');return a.join(' · ');}
+  var IC={bed:'<path d="M3 18v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5M3 18v2M21 18v2M3 13h18M7 11V9a1 1 0 0 1 1-1h3v3"/>',suite:'<rect x="4" y="10" width="16" height="10" rx="1"/><path d="M7 10V7a3 3 0 0 1 6 0"/><path d="M7 14h.01"/>',bath:'<path d="M4 12h16v3a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path d="M6 12V6a2 2 0 0 1 2-2c1 0 1.5.5 2 1"/><path d="M9 5h.01"/>',car:'<path d="M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13M5 13h14v4H5z"/><circle cx="7.5" cy="17.5" r="1.2"/><circle cx="16.5" cy="17.5" r="1.2"/>',area:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>'};
+  function sv(p){return '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';}
+  function filtered(){return imoveis.filter(function(p){return (!fCidade||p.cidade===fCidade)&&(!fBairro||p.bairro===fBairro);});}
+  function renderFiltros(){
+    var bairros=[];imoveis.forEach(function(p){if(p.bairro&&bairros.indexOf(p.bairro)<0)bairros.push(p.bairro);});
+    G('imv-filtros').innerHTML='<span class="fchip2'+(!fBairro?' on':'')+'" data-b="">Todos os bairros</span>'+bairros.map(function(b){return '<span class="fchip2'+(fBairro===b?' on':'')+'" data-b="'+esc(b)+'">'+esc(b)+'</span>';}).join('');
+    [].forEach.call(G('imv-filtros').querySelectorAll('.fchip2'),function(c){c.addEventListener('click',function(){fBairro=c.getAttribute('data-b');ttIdx=0;render();});});
+  }
+  function render(){ if(view==='ger'){G('imv-ger').style.display='';G('imv-cli').style.display='none';renderGer();}else{G('imv-ger').style.display='none';G('imv-cli').style.display='';renderCli();} }
+  function renderGer(){
+    var list=filtered();
+    if(!list.length){G('imv-ger').innerHTML='<div style="padding:40px;text-align:center;color:var(--gray500)">Nenhum imóvel para este filtro.</div>';return;}
+    G('imv-ger').innerHTML='<div class="imv-grid">'+list.map(function(p){
+      var foto=p.foto||'';var imob=imobMap[p.imobiliaria_id]||'';
+      return '<div class="imv-card"><div class="imv-pw">'+(foto?'<div class="imv-photo" style="background-image:url("'+foto+'")"></div>':'<div class="imv-photo" style="background:#dde6f2"></div>')
+        +'<span class="imv-tag" style="left:10px;background:rgba(22,165,111,.92)">'+esc(p.status||'Disponível')+'</span><span class="imv-tag" style="right:10px;background:rgba(6,22,41,.88)">'+esc(p.finalidade||'Venda')+'</span></div>'
+        +'<div class="imv-body"><div style="font-weight:700;font-size:15px;color:#172554">'+esc(p.titulo)+'</div>'
+        +'<div style="font-size:11.5px;color:var(--gray500);margin-top:2px">'+esc(p.tipo||'')+' · '+esc(p.bairro||'')+' · '+esc(p.cidade||'')+'</div>'
+        +'<div style="font-weight:800;font-size:19px;margin:8px 0;color:#0a1f3c">'+money(p.preco)+'</div>'
+        +'<div style="font-size:12px;color:var(--gray700)">'+esc(specs(p))+'</div>'
+        +(imob?'<div style="font-size:11px;color:var(--gray500);margin-top:8px">'+esc(imob)+'</div>':'')
+        +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost imv-edit" data-id="'+p.id+'" style="flex:1;height:34px">Editar</button><button class="btn imv-del" data-id="'+p.id+'" style="height:34px;color:var(--red);border-color:var(--red)">Excluir</button></div></div></div>';
+    }).join('')+'</div>';
+    [].forEach.call(G('imv-ger').querySelectorAll('.imv-del'),function(b){b.addEventListener('click',function(){ if(!confirm('Excluir este imóvel?'))return; fetch(DATA+'?ent=imoveis&action=delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:b.getAttribute('data-id')})}).then(function(){load();}); });});
+    [].forEach.call(G('imv-ger').querySelectorAll('.imv-edit'),function(b){b.addEventListener('click',function(){ alert('Edição completa em breve. Use a Visão do Cliente para visualizar.'); });});
+  }
+  function renderCli(){
+    ttList=filtered(); ttIdx=Math.min(ttIdx,Math.max(0,ttList.length-1));
+    if(!ttList.length){G('imv-cli').innerHTML='<div style="padding:40px;text-align:center;color:var(--gray500)">Nenhum imóvel para este filtro.</div>';clearInterval(ttTimer);return;}
+    var cidades=[];imoveis.forEach(function(p){if(p.cidade&&cidades.indexOf(p.cidade)<0)cidades.push(p.cidade);});
+    var slides=ttList.map(function(p,i){var foto=p.foto||'';var imob=imobMap[p.imobiliaria_id]||'';var lk=nLikes(p.codigo)+(liked[p.id]?1:0);
+      return '<div class="tt-slide" style="top:'+(i*100)+'%">'+(foto?'<div class="tt-zoom" style="background-image:url("'+foto+'")"></div>':'<div class="tt-zoom" style="background:#1a2a44"></div>')+'<div class="tt-grad"></div>'
+        +'<div class="tt-info"><div style="margin-bottom:8px"><span class="imv-tag" style="position:static;background:rgba(22,165,111,.95);margin-right:6px">'+esc(p.status||'Disponível')+'</span><span class="imv-tag" style="position:static;background:rgba(255,255,255,.18)">'+esc(p.finalidade||'Venda')+'</span></div>'
+        +'<div style="font-size:13px;opacity:.85;display:flex;align-items:center;gap:6px">'+sv(IC.bed)+' '+esc(p.tipo||'Imóvel')+'</div>'
+        +'<h2 style="font-size:30px;font-weight:800;margin:6px 0 2px;line-height:1.1">'+esc(p.titulo)+'</h2>'
+        +'<div style="opacity:.85;font-size:14px">'+esc(p.bairro||'')+' · '+esc(p.cidade||'')+'</div>'
+        +'<div class="tt-price">'+money(p.preco)+'</div>'
+        +'<div class="tt-specs">'+(p.quartos?'<div class="tt-spec">'+sv(IC.bed)+'<b>'+p.quartos+'</b> dorm</div>':'')+(p.suites?'<div class="tt-spec">'+sv(IC.suite)+'<b>'+p.suites+'</b> suíte'+(p.suites>1?'s':'')+'</div>':'')+(p.banheiros?'<div class="tt-spec">'+sv(IC.bath)+'<b>'+p.banheiros+'</b> banh.</div>':'')+(p.vagas?'<div class="tt-spec">'+sv(IC.car)+'<b>'+p.vagas+'</b> vaga'+(p.vagas>1?'s':'')+'</div>':'')+(p.area?'<div class="tt-spec">'+sv(IC.area)+'<b>'+p.area+'</b> m²</div>':'')+'</div>'
+        +(p.descricao?'<div style="opacity:.82;font-size:13px;margin-top:10px;max-width:560px">'+esc(p.descricao)+'</div>':'')
+        +'<div style="font-size:12px;opacity:.8;margin-top:10px">Cód. '+esc(p.codigo||'')+(imob?' · '+esc(imob):'')+'</div></div>'
+        +'<div class="tt-rail"><div class="tt-act like'+(liked[p.id]?' on':'')+'" data-id="'+p.id+'"><div class="ic">'+sv('<path d="M12 21s-7-4.5-9.5-8.5C.5 9 2 5.5 5 5.5c2 0 3 1.2 4 2.5 1-1.3 2-2.5 4-2.5 3 0 4.5 3.5 2.5 7C19 16.5 12 21 12 21z" fill="currentColor" stroke="none"/>')+'</div><span class="tt-lk">'+lk.toLocaleString('pt-BR')+'</span></div>'
+        +'<div class="tt-act"><div class="ic">'+sv('<path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z"/>')+'</div><span>'+(40+(lk%160))+'</span></div>'
+        +'<div class="tt-act save'+(saved[p.id]?' on':'')+'" data-id="'+p.id+'"><div class="ic">'+sv('<path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/>')+'</div><span>'+(120+(lk%380))+'</span></div>'
+        +'<div class="tt-act"><div class="ic">'+sv('<path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/>')+'</div><span>'+(20+(lk%140))+'</span></div></div>';
+    }).join('');
+    G('imv-cli').innerHTML='<div class="tt"><div class="tt-prog" id="tt-prog"></div><div class="tt-top">'
+      +'<span class="tt-cf'+(!fBairro?' on':'')+'" data-b="">Para você</span>'
+      +(function(){var bs=[];imoveis.forEach(function(p){if(p.bairro&&bs.indexOf(p.bairro)<0)bs.push(p.bairro);});return bs.map(function(b){return '<span class="tt-cf'+(fBairro===b?' on':'')+'" data-b="'+esc(b)+'">'+esc(b)+'</span>';}).join('');})()
+      +'</div><div class="tt-strip" id="tt-strip">'+slides+'</div></div>';
+    [].forEach.call(G('imv-cli').querySelectorAll('.tt-cf'),function(c){c.addEventListener('click',function(){fBairro=c.getAttribute('data-b');ttIdx=0;render();});});
+    [].forEach.call(G('imv-cli').querySelectorAll('.tt-act.like'),function(a){a.addEventListener('click',function(){var id=a.getAttribute('data-id');liked[id]=!liked[id];a.classList.toggle('on',liked[id]);var s=a.querySelector('.tt-lk');s.textContent=(nLikes(ttList[ttIdx].codigo)+(liked[id]?1:0)).toLocaleString('pt-BR');});});
+    [].forEach.call(G('imv-cli').querySelectorAll('.tt-act.save'),function(a){a.addEventListener('click',function(){var id=a.getAttribute('data-id');saved[id]=!saved[id];a.classList.toggle('on',saved[id]);});});
+    var tt=G('imv-cli').querySelector('.tt');
+    tt.addEventListener('wheel',function(e){e.preventDefault();if(e.deltaY>20)go(ttIdx+1);else if(e.deltaY<-20)go(ttIdx-1);},{passive:false});
+    goTo(ttIdx); startTimer();
+  }
+  function goTo(i){var strip=G('tt-strip');if(!strip)return;ttIdx=(i+ttList.length)%ttList.length;strip.style.transform='translateY(-'+(ttIdx*100)+'%)';var p=G('tt-prog');if(p){p.style.width='0';void p.offsetWidth;p.style.transition='none';p.style.width='0';setTimeout(function(){p.style.transition='width 5s linear';p.style.width='100%';},30);}}
+  function go(i){goTo(i);startTimer();}
+  function startTimer(){clearInterval(ttTimer);ttTimer=setInterval(function(){ if(view!=='cli'||!ttList.length){return;} goTo(ttIdx+1); },5000);}
+  function load(){
+    Promise.all([fetch(DATA+'?ent=imoveis&action=list').then(function(r){return r.json();}),fetch(DATA+'?ent=imobiliarias&action=list').then(function(r){return r.json();})]).then(function(a){
+      imoveis=(a[0]&&a[0].rows)||[]; var ims=(a[1]&&a[1].rows)||[]; imobMap={}; ims.forEach(function(x){imobMap[x.id]=x.nome;});
+      renderFiltros(); render();
+    }).catch(function(){G('imv-ger').innerHTML='<div style="padding:30px;color:var(--red)">Falha ao carregar imóveis.</div>';});
+  }
+  [].forEach.call(G('imv-seg').querySelectorAll('.seg-btn'),function(b){b.addEventListener('click',function(){view=b.getAttribute('data-v');[].forEach.call(G('imv-seg').querySelectorAll('.seg-btn'),function(x){x.classList.toggle('on',x===b);});G('imv-novo').style.display=view==='ger'?'':'none';render();});});
+  G('imv-novo').addEventListener('click',function(){alert('Cadastro de imóvel: em breve neste MVP. Os imóveis já vêm do banco em tempo real.');});
+  load();
+})();</script>
+</main>
+</div>
+<script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script><script src="hub.js" defer></script></body></html>
