@@ -10,6 +10,14 @@ const EVO_KEY  = process.env.EVO_KEY || '';
 const INSTANCE = process.env.WA_INSTANCE || 'ailogic-hub-principal';
 const DB_URL   = process.env.DB_URL || '';
 
+// MODO TESTE: espelhar apenas estes números (Jhonattan + Alessandro).
+// Compara pelos últimos 8 dígitos (tolerante ao 9º dígito do celular BR).
+const ALLOW8 = ['5511991612610', '5511995568148'].map(n => n.slice(-8));
+function allowedJid(jid) {
+  const n = String(jid || '').split('@')[0].replace(/\D/g, '');
+  return ALLOW8.indexOf(n.slice(-8)) >= 0;
+}
+
 async function db(q, params) {
   const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
   await c.connect();
@@ -118,7 +126,7 @@ module.exports = async (req, res) => {
         grupo: String(c.remoteJid || '').endsWith('@g.us'),
         ultima: c.lastMessage ? msgText(c.lastMessage) : '',
         fromMe: !!(c.lastMessage && c.lastMessage.key && c.lastMessage.key.fromMe)
-      })).filter(c => c.jid)
+      })).filter(c => c.jid && allowedJid(c.jid))   // MODO TESTE: só Jhonattan + Alessandro
         .sort((a, b) => new Date(b.atualizado || 0) - new Date(a.atualizado || 0));
       if (cutoff) chats = chats.filter(c => c.atualizado && new Date(c.atualizado) >= cutoff);
       res.status(200).json({ chats });
@@ -129,6 +137,7 @@ module.exports = async (req, res) => {
     if (action === 'messages') {
       const jid = req.query && req.query.jid;
       if (!jid) { res.status(400).json({ error: 'jid obrigatorio' }); return; }
+      if (!allowedJid(jid)) { res.status(403).json({ error: 'numero fora do modo teste' }); return; }
       const cutoff = await getCutoff();
       const r = await evo('/chat/findMessages/' + INSTANCE, 'POST', { where: { key: { remoteJid: jid } }, limit: 60 });
       const recs = (r.body && r.body.messages && r.body.messages.records) || [];
@@ -151,6 +160,7 @@ module.exports = async (req, res) => {
       if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
       const jid = b && b.jid, text = b && b.text;
       if (!jid || !text) { res.status(400).json({ error: 'jid e text obrigatorios' }); return; }
+      if (!allowedJid(jid)) { res.status(403).json({ error: 'numero fora do modo teste' }); return; }
       const number = String(jid).endsWith('@s.whatsapp.net') ? String(jid).split('@')[0] : jid;
       const r = await evo('/message/sendText/' + INSTANCE, 'POST', { number, text });
       res.status(r.ok ? 200 : 500).json({ ok: r.ok, resp: r.body });
