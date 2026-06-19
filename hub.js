@@ -253,6 +253,7 @@
     window.addEventListener('popstate', function(){ navigate(location.pathname, false); });
   }
 
+  try{ window.hubIcons=function(){ try{replaceIconHosts();cleanText();}catch(e){} }; }catch(e){}
   function run(){ try{ replaceIconHosts(); cleanText(); active(); setupCollapse(); cascadeSidebar(); revealContent(document.querySelector('.main'), true); document.documentElement.classList.remove('hub-pre'); setupNav(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
