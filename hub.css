@@ -26,6 +26,25 @@ p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 .panel,.kpi,.card,.alert-cell,.fstage,.fcard,.kbody,.fcol-body,.metric,.rule,.ph-card,.table-wrap table,table,.support{ border-radius:10px !important; }
 .nav-item,.btn,.pill,select,input,.search,.chip2,.kpi-icon,.card-icon,.r-ico,.ai,.logo,.fi,.ph-ico,.fst-ic,.kpi-ic,.alc-ic,.ins-ic{ border-radius:8px !important; }
 
+/* ===== varredura de fonte: Montserrat em TUDO + labels padronizadas em Bold ===== */
+*{ font-family:'Montserrat',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif !important; }
+.trend{ font-weight:700 !important; }
+
+/* ===== badges sólidos: cor no box, fonte branca, fundo predominante + hover ===== */
+.badge{ transition:transform .15s ease; }
+.badge:hover{ transform:scale(1.05); }
+.badge.green{ background:var(--green) !important; color:#fff !important; }
+.badge.blue{ background:var(--blue) !important; color:#fff !important; }
+.badge.orange{ background:var(--orange) !important; color:#fff !important; }
+.badge.red{ background:var(--red) !important; color:#fff !important; }
+.badge.purple{ background:var(--purple) !important; color:#fff !important; }
+.badge.cyan{ background:var(--cyan) !important; color:#fff !important; }
+.badge.gray{ background:var(--gray500) !important; color:#fff !important; }
+
+/* ===== ícones do app no tom navy da sidebar ===== */
+.kpi-icon,.card-icon,.r-ico,.fi,.fst-ic,.kpi-ic,.ins-ic{ background:rgba(6,25,54,.09) !important; color:#061936 !important; }
+.fst.last .fst-ic,.fst.last .fi{ background:rgba(255,255,255,.16) !important; color:#fff !important; }
+
 /* cor padrão da sidebar (tom enviado pelo Jhonattan = v1 #061629, navy chapado) */
 .sidebar{ background:#061629 !important; }
 /* tipografia da sidebar: tudo normal, só o item selecionado em negrito */
