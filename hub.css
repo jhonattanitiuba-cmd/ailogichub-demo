@@ -67,6 +67,9 @@ p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 .main{ animation:hubFade .4s ease both; }
 @keyframes hubSideItem{ from{opacity:0; transform:translateX(-16px)} to{opacity:1; transform:none} }
 .hub-side-item{ opacity:0; animation:hubSideItem .5s cubic-bezier(.22,.61,.36,1) both; }
+/* leve escala no item selecionado ao trocar de página (sem recarregar a sidebar) */
+@keyframes navPop{ 0%{transform:scale(.93)} 55%{transform:scale(1.035)} 100%{transform:scale(1)} }
+.nav-item.nav-pop{ animation:navPop .45s cubic-bezier(.22,.61,.36,1); }
 .hub-rise{ opacity:0; animation:hubRise .55s cubic-bezier(.22,.61,.36,1) forwards; }
 .nav-item{ transition:transform .12s ease, background .15s ease; }
 .nav-item:hover{ transform:translateX(3px); }

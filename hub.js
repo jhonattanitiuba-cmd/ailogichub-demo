@@ -162,9 +162,17 @@
   function cascadeSidebar(){
     if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var side=document.querySelector('.sidebar'); if(!side) return;
-    var items=[].slice.call(side.children); var n=items.length; if(n<2) return;
-    var span=5500; // último item termina de animar (+.5s) por volta de 6s
-    items.forEach(function(el,i){ el.classList.add('hub-side-item'); el.style.animationDelay=Math.round(i*(span/(n-1)))+'ms'; });
+    var firstTime; try{ firstTime=sessionStorage.getItem('ailogic_sb_anim')!=='1'; }catch(_){ firstTime=true; }
+    if(firstTime){
+      // cascata completa só na 1ª vez da sessão (entrada/login)
+      try{ sessionStorage.setItem('ailogic_sb_anim','1'); }catch(_){}
+      var items=[].slice.call(side.children); var n=items.length; if(n<2) return;
+      var span=5500; // último item termina de animar (+.5s) por volta de 6s
+      items.forEach(function(el,i){ el.classList.add('hub-side-item'); el.style.animationDelay=Math.round(i*(span/(n-1)))+'ms'; });
+    } else {
+      // ao alternar entre páginas: sidebar não recarrega; só uma leve escala no selecionado
+      var act=side.querySelector('.nav-item.active'); if(act) act.classList.add('nav-pop');
+    }
   }
 
   /* ---------- 8) recolher/expandir sidebar (mini rail) ---------- */
