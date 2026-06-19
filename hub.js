@@ -157,6 +157,15 @@
   function active(){ var p=(location.pathname.split('/').pop()||'index.html'); if(!p) p='index.html';
     document.querySelectorAll('.nav-item').forEach(function(a){ a.classList.toggle('active',(a.getAttribute('href')||'')===p); }); }
 
-  function run(){ try{ replaceIconHosts(); cleanText(); active(); riseIn(); animateCounters(); }catch(e){} }
+  /* ---------- 7) cascata da sidebar (cima -> baixo, último aos ~6s) ---------- */
+  function cascadeSidebar(){
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var side=document.querySelector('.sidebar'); if(!side) return;
+    var items=[].slice.call(side.children); var n=items.length; if(n<2) return;
+    var span=5500; // último item termina de animar (+.5s) por volta de 6s
+    items.forEach(function(el,i){ el.classList.add('hub-side-item'); el.style.animationDelay=Math.round(i*(span/(n-1)))+'ms'; });
+  }
+
+  function run(){ try{ replaceIconHosts(); cleanText(); active(); cascadeSidebar(); riseIn(); animateCounters(); }catch(e){} }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
