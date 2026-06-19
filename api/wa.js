@@ -13,10 +13,9 @@ const DB_URL   = process.env.DB_URL || '';
 // MODO TESTE: espelhar apenas estes números (Jhonattan + Alessandro).
 // Compara pelos últimos 8 dígitos (tolerante ao 9º dígito do celular BR).
 const ALLOW8 = ['5511991612610', '5511995568148'].map(n => n.slice(-8));
-function allowedJid(jid) {
-  const n = String(jid || '').split('@')[0].replace(/\D/g, '');
-  return ALLOW8.indexOf(n.slice(-8)) >= 0;
-}
+const NAMES = { '91612610': 'Jhonattan (Brava)', '95568148': 'Alessandro Ferreira' };
+function num8(jid) { return String(jid || '').split('@')[0].replace(/\D/g, '').slice(-8); }
+function allowedJid(jid) { return ALLOW8.indexOf(num8(jid)) >= 0; }
 
 async function db(q, params) {
   const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
@@ -119,7 +118,7 @@ module.exports = async (req, res) => {
       const arr = Array.isArray(r.body) ? r.body : [];
       let chats = arr.map(c => ({
         jid: c.remoteJid,
-        nome: c.pushName || (c.remoteJid ? String(c.remoteJid).split('@')[0] : 'Contato'),
+        nome: NAMES[num8(c.remoteJid)] || c.pushName || (c.remoteJid ? String(c.remoteJid).split('@')[0] : 'Contato'),
         foto: c.profilePicUrl || null,
         atualizado: c.updatedAt || null,
         janelaAtiva: !!c.windowActive,
