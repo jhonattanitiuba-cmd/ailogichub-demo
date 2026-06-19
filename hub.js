@@ -77,7 +77,7 @@
       var ico=a.querySelector('.ico'); if(ico&&NAV[href]){ var s=svg(NAV[href]); if(s) ico.innerHTML=s; }
     });
     // contêineres de ícone com 1 emoji
-    document.querySelectorAll('.kpi-icon,.card-icon,.r-ico,.ai,.ph-ico,.support .ico,.metric strong').forEach(function(el){
+    document.querySelectorAll('.kpi-icon,.card-icon,.r-ico,.ai,.ph-ico,.support .ico,.metric strong,.fi,.fst-ic,.kpi-ic,.alc-ic,.ins-ic').forEach(function(el){
       var t=(el.textContent||'').trim();
       if(EMO[t]){ var s=svg(EMO[t]); if(s){ el.innerHTML=s; return; } }
     });
