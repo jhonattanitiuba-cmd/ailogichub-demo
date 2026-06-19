@@ -73,6 +73,8 @@
     '🚀':'rocket','✍':'pen','🖊':'pen','📢':'megaphone','📣':'megaphone','🔌':'plug','🧩':'plug','🎯':'target' };
 
   var EMOJI_RE=/[⌚-⌛⏩-⏺☀-➿⬀-⯿\u{1F000}-\u{1FAFF}‍️]/gu;
+  // siglas sempre em MAIÚSCULO
+  var ACR_RE=/\b(sla|pdf|csv|creci|dre|seo|lgpd|crm|api|kpi|cta|spf|dkim|dmarc|sms|url|roi|b2b|cnpj|cpf|cep|wa)\b/gi;
 
   function replaceIconHosts(){
     // menu
@@ -106,6 +108,7 @@
       var v=t.nodeValue, o=v;
       v=v.replace(/\s*[—–]\s*/g,' · ');            // anti-travessão -> middot
       if(EMOJI_RE.test(v)){ v=v.replace(EMOJI_RE,''); }
+      v=v.replace(ACR_RE,function(m){return m.toUpperCase();});   // siglas em MAIÚSCULO
       v=v.replace(/[ \t]{2,}/g,' ');
       if(v!==o) t.nodeValue=v;
     });

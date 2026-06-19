@@ -144,7 +144,7 @@
         +'<div style="font-weight:800;font-size:19px;margin:8px 0;color:#0a1f3c">'+money(p.preco)+'</div>'
         +'<div style="font-size:12px;color:var(--gray700)">'+esc(specs(p))+'</div>'
         +(imob?'<div style="font-size:11px;color:var(--gray500);margin-top:8px">'+esc(imob)+'</div>':'')
-        +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost imv-edit" data-id="'+p.id+'" style="flex:1;height:36px;font-size:12px">Editar</button><button class="btn imv-del" data-id="'+p.id+'" style="flex:1;height:36px;font-size:12px;color:var(--red);border-color:var(--red)">Excluir</button></div></div></div>';
+        +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn blue imv-edit" data-id="'+p.id+'" style="flex:1;height:36px;font-size:12px">Editar</button><button class="btn red imv-del" data-id="'+p.id+'" style="flex:1;height:36px;font-size:12px">Excluir</button></div></div></div>';
     }).join('')+'</div>';
     [].forEach.call(G('imv-ger').querySelectorAll('.imv-card'),function(el,i){el.style.animation='hubRise .45s both';el.style.animationDelay=(i*45)+'ms';});
     [].forEach.call(G('imv-ger').querySelectorAll('.imv-del'),function(b){b.addEventListener('click',function(){ if(!confirm('Excluir este imóvel?'))return; fetch(DATA+'?ent=imoveis&action=delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:b.getAttribute('data-id')})}).then(function(){load();}); });});
