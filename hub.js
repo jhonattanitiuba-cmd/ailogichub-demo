@@ -156,9 +156,9 @@
   function reduce(){ return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
 
   /* ---------- 5) entrada do conteúdo: tela > boxes > números ---------- */
-  function revealContent(main){
+  function revealContent(main, initial){
     if(!main) return;
-    if(reduce()){ main.style.opacity='1'; return; }
+    if(reduce()||!initial){ main.style.opacity='1'; return; }   // SPA: troca instantânea, sem re-animar (evita flip)
     main.style.animation='hubFade .4s ease both';
     var blocks=[];
     [].slice.call(main.children).forEach(function(b){
@@ -177,13 +177,10 @@
   function active(){ var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';
     document.querySelectorAll('.nav-item').forEach(function(a){ var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,''); a.classList.toggle('active', h===p); }); }
 
-  /* ---------- 7) cascata da sidebar (só na 1ª carga da sessão) ---------- */
+  /* ---------- 7) cascata da sidebar (só em carga real: F5/entrada — SPA não dispara run) ---------- */
   function cascadeSidebar(){
     if(reduce()) return;
     var side=document.querySelector('.sidebar'); if(!side) return;
-    var first; try{ first=sessionStorage.getItem('ailogic_sb_anim')!=='1'; }catch(_){ first=true; }
-    if(!first) return;
-    try{ sessionStorage.setItem('ailogic_sb_anim','1'); }catch(_){}
     var items=[].slice.call(side.children); var n=items.length; if(n<2) return;
     var span=5500;
     items.forEach(function(el,i){ el.classList.add('hub-side-item'); el.style.animationDelay=Math.round(i*(span/(n-1)))+'ms'; });
@@ -216,9 +213,12 @@
     });
   }
   function swapStyles(doc){
+    var hub=document.querySelector('link[rel="stylesheet"][href*="hub.css"]');
     document.querySelectorAll('style[data-spa]').forEach(function(s){ s.remove(); });
-    [].slice.call(doc.querySelectorAll('head style')).forEach(function(st){ var n=document.createElement('style'); n.setAttribute('data-spa','1'); n.textContent=st.textContent; document.head.appendChild(n); });
-    var hub=document.querySelector('link[rel="stylesheet"][href*="hub.css"]'); if(hub) document.head.appendChild(hub); // hub.css por último (mantém overrides)
+    [].slice.call(doc.querySelectorAll('head style')).forEach(function(st){
+      var n=document.createElement('style'); n.setAttribute('data-spa','1'); n.textContent=st.textContent;
+      if(hub) document.head.insertBefore(n, hub); else document.head.appendChild(n); // antes do hub.css (não move o hub.css -> sem piscada)
+    });
   }
   var navving=false;
   function navigate(href, push){
@@ -231,7 +231,7 @@
       swapStyles(doc);
       var cur=document.querySelector('.main'); if(cur) cur.parentNode.replaceChild(newMain, cur);
       if(doc.title) document.title=doc.title;
-      try{ replaceIconHosts(); cleanText(); active(); runPageScripts(doc); revealContent(newMain); }catch(e){}
+      try{ replaceIconHosts(); cleanText(); active(); runPageScripts(doc); revealContent(newMain, false); }catch(e){}
       window.scrollTo(0,0); navving=false;
     }).catch(function(){ location.href=slug; });
   }
@@ -246,6 +246,6 @@
     window.addEventListener('popstate', function(){ navigate(location.pathname, false); });
   }
 
-  function run(){ try{ replaceIconHosts(); cleanText(); active(); setupCollapse(); cascadeSidebar(); revealContent(document.querySelector('.main')); document.documentElement.classList.remove('hub-pre'); setupNav(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
+  function run(){ try{ replaceIconHosts(); cleanText(); active(); setupCollapse(); cascadeSidebar(); revealContent(document.querySelector('.main'), true); document.documentElement.classList.remove('hub-pre'); setupNav(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
