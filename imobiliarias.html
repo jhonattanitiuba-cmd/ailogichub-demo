@@ -34,7 +34,7 @@
 .detail{margin-top:14px}.detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--gray200)}.detail-item{padding:13px 14px;border-right:1px solid var(--gray200)}.detail-item:last-child{border-right:0}.detail-item label{display:block;color:var(--gray500);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}.detail-item strong{display:block;color:#172554;font-size:12px}.detail-item span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
 @media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,minmax(250px,1fr))}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(3,1fr)}}@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.right-stack{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}}@media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.grid,.right-stack,.detail-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
 </style>
-
+<style>.imb-modal{position:fixed;inset:0;background:rgba(6,16,30,.55);z-index:200;display:grid;place-items:center;padding:20px}.imb-modal-card{background:#fff;border-radius:16px;width:100%;max-width:640px;max-height:90vh;overflow:auto;box-shadow:var(--shadow)}.imb-modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--gray200)}.imb-modal-head h3{margin:0;font-size:17px}.imb-modal-head span{cursor:pointer;font-size:26px;color:var(--gray500);line-height:.7}.imb-form{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px}.imb-form label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#334155}.imb-form input,.imb-form select{height:40px;border:1px solid var(--gray300);border-radius:10px;padding:0 12px;font:inherit;font-size:13px;font-weight:400}.imb-modal-foot{display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:16px 20px;border-top:1px solid var(--gray200)}.imb-modal-foot #imb-msg{margin-right:auto;font-size:12px;color:var(--gray500)}@media(max-width:560px){.imb-form{grid-template-columns:1fr}}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="hub.css">
 </head><body><div class="app"><aside class="sidebar">
   <div class="brand"><div class="logo">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
@@ -80,6 +80,7 @@
   var DATA='/api/data';
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function statusBadge(s){var t=(s||'Ativa');var c=/atenç|pausad/i.test(t)?'orange':/implant/i.test(t)?'orange':'green';return '<span class="badge '+c+'">'+esc(t)+'</span>';}
+  function loadImobs(){
   fetch(DATA+'?ent=imoveis&action=list').then(function(r){return r.json();}).then(function(im){window.__imoveis=(im&&im.rows)||[];}).catch(function(){window.__imoveis=[];}).finally(function(){
     fetch(DATA+'?ent=imobiliarias&action=list').then(function(r){return r.json();}).then(function(d){
       var rows=(d&&d.rows)||[]; var imv=window.__imoveis||[];
@@ -90,9 +91,25 @@
       document.getElementById('imb-tbody').innerHTML=rows.map(function(r){var st=(r.extra&&r.extra.status)||r.status||'Ativa';var reg=(r.extra&&r.extra.regiao)||r.cidade||'';return '<tr><td style="font-weight:700">'+esc(r.nome)+'</td><td>'+esc(r.creci||'—')+'</td><td>'+esc(reg)+'</td><td>'+statusBadge(st)+'</td><td><span class="badge green">Ativa</span></td><td>'+cont(r.id)+'</td><td>'+esc(r.cidade||'—')+'</td></tr>';}).join('');
       document.getElementById('imb-cards').innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">'+rows.map(function(r){var sig=(r.extra&&r.extra.sigla)||(r.nome||'?').slice(0,2).toUpperCase();var cor=(r.extra&&r.extra.cor)||'#061629';var st=(r.extra&&r.extra.status)||r.status||'Ativa';return '<div class="card"><div class="card-top"><div style="display:flex;gap:12px;align-items:center"><div style="width:44px;height:44px;border-radius:12px;background:'+cor+';color:#fff;display:grid;place-items:center;font-weight:800">'+esc(sig)+'</div><div><div style="font-weight:700;color:#172554">'+esc(r.nome)+'</div><div style="font-size:11px;color:var(--gray500)">'+esc((r.extra&&r.extra.regiao)||r.cidade||'')+'</div></div></div>'+statusBadge(st)+'</div><div class="metrics"><div class="metric"><strong>'+cont(r.id)+'</strong><span>imóveis</span></div><div class="metric"><strong>'+esc(r.creci||'—')+'</strong><span>CRECI</span></div><div class="metric"><strong>IA</strong><span>ativa</span></div></div></div>';}).join('')+'</div>';
     });
+  }); }
+  loadImobs();
+  var $=function(id){return document.getElementById(id);};
+  function openM(){ ['nome','creci','sigla','segmento','regiao','cidade','telefone','email','site','instagram'].forEach(function(f){var e=$('f-'+f);if(e)e.value='';}); var s=$('f-status'); if(s)s.value='Ativa'; var m=$('imb-msg'); if(m)m.textContent=''; var M=$('imb-modal'); if(M)M.style.display='grid'; }
+  function closeM(){ var M=$('imb-modal'); if(M)M.style.display='none'; }
+  function salvar(){
+    var v=function(f){var e=$('f-'+f);return e?e.value.trim():'';}; var nome=v('nome'); var msg=$('imb-msg');
+    if(!nome){ if(msg)msg.textContent='Informe o nome.'; return; } if(msg)msg.textContent='salvando…';
+    var payload={nome:nome,creci:v('creci'),sigla:v('sigla')||nome.slice(0,2).toUpperCase(),segmento:v('segmento'),regiao:v('regiao'),cidade:v('cidade'),telefone:v('telefone'),email:v('email'),site:v('site'),instagram:v('instagram'),status:($('f-status')||{}).value||'Ativa',cor:'#061629',ativo:true};
+    fetch(DATA+'?ent=imobiliarias&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(res){ if(res&&(res.row||res.id)){ closeM(); loadImobs(); } else { if(msg)msg.textContent='falha: '+((res&&res.error)||'erro'); } }).catch(function(){ if(msg)msg.textContent='falha ao salvar.'; });
+  }
+  document.addEventListener('click',function(e){ var el=e.target; function hit(id){ return el.id===id || (el.closest && el.closest('#'+id)); }
+    if(hit('imb-novo')){ e.preventDefault(); openM(); }
+    else if(hit('imb-close')||hit('imb-cancel')){ closeM(); }
+    else if(hit('imb-salvar')){ salvar(); }
+    else if(el===$('imb-modal')){ closeM(); }
   });
-  document.getElementById('imb-novo').addEventListener('click',function(){alert('Cadastro de imobiliária: em breve neste MVP. A lista já vem do banco em tempo real.');});
 })();</script>
+<div class="imb-modal" id="imb-modal" style="display:none"><div class="imb-modal-card"><div class="imb-modal-head"><h3>Nova Imobiliária</h3><span id="imb-close">×</span></div><div class="imb-form"><label>Nome *<input id="f-nome" placeholder="Ex: Cirag Boutique"></label><label>CRECI<input id="f-creci"></label><label>Sigla<input id="f-sigla" maxlength="3" placeholder="CI"></label><label>Segmento<input id="f-segmento" placeholder="Residencial e comercial"></label><label>Região<input id="f-regiao" placeholder="Jardins · SP"></label><label>Cidade<input id="f-cidade" placeholder="São Paulo/SP"></label><label>Telefone<input id="f-telefone"></label><label>E-mail<input id="f-email" type="email"></label><label>Site<input id="f-site"></label><label>Instagram<input id="f-instagram" placeholder="@"></label><label>Status<select id="f-status"><option>Ativa</option><option>Implantando</option><option>Atenção</option><option>Pausada</option></select></label></div><div class="imb-modal-foot"><span id="imb-msg"></span><button class="btn ghost" id="imb-cancel">Cancelar</button><button class="btn blue" id="imb-salvar">Cadastrar</button></div></div></div>
 </main>
 </div>
 <script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script><script src="hub.js" defer></script></body></html>
