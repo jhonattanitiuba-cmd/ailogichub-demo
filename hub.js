@@ -82,9 +82,13 @@
       if(href==='whatsapp'){ ico.innerHTML=WA_SVG; return; }
       if(NAV[href]){ var s=svg(NAV[href]); if(s) ico.innerHTML=s; }
     });
+    // logo oficial do WhatsApp nos marcadores explícitos
+    document.querySelectorAll('.wa-ico').forEach(function(el){ if(!el.querySelector('svg')) el.innerHTML=WA_SVG; });
     // contêineres de ícone com 1 emoji
     document.querySelectorAll('.kpi-icon,.card-icon,.r-ico,.ai,.ph-ico,.support .ico,.metric strong,.fi,.fst-ic,.kpi-ic,.alc-ic,.ins-ic').forEach(function(el){
       var t=(el.textContent||'').trim();
+      // WhatsApp: ícone de chat em contexto de WhatsApp -> logo oficial
+      if((t==='💬'||EMO[t]==='chat') && /whatsapp/i.test((el.parentElement&&el.parentElement.textContent)||'')){ el.innerHTML=WA_SVG; return; }
       if(EMO[t]){ var s=svg(EMO[t]); if(s){ el.innerHTML=s; return; } }
     });
   }

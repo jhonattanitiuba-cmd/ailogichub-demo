@@ -41,9 +41,15 @@ p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 .badge.cyan{ background:var(--cyan) !important; color:#fff !important; }
 .badge.gray{ background:var(--gray500) !important; color:#fff !important; }
 
-/* ===== ícones do app no tom navy da sidebar ===== */
-.kpi-icon,.card-icon,.r-ico,.fi,.fst-ic,.kpi-ic,.ins-ic{ background:rgba(6,25,54,.09) !important; color:#061936 !important; }
+/* ===== ícones do app: fundo navy (cor sidebar) + ícone branco + hover ===== */
+.kpi-icon,.card-icon,.r-ico,.fi,.fst-ic,.kpi-ic,.ins-ic{ background:#061629 !important; color:#fff !important; transition:transform .16s ease, box-shadow .16s ease; }
+.kpi-icon:hover,.card-icon:hover,.r-ico:hover,.fi:hover,.fst-ic:hover,.kpi-ic:hover,.ins-ic:hover{ transform:scale(1.1); box-shadow:0 7px 18px rgba(6,22,41,.32); }
 .fst.last .fst-ic,.fst.last .fi{ background:rgba(255,255,255,.16) !important; color:#fff !important; }
+/* logo WhatsApp (marcador .wa-ico) com tamanho adequado */
+.wa-ico .hub-ic{ font-size:18px; }
+.wa-ico{ display:inline-flex; vertical-align:middle; line-height:0; }
+/* caixa de alerta com logo WhatsApp fica branca (logo verde precisa de contraste) */
+.ai:has(svg[fill="#25D366"]){ background:#fff !important; border:1px solid var(--gray200) !important; }
 
 /* cor padrão da sidebar (tom enviado pelo Jhonattan = v1 #061629, navy chapado) */
 .sidebar{ background:#061629 !important; }
