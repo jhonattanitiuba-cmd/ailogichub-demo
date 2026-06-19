@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AiLogic Hub · Relatórios</title>
+  <style>
+    :root{
+      --navy:#061936; --blue:#0b66ff; --blue2:#eaf2ff; --green:#16a56f; --green2:#eafaf3;
+      --orange:#f59e0b; --orange2:#fff7e6; --red:#e94242; --red2:#fff0f0; --purple:#7257ff;
+      --purple2:#f1efff; --cyan:#0ea5e9; --cyan2:#ecfeff; --gray900:#0f172a; --gray700:#334155;
+      --gray500:#64748b; --gray300:#d9e2ef; --gray200:#edf2f7; --gray100:#f7f9fc; --white:#fff;
+      --shadow:0 14px 34px rgba(15,23,42,.08); --soft:0 8px 22px rgba(15,23,42,.055);
+      --radius:18px; --font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:var(--font);background:#f6f9fd;color:var(--gray900)}
+    .app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+
+    .sidebar{background:linear-gradient(180deg,#071b3a,#031126);color:#dce8ff;padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto}
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+    .logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
+    .brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#a8c2ee;font-size:12px;margin-top:3px}
+    .section-title{font-size:11px;color:#7da2d6;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:24px 10px 10px}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:13px;color:#c8d8f4;font-weight:650;font-size:14px;margin:4px 0;text-decoration:none}
+    .nav-item.active{background:linear-gradient(135deg,#0a66ff,#0851cc);color:#fff;box-shadow:0 10px 28px rgba(11,102,255,.28)}
+    .ico{width:21px;text-align:center}
+    .support{margin-top:34px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);border-radius:16px;padding:15px;display:flex;gap:12px;align-items:center}
+    .support small{color:#9bb7e3;display:block;margin-top:2px}
+    .profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0}
+    .avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:white;display:grid;place-items:center;font-weight:800}
+    .profile strong{color:white;font-size:13px;display:block}.profile span{color:#9bb7e3;font-size:11px}
+
+    .main{padding:22px 26px 36px;overflow:hidden}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}
+    .headline h1{margin:0;font-size:28px;letter-spacing:-.03em}.headline p{margin:7px 0 0;color:var(--gray500);font-size:14px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .pill,.btn,select,input{border:1px solid var(--gray300);background:#fff;border-radius:12px;height:42px;padding:0 14px;font:inherit;color:var(--gray700);outline:none}
+    .pill{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;white-space:nowrap;box-shadow:var(--soft)}
+    .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(22,165,111,.12)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-weight:850;color:var(--navy);box-shadow:var(--soft)}
+    .btn.primary{background:linear-gradient(135deg,#082653,#061936);border-color:#061936;color:white}
+    .btn.blue{background:linear-gradient(135deg,#0b66ff,#074cd1);border-color:#0b66ff;color:white}
+    .btn.ghost{box-shadow:none;background:#fbfdff}.btn.danger{color:var(--red);background:#fff;border-color:#ffd8d8}
+
+    .kpis{display:grid;grid-template-columns:repeat(6,minmax(145px,1fr));gap:14px;margin:18px 0}
+    .kpi{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);padding:16px 17px;box-shadow:var(--soft);min-height:112px}
+    .kpi-top{display:flex;justify-content:space-between;gap:8px}.kpi h3{margin:0;color:#1d2b4f;font-size:12px}
+    .kpi .value{margin:8px 0 4px;font-size:25px;font-weight:950;letter-spacing:-.04em}
+    .trend{font-size:11px;color:var(--green);font-weight:850}.trend.red{color:var(--red)}.trend.orange{color:#b86b00}
+    .kpi-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950}
+
+    .panel{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .panel-head{padding:15px 16px;border-bottom:1px solid var(--gray200);display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .panel-head h2,.panel-head h3{margin:0;font-size:16px;letter-spacing:-.02em}.panel-head small{display:block;margin-top:3px;color:var(--gray500);font-size:12px}
+
+    .layout{display:grid;grid-template-columns:330px minmax(0,1fr) 350px;gap:14px;align-items:start}
+    .badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:950;white-space:nowrap}
+    .badge.green{background:var(--green2);color:var(--green)}.badge.blue{background:var(--blue2);color:var(--blue)}
+    .badge.orange{background:var(--orange2);color:#b86b00}.badge.red{background:var(--red2);color:var(--red)}
+    .badge.purple{background:var(--purple2);color:var(--purple)}.badge.gray{background:#eef2f7;color:var(--gray700)}.badge.cyan{background:var(--cyan2);color:var(--cyan)}
+
+    .filters{padding:14px;display:grid;gap:12px}
+    .field label{display:block;font-size:12px;font-weight:850;color:#172554;margin-bottom:6px}
+    .field input,.field select{width:100%;height:42px;box-shadow:none}
+    .report-list{padding:12px;display:grid;gap:10px;max-height:660px;overflow:auto}
+    .report-card{border:1px solid var(--gray200);border-radius:16px;padding:12px;background:#fff;cursor:pointer;transition:.15s ease}
+    .report-card:hover{transform:translateY(-1px);box-shadow:var(--soft)}
+    .report-card.active{border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,102,255,.10)}
+    .report-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .report-name{display:flex;gap:10px;align-items:flex-start}
+    .report-icon{width:36px;height:36px;border-radius:12px;background:var(--blue2);color:var(--blue);display:grid;place-items:center;font-weight:950;flex:0 0 auto}
+    .report-name strong{display:block;color:#172554;font-size:13px}.report-name span{display:block;color:var(--gray500);font-size:11px;margin-top:2px;line-height:1.35}
+    .report-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+    .rmetric{background:#fbfdff;border:1px solid var(--gray200);border-radius:12px;padding:7px;text-align:center}
+    .rmetric strong{display:block;font-size:13px;color:#172554}.rmetric span{display:block;color:var(--gray500);font-size:10px;margin-top:2px}
+
+    .builder{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;padding:16px;border-bottom:1px solid var(--gray200);background:#fbfdff}
+    .builder-box{border:1px solid var(--gray200);border-radius:16px;background:#fff;padding:14px}
+    .builder-box h3{margin:0 0 10px;font-size:14px;color:#172554}
+    .builder-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .builder-grid .field select,.builder-grid .field input{height:40px;font-size:12px}
+    .chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+    .chip{border:1px solid var(--gray200);background:#fff;border-radius:999px;padding:7px 9px;font-size:11px;font-weight:850;color:#334155}
+    .chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+    .quick-actions{display:grid;gap:10px}
+    .quick-actions .btn{width:100%;height:40px;box-shadow:none}
+
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;padding:14px 16px;border-bottom:1px solid var(--gray200);align-items:center;background:#fff}
+    .tabs{display:flex;gap:6px;overflow:auto}
+    .tabs button{border:0;background:#edf3fb;color:var(--gray700);border-radius:999px;padding:9px 11px;font-weight:850;font-size:12px;cursor:pointer;white-space:nowrap}
+    .tabs button.active{background:var(--navy);color:#fff}
+    .search{min-width:320px;flex:1;height:40px}.toolbar select{height:40px;font-size:12px;min-width:135px}
+
+    .dashboard-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;padding:16px}
+    .chart-card{border:1px solid var(--gray200);border-radius:18px;background:#fff;padding:14px;min-height:260px}
+    .chart-card h3{margin:0 0 4px;font-size:15px;color:#172554}.chart-card p{margin:0;color:var(--gray500);font-size:11px}
+    .bar-chart{display:flex;align-items:end;gap:14px;height:175px;margin-top:18px;padding:0 6px;border-bottom:1px solid var(--gray200)}
+    .bar{flex:1;min-width:30px;border-radius:12px 12px 0 0;background:linear-gradient(180deg,#0b66ff,#75a7ff);position:relative}
+    .bar.green{background:linear-gradient(180deg,#16a56f,#86efac)}.bar.orange{background:linear-gradient(180deg,#f59e0b,#fde68a)}.bar.purple{background:linear-gradient(180deg,#7257ff,#c4b5fd)}
+    .bar span{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:900;color:#172554;white-space:nowrap}
+    .bar label{position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--gray500);font-weight:800;white-space:nowrap}
+    .donut-area{display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:center;margin-top:18px}
+    .donut{width:128px;height:128px;border-radius:50%;background:conic-gradient(#0b66ff 0 42%, #16a56f 42% 68%, #f59e0b 68% 84%, #7257ff 84% 100%);position:relative}
+    .donut:after{content:"";position:absolute;inset:23px;background:white;border-radius:50%}
+    .legend{display:grid;gap:9px}
+    .legend-row{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:12px;color:#334155}
+    .legend-row span:first-child:before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--blue);margin-right:7px}.legend-row.green span:first-child:before{background:var(--green)}.legend-row.orange span:first-child:before{background:var(--orange)}.legend-row.purple span:first-child:before{background:var(--purple)}
+    .line-chart{height:205px;margin-top:14px;position:relative;background:linear-gradient(180deg,#fbfdff,#fff);border:1px solid var(--gray200);border-radius:16px;overflow:hidden}
+    .line-chart svg{width:100%;height:100%}.axis-label{position:absolute;color:var(--gray500);font-size:10px;font-weight:800}
+    .table-wrap{padding:0 16px 16px;overflow:auto}
+    table{border-collapse:separate;border-spacing:0;width:100%;min-width:980px;background:#fff;border:1px solid var(--gray200);border-radius:16px;overflow:hidden}
+    th,td{padding:12px 13px;border-bottom:1px solid #eef3f9;text-align:left;font-size:12px;vertical-align:middle}
+    th{color:#475569;background:#fbfdff;font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:900}
+    tr:last-child td{border-bottom:0} tr:hover td{background:#fbfdff}
+    .rank{width:26px;height:26px;border-radius:9px;background:var(--blue2);color:var(--blue);display:grid;place-items:center;font-size:11px;font-weight:950}
+    .progress{height:7px;background:#eef2f7;border-radius:999px;overflow:hidden;min-width:90px}
+    .progress b{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#0b66ff,#16a56f)}
+
+    .right-stack{display:grid;gap:14px}
+    .side-list{padding:10px 14px 14px;display:grid;gap:8px}
+    .side-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #eef3f9}
+    .side-row:last-child{border-bottom:0}.side-row strong{display:block;color:#172554;font-size:12px}
+    .side-row span{display:block;color:var(--gray500);font-size:11px;margin-top:2px;line-height:1.35}
+    .count{font-weight:950;min-width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:#f1f5f9;color:var(--gray700);font-size:12px}
+    .count.red{background:var(--red2);color:var(--red)}.count.orange{background:var(--orange2);color:#b86b00}.count.green{background:var(--green2);color:var(--green)}.count.blue{background:var(--blue2);color:var(--blue)}
+
+    .rules{display:grid;gap:8px;padding:14px}
+    .rule{display:flex;gap:10px;border:1px solid var(--gray200);border-radius:14px;background:#fbfdff;padding:10px}
+    .rule .r-ico{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;flex:0 0 auto}
+    .rule strong{display:block;color:#172554;font-size:12px}.rule span{display:block;color:var(--gray500);font-size:11px;margin-top:3px;line-height:1.35}
+    .timeline{padding:10px 14px 14px;display:grid;gap:9px}
+    .timeline-item{border-left:3px solid var(--blue);padding:2px 0 2px 10px}
+    .timeline-item.red{border-left-color:var(--red)}.timeline-item.orange{border-left-color:var(--orange)}.timeline-item.green{border-left-color:var(--green)}
+    .timeline-item strong{font-size:12px;display:block;color:#172554}.timeline-item span{font-size:11px;color:var(--gray500);display:block;margin-top:3px;line-height:1.35}
+
+    .detail-panel{margin-top:14px;background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--soft);overflow:hidden}
+    .detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--gray200)}
+    .detail-item{padding:13px 14px;border-right:1px solid var(--gray200)}
+    .detail-item:last-child{border-right:0}.detail-item label{display:block;color:var(--gray500);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+    .detail-item strong{display:block;color:#172554;font-size:12px}.detail-item span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
+
+    .modal{position:fixed;inset:0;background:rgba(3,17,38,.5);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}
+    .modal.open{display:flex}.modal-card{background:#fff;width:min(900px,100%);border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.25);overflow:hidden}
+    .modal-head{padding:20px 22px;border-bottom:1px solid var(--gray200);display:flex;justify-content:space-between;gap:18px}
+    .modal-head h2{margin:0;font-size:20px}.close{border:0;background:#f1f5f9;width:36px;height:36px;border-radius:12px;cursor:pointer;font-size:18px;font-weight:900;color:var(--gray700)}
+    .form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:18px 22px 22px}.field.full{grid-column:1/-1}.field.two{grid-column:span 2}
+    .field textarea{width:100%;min-height:90px;border:1px solid var(--gray300);border-radius:12px;padding:12px 14px;font:inherit;outline:none;resize:vertical}
+    .modal-actions{display:flex;justify-content:flex-end;gap:10px;padding:0 22px 22px}
+
+    @media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.layout{grid-template-columns:310px 1fr}.right-stack{grid-column:1/-1;grid-template-columns:repeat(4,1fr)}}
+    @media(max-width:1100px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:1fr 1fr}.builder,.dashboard-grid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.right-stack,.detail-grid,.form-grid,.builder-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+  <div class="brand"><div class="logo">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
+  <div class="section-title">Operação</div>
+  <a class="nav-item" href="index.html"><span class="ico">⌂</span>Visão Geral</a>
+  <a class="nav-item" href="imobiliarias.html"><span class="ico">▥</span>Imobiliárias</a>
+  <a class="nav-item" href="corretores.html"><span class="ico">♟</span>Corretores & Equipes</a>
+  <a class="nav-item" href="pessoas.html"><span class="ico">♙</span>Pessoas & Contatos</a>
+  <a class="nav-item" href="leads.html"><span class="ico">◎</span>Leads</a>
+  <a class="nav-item" href="funil.html"><span class="ico">▽</span>Funil de Negócios</a>
+  <a class="nav-item" href="agenda.html"><span class="ico">▦</span>Agenda</a>
+  <a class="nav-item" href="whatsapp.html"><span class="ico">◌</span>WhatsApp · Auditoria</a>
+  <a class="nav-item" href="emails.html"><span class="ico">✉</span>E-mails</a>
+  <div class="section-title">Catálogo</div>
+  <a class="nav-item" href="imoveis.html"><span class="ico">▤</span>Imóveis</a>
+  <a class="nav-item" href="mapa.html"><span class="ico">⌘</span>Mapa de Atuação</a>
+  <a class="nav-item" href="captacao.html"><span class="ico">🏠</span>Captação de Imóveis</a>
+  <a class="nav-item" href="assinaturas.html"><span class="ico">✍</span>Assinaturas · Docs</a>
+  <a class="nav-item" href="anuncios.html"><span class="ico">↗</span>Anúncios · Rodízios</a>
+  <div class="section-title">Inteligência</div>
+  <a class="nav-item" href="credito.html"><span class="ico">$</span>Crédito & Financiamento</a>
+  <a class="nav-item" href="locacao.html"><span class="ico">⇆</span>Locação Online</a>
+  <a class="nav-item" href="relatorios.html"><span class="ico">↟</span>Relatórios</a>
+  <a class="nav-item" href="insights.html"><span class="ico">✦</span>Insights da IA</a>
+  <div class="section-title">Plataforma</div>
+  <a class="nav-item" href="integracoes.html"><span class="ico">⇄</span>Integrações & Automações</a>
+  <a class="nav-item" href="site.html"><span class="ico">🌐</span>Site do Hub</a>
+  <a class="nav-item" href="financeiro.html"><span class="ico">R$</span>Financeiro & Repasses</a>
+  <a class="nav-item" href="suporte.html"><span class="ico">?</span>Suporte & Treinamento</a>
+  <a class="nav-item" href="administrador.html"><span class="ico">⚙</span>Administrador</a>
+  <a class="nav-item" href="config-ia.html"><span class="ico">◈</span>Configurações · IA</a>
+  <div class="support"><div class="ico">☏</div><div><strong>Suporte</strong><small>Central de Ajuda</small></div></div>
+  <div class="profile"><div class="avatar">AF</div><div><strong>Alessandro Ferreira</strong><span>Diretoria · Admin do Hub</span></div></div>
+</aside>
+
+    <main class="main">
+      <header class="header">
+        <div class="headline">
+          <h1>Relatórios</h1>
+          <p>Geração dinâmica de relatórios gerenciais, comerciais, financeiros, operacionais e comparativos do Hub.</p>
+        </div>
+        <div class="actions">
+          <div class="pill"><span class="dot"></span>Sistema ativo · 6 imobiliárias</div>
+          <button class="btn" onclick="openModal('agendar')">Agendar envio</button>
+          <button class="btn primary" onclick="openModal('relatorio')">＋ Gerar relatório</button>
+        </div>
+      </header>
+
+      <section class="kpis">
+        <article class="kpi"><div class="kpi-top"><div><h3>Receita do Hub</h3><div class="value">R$ 128k</div><div class="trend">mês atual projetado</div></div><div class="kpi-icon">$</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Pipeline total</h3><div class="value">R$ 4,28M</div><div class="trend">148 negócios ativos</div></div><div class="kpi-icon">↗</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Custo WhatsApp</h3><div class="value">R$ 387</div><div class="trend">teto operacional R$ 500</div></div><div class="kpi-icon">◌</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Conversão geral</h3><div class="value">8,1%</div><div class="trend">lead até fechamento</div></div><div class="kpi-icon">✓</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>SLA médio</h3><div class="value">00:19</div><div class="trend orange">9 atrasos críticos</div></div><div class="kpi-icon">⏱</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Relatórios gerados</h3><div class="value">42</div><div class="trend">últimos 30 dias</div></div><div class="kpi-icon">▤</div></div></article>
+      </section>
+
+      <section class="layout">
+        <aside class="panel">
+          <div class="panel-head">
+            <div><h3>Biblioteca de relatórios</h3><small>Modelos prontos do Hub</small></div>
+            <span class="badge blue">Dinâmico</span>
+          </div>
+
+          <div class="filters">
+            <div class="field"><label>Categoria</label><select><option>Todas</option><option>Financeiro</option><option>Comercial</option><option>Operacional</option><option>Imóveis</option><option>Auditoria</option><option>Marketing</option></select></div>
+            <div class="field"><label>Imobiliária</label><select><option>Todas as imobiliárias</option><option>Cirag Boutique</option><option>OMA Imóveis</option><option>Lopes Imóveis</option><option>Brava Company</option></select></div>
+            <div class="field"><label>Período padrão</label><select><option>Mês atual</option><option>Últimos 7 dias</option><option>Últimos 30 dias</option><option>Trimestre</option><option>Personalizado</option></select></div>
+          </div>
+
+          <div class="report-list">
+            <div class="report-card active" onclick="selectReport('Relatório executivo do Hub','Diretoria','Receita, pipeline, custos, conversão e principais gargalos','12 seções','PDF + Excel','Mensal')">
+              <div class="report-top"><div class="report-name"><div class="report-icon">EX</div><div><strong>Executivo do Hub</strong><span>visão de diretoria: receita, pipeline e operação</span></div></div><span class="badge green">Principal</span></div>
+              <div class="report-metrics"><div class="rmetric"><strong>12</strong><span>Seções</span></div><div class="rmetric"><strong>PDF</strong><span>Saída</span></div><div class="rmetric"><strong>Mensal</strong><span>Cadência</span></div></div>
+            </div>
+
+            <div class="report-card" onclick="selectReport('Receita e comissão do Hub','Financeiro','Fechamentos, comissão bruta, participação do Hub, repasse e receita líquida','8 seções','Excel + PDF','Semanal')">
+              <div class="report-top"><div class="report-name"><div class="report-icon">R$</div><div><strong>Receita e comissão</strong><span>fechamentos, repasses e margem do Hub</span></div></div><span class="badge green">Financeiro</span></div>
+              <div class="report-metrics"><div class="rmetric"><strong>8</strong><span>Seções</span></div><div class="rmetric"><strong>XLS</strong><span>Saída</span></div><div class="rmetric"><strong>Semanal</strong><span>Cadência</span></div></div>
+            </div>
+
+            <div class="report-card" onclick="selectReport('Performance por imobiliária','Comercial','Ranking, leads, tempo de resposta, visitas, propostas, fechamentos e receita potencial','10 seções','PDF + CSV','Semanal')">
+              <div class="report-top"><div class="report-name"><div class="report-icon">IM</div><div><strong>Performance por imobiliária</strong><span>ranking completo das parceiras</span></div></div><span class="badge blue">Comercial</span></div>
+              <div class="report-metrics"><div class="rmetric"><strong>10</strong><span>Seções</span></div><div class="rmetric"><strong>CSV</strong><span>Saída</span></div><div class="rmetric"><strong>Semanal</strong><span>Cadência</span></div></div>
+            </div>
+
+            <div class="report-card" onclick="selectReport('Funil e conversão','Comercial','Conversão por etapa, motivos de perda, tempo parado e gargalos por corretor','9 seções','PDF','Diário')">
+              <div class="report-top"><div class="report-name"><div class="report-icon">FN</div><div><strong>Funil e conversão</strong><span>da entrada do lead ao fechamento</span></div></div><span class="badge purple">Funil</span></div>
+              <div class="report-metrics"><div class="rmetric"><strong>9</strong><span>Seções</span></div><div class="rmetric"><strong>PDF</strong><span>Saída</span></div><div class="rmetric"><strong>Diário</strong><span>Cadência</span></div></div>
+            </div>
+
+            <div class="report-card" onclick="selectReport('Custo do WhatsApp e IA','Operacional','Service, utility, marketing, templates, custo por lead e teto mensal','7 seções','Excel','Diário')">
+              <div class="report-top"><div class="report-name"><div class="report-icon">WA</div><div><strong>Custo WhatsApp e IA</strong><span>gastos por conversa, lead e imobiliária</span></div></div><span class="badge orange">Custos</span></div>
+              <div class="report-metrics"><div class="rmetric"><strong>7</strong><span>Seções</span></div><div class="rmetric"><strong>XLS</strong><span>Saída</span></div><div class="rmetric"><strong>Diário</strong><span>Cadência</span></div></div>
+            </div>
+
+            <div class="report-card" onclick="selectReport('Qualidade do catálogo','Imóveis','Score dos imóveis, pendências, duplicidades, campanhas e prontidão visual','11 seções','PDF + XLS','Semanal')">
+              <div class="report-top"><div class="report-name"><div class="report-icon">IM</div><div><strong>Qualidade do catálogo</strong><span>score comercial dos imóveis cadastrados</span></div></div><span class="badge cyan">Imóveis</span></div>
+              <div class="report-metrics"><div class="rmetric"><strong>11</strong><span>Seções</span></div><div class="rmetric"><strong>XLS</strong><span>Saída</span></div><div class="rmetric"><strong>Semanal</strong><span>Cadência</span></div></div>
+            </div>
+
+            <div class="report-card" onclick="selectReport('Auditoria WhatsApp e atendimento','Auditoria','Conversas críticas, SLA, handoff IA, qualidade, riscos e ranking por corretor','10 seções','PDF','Diário')">
+              <div class="report-top"><div class="report-name"><div class="report-icon">AU</div><div><strong>Auditoria WhatsApp</strong><span>qualidade e riscos nas conversas</span></div></div><span class="badge red">Auditoria</span></div>
+              <div class="report-metrics"><div class="rmetric"><strong>10</strong><span>Seções</span></div><div class="rmetric"><strong>PDF</strong><span>Saída</span></div><div class="rmetric"><strong>Diário</strong><span>Cadência</span></div></div>
+            </div>
+
+            <div class="report-card" onclick="selectReport('Assinaturas e documentos','Compliance','Fichas de visita, propostas, contratos, LGPD, vencimentos e certificados','8 seções','PDF','Semanal')">
+              <div class="report-top"><div class="report-name"><div class="report-icon">DC</div><div><strong>Assinaturas e documentos</strong><span>controle jurídico-operacional</span></div></div><span class="badge purple">Docs</span></div>
+              <div class="report-metrics"><div class="rmetric"><strong>8</strong><span>Seções</span></div><div class="rmetric"><strong>PDF</strong><span>Saída</span></div><div class="rmetric"><strong>Semanal</strong><span>Cadência</span></div></div>
+            </div>
+          </div>
+        </aside>
+
+        <section>
+          <section class="panel">
+            <div class="panel-head">
+              <div><h2>Gerador dinâmico de relatórios</h2><small>O gestor monta, filtra, exporta e agenda relatórios sem depender de equipe técnica.</small></div>
+              <span class="badge green">Instantâneo</span>
+            </div>
+
+            <div class="builder">
+              <div class="builder-box">
+                <h3>Configuração do relatório</h3>
+                <div class="builder-grid">
+                  <div class="field"><label>Tipo</label><select><option>Executivo do Hub</option><option>Receita e comissão</option><option>Performance por imobiliária</option><option>Funil e conversão</option><option>Custo WhatsApp e IA</option><option>Qualidade do catálogo</option></select></div>
+                  <div class="field"><label>Período</label><select><option>Mês atual</option><option>Últimos 7 dias</option><option>Últimos 30 dias</option><option>Trimestre</option><option>Personalizado</option></select></div>
+                  <div class="field"><label>Agrupar por</label><select><option>Por imobiliária</option><option>Por corretor</option><option>Por origem do lead</option><option>Por região</option><option>Por tipo de imóvel</option></select></div>
+                  <div class="field"><label>Comparativo</label><select><option>vs. mês anterior</option><option>vs. Imobzi engessado</option><option>vs. meta do Hub</option><option>sem comparativo</option></select></div>
+                </div>
+                <div class="chips">
+                  <span class="chip active">Receita</span><span class="chip active">Leads</span><span class="chip active">Funil</span><span class="chip">WhatsApp</span><span class="chip">Imóveis</span><span class="chip">Assinaturas</span><span class="chip">SLA</span><span class="chip">Mapa</span>
+                </div>
+              </div>
+
+              <div class="builder-box">
+                <h3>Saída e automação</h3>
+                <div class="quick-actions">
+                  <button class="btn primary" onclick="openModal('relatorio')">Gerar relatório instantâneo</button>
+                  <button class="btn blue">Exportar PDF executivo</button>
+                  <button class="btn ghost">Exportar Excel detalhado</button>
+                  <button class="btn ghost" onclick="openModal('agendar')">Agendar envio recorrente</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="toolbar">
+              <div class="tabs">
+                <button class="active">Resumo</button>
+                <button>Receita</button>
+                <button>Leads</button>
+                <button>Funil</button>
+                <button>Imóveis</button>
+                <button>Custos</button>
+                <button>SLA</button>
+              </div>
+              <input class="search" type="search" placeholder="Buscar indicador, imobiliária, corretor ou origem..." />
+              <select><option>Todas as imobiliárias</option><option>Cirag Boutique</option><option>OMA Imóveis</option><option>Lopes Imóveis</option></select>
+            </div>
+
+            <div class="dashboard-grid">
+              <div class="chart-card">
+                <h3>Receita do Hub por imobiliária</h3>
+                <p>Comissão estimada, receita gerada e potencial em aberto.</p>
+                <div class="bar-chart">
+                  <div class="bar" style="height:78%"><span>R$42k</span><label>Cirag</label></div>
+                  <div class="bar green" style="height:69%"><span>R$37k</span><label>OMA</label></div>
+                  <div class="bar purple" style="height:62%"><span>R$33k</span><label>Lopes</label></div>
+                  <div class="bar orange" style="height:44%"><span>R$21k</span><label>Lello</label></div>
+                  <div class="bar" style="height:38%"><span>R$18k</span><label>Robotton</label></div>
+                  <div class="bar green" style="height:29%"><span>R$12k</span><label>Brava</label></div>
+                </div>
+              </div>
+
+              <div class="chart-card">
+                <h3>Origem dos leads</h3>
+                <p>Distribuição por canal com leitura de conversão.</p>
+                <div class="donut-area">
+                  <div class="donut"></div>
+                  <div class="legend">
+                    <div class="legend-row"><span>WhatsApp</span><strong>42%</strong></div>
+                    <div class="legend-row green"><span>Instagram</span><strong>26%</strong></div>
+                    <div class="legend-row orange"><span>Portais</span><strong>16%</strong></div>
+                    <div class="legend-row purple"><span>Google/Site</span><strong>16%</strong></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chart-card">
+                <h3>Funil de conversão</h3>
+                <p>Volume acumulado por etapa no período selecionado.</p>
+                <div class="line-chart">
+                  <svg viewBox="0 0 600 220" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="area" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0" stop-color="#0b66ff" stop-opacity=".25"/>
+                        <stop offset="1" stop-color="#0b66ff" stop-opacity="0"/>
+                      </linearGradient>
+                    </defs>
+                    <g stroke="#e6eef8" stroke-width="1">
+                      <line x1="0" y1="44" x2="600" y2="44"/><line x1="0" y1="88" x2="600" y2="88"/><line x1="0" y1="132" x2="600" y2="132"/><line x1="0" y1="176" x2="600" y2="176"/>
+                    </g>
+                    <path d="M40,55 C110,72 145,76 210,96 C285,120 340,130 400,150 C460,168 510,172 560,184 L560,220 L40,220 Z" fill="url(#area)"/>
+                    <path d="M40,55 C110,72 145,76 210,96 C285,120 340,130 400,150 C460,168 510,172 560,184" fill="none" stroke="#0b66ff" stroke-width="5" stroke-linecap="round"/>
+                    <g fill="#0b66ff" stroke="#fff" stroke-width="4">
+                      <circle cx="40" cy="55" r="7"/><circle cx="210" cy="96" r="7"/><circle cx="400" cy="150" r="7"/><circle cx="560" cy="184" r="7"/>
+                    </g>
+                  </svg>
+                  <span class="axis-label" style="left:20px;bottom:8px;">Lead</span>
+                  <span class="axis-label" style="left:34%;bottom:8px;">Atendimento</span>
+                  <span class="axis-label" style="left:63%;bottom:8px;">Proposta</span>
+                  <span class="axis-label" style="right:20px;bottom:8px;">Fechado</span>
+                </div>
+              </div>
+
+              <div class="chart-card">
+                <h3>Custo do WhatsApp</h3>
+                <p>Controle por categoria e teto mensal.</p>
+                <div class="bar-chart">
+                  <div class="bar green" style="height:48%"><span>R$185</span><label>Service</label></div>
+                  <div class="bar" style="height:36%"><span>R$142</span><label>Utility</label></div>
+                  <div class="bar orange" style="height:16%"><span>R$60</span><label>Marketing</label></div>
+                  <div class="bar purple" style="height:77%"><span>R$387</span><label>Total</label></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Ranking</th>
+                    <th>Imobiliária</th>
+                    <th>Leads</th>
+                    <th>Tempo resposta</th>
+                    <th>Visitas</th>
+                    <th>Propostas</th>
+                    <th>Fechados</th>
+                    <th>Conversão</th>
+                    <th>Receita Hub</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr onclick="selectRow('Cirag Boutique','32 negócios','R$ 42.000','18,4%','04 min','Excelente')">
+                    <td><span class="rank">1</span></td><td><strong>Cirag Boutique</strong></td><td>84</td><td>04 min</td><td>18</td><td>7</td><td>3</td><td><div class="progress"><b style="width:84%"></b></div></td><td>R$ 42.000</td><td><span class="badge green">Excelente</span></td>
+                  </tr>
+                  <tr onclick="selectRow('OMA Imóveis','27 negócios','R$ 37.000','14,2%','09 min','Bom')">
+                    <td><span class="rank">2</span></td><td><strong>OMA Imóveis</strong></td><td>72</td><td>09 min</td><td>14</td><td>5</td><td>2</td><td><div class="progress"><b style="width:72%"></b></div></td><td>R$ 37.000</td><td><span class="badge green">Bom</span></td>
+                  </tr>
+                  <tr onclick="selectRow('Lopes Imóveis','24 negócios','R$ 33.000','12,8%','16 min','Atenção')">
+                    <td><span class="rank">3</span></td><td><strong>Lopes Imóveis</strong></td><td>86</td><td>16 min</td><td>21</td><td>6</td><td>2</td><td><div class="progress"><b style="width:64%"></b></div></td><td>R$ 33.000</td><td><span class="badge orange">Atenção</span></td>
+                  </tr>
+                  <tr onclick="selectRow('Lello Imóveis','19 negócios','R$ 21.000','8,7%','24 min','Crítico')">
+                    <td><span class="rank">4</span></td><td><strong>Lello Imóveis</strong></td><td>44</td><td>24 min</td><td>8</td><td>2</td><td>1</td><td><div class="progress"><b style="width:42%"></b></div></td><td>R$ 21.000</td><td><span class="badge red">Crítico</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="detail-panel">
+            <div class="panel-head">
+              <div><h3>Detalhe do relatório selecionado</h3><small>Resumo da visão escolhida e principais saídas para gestão.</small></div>
+              <span class="badge green" id="dStatus">Pronto</span>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-item"><label>Relatório</label><strong id="dName">Relatório executivo do Hub</strong><span id="dCategory">Diretoria</span></div>
+              <div class="detail-item"><label>Escopo</label><strong id="dScope">Receita, pipeline, custos, conversão e principais gargalos</strong><span>visão consolidada</span></div>
+              <div class="detail-item"><label>Estrutura</label><strong id="dSections">12 seções</strong><span>cards, gráficos e tabelas</span></div>
+              <div class="detail-item"><label>Exportação</label><strong id="dOutput">PDF + Excel</strong><span>pronto para envio</span></div>
+              <div class="detail-item"><label>Cadência</label><strong id="dCadence">Mensal</strong><span>pode ser agendado</span></div>
+              <div class="detail-item"><label>Vantagem</label><strong>Instantâneo</strong><span>sem depender de montagem manual</span></div>
+            </div>
+          </section>
+        </section>
+
+        <aside class="right-stack">
+          <section class="panel">
+            <div class="panel-head"><div><h3>Relatórios essenciais</h3><small>O que o Hub precisa controlar</small></div></div>
+            <div class="side-list">
+              <div class="side-row"><div><strong>Financeiro</strong><span>receita, comissão, repasse, margem e custos</span></div><div class="count green">8</div></div>
+              <div class="side-row"><div><strong>Comercial</strong><span>leads, funil, conversão, visitas e propostas</span></div><div class="count blue">12</div></div>
+              <div class="side-row"><div><strong>Operacional</strong><span>SLA, WhatsApp, agenda, e-mails e tarefas</span></div><div class="count orange">9</div></div>
+              <div class="side-row"><div><strong>Catálogo</strong><span>imóveis, score, duplicidade, mapa e anúncios</span></div><div class="count blue">7</div></div>
+              <div class="side-row"><div><strong>Compliance</strong><span>assinaturas, documentos, LGPD e auditoria</span></div><div class="count purple">5</div></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Relatório em foco</h3><small>Linha selecionada</small></div></div>
+            <div class="rules">
+              <div class="rule"><div class="r-ico">▥</div><div><strong id="focusName">Cirag Boutique</strong><span id="focusDeals">32 negócios</span></div></div>
+              <div class="rule"><div class="r-ico">R$</div><div><strong id="focusRevenue">R$ 42.000</strong><span>receita estimada do Hub</span></div></div>
+              <div class="rule"><div class="r-ico">%</div><div><strong id="focusConv">18,4%</strong><span>conversão no período</span></div></div>
+              <div class="rule"><div class="r-ico">⏱</div><div><strong id="focusSla">04 min</strong><span>tempo médio de resposta</span></div></div>
+              <div class="rule"><div class="r-ico">✓</div><div><strong id="focusStatus">Excelente</strong><span>classificação operacional</span></div></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Automação de envio</h3><small>Rotina recomendada</small></div></div>
+            <div class="rules">
+              <div class="rule"><div class="r-ico">D</div><div><strong>Diário · 08h</strong><span>Resumo de SLA, WhatsApp, leads sem atendimento e agenda do dia.</span></div></div>
+              <div class="rule"><div class="r-ico">S</div><div><strong>Semanal · segunda</strong><span>Performance por imobiliária, funil, imóveis, campanhas e pendências.</span></div></div>
+              <div class="rule"><div class="r-ico">M</div><div><strong>Mensal · fechamento</strong><span>DRE simplificado, receita, custos, comissão, ROI e ranking completo.</span></div></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Alertas inteligentes</h3><small>Gargalos detectados</small></div></div>
+            <div class="timeline">
+              <div class="timeline-item red"><strong>SLA crítico</strong><span>9 leads sem atendimento acima de 15 minutos.</span></div>
+              <div class="timeline-item orange"><strong>Catálogo incompleto</strong><span>112 imóveis com pendência de foto, preço ou descrição.</span></div>
+              <div class="timeline-item green"><strong>Boa performance</strong><span>Cirag Boutique lidera receita potencial e tempo de resposta.</span></div>
+              <div class="timeline-item"><strong>Custo sob controle</strong><span>WhatsApp está abaixo do teto operacional definido.</span></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Saídas disponíveis</h3><small>Formatos e destino</small></div></div>
+            <div class="side-list">
+              <div class="side-row"><div><strong>PDF executivo</strong><span>diretoria e investidores</span></div><span class="badge green">Pronto</span></div>
+              <div class="side-row"><div><strong>Excel detalhado</strong><span>auditoria e financeiro</span></div><span class="badge green">Pronto</span></div>
+              <div class="side-row"><div><strong>CSV operacional</strong><span>importação e BI</span></div><span class="badge blue">API</span></div>
+              <div class="side-row"><div><strong>WhatsApp resumo</strong><span>envio rápido para gestores</span></div><span class="badge orange">Curto</span></div>
+            </div>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h2 id="modalTitle">Gerar relatório</h2>
+          <p id="modalSub" style="margin:5px 0 0;color:var(--gray500);font-size:13px;">Escolha escopo, filtros, período, formato e destinatários.</p>
+        </div>
+        <button class="close" onclick="closeModal()">×</button>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Modelo</label><select><option>Executivo do Hub</option><option>Receita e comissão</option><option>Performance por imobiliária</option><option>Funil e conversão</option><option>Custo WhatsApp e IA</option><option>Qualidade do catálogo</option><option>Auditoria WhatsApp</option></select></div>
+        <div class="field"><label>Período</label><select><option>Mês atual</option><option>Últimos 7 dias</option><option>Últimos 30 dias</option><option>Trimestre</option><option>Personalizado</option></select></div>
+        <div class="field"><label>Formato</label><select><option>PDF + Excel</option><option>PDF executivo</option><option>Excel detalhado</option><option>CSV</option><option>Resumo WhatsApp</option></select></div>
+        <div class="field"><label>Imobiliária</label><select><option>Todas</option><option>Cirag Boutique</option><option>OMA Imóveis</option><option>Lopes Imóveis</option><option>Lello Imóveis</option><option>Brava Company</option></select></div>
+        <div class="field"><label>Agrupar por</label><select><option>Imobiliária</option><option>Corretor</option><option>Origem do lead</option><option>Região</option><option>Tipo de imóvel</option></select></div>
+        <div class="field"><label>Destino</label><select><option>Baixar agora</option><option>Enviar para diretoria</option><option>Enviar para financeiro</option><option>Enviar para imobiliária</option></select></div>
+        <div class="field full"><label>Observações do relatório</label><textarea>Incluir resumo executivo, principais indicadores, gargalos, ranking, alertas, recomendações de ação e comparativo com período anterior.</textarea></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal()">Cancelar</button>
+        <button class="btn blue" onclick="closeModal()">Salvar modelo</button>
+        <button class="btn primary" onclick="closeModal()">Gerar relatório</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(type){
+      const title = document.getElementById('modalTitle');
+      const sub = document.getElementById('modalSub');
+      if(type === 'agendar'){
+        title.textContent = 'Agendar envio de relatório';
+        sub.textContent = 'Configure cadência, destinatários, formato e gatilhos automáticos.';
+      }else{
+        title.textContent = 'Gerar relatório';
+        sub.textContent = 'Escolha escopo, filtros, período, formato e destinatários.';
+      }
+      document.getElementById('modal').classList.add('open');
+    }
+    function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+    function selectReport(name, category, scope, sections, output, cadence){
+      document.querySelectorAll('.report-card').forEach(c => c.classList.remove('active'));
+      if(event && event.currentTarget) event.currentTarget.classList.add('active');
+      document.getElementById('dName').textContent = name;
+      document.getElementById('dCategory').textContent = category;
+      document.getElementById('dScope').textContent = scope;
+      document.getElementById('dSections').textContent = sections;
+      document.getElementById('dOutput').textContent = output;
+      document.getElementById('dCadence').textContent = cadence;
+    }
+
+    function selectRow(name, deals, revenue, conv, sla, status){
+      document.getElementById('focusName').textContent = name;
+      document.getElementById('focusDeals').textContent = deals;
+      document.getElementById('focusRevenue').textContent = revenue;
+      document.getElementById('focusConv').textContent = conv;
+      document.getElementById('focusSla').textContent = sla;
+      document.getElementById('focusStatus').textContent = status;
+    }
+
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeModal(); });
+  </script>
+
+<script>(function(){var p=(location.pathname.split('/').pop()||'index.html');if(!p||p==='')p='index.html';document.querySelectorAll('.nav-item').forEach(function(a){var h=a.getAttribute('href');a.classList.toggle('active',h===p);});})();</script>
+</body>
+</html>

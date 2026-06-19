@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AiLogic Hub · Captação de Imóveis</title>
+  <style>
+    :root{
+      --navy:#061936;--blue:#0b66ff;--blue2:#eaf2ff;--green:#16a56f;--green2:#eafaf3;
+      --orange:#f59e0b;--orange2:#fff7e6;--red:#e94242;--red2:#fff0f0;--purple:#7257ff;
+      --purple2:#f1efff;--cyan:#0ea5e9;--cyan2:#ecfeff;--gray900:#0f172a;--gray700:#334155;
+      --gray500:#64748b;--gray300:#d9e2ef;--gray200:#edf2f7;--white:#fff;
+      --shadow:0 14px 34px rgba(15,23,42,.08);--soft:0 8px 22px rgba(15,23,42,.055);
+      --radius:18px;--font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:var(--font);background:#f6f9fd;color:var(--gray900)}
+    .app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+    .sidebar{background:linear-gradient(180deg,#071b3a,#031126);color:#dce8ff;padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto}
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}.logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
+    .brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#a8c2ee;font-size:12px;margin-top:3px}
+    .section-title{font-size:11px;color:#7da2d6;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:24px 10px 10px}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:13px;color:#c8d8f4;font-weight:650;font-size:14px;margin:4px 0;text-decoration:none}
+    .nav-item.active{background:linear-gradient(135deg,#0a66ff,#0851cc);color:#fff;box-shadow:0 10px 28px rgba(11,102,255,.28)}
+    .ico{width:22px;text-align:center}.support{margin-top:34px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);border-radius:16px;padding:15px;display:flex;gap:12px;align-items:center}
+    .support small{color:#9bb7e3;display:block;margin-top:2px}.profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0}
+    .avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:white;display:grid;place-items:center;font-weight:800}
+    .profile strong{color:white;font-size:13px;display:block}.profile span{color:#9bb7e3;font-size:11px}
+    .main{padding:22px 26px 36px;overflow:hidden}.header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}
+    .headline h1{margin:0;font-size:28px;letter-spacing:-.03em}.headline p{margin:7px 0 0;color:var(--gray500);font-size:14px;max-width:980px;line-height:1.45}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.pill,.btn,select,input{border:1px solid var(--gray300);background:#fff;border-radius:12px;height:42px;padding:0 14px;font:inherit;color:var(--gray700);outline:none}
+    .pill{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;white-space:nowrap;box-shadow:var(--soft)}.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(22,165,111,.12)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-weight:850;color:var(--navy);box-shadow:var(--soft)}
+    .btn.primary{background:linear-gradient(135deg,#082653,#061936);border-color:#061936;color:white}.btn.blue{background:linear-gradient(135deg,#0b66ff,#074cd1);border-color:#0b66ff;color:white}.btn.ghost{box-shadow:none;background:#fbfdff}.btn.danger{color:var(--red);background:#fff;border-color:#ffd8d8}
+    .kpis{display:grid;grid-template-columns:repeat(6,minmax(145px,1fr));gap:14px;margin:18px 0}.kpi{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);padding:16px 17px;box-shadow:var(--soft);min-height:112px}
+    .kpi-top{display:flex;justify-content:space-between;gap:8px}.kpi h3{margin:0;color:#1d2b4f;font-size:12px}.kpi .value{margin:8px 0 4px;font-size:25px;font-weight:950;letter-spacing:-.04em}
+    .trend{font-size:11px;color:var(--green);font-weight:850}.trend.red{color:var(--red)}.trend.orange{color:#b86b00}.kpi-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950}
+    .panel{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.panel-head{padding:15px 16px;border-bottom:1px solid var(--gray200);display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .panel-head h2,.panel-head h3{margin:0;font-size:16px;letter-spacing:-.02em}.panel-head small{display:block;margin-top:3px;color:var(--gray500);font-size:12px}
+    .badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:950;white-space:nowrap}
+    .badge.green{background:var(--green2);color:var(--green)}.badge.blue{background:var(--blue2);color:var(--blue)}.badge.orange{background:var(--orange2);color:#b86b00}.badge.red{background:var(--red2);color:var(--red)}.badge.purple{background:var(--purple2);color:var(--purple)}.badge.cyan{background:var(--cyan2);color:var(--cyan)}.badge.gray{background:#eef2f7;color:var(--gray700)}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;align-items:start}.right-stack{display:grid;gap:14px}
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;padding:14px 16px;border-bottom:1px solid var(--gray200);align-items:center;background:#fbfdff}.tabs{display:flex;gap:6px;overflow:auto}.tabs button{border:0;background:#edf3fb;color:var(--gray700);border-radius:999px;padding:9px 11px;font-weight:850;font-size:12px;cursor:pointer;white-space:nowrap}.tabs button.active{background:var(--navy);color:#fff}.search{min-width:320px;flex:1;height:40px}.toolbar select{height:40px;font-size:12px;min-width:135px}
+    .notice{display:flex;gap:12px;align-items:flex-start;margin:16px;padding:14px;border:1px solid #cfe0ff;background:#f0f6ff;border-radius:16px}.notice .nicon{width:34px;height:34px;border-radius:12px;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:950;flex:0 0 auto}.notice strong{display:block;color:#172554;font-size:13px}.notice p{margin:4px 0 0;color:#334155;font-size:12px;line-height:1.45}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(250px,1fr));gap:14px;padding:16px}.card{border:1px solid var(--gray200);border-radius:18px;background:#fff;padding:14px;box-shadow:var(--soft)}.card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}.card h3{margin:0;color:#172554;font-size:15px;line-height:1.25}.card p{margin:5px 0 0;color:var(--gray500);font-size:12px;line-height:1.45}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.metric{background:#fbfdff;border:1px solid var(--gray200);border-radius:13px;padding:8px;text-align:center}.metric strong{display:block;color:#172554;font-size:14px}.metric span{display:block;color:var(--gray500);font-size:10px;margin-top:3px}
+    .flow{display:grid;grid-template-columns:repeat(8,minmax(135px,1fr));gap:10px;padding:16px;overflow:auto}.step{border:1px solid var(--gray200);border-radius:16px;background:#fff;padding:12px;min-height:112px}.step .num{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;margin-bottom:8px}.step strong{display:block;color:#172554;font-size:12px}.step span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
+    .table-wrap{padding:0 16px 16px;overflow:auto}table{border-collapse:separate;border-spacing:0;width:100%;min-width:1060px;background:#fff;border:1px solid var(--gray200);border-radius:16px;overflow:hidden}th,td{padding:12px 13px;border-bottom:1px solid #eef3f9;text-align:left;font-size:12px;vertical-align:middle}th{color:#475569;background:#fbfdff;font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:900}tr:last-child td{border-bottom:0}tr:hover td{background:#fbfdff}
+    .side-list{padding:10px 14px 14px;display:grid;gap:8px}.side-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #eef3f9}.side-row:last-child{border-bottom:0}.side-row strong{display:block;color:#172554;font-size:12px}.side-row span{display:block;color:var(--gray500);font-size:11px;margin-top:2px;line-height:1.35}.count{font-weight:950;min-width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:#f1f5f9;color:var(--gray700);font-size:12px}.count.red{background:var(--red2);color:var(--red)}.count.orange{background:var(--orange2);color:#b86b00}.count.green{background:var(--green2);color:var(--green)}.count.blue{background:var(--blue2);color:var(--blue)}
+    .rules{display:grid;gap:8px;padding:14px}.rule{display:flex;gap:10px;border:1px solid var(--gray200);border-radius:14px;background:#fbfdff;padding:10px}.rule .r-ico{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;flex:0 0 auto}.rule strong{display:block;color:#172554;font-size:12px}.rule span{display:block;color:var(--gray500);font-size:11px;margin-top:3px;line-height:1.35}
+    .timeline{padding:10px 14px 14px;display:grid;gap:9px}.timeline-item{border-left:3px solid var(--blue);padding:2px 0 2px 10px}.timeline-item.red{border-left-color:var(--red)}.timeline-item.orange{border-left-color:var(--orange)}.timeline-item.green{border-left-color:var(--green)}.timeline-item strong{font-size:12px;display:block;color:#172554}.timeline-item span{font-size:11px;color:var(--gray500);display:block;margin-top:3px;line-height:1.35}
+    .detail{margin-top:14px}.detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--gray200)}.detail-item{padding:13px 14px;border-right:1px solid var(--gray200)}.detail-item:last-child{border-right:0}.detail-item label{display:block;color:var(--gray500);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}.detail-item strong{display:block;color:#172554;font-size:12px}.detail-item span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
+    @media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,minmax(250px,1fr))}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(3,1fr)}}@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.right-stack{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}}@media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.grid,.right-stack,.detail-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+  <div class="brand"><div class="logo">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
+  <div class="section-title">Operação</div>
+  <a class="nav-item" href="index.html"><span class="ico">⌂</span>Visão Geral</a>
+  <a class="nav-item" href="imobiliarias.html"><span class="ico">▥</span>Imobiliárias</a>
+  <a class="nav-item" href="corretores.html"><span class="ico">♟</span>Corretores & Equipes</a>
+  <a class="nav-item" href="pessoas.html"><span class="ico">♙</span>Pessoas & Contatos</a>
+  <a class="nav-item" href="leads.html"><span class="ico">◎</span>Leads</a>
+  <a class="nav-item" href="funil.html"><span class="ico">▽</span>Funil de Negócios</a>
+  <a class="nav-item" href="agenda.html"><span class="ico">▦</span>Agenda</a>
+  <a class="nav-item" href="whatsapp.html"><span class="ico">◌</span>WhatsApp · Auditoria</a>
+  <a class="nav-item" href="emails.html"><span class="ico">✉</span>E-mails</a>
+  <div class="section-title">Catálogo</div>
+  <a class="nav-item" href="imoveis.html"><span class="ico">▤</span>Imóveis</a>
+  <a class="nav-item" href="mapa.html"><span class="ico">⌘</span>Mapa de Atuação</a>
+  <a class="nav-item" href="captacao.html"><span class="ico">🏠</span>Captação de Imóveis</a>
+  <a class="nav-item" href="assinaturas.html"><span class="ico">✍</span>Assinaturas · Docs</a>
+  <a class="nav-item" href="anuncios.html"><span class="ico">↗</span>Anúncios · Rodízios</a>
+  <div class="section-title">Inteligência</div>
+  <a class="nav-item" href="credito.html"><span class="ico">$</span>Crédito & Financiamento</a>
+  <a class="nav-item" href="locacao.html"><span class="ico">⇆</span>Locação Online</a>
+  <a class="nav-item" href="relatorios.html"><span class="ico">↟</span>Relatórios</a>
+  <a class="nav-item" href="insights.html"><span class="ico">✦</span>Insights da IA</a>
+  <div class="section-title">Plataforma</div>
+  <a class="nav-item" href="integracoes.html"><span class="ico">⇄</span>Integrações & Automações</a>
+  <a class="nav-item" href="site.html"><span class="ico">🌐</span>Site do Hub</a>
+  <a class="nav-item" href="financeiro.html"><span class="ico">R$</span>Financeiro & Repasses</a>
+  <a class="nav-item" href="suporte.html"><span class="ico">?</span>Suporte & Treinamento</a>
+  <a class="nav-item" href="administrador.html"><span class="ico">⚙</span>Administrador</a>
+  <a class="nav-item" href="config-ia.html"><span class="ico">◈</span>Configurações · IA</a>
+  <div class="support"><div class="ico">☏</div><div><strong>Suporte</strong><small>Central de Ajuda</small></div></div>
+  <div class="profile"><div class="avatar">AF</div><div><strong>Alessandro Ferreira</strong><span>Diretoria · Admin do Hub</span></div></div>
+</aside>
+
+    <main class="main">
+      <header class="header">
+        <div class="headline">
+          <h1>Captação de Imóveis</h1>
+          <p>Esteira para imóveis enviados em lote por imobiliárias e corretores, imóveis cadastrados individualmente e imóveis enviados diretamente por proprietários. Quando o proprietário cadastra sozinho, o Hub valida o imóvel e encontra a imobiliária ou corretor autônomo mais adequado para assumir visitas, atendimento e negociação.</p>
+        </div>
+        <div class="actions">
+          <div class="pill"><span class="dot"></span>Sistema ativo · uploads em lote + proprietários</div>
+          <button class="btn">Importar lote</button>
+          <button class="btn primary">＋ Cadastrar imóvel/proprietário</button>
+        </div>
+      </header>
+
+      <section class="kpis">
+        <article class="kpi"><div class="kpi-top"><div><h3>Lotes recebidos</h3><div class="value">18</div><div class="trend">planilhas/API/XML</div></div><div class="kpi-icon">⇧</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Imóveis importados</h3><div class="value">1.248</div><div class="trend">em validação e catálogo</div></div><div class="kpi-icon">⌂</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Proprietários diretos</h3><div class="value">64</div><div class="trend">cadastro pelo site</div></div><div class="kpi-icon">♙</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Sem responsável</h3><div class="value">23</div><div class="trend orange">precisa match</div></div><div class="kpi-icon">?</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Duplicidades</h3><div class="value">31</div><div class="trend red">quarentena</div></div><div class="kpi-icon">!</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Prontos para publicar</h3><div class="value">684</div><div class="trend">score acima de 80</div></div><div class="kpi-icon">✓</div></div></article>
+      </section>
+
+      <section class="layout">
+        <section>
+          <section class="panel">
+            <div class="panel-head">
+              <div><h2>Entrada de imóveis no Hub</h2><small>Três caminhos: lote de imobiliária/corretor, cadastro unitário e proprietário direto.</small></div>
+              <span class="badge green">MVP operacional</span>
+            </div>
+
+            <div class="toolbar">
+              <div class="tabs">
+                <button class="active">Todos 1.248</button>
+                <button>Lotes 18</button>
+                <button>Proprietários 64</button>
+                <button>Sem responsável 23</button>
+                <button>Duplicados 31</button>
+                <button>Prontos 684</button>
+              </div>
+              <input class="search" placeholder="Buscar endereço, proprietário, imobiliária, corretor, lote, código ou status..." />
+              <select><option>Origem: todas</option><option>Lote da imobiliária</option><option>Lote de corretor autônomo</option><option>Proprietário direto</option><option>Cadastro manual Hub</option></select>
+              <select><option>Status: todos</option><option>Importado</option><option>Validando</option><option>Sem responsável</option><option>Em quarentena</option><option>Publicado</option></select>
+            </div>
+
+            <div class="notice">
+              <div class="nicon">!</div>
+              <div>
+                <strong>Nova regra do produto</strong>
+                <p>Imobiliárias e corretores poderão subir imóveis em lote. Proprietários também poderão cadastrar imóveis diretamente no site do Hub. Quando o imóvel vier direto do proprietário, o sistema não deve publicar automaticamente: primeiro valida dados, verifica duplicidade, solicita autorização e sugere a imobiliária ou corretor autônomo mais adequado para assumir as visitas.</p>
+              </div>
+            </div>
+
+            <div class="grid">
+              <article class="card">
+                <div class="card-top"><div><h3>Lote · Cirag Boutique</h3><p>Arquivo XLSX com 186 imóveis. 172 válidos, 8 duplicados e 6 com endereço incompleto.</p></div><span class="badge blue">Lote imobiliária</span></div>
+                <div class="metrics"><div class="metric"><strong>186</strong><span>itens</span></div><div class="metric"><strong>172</strong><span>válidos</span></div><div class="metric"><strong>8</strong><span>duplic.</span></div></div>
+              </article>
+
+              <article class="card">
+                <div class="card-top"><div><h3>Lote · João Santos</h3><p>Corretor autônomo parceiro enviou 42 imóveis de Moema e Brooklin para validação.</p></div><span class="badge cyan">Lote autônomo</span></div>
+                <div class="metrics"><div class="metric"><strong>42</strong><span>itens</span></div><div class="metric"><strong>CRECI</strong><span>OK</span></div><div class="metric"><strong>11</strong><span>pend.</span></div></div>
+              </article>
+
+              <article class="card">
+                <div class="card-top"><div><h3>Proprietário · Roberto Almeida</h3><p>Casa em Pinheiros cadastrada diretamente. Precisa escolher responsável por visitas.</p></div><span class="badge orange">Sem responsável</span></div>
+                <div class="metrics"><div class="metric"><strong>R$1,98M</strong><span>valor</span></div><div class="metric"><strong>3</strong><span>sugestões</span></div><div class="metric"><strong>D4Sign</strong><span>pend.</span></div></div>
+              </article>
+
+              <article class="card">
+                <div class="card-top"><div><h3>Proprietária · Ana Martins</h3><p>Apartamento nos Jardins. IA sugere Cirag Boutique por região, ticket e performance.</p></div><span class="badge purple">Match sugerido</span></div>
+                <div class="metrics"><div class="metric"><strong>92%</strong><span>match</span></div><div class="metric"><strong>Cirag</strong><span>sugestão</span></div><div class="metric"><strong>Hoje</strong><span>aprovar</span></div></div>
+              </article>
+
+              <article class="card">
+                <div class="card-top"><div><h3>Studio · Bela Vista</h3><p>Imóvel importado por lote, mas já existe cadastro similar no Hub. Publicação bloqueada.</p></div><span class="badge red">Quarentena</span></div>
+                <div class="metrics"><div class="metric"><strong>98%</strong><span>similar</span></div><div class="metric"><strong>Geo</strong><span>igual</span></div><div class="metric"><strong>Hub</strong><span>revisar</span></div></div>
+              </article>
+
+              <article class="card">
+                <div class="card-top"><div><h3>Cobertura · Moema</h3><p>Imóvel validado, autorizado, com responsável aceito e pronto para publicação/campanha.</p></div><span class="badge green">Pronto</span></div>
+                <div class="metrics"><div class="metric"><strong>89%</strong><span>score</span></div><div class="metric"><strong>Lopes</strong><span>resp.</span></div><div class="metric"><strong>Ads</strong><span>pronto</span></div></div>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel detail">
+            <div class="panel-head">
+              <div><h3>Fluxo completo de captação</h3><small>Da entrada em lote ou cadastro do proprietário até publicação e visita.</small></div>
+            </div>
+            <div class="flow">
+              <div class="step"><div class="num">1</div><strong>Entrada</strong><span>Lote, cadastro unitário ou proprietário direto.</span></div>
+              <div class="step"><div class="num">2</div><strong>Validação IA</strong><span>Campos, fotos, preço, endereço e qualidade.</span></div>
+              <div class="step"><div class="num">3</div><strong>Duplicidade</strong><span>Comparar endereço, geo, fotos, matrícula e proprietário.</span></div>
+              <div class="step"><div class="num">4</div><strong>Autorização</strong><span>D4Sign para anúncio, visitas e tratamento de dados.</span></div>
+              <div class="step"><div class="num">5</div><strong>Match responsável</strong><span>Escolher imobiliária ou corretor autônomo ideal.</span></div>
+              <div class="step"><div class="num">6</div><strong>Aceite</strong><span>Responsável aceita assumir visitas e atendimento.</span></div>
+              <div class="step"><div class="num">7</div><strong>Publicação</strong><span>Vai para site do Hub e campanhas.</span></div>
+              <div class="step"><div class="num">8</div><strong>Visitas</strong><span>Agenda, ficha de visita e funil.</span></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div><h3>Fila operacional de captação</h3><small>Controle para o gestor saber o que publicar, bloquear, corrigir ou distribuir.</small></div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Imóvel</th>
+                    <th>Origem</th>
+                    <th>Proprietário / Enviador</th>
+                    <th>Status</th>
+                    <th>Responsável sugerido</th>
+                    <th>Match</th>
+                    <th>Pendência</th>
+                    <th>Próxima ação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Casa · Pinheiros</strong><br><span style="color:#64748b;">R$ 1.980.000 · 180m²</span></td>
+                    <td><span class="badge orange">Proprietário direto</span></td>
+                    <td>Roberto Almeida</td>
+                    <td><span class="badge orange">Sem responsável</span></td>
+                    <td>Robotton Imóveis ou João Santos</td>
+                    <td>87%</td>
+                    <td>Autorização D4Sign</td>
+                    <td>Enviar convite para assumir visitas</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Apto · Jardins</strong><br><span style="color:#64748b;">R$ 1.420.000 · 118m²</span></td>
+                    <td><span class="badge orange">Proprietário direto</span></td>
+                    <td>Ana Martins</td>
+                    <td><span class="badge purple">Match sugerido</span></td>
+                    <td>Cirag Boutique</td>
+                    <td>92%</td>
+                    <td>Aceite da imobiliária</td>
+                    <td>Solicitar aceite Cirag</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Studio · Bela Vista</strong><br><span style="color:#64748b;">R$ 480.000 · 42m²</span></td>
+                    <td><span class="badge blue">Lote OMA</span></td>
+                    <td>OMA Imóveis</td>
+                    <td><span class="badge red">Quarentena</span></td>
+                    <td>—</td>
+                    <td>98% duplicado</td>
+                    <td>Conflito de cadastro</td>
+                    <td>Auditar titularidade</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Cobertura · Moema</strong><br><span style="color:#64748b;">R$ 2.850.000 · 280m²</span></td>
+                    <td><span class="badge blue">Lote Lopes</span></td>
+                    <td>Lopes Imóveis</td>
+                    <td><span class="badge green">Pronto</span></td>
+                    <td>Lopes Imóveis</td>
+                    <td>100%</td>
+                    <td>Nenhuma</td>
+                    <td>Publicar e impulsionar</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <aside class="right-stack">
+          <section class="panel">
+            <div class="panel-head"><div><h3>Tipos de entrada</h3><small>Como o imóvel chega ao Hub</small></div></div>
+            <div class="side-list">
+              <div class="side-row"><div><strong>Lote de imobiliária</strong><span>XLSX, CSV, XML, API ou painel</span></div><div class="count blue">18</div></div>
+              <div class="side-row"><div><strong>Lote de autônomo</strong><span>parceiro com CRECI validado</span></div><div class="count cyan">4</div></div>
+              <div class="side-row"><div><strong>Proprietário direto</strong><span>cadastro pelo site do Hub</span></div><div class="count orange">64</div></div>
+              <div class="side-row"><div><strong>Cadastro manual Hub</strong><span>equipe interna ou suporte</span></div><div class="count green">12</div></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Regra para proprietário direto</h3><small>Antes de publicar</small></div></div>
+            <div class="rules">
+              <div class="rule"><div class="r-ico">1</div><div><strong>Validar imóvel</strong><span>Endereço, fotos, preço, metragem, proprietário, duplicidade e documentação mínima.</span></div></div>
+              <div class="rule"><div class="r-ico">2</div><div><strong>Assinar autorização</strong><span>Proprietário autoriza anúncio, visitas, contato comercial e tratamento de dados.</span></div></div>
+              <div class="rule"><div class="r-ico">3</div><div><strong>Escolher responsável</strong><span>Hub sugere imobiliária ou corretor autônomo por região, performance, disponibilidade e perfil do imóvel.</span></div></div>
+              <div class="rule"><div class="r-ico">4</div><div><strong>Aceite obrigatório</strong><span>Responsável precisa aceitar o imóvel antes de receber leads e visitas.</span></div></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Critérios de match</h3><small>Responsável por visitas</small></div></div>
+            <div class="rules">
+              <div class="rule"><div class="r-ico">R</div><div><strong>Região e raio</strong><span>Quem atua melhor no bairro e tem agenda disponível.</span></div></div>
+              <div class="rule"><div class="r-ico">T</div><div><strong>Tipo e ticket</strong><span>Especialidade em alto padrão, locação, comercial ou popular.</span></div></div>
+              <div class="rule"><div class="r-ico">P</div><div><strong>Performance</strong><span>SLA, conversão, visitas realizadas, propostas e fechamento.</span></div></div>
+              <div class="rule"><div class="r-ico">F</div><div><strong>Financeiro</strong><span>Contrato vigente, CRECI, repasse configurado e sem bloqueio.</span></div></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Alertas</h3><small>O que exige ação</small></div></div>
+            <div class="side-list">
+              <div class="side-row"><div><strong>Sem responsável</strong><span>imóveis de proprietário aguardando match</span></div><div class="count orange">23</div></div>
+              <div class="side-row"><div><strong>Duplicidade alta</strong><span>não publicar sem auditoria</span></div><div class="count red">31</div></div>
+              <div class="side-row"><div><strong>Sem autorização</strong><span>D4Sign pendente</span></div><div class="count red">18</div></div>
+              <div class="side-row"><div><strong>Lotes com erro</strong><span>campos obrigatórios faltando</span></div><div class="count orange">6</div></div>
+              <div class="side-row"><div><strong>Prontos para campanha</strong><span>score acima de 80</span></div><div class="count green">684</div></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Próximas ações</h3></div></div>
+            <div class="timeline">
+              <div class="timeline-item red"><strong>Hoje</strong><span>Auditar 31 duplicidades antes de liberar publicação.</span></div>
+              <div class="timeline-item orange"><strong>Hoje</strong><span>Enviar autorização para 18 proprietários diretos.</span></div>
+              <div class="timeline-item green"><strong>Amanhã</strong><span>Rodar match de responsáveis para 23 imóveis sem responsável.</span></div>
+              <div class="timeline-item"><strong>Semanal</strong><span>Relatório de lotes importados, erros, aprovados e publicados.</span></div>
+            </div>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+<script>(function(){var p=(location.pathname.split('/').pop()||'index.html');if(!p||p==='')p='index.html';document.querySelectorAll('.nav-item').forEach(function(a){var h=a.getAttribute('href');a.classList.toggle('active',h===p);});})();</script>
+</body>
+</html>

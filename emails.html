@@ -1,0 +1,824 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AiLogic Hub · E-mails</title>
+  <style>
+    :root{
+      --navy:#061936;
+      --navy-2:#0a244d;
+      --blue:#0b66ff;
+      --blue-bg:#eaf2ff;
+      --green:#16a56f;
+      --green-bg:#eafaf3;
+      --orange:#f59e0b;
+      --orange-bg:#fff7e6;
+      --red:#e94242;
+      --red-bg:#fff0f0;
+      --purple:#7257ff;
+      --purple-bg:#f1efff;
+      --gray-900:#0f172a;
+      --gray-700:#334155;
+      --gray-500:#64748b;
+      --gray-300:#d9e2ef;
+      --gray-200:#edf2f7;
+      --gray-100:#f7f9fc;
+      --white:#ffffff;
+      --shadow:0 14px 34px rgba(15,23,42,.08);
+      --soft:0 8px 22px rgba(15,23,42,.055);
+      --radius:18px;
+      --radius-sm:13px;
+      --font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--gray-900);
+      background:#f6f9fd;
+    }
+
+    .app{
+      display:grid;
+      grid-template-columns:260px 1fr;
+      min-height:100vh;
+    }
+
+    .sidebar{
+      background:linear-gradient(180deg,#071b3a,#031126);
+      color:#dce8ff;
+      padding:24px 18px;
+      position:sticky;
+      top:0;
+      height:100vh;
+      overflow:auto;
+    }
+
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+    .logo{
+      width:44px;height:44px;border-radius:13px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,#0b66ff,#10b5ff);
+      color:#fff;font-weight:900;
+    }
+    .brand strong{display:block;color:#fff;font-size:18px}
+    .brand span{display:block;color:#a8c2ee;font-size:12px;margin-top:3px}
+    .section-title{
+      font-size:11px;color:#7da2d6;letter-spacing:.08em;
+      text-transform:uppercase;font-weight:800;
+      margin:24px 10px 10px;
+    }
+    .nav-item{
+      display:flex;align-items:center;gap:12px;
+      padding:12px 13px;border-radius:13px;
+      color:#c8d8f4;font-weight:650;font-size:14px;
+      margin:4px 0;text-decoration:none;
+    }
+    .nav-item.active{
+      background:linear-gradient(135deg,#0a66ff,#0851cc);
+      color:#fff;box-shadow:0 10px 28px rgba(11,102,255,.28);
+    }
+    .ico{width:21px;text-align:center}
+    .support{
+      margin-top:34px;border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.05);border-radius:16px;
+      padding:15px;display:flex;gap:12px;align-items:center;
+    }
+    .support small{display:block;color:#9bb7e3;margin-top:2px}
+    .profile{
+      display:flex;align-items:center;gap:12px;padding:20px 4px 0;
+    }
+    .avatar{
+      width:38px;height:38px;border-radius:50%;
+      background:#0b66ff;color:#fff;display:grid;place-items:center;
+      font-weight:800;
+    }
+    .profile strong{display:block;color:#fff;font-size:13px}
+    .profile span{display:block;color:#9bb7e3;font-size:11px}
+
+    .main{padding:22px 26px 36px;overflow:hidden}
+    .header{
+      display:flex;justify-content:space-between;align-items:flex-start;
+      gap:18px;margin-bottom:18px;
+    }
+    .headline h1{
+      margin:0;font-size:28px;letter-spacing:-.03em;
+    }
+    .headline p{
+      margin:7px 0 0;color:var(--gray-500);font-size:14px;
+    }
+
+    .actions{
+      display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;
+    }
+    .pill,.btn,select,input{
+      border:1px solid var(--gray-300);
+      background:#fff;border-radius:12px;height:42px;
+      padding:0 14px;font:inherit;color:var(--gray-700);outline:none;
+    }
+    .pill{
+      display:flex;align-items:center;gap:8px;
+      font-weight:800;font-size:13px;white-space:nowrap;
+      box-shadow:var(--soft);
+    }
+    .dot{
+      width:9px;height:9px;border-radius:50%;
+      background:var(--green);
+      box-shadow:0 0 0 4px rgba(22,165,111,.12);
+    }
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;
+      gap:8px;cursor:pointer;font-weight:850;
+      color:var(--navy);box-shadow:var(--soft);
+    }
+    .btn.primary{
+      background:linear-gradient(135deg,#082653,#061936);
+      border-color:#061936;color:white;
+    }
+    .btn.blue{
+      background:linear-gradient(135deg,#0b66ff,#074cd1);
+      border-color:#0b66ff;color:white;
+    }
+    .btn.ghost{box-shadow:none;background:#fbfdff}
+    .btn.danger{color:var(--red);background:#fff;border-color:#ffd8d8}
+
+    .kpis{
+      display:grid;
+      grid-template-columns:repeat(6,minmax(145px,1fr));
+      gap:14px;margin:18px 0;
+    }
+    .kpi{
+      background:#fff;border:1px solid var(--gray-200);
+      border-radius:var(--radius);padding:16px 17px;
+      box-shadow:var(--soft);min-height:112px;
+    }
+    .kpi-top{display:flex;justify-content:space-between;gap:8px}
+    .kpi h3{margin:0;color:#1d2b4f;font-size:12px}
+    .kpi .value{margin:8px 0 4px;font-size:25px;font-weight:950;letter-spacing:-.04em}
+    .trend{font-size:11px;color:var(--green);font-weight:850}
+    .trend.red{color:var(--red)}
+    .trend.orange{color:#b86b00}
+    .kpi-icon{
+      width:38px;height:38px;border-radius:14px;
+      display:grid;place-items:center;background:var(--blue-bg);
+      color:var(--blue);font-weight:950;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:260px 360px minmax(0,1fr) 320px;
+      gap:14px;align-items:start;
+    }
+
+    .panel{
+      background:#fff;border:1px solid var(--gray-200);
+      border-radius:var(--radius);box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .panel-head{
+      padding:15px 16px;border-bottom:1px solid var(--gray-200);
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+    }
+    .panel-head h2,.panel-head h3{
+      margin:0;font-size:16px;letter-spacing:-.02em;
+    }
+    .panel-head small{
+      display:block;margin-top:3px;color:var(--gray-500);font-size:12px;
+    }
+
+    .badge{
+      display:inline-flex;align-items:center;gap:5px;
+      border-radius:999px;padding:5px 8px;font-size:10px;
+      font-weight:950;white-space:nowrap;
+    }
+    .badge.green{background:var(--green-bg);color:var(--green)}
+    .badge.blue{background:var(--blue-bg);color:var(--blue)}
+    .badge.orange{background:var(--orange-bg);color:#b86b00}
+    .badge.red{background:var(--red-bg);color:var(--red)}
+    .badge.purple{background:var(--purple-bg);color:var(--purple)}
+    .badge.gray{background:#eef2f7;color:var(--gray-700)}
+
+    /* folders */
+    .folder-list{padding:12px}
+    .folder-item{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+      padding:11px 12px;border-radius:14px;cursor:pointer;margin-bottom:6px;
+      color:#1e293b;font-weight:750;font-size:13px;
+    }
+    .folder-item:hover{background:#f8fbff}
+    .folder-item.active{
+      background:#eef6ff;color:var(--blue);
+      border:1px solid #d6e8ff;
+    }
+    .folder-name{display:flex;gap:10px;align-items:center}
+    .folder-count{
+      min-width:24px;height:24px;border-radius:8px;
+      display:grid;place-items:center;font-size:11px;font-weight:900;
+      background:#eef2f7;color:var(--gray-700);
+    }
+    .folder-item.active .folder-count{
+      background:var(--blue);color:#fff;
+    }
+    .subtext{
+      padding:0 16px 16px;color:var(--gray-500);font-size:11px;line-height:1.45;
+    }
+
+    /* email list */
+    .mailbox-top{
+      padding:13px 14px;border-bottom:1px solid var(--gray-200);display:grid;gap:10px;
+      background:#fbfdff;
+    }
+    .mailbox-top input{width:100%;height:40px}
+    .toolbar{
+      display:flex;gap:8px;flex-wrap:wrap;
+    }
+    .toolbar select{height:38px;font-size:12px;min-width:120px}
+    .mail-list{
+      max-height:720px;overflow:auto;
+    }
+    .mail-row{
+      display:grid;grid-template-columns:28px 1fr auto;
+      gap:10px;padding:13px 14px;border-bottom:1px solid #eef3f9;
+      cursor:pointer;background:#fff;
+    }
+    .mail-row:hover{background:#fbfdff}
+    .mail-row.selected{
+      background:#eef6ff;border-left:4px solid var(--blue);padding-left:10px;
+    }
+    .star{
+      width:20px;height:20px;border-radius:50%;
+      display:grid;place-items:center;color:#94a3b8;font-size:13px;
+      margin-top:1px;
+    }
+    .mail-main strong{
+      display:block;font-size:13px;color:#172554;
+    }
+    .mail-main .subject{
+      display:block;margin-top:3px;font-weight:800;font-size:12px;color:#0f172a;
+    }
+    .mail-main p{
+      margin:4px 0 0;color:var(--gray-500);font-size:11px;line-height:1.4;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+    }
+    .mail-meta{text-align:right}
+    .mail-meta time{
+      display:block;color:var(--gray-500);font-size:10px;margin-bottom:8px;
+    }
+    .unread{
+      min-width:22px;height:22px;border-radius:999px;background:var(--blue);
+      color:#fff;display:inline-grid;place-items:center;font-size:10px;font-weight:900;
+    }
+
+    /* reader */
+    .reader-toolbar{
+      display:flex;gap:8px;flex-wrap:wrap;padding:13px 16px;border-bottom:1px solid var(--gray-200);background:#fbfdff;
+    }
+    .reader-toolbar .btn{height:38px}
+    .reader{
+      min-height:760px;display:grid;grid-template-rows:auto 1fr auto;
+    }
+    .reader-head{
+      padding:18px 18px 14px;border-bottom:1px solid var(--gray-200);
+    }
+    .reader-head h2{
+      margin:0 0 10px;font-size:22px;letter-spacing:-.03em;color:#111827;
+    }
+    .reader-meta{
+      display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;
+    }
+    .sender{display:flex;gap:12px;align-items:flex-start}
+    .sender-avatar{
+      width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+      background:var(--blue-bg);color:var(--blue);font-weight:950;
+    }
+    .sender strong{display:block;font-size:13px;color:#172554}
+    .sender span{display:block;font-size:11px;color:var(--gray-500);margin-top:3px;line-height:1.35}
+    .reader-body{
+      padding:18px;line-height:1.6;font-size:14px;color:#1f2937;background:#fff;
+    }
+    .reader-body p{margin:0 0 14px}
+    .attachments{
+      display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;
+    }
+    .attachment{
+      border:1px solid var(--gray-200);border-radius:14px;padding:10px 12px;background:#fbfdff;
+      min-width:180px;
+    }
+    .attachment strong{display:block;font-size:12px;color:#172554}
+    .attachment span{display:block;color:var(--gray-500);font-size:11px;margin-top:4px}
+    .reply-box{
+      padding:14px 18px;border-top:1px solid var(--gray-200);background:#fbfdff;
+    }
+    .reply-box textarea{
+      width:100%;min-height:96px;border:1px solid var(--gray-300);border-radius:14px;
+      padding:12px 14px;font:inherit;resize:vertical;outline:none;background:#fff;
+    }
+    .reply-actions{
+      display:flex;justify-content:flex-end;gap:10px;margin-top:10px;flex-wrap:wrap;
+    }
+
+    /* right column */
+    .right-stack{display:grid;gap:14px}
+    .side-list{padding:10px 14px 14px;display:grid;gap:8px}
+    .side-row{
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+      padding:9px 0;border-bottom:1px solid #eef3f9;
+    }
+    .side-row:last-child{border-bottom:0}
+    .side-row strong{display:block;color:#172554;font-size:12px}
+    .side-row span{display:block;color:var(--gray-500);font-size:11px;margin-top:2px}
+    .count{
+      font-weight:950;min-width:28px;height:28px;border-radius:10px;
+      display:grid;place-items:center;background:#f1f5f9;color:var(--gray-700);font-size:12px;
+    }
+    .count.red{background:var(--red-bg);color:var(--red)}
+    .count.orange{background:var(--orange-bg);color:#b86b00}
+    .count.green{background:var(--green-bg);color:var(--green)}
+    .count.blue{background:var(--blue-bg);color:var(--blue)}
+
+    .score{
+      padding:15px 16px;display:grid;gap:12px;
+    }
+    .score-main{display:flex;align-items:center;gap:14px}
+    .score-circle{
+      width:70px;height:70px;border-radius:50%;
+      display:grid;place-items:center;
+      background:conic-gradient(var(--green) 0 86%, #edf2f7 86% 100%);
+      position:relative;font-weight:950;color:#064e3b;
+    }
+    .score-circle:before{
+      content:"";position:absolute;width:52px;height:52px;border-radius:50%;background:#fff;
+    }
+    .score-circle span{position:relative}
+    .progress{
+      height:7px;background:#eef2f7;border-radius:999px;overflow:hidden;margin-top:6px;
+    }
+    .progress b{
+      display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#0b66ff,#19c37d);
+    }
+
+    .timeline{padding:10px 14px 14px;display:grid;gap:9px}
+    .timeline-item{border-left:3px solid var(--blue);padding:2px 0 2px 10px}
+    .timeline-item strong{font-size:12px;display:block;color:#172554}
+    .timeline-item span{font-size:11px;color:var(--gray-500);display:block;margin-top:3px;line-height:1.35}
+
+    .modal{
+      position:fixed;inset:0;background:rgba(3,17,38,.5);
+      display:none;align-items:center;justify-content:center;padding:24px;z-index:20;
+    }
+    .modal.open{display:flex}
+    .modal-card{
+      background:#fff;width:min(720px,100%);border-radius:24px;
+      box-shadow:0 30px 80px rgba(0,0,0,.25);overflow:hidden;
+    }
+    .modal-head{
+      padding:20px 22px;border-bottom:1px solid var(--gray-200);
+      display:flex;justify-content:space-between;gap:18px;
+    }
+    .modal-head h2{margin:0;font-size:20px}
+    .close{
+      border:0;background:#f1f5f9;width:36px;height:36px;border-radius:12px;
+      cursor:pointer;font-size:18px;font-weight:900;color:var(--gray-700);
+    }
+    .form-grid{
+      display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:18px 22px 22px;
+    }
+    .field label{
+      display:block;font-size:12px;font-weight:850;color:#172554;margin-bottom:6px;
+    }
+    .field input,.field select{
+      width:100%;height:42px;box-shadow:none;
+    }
+    .field.full{grid-column:1/-1}
+    .field textarea{
+      width:100%;min-height:90px;border:1px solid var(--gray-300);border-radius:12px;
+      padding:12px 14px;font:inherit;outline:none;resize:vertical;
+    }
+    .modal-actions{
+      display:flex;justify-content:flex-end;gap:10px;padding:0 22px 22px;
+    }
+
+    @media (max-width:1650px){
+      .layout{grid-template-columns:240px 330px minmax(0,1fr)}
+      .right-stack{grid-column:1/-1;grid-template-columns:repeat(4,1fr)}
+    }
+    @media (max-width:1250px){
+      .app{grid-template-columns:1fr}
+      .sidebar{position:relative;height:auto}
+      .kpis{grid-template-columns:repeat(3,1fr)}
+      .layout{grid-template-columns:1fr}
+      .right-stack{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:720px){
+      .main{padding:18px 14px}
+      .header{flex-direction:column}
+      .kpis,.right-stack,.form-grid{grid-template-columns:1fr}
+      .actions{justify-content:flex-start}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+  <div class="brand"><div class="logo">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
+  <div class="section-title">Operação</div>
+  <a class="nav-item" href="index.html"><span class="ico">⌂</span>Visão Geral</a>
+  <a class="nav-item" href="imobiliarias.html"><span class="ico">▥</span>Imobiliárias</a>
+  <a class="nav-item" href="corretores.html"><span class="ico">♟</span>Corretores & Equipes</a>
+  <a class="nav-item" href="pessoas.html"><span class="ico">♙</span>Pessoas & Contatos</a>
+  <a class="nav-item" href="leads.html"><span class="ico">◎</span>Leads</a>
+  <a class="nav-item" href="funil.html"><span class="ico">▽</span>Funil de Negócios</a>
+  <a class="nav-item" href="agenda.html"><span class="ico">▦</span>Agenda</a>
+  <a class="nav-item" href="whatsapp.html"><span class="ico">◌</span>WhatsApp · Auditoria</a>
+  <a class="nav-item" href="emails.html"><span class="ico">✉</span>E-mails</a>
+  <div class="section-title">Catálogo</div>
+  <a class="nav-item" href="imoveis.html"><span class="ico">▤</span>Imóveis</a>
+  <a class="nav-item" href="mapa.html"><span class="ico">⌘</span>Mapa de Atuação</a>
+  <a class="nav-item" href="captacao.html"><span class="ico">🏠</span>Captação de Imóveis</a>
+  <a class="nav-item" href="assinaturas.html"><span class="ico">✍</span>Assinaturas · Docs</a>
+  <a class="nav-item" href="anuncios.html"><span class="ico">↗</span>Anúncios · Rodízios</a>
+  <div class="section-title">Inteligência</div>
+  <a class="nav-item" href="credito.html"><span class="ico">$</span>Crédito & Financiamento</a>
+  <a class="nav-item" href="locacao.html"><span class="ico">⇆</span>Locação Online</a>
+  <a class="nav-item" href="relatorios.html"><span class="ico">↟</span>Relatórios</a>
+  <a class="nav-item" href="insights.html"><span class="ico">✦</span>Insights da IA</a>
+  <div class="section-title">Plataforma</div>
+  <a class="nav-item" href="integracoes.html"><span class="ico">⇄</span>Integrações & Automações</a>
+  <a class="nav-item" href="site.html"><span class="ico">🌐</span>Site do Hub</a>
+  <a class="nav-item" href="financeiro.html"><span class="ico">R$</span>Financeiro & Repasses</a>
+  <a class="nav-item" href="suporte.html"><span class="ico">?</span>Suporte & Treinamento</a>
+  <a class="nav-item" href="administrador.html"><span class="ico">⚙</span>Administrador</a>
+  <a class="nav-item" href="config-ia.html"><span class="ico">◈</span>Configurações · IA</a>
+  <div class="support"><div class="ico">☏</div><div><strong>Suporte</strong><small>Central de Ajuda</small></div></div>
+  <div class="profile"><div class="avatar">AF</div><div><strong>Alessandro Ferreira</strong><span>Diretoria · Admin do Hub</span></div></div>
+</aside>
+
+    <main class="main">
+      <header class="header">
+        <div class="headline">
+          <h1>E-mails</h1>
+          <p>Central de controle dos e-mails do Hub, imobiliárias, corretores, assinaturas, campanhas e notificações operacionais.</p>
+        </div>
+        <div class="actions">
+          <div class="pill"><span class="dot"></span>Sistema ativo · 6 imobiliárias</div>
+          <button class="btn" onclick="openModal()">＋ Conectar caixa</button>
+          <button class="btn primary" onclick="openModal()">Criar automação</button>
+        </div>
+      </header>
+
+      <section class="kpis">
+        <article class="kpi"><div class="kpi-top"><div><h3>E-mails recebidos hoje</h3><div class="value">64</div><div class="trend">↑ 14% vs. ontem</div></div><div class="kpi-icon">✉</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Não lidos</h3><div class="value">18</div><div class="trend orange">7 exigem atenção</div></div><div class="kpi-icon">●</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Assinaturas / docs</h3><div class="value">11</div><div class="trend">6 concluídas hoje</div></div><div class="kpi-icon">▤</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Campanhas / leads</h3><div class="value">9</div><div class="trend">2 novas respostas</div></div><div class="kpi-icon">↗</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Tempo médio de triagem</h3><div class="value">00:23</div><div class="trend">dentro da meta</div></div><div class="kpi-icon">↺</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Score de organização</h3><div class="value">86%</div><div class="trend">boas práticas ativas</div></div><div class="kpi-icon">✓</div></div></article>
+      </section>
+
+      <section class="layout">
+        <aside class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Caixas e pastas</h3>
+              <small>Contas conectadas do Hub</small>
+            </div>
+            <span class="badge green">3 conectadas</span>
+          </div>
+          <div class="folder-list">
+            <div class="folder-item active">
+              <div class="folder-name"><span>📥</span>Entrada</div>
+              <div class="folder-count">18</div>
+            </div>
+            <div class="folder-item">
+              <div class="folder-name"><span>⭐</span>Importantes</div>
+              <div class="folder-count">7</div>
+            </div>
+            <div class="folder-item">
+              <div class="folder-name"><span>🧾</span>Assinaturas · Docs</div>
+              <div class="folder-count">11</div>
+            </div>
+            <div class="folder-item">
+              <div class="folder-name"><span>🏢</span>Imobiliárias</div>
+              <div class="folder-count">13</div>
+            </div>
+            <div class="folder-item">
+              <div class="folder-name"><span>📣</span>Campanhas</div>
+              <div class="folder-count">9</div>
+            </div>
+            <div class="folder-item">
+              <div class="folder-name"><span>🔔</span>Notificações</div>
+              <div class="folder-count">5</div>
+            </div>
+            <div class="folder-item">
+              <div class="folder-name"><span>📤</span>Enviados</div>
+              <div class="folder-count">24</div>
+            </div>
+            <div class="folder-item">
+              <div class="folder-name"><span>📦</span>Arquivados</div>
+              <div class="folder-count">82</div>
+            </div>
+            <div class="folder-item">
+              <div class="folder-name"><span>🗑️</span>Lixeira</div>
+              <div class="folder-count">3</div>
+            </div>
+          </div>
+          <div class="subtext">
+            Contas conectadas: <strong>admin@ailogichub.app</strong>, <strong>docs@ailogichub.app</strong> e <strong>campanhas@ailogichub.app</strong>.
+          </div>
+        </aside>
+
+        <section class="panel">
+          <div class="mailbox-top">
+            <input type="search" placeholder="Buscar e-mail, remetente, assunto, imobiliária ou documento..." />
+            <div class="toolbar">
+              <select><option>Todas as caixas</option><option>admin@ailogichub.app</option><option>docs@ailogichub.app</option><option>campanhas@ailogichub.app</option></select>
+              <select><option>Todos os tipos</option><option>Imobiliária</option><option>Assinatura</option><option>Campanha</option><option>Financeiro</option></select>
+              <select><option>Status: todos</option><option>Não lido</option><option>Importante</option><option>Em tratamento</option><option>Resolvido</option></select>
+            </div>
+          </div>
+
+          <div class="mail-list">
+            <div class="mail-row selected" onclick="selectMail('Cirag Boutique Imobiliária','Re: Documentação para assinatura do contrato','Boa tarde, seguem os documentos finais para validação e assinatura digital do cliente Aline Rocha.','Hoje · 09:42','Assinatura / Contrato','admin@ailogichub.app','Cirag Boutique','Prioridade alta','2 anexos','anexos: contrato_venda.pdf · rg_cliente.pdf')">
+              <div class="star">☆</div>
+              <div class="mail-main">
+                <strong>Cirag Boutique Imobiliária</strong>
+                <span class="subject">Re: Documentação para assinatura do contrato</span>
+                <p>Boa tarde, seguem os documentos finais para validação e assinatura digital do cliente Aline Rocha...</p>
+              </div>
+              <div class="mail-meta">
+                <time>09:42</time>
+                <span class="unread">2</span>
+              </div>
+            </div>
+
+            <div class="mail-row" onclick="selectMail('Lopes Imóveis','Visita confirmada para sábado · Cobertura Moema','Cliente confirmou a visita ao imóvel de alto padrão no sábado às 09h e solicitou orientações sobre a portaria.','Hoje · 08:17','Visita / Operação','admin@ailogichub.app','Lopes Imóveis','Normal','1 anexo','anexo: ficha_visita.pdf')">
+              <div class="star">☆</div>
+              <div class="mail-main">
+                <strong>Lopes Imóveis</strong>
+                <span class="subject">Visita confirmada para sábado · Cobertura Moema</span>
+                <p>Cliente confirmou a visita ao imóvel de alto padrão no sábado às 09h e solicitou orientações...</p>
+              </div>
+              <div class="mail-meta"><time>08:17</time></div>
+            </div>
+
+            <div class="mail-row" onclick="selectMail('Google Ads','Relatório semanal da campanha · Maio','Sua campanha gerou 48 leads no período, com 6 conversões em formulários e 12 cliques no WhatsApp.','Ontem · 18:05','Campanha / Marketing','campanhas@ailogichub.app','Hub','Importante','1 anexo','anexo: relatorio_google_ads_maio.pdf')">
+              <div class="star">☆</div>
+              <div class="mail-main">
+                <strong>Google Ads</strong>
+                <span class="subject">Relatório semanal da campanha · Maio</span>
+                <p>Sua campanha gerou 48 leads no período, com 6 conversões em formulários e 12 cliques no WhatsApp...</p>
+              </div>
+              <div class="mail-meta"><time>Ontem</time><span class="unread">1</span></div>
+            </div>
+
+            <div class="mail-row" onclick="selectMail('OMA Imóveis','Cliente respondeu proposta · Mariana Lima','Boa tarde, a cliente Mariana Lima respondeu com contraproposta e pediu nova simulação de financiamento.','Ontem · 16:11','Proposta / Negociação','admin@ailogichub.app','OMA Imóveis','Atenção','0 anexos','sem anexos')">
+              <div class="star">☆</div>
+              <div class="mail-main">
+                <strong>OMA Imóveis</strong>
+                <span class="subject">Cliente respondeu proposta · Mariana Lima</span>
+                <p>Boa tarde, a cliente Mariana Lima respondeu com contraproposta e pediu nova simulação...</p>
+              </div>
+              <div class="mail-meta"><time>Ontem</time></div>
+            </div>
+
+            <div class="mail-row" onclick="selectMail('Clicksign','Assinatura concluída · Contrato de locação','O documento “Contrato de Locação - Julio Cardoso” foi assinado por todas as partes e está disponível para download.','Ontem · 14:37','Assinatura concluída','docs@ailogichub.app','Clicksign','Resolvido','1 anexo','anexo: contrato_assinado.pdf')">
+              <div class="star">☆</div>
+              <div class="mail-main">
+                <strong>Clicksign</strong>
+                <span class="subject">Assinatura concluída · Contrato de locação</span>
+                <p>O documento “Contrato de Locação - Julio Cardoso” foi assinado por todas as partes...</p>
+              </div>
+              <div class="mail-meta"><time>Ontem</time></div>
+            </div>
+
+            <div class="mail-row" onclick="selectMail('Brava Company','Solicitação de acesso à caixa compartilhada','Precisamos liberar a nova corretora João Victor para visualizar a agenda, e-mails e notificações da equipe.','2 dias','Operacional / Acesso','admin@ailogichub.app','Brava Company','Em análise','0 anexos','sem anexos')">
+              <div class="star">☆</div>
+              <div class="mail-main">
+                <strong>Brava Company</strong>
+                <span class="subject">Solicitação de acesso à caixa compartilhada</span>
+                <p>Precisamos liberar a nova corretora João Victor para visualizar a agenda, e-mails e notificações...</p>
+              </div>
+              <div class="mail-meta"><time>2 dias</time></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="reader-toolbar">
+            <button class="btn ghost">Responder</button>
+            <button class="btn ghost">Encaminhar</button>
+            <button class="btn ghost">Criar tarefa</button>
+            <button class="btn ghost">Vincular ao funil</button>
+            <button class="btn danger">Arquivar</button>
+          </div>
+
+          <div class="reader">
+            <div class="reader-head">
+              <h2 id="mailSubject">Re: Documentação para assinatura do contrato</h2>
+              <div class="reader-meta">
+                <div class="sender">
+                  <div class="sender-avatar" id="senderAvatar">CI</div>
+                  <div>
+                    <strong id="mailSender">Cirag Boutique Imobiliária</strong>
+                    <span id="mailSubMeta">Para: admin@ailogichub.app · Categoria: Assinatura / Contrato</span>
+                    <span id="mailAgency">Imobiliária vinculada: Cirag Boutique · Prioridade: alta</span>
+                  </div>
+                </div>
+                <span class="badge red" id="priorityBadge">Prioridade alta</span>
+              </div>
+            </div>
+
+            <div class="reader-body">
+              <p id="mailPreviewText">Boa tarde, seguem os documentos finais para validação e assinatura digital do cliente Aline Rocha.</p>
+              <p>
+                Prezados,<br><br>
+                Encaminhamos a documentação final referente ao processo de assinatura. Favor conferir os anexos, validar os dados do cliente e seguir com o fluxo de assinatura digital ainda hoje.
+              </p>
+              <p>
+                Caso esteja tudo correto, por favor retornar com a confirmação para que possamos registrar a etapa no funil e concluir a operação.
+              </p>
+              <p>
+                Atenciosamente,<br>
+                Equipe Cirag Boutique Imobiliária
+              </p>
+
+              <div class="attachments">
+                <div class="attachment">
+                  <strong>contrato_venda.pdf</strong>
+                  <span>PDF · 1,8 MB</span>
+                </div>
+                <div class="attachment">
+                  <strong>rg_cliente.pdf</strong>
+                  <span>PDF · 420 KB</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="reply-box">
+              <textarea placeholder="Responder, adicionar observação interna ou instrução para a equipe..."></textarea>
+              <div class="reply-actions">
+                <button class="btn">Salvar rascunho</button>
+                <button class="btn blue">Enviar para equipe</button>
+                <button class="btn primary">Responder e concluir</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="right-stack">
+          <section class="panel">
+            <div class="panel-head"><div><h3>Resumo operacional</h3><small>E-mails críticos do dia</small></div></div>
+            <div class="side-list">
+              <div class="side-row"><div><strong>Não lidos importantes</strong><span>podem impactar operação</span></div><div class="count red">7</div></div>
+              <div class="side-row"><div><strong>Assinaturas pendentes</strong><span>aguardando ação</span></div><div class="count orange">5</div></div>
+              <div class="side-row"><div><strong>Campanhas com resposta</strong><span>leads e retorno de mídia</span></div><div class="count blue">4</div></div>
+              <div class="side-row"><div><strong>Caixas desconectadas</strong><span>exigem reconexão</span></div><div class="count orange">1</div></div>
+              <div class="side-row"><div><strong>E-mails resolvidos hoje</strong><span>triados e concluídos</span></div><div class="count green">23</div></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Score da caixa</h3><small>Organização e processamento</small></div></div>
+            <div class="score">
+              <div class="score-main">
+                <div class="score-circle"><span>86%</span></div>
+                <div>
+                  <strong>Fluxo saudável</strong>
+                  <span style="display:block;color:var(--gray-500);font-size:12px;margin-top:5px;">Maior gargalo atual: assinaturas aguardando retorno ainda hoje.</span>
+                </div>
+              </div>
+              <div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:850;color:#172554;"><span>Triagem</span><span>83%</span></div><div class="progress"><b style="width:83%;"></b></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:850;color:#172554;"><span>Organização por etiquetas</span><span>91%</span></div><div class="progress"><b style="width:91%;"></b></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:850;color:#172554;"><span>Vinculação ao operacional</span><span>79%</span></div><div class="progress"><b style="width:79%;"></b></div></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Automação / regras</h3><small>Fluxos ativos</small></div></div>
+            <div class="side-list">
+              <div class="side-row"><div><strong>Assinaturas</strong><span>marcar como prioridade alta</span></div><span class="badge green">Ativa</span></div>
+              <div class="side-row"><div><strong>Campanhas</strong><span>encaminhar para marketing</span></div><span class="badge green">Ativa</span></div>
+              <div class="side-row"><div><strong>Imobiliárias</strong><span>rotular por parceiro automaticamente</span></div><span class="badge green">Ativa</span></div>
+              <div class="side-row"><div><strong>Sem resposta</strong><span>alertar gestor após SLA</span></div><span class="badge orange">Revisar</span></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Trilha de atividade</h3><small>Últimos eventos</small></div></div>
+            <div class="timeline">
+              <div class="timeline-item"><strong>09:42 · Documento recebido</strong><span>Cirag Boutique enviou contrato e RG para assinatura.</span></div>
+              <div class="timeline-item"><strong>08:17 · Visita confirmada</strong><span>Lopes Imóveis confirmou visita do sábado às 09h.</span></div>
+              <div class="timeline-item"><strong>Ontem · Campanha</strong><span>Google Ads enviou relatório semanal com 48 leads.</span></div>
+              <div class="timeline-item"><strong>Ontem · Assinatura concluída</strong><span>Clicksign finalizou contrato de locação.</span></div>
+            </div>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h2>Conectar caixa / criar automação</h2>
+          <p style="margin:5px 0 0;color:var(--gray-500);font-size:13px;">Configure a conta, regras, etiquetas, encaminhamento e integração com o operacional do Hub.</p>
+        </div>
+        <button class="close" onclick="closeModal()">×</button>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Tipo de conta</label>
+          <select>
+            <option>Google Workspace / Gmail</option>
+            <option>Microsoft 365 / Outlook</option>
+            <option>IMAP / SMTP</option>
+            <option>Caixa compartilhada</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Caixa vinculada</label>
+          <input value="admin@ailogichub.app" />
+        </div>
+        <div class="field">
+          <label>Categoria automática</label>
+          <select>
+            <option>Assinaturas / Docs</option>
+            <option>Imobiliárias</option>
+            <option>Campanhas</option>
+            <option>Financeiro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Ação principal</label>
+          <select>
+            <option>Criar tarefa operacional</option>
+            <option>Vincular ao funil</option>
+            <option>Somente etiquetar</option>
+            <option>Encaminhar para equipe</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>Descrição da automação</label>
+          <textarea>Quando chegar e-mail de assinatura, marcar como prioridade alta, etiquetar em “Assinaturas · Docs”, notificar o gestor e criar tarefa vinculada ao negócio correspondente.</textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal()">Cancelar</button>
+        <button class="btn primary" onclick="closeModal()">Salvar configuração</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(){ document.getElementById('modal').classList.add('open'); }
+    function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+    function selectMail(sender, subject, preview, when, category, mailbox, agency, priority, attachCount, attachText){
+      document.querySelectorAll('.mail-row').forEach(x => x.classList.remove('selected'));
+      if (event && event.currentTarget) event.currentTarget.classList.add('selected');
+
+      const initials = sender.split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase();
+      document.getElementById('senderAvatar').textContent = initials;
+      document.getElementById('mailSender').textContent = sender;
+      document.getElementById('mailSubject').textContent = subject;
+      document.getElementById('mailPreviewText').textContent = preview;
+      document.getElementById('mailSubMeta').textContent = 'Para: ' + mailbox + ' · Categoria: ' + category;
+      document.getElementById('mailAgency').textContent = 'Imobiliária/Origem: ' + agency + ' · Data: ' + when;
+      document.getElementById('priorityBadge').textContent = priority;
+
+      const badge = document.getElementById('priorityBadge');
+      badge.className = 'badge ' + (
+        priority.toLowerCase().includes('alta') ? 'red' :
+        priority.toLowerCase().includes('atenção') ? 'orange' :
+        priority.toLowerCase().includes('resolvido') ? 'green' : 'blue'
+      );
+
+      const attachments = document.querySelector('.attachments');
+      attachments.innerHTML = '';
+      if (!attachText.toLowerCase().includes('sem anexos')) {
+        attachText.replace('anexos:','').split('·').forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'attachment';
+          div.innerHTML = '<strong>' + item.trim() + '</strong><span>' + attachCount + '</span>';
+          attachments.appendChild(div);
+        });
+      } else {
+        const div = document.createElement('div');
+        div.className = 'attachment';
+        div.innerHTML = '<strong>Sem anexos</strong><span>Nenhum arquivo vinculado</span>';
+        attachments.appendChild(div);
+      }
+    }
+
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') closeModal();
+    });
+  </script>
+
+<script>(function(){var p=(location.pathname.split('/').pop()||'index.html');if(!p||p==='')p='index.html';document.querySelectorAll('.nav-item').forEach(function(a){var h=a.getAttribute('href');a.classList.toggle('active',h===p);});})();</script>
+</body>
+</html>

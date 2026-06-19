@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AiLogic Hub · Assinaturas e Documentos</title>
+  <style>
+    :root{
+      --navy:#061936; --blue:#0b66ff; --blue2:#eaf2ff; --green:#16a56f; --green2:#eafaf3;
+      --orange:#f59e0b; --orange2:#fff7e6; --red:#e94242; --red2:#fff0f0; --purple:#7257ff;
+      --purple2:#f1efff; --gray900:#0f172a; --gray700:#334155; --gray500:#64748b;
+      --gray300:#d9e2ef; --gray200:#edf2f7; --gray100:#f7f9fc; --white:#fff;
+      --shadow:0 14px 34px rgba(15,23,42,.08); --soft:0 8px 22px rgba(15,23,42,.055);
+      --radius:18px; --font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:var(--font);background:#f6f9fd;color:var(--gray900)}
+    .app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+
+    .sidebar{background:linear-gradient(180deg,#071b3a,#031126);color:#dce8ff;padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto}
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+    .logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
+    .brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#a8c2ee;font-size:12px;margin-top:3px}
+    .section-title{font-size:11px;color:#7da2d6;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:24px 10px 10px}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:13px;color:#c8d8f4;font-weight:650;font-size:14px;margin:4px 0;text-decoration:none}
+    .nav-item.active{background:linear-gradient(135deg,#0a66ff,#0851cc);color:#fff;box-shadow:0 10px 28px rgba(11,102,255,.28)}
+    .ico{width:21px;text-align:center}
+    .support{margin-top:34px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);border-radius:16px;padding:15px;display:flex;gap:12px;align-items:center}
+    .support small{color:#9bb7e3;display:block;margin-top:2px}
+    .profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0}
+    .avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:white;display:grid;place-items:center;font-weight:800}
+    .profile strong{color:white;font-size:13px;display:block}.profile span{color:#9bb7e3;font-size:11px}
+
+    .main{padding:22px 26px 36px;overflow:hidden}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}
+    .headline h1{margin:0;font-size:28px;letter-spacing:-.03em}.headline p{margin:7px 0 0;color:var(--gray500);font-size:14px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .pill,.btn,select,input{border:1px solid var(--gray300);background:#fff;border-radius:12px;height:42px;padding:0 14px;font:inherit;color:var(--gray700);outline:none}
+    .pill{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;white-space:nowrap;box-shadow:var(--soft)}
+    .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(22,165,111,.12)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-weight:850;color:var(--navy);box-shadow:var(--soft)}
+    .btn.primary{background:linear-gradient(135deg,#082653,#061936);border-color:#061936;color:white}
+    .btn.blue{background:linear-gradient(135deg,#0b66ff,#074cd1);border-color:#0b66ff;color:white}
+    .btn.ghost{box-shadow:none;background:#fbfdff}.btn.danger{color:var(--red);background:#fff;border-color:#ffd8d8}
+
+    .kpis{display:grid;grid-template-columns:repeat(6,minmax(145px,1fr));gap:14px;margin:18px 0}
+    .kpi{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);padding:16px 17px;box-shadow:var(--soft);min-height:112px}
+    .kpi-top{display:flex;justify-content:space-between;gap:8px}.kpi h3{margin:0;color:#1d2b4f;font-size:12px}
+    .kpi .value{margin:8px 0 4px;font-size:25px;font-weight:950;letter-spacing:-.04em}
+    .trend{font-size:11px;color:var(--green);font-weight:850}.trend.red{color:var(--red)}.trend.orange{color:#b86b00}
+    .kpi-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950}
+
+    .panel{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .panel-head{padding:15px 16px;border-bottom:1px solid var(--gray200);display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .panel-head h2,.panel-head h3{margin:0;font-size:16px;letter-spacing:-.02em}.panel-head small{display:block;margin-top:3px;color:var(--gray500);font-size:12px}
+
+    .layout{display:grid;grid-template-columns:310px minmax(0,1fr) 340px;gap:14px;align-items:start}
+    .badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:950;white-space:nowrap}
+    .badge.green{background:var(--green2);color:var(--green)}.badge.blue{background:var(--blue2);color:var(--blue)}
+    .badge.orange{background:var(--orange2);color:#b86b00}.badge.red{background:var(--red2);color:var(--red)}
+    .badge.purple{background:var(--purple2);color:var(--purple)}.badge.gray{background:#eef2f7;color:var(--gray700)}
+
+    .filters{padding:14px;display:grid;gap:12px}
+    .field label{display:block;font-size:12px;font-weight:850;color:#172554;margin-bottom:6px}
+    .field input,.field select{width:100%;height:42px;box-shadow:none}
+    .templates{padding:12px;display:grid;gap:10px;max-height:520px;overflow:auto}
+    .template{border:1px solid var(--gray200);border-radius:16px;padding:12px;background:#fff;cursor:pointer;transition:.15s ease}
+    .template:hover{transform:translateY(-1px);box-shadow:var(--soft)}
+    .template.active{border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,102,255,.10)}
+    .template-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .doc-icon{width:36px;height:36px;border-radius:12px;background:var(--blue2);color:var(--blue);display:grid;place-items:center;font-weight:950;flex:0 0 auto}
+    .template-name{display:flex;gap:10px;align-items:flex-start}
+    .template-name strong{display:block;color:#172554;font-size:13px}.template-name span{display:block;color:var(--gray500);font-size:11px;margin-top:2px;line-height:1.35}
+    .template-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+    .tmetric{background:#fbfdff;border:1px solid var(--gray200);border-radius:12px;padding:7px;text-align:center}
+    .tmetric strong{display:block;font-size:13px;color:#172554}.tmetric span{display:block;color:var(--gray500);font-size:10px;margin-top:2px}
+
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;padding:14px 16px;border-bottom:1px solid var(--gray200);align-items:center;background:#fbfdff}
+    .tabs{display:flex;gap:6px;overflow:auto}
+    .tabs button{border:0;background:#edf3fb;color:var(--gray700);border-radius:999px;padding:9px 11px;font-weight:850;font-size:12px;cursor:pointer;white-space:nowrap}
+    .tabs button.active{background:var(--navy);color:#fff}
+    .search{min-width:320px;flex:1;height:40px}.toolbar select{height:40px;font-size:12px;min-width:135px}
+
+    .doc-table{overflow:auto}
+    table{border-collapse:separate;border-spacing:0;width:100%;min-width:980px}
+    th,td{padding:13px 14px;border-bottom:1px solid #eef3f9;text-align:left;font-size:12px;vertical-align:middle}
+    th{color:#475569;background:#fbfdff;font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:900}
+    tr:hover td{background:#fbfdff}
+    .doc-title{display:flex;gap:10px;align-items:center;min-width:240px}
+    .doc-title .doc-icon{width:34px;height:34px;font-size:13px}
+    .doc-title strong{display:block;color:#172554;font-size:13px}.doc-title span{display:block;color:var(--gray500);font-size:11px;margin-top:2px}
+    .progress{height:7px;background:#eef2f7;border-radius:999px;overflow:hidden;min-width:90px}
+    .progress b{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#0b66ff,#16a56f)}
+    .people{display:flex;align-items:center}.mini-avatar{width:26px;height:26px;border-radius:50%;background:var(--blue2);color:var(--blue);display:grid;place-items:center;font-size:10px;font-weight:950;border:2px solid #fff;margin-left:-7px}.mini-avatar:first-child{margin-left:0}
+
+    .detail-panel{margin-top:14px;background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--soft);overflow:hidden}
+    .detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--gray200)}
+    .detail-item{padding:13px 14px;border-right:1px solid var(--gray200)}
+    .detail-item:last-child{border-right:0}.detail-item label{display:block;color:var(--gray500);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+    .detail-item strong{display:block;color:#172554;font-size:12px}.detail-item span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
+
+    .right-stack{display:grid;gap:14px}
+    .side-list{padding:10px 14px 14px;display:grid;gap:8px}
+    .side-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #eef3f9}
+    .side-row:last-child{border-bottom:0}.side-row strong{display:block;color:#172554;font-size:12px}
+    .side-row span{display:block;color:var(--gray500);font-size:11px;margin-top:2px;line-height:1.35}
+    .count{font-weight:950;min-width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:#f1f5f9;color:var(--gray700);font-size:12px}
+    .count.red{background:var(--red2);color:var(--red)}.count.orange{background:var(--orange2);color:#b86b00}.count.green{background:var(--green2);color:var(--green)}.count.blue{background:var(--blue2);color:var(--blue)}
+
+    .rules{display:grid;gap:8px;padding:14px}
+    .rule{display:flex;gap:10px;border:1px solid var(--gray200);border-radius:14px;background:#fbfdff;padding:10px}
+    .rule .r-ico{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;flex:0 0 auto}
+    .rule strong{display:block;color:#172554;font-size:12px}.rule span{display:block;color:var(--gray500);font-size:11px;margin-top:3px;line-height:1.35}
+    .timeline{padding:10px 14px 14px;display:grid;gap:9px}
+    .timeline-item{border-left:3px solid var(--blue);padding:2px 0 2px 10px}
+    .timeline-item.red{border-left-color:var(--red)}.timeline-item.orange{border-left-color:var(--orange)}.timeline-item.green{border-left-color:var(--green)}
+    .timeline-item strong{font-size:12px;display:block;color:#172554}.timeline-item span{font-size:11px;color:var(--gray500);display:block;margin-top:3px;line-height:1.35}
+
+    .flow{padding:14px;display:grid;gap:10px}
+    .flow-step{display:flex;align-items:center;gap:10px}
+    .flow-step .circle{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;font-size:12px;flex:0 0 auto}
+    .flow-step strong{display:block;color:#172554;font-size:12px}.flow-step span{display:block;color:var(--gray500);font-size:11px;margin-top:2px}
+    .connector{width:2px;height:18px;background:#dbe7f6;margin-left:14px}
+
+    .modal{position:fixed;inset:0;background:rgba(3,17,38,.5);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}
+    .modal.open{display:flex}.modal-card{background:#fff;width:min(900px,100%);border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.25);overflow:hidden}
+    .modal-head{padding:20px 22px;border-bottom:1px solid var(--gray200);display:flex;justify-content:space-between;gap:18px}
+    .modal-head h2{margin:0;font-size:20px}.close{border:0;background:#f1f5f9;width:36px;height:36px;border-radius:12px;cursor:pointer;font-size:18px;font-weight:900;color:var(--gray700)}
+    .form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:18px 22px 22px}.field.full{grid-column:1/-1}.field.two{grid-column:span 2}
+    .field textarea{width:100%;min-height:90px;border:1px solid var(--gray300);border-radius:12px;padding:12px 14px;font:inherit;outline:none;resize:vertical}
+    .modal-actions{display:flex;justify-content:flex-end;gap:10px;padding:0 22px 22px}
+
+    @media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.layout{grid-template-columns:300px 1fr}.right-stack{grid-column:1/-1;grid-template-columns:repeat(4,1fr)}}
+    @media(max-width:1100px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.right-stack,.detail-grid,.form-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+  <div class="brand"><div class="logo">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
+  <div class="section-title">Operação</div>
+  <a class="nav-item" href="index.html"><span class="ico">⌂</span>Visão Geral</a>
+  <a class="nav-item" href="imobiliarias.html"><span class="ico">▥</span>Imobiliárias</a>
+  <a class="nav-item" href="corretores.html"><span class="ico">♟</span>Corretores & Equipes</a>
+  <a class="nav-item" href="pessoas.html"><span class="ico">♙</span>Pessoas & Contatos</a>
+  <a class="nav-item" href="leads.html"><span class="ico">◎</span>Leads</a>
+  <a class="nav-item" href="funil.html"><span class="ico">▽</span>Funil de Negócios</a>
+  <a class="nav-item" href="agenda.html"><span class="ico">▦</span>Agenda</a>
+  <a class="nav-item" href="whatsapp.html"><span class="ico">◌</span>WhatsApp · Auditoria</a>
+  <a class="nav-item" href="emails.html"><span class="ico">✉</span>E-mails</a>
+  <div class="section-title">Catálogo</div>
+  <a class="nav-item" href="imoveis.html"><span class="ico">▤</span>Imóveis</a>
+  <a class="nav-item" href="mapa.html"><span class="ico">⌘</span>Mapa de Atuação</a>
+  <a class="nav-item" href="captacao.html"><span class="ico">🏠</span>Captação de Imóveis</a>
+  <a class="nav-item" href="assinaturas.html"><span class="ico">✍</span>Assinaturas · Docs</a>
+  <a class="nav-item" href="anuncios.html"><span class="ico">↗</span>Anúncios · Rodízios</a>
+  <div class="section-title">Inteligência</div>
+  <a class="nav-item" href="credito.html"><span class="ico">$</span>Crédito & Financiamento</a>
+  <a class="nav-item" href="locacao.html"><span class="ico">⇆</span>Locação Online</a>
+  <a class="nav-item" href="relatorios.html"><span class="ico">↟</span>Relatórios</a>
+  <a class="nav-item" href="insights.html"><span class="ico">✦</span>Insights da IA</a>
+  <div class="section-title">Plataforma</div>
+  <a class="nav-item" href="integracoes.html"><span class="ico">⇄</span>Integrações & Automações</a>
+  <a class="nav-item" href="site.html"><span class="ico">🌐</span>Site do Hub</a>
+  <a class="nav-item" href="financeiro.html"><span class="ico">R$</span>Financeiro & Repasses</a>
+  <a class="nav-item" href="suporte.html"><span class="ico">?</span>Suporte & Treinamento</a>
+  <a class="nav-item" href="administrador.html"><span class="ico">⚙</span>Administrador</a>
+  <a class="nav-item" href="config-ia.html"><span class="ico">◈</span>Configurações · IA</a>
+  <div class="support"><div class="ico">☏</div><div><strong>Suporte</strong><small>Central de Ajuda</small></div></div>
+  <div class="profile"><div class="avatar">AF</div><div><strong>Alessandro Ferreira</strong><span>Diretoria · Admin do Hub</span></div></div>
+</aside>
+
+    <main class="main">
+      <header class="header">
+        <div class="headline">
+          <h1>Assinaturas · Documentos</h1>
+          <p>Controle interno de fichas de visita, propostas, contratos, autorizações, anexos e assinatura digital integrada ao funil.</p>
+        </div>
+        <div class="actions">
+          <div class="pill"><span class="dot"></span>Sistema ativo · 6 imobiliárias</div>
+          <button class="btn" onclick="openModal('template')">＋ Novo modelo</button>
+          <button class="btn primary" onclick="openModal('documento')">＋ Enviar para assinatura</button>
+        </div>
+      </header>
+
+      <section class="kpis">
+        <article class="kpi"><div class="kpi-top"><div><h3>Documentos ativos</h3><div class="value">74</div><div class="trend">em circulação</div></div><div class="kpi-icon">▤</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Aguardando assinatura</h3><div class="value">18</div><div class="trend orange">5 vencem hoje</div></div><div class="kpi-icon">⌛</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Assinados no mês</h3><div class="value">126</div><div class="trend">↑ 22% vs. mês anterior</div></div><div class="kpi-icon">✓</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Pendências jurídicas</h3><div class="value">7</div><div class="trend red">exigem revisão</div></div><div class="kpi-icon">!</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Tempo médio assinatura</h3><div class="value">04h12</div><div class="trend">dentro da meta</div></div><div class="kpi-icon">↺</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Integração</h3><div class="value">D4Sign</div><div class="trend">fase 2 · pronta para API</div></div><div class="kpi-icon">⇄</div></div></article>
+      </section>
+
+      <section class="layout">
+        <aside class="panel">
+          <div class="panel-head">
+            <div><h3>Modelos de documentos</h3><small>Fluxos usados pelo Hub</small></div>
+            <span class="badge blue">Templates</span>
+          </div>
+
+          <div class="filters">
+            <div class="field"><label>Imobiliária</label><select><option>Todas as imobiliárias</option><option>Cirag Boutique</option><option>OMA Imóveis</option><option>Lopes Imóveis</option><option>Brava Company</option></select></div>
+            <div class="field"><label>Tipo de documento</label><select><option>Todos</option><option>Ficha de visita</option><option>Proposta</option><option>Contrato</option><option>Autorização</option><option>Termo LGPD</option></select></div>
+            <div class="field"><label>Status</label><select><option>Todos</option><option>Em assinatura</option><option>Assinado</option><option>Vencido</option><option>Pendente jurídico</option></select></div>
+          </div>
+
+          <div class="templates">
+            <div class="template active" onclick="selectTemplate('Ficha de visita','Usada antes ou após visita presencial','38 enviados','92% assinatura','Média 1h40')">
+              <div class="template-top">
+                <div class="template-name"><div class="doc-icon">FV</div><div><strong>Ficha de visita</strong><span>registro de presença, imóvel, cliente e corretor</span></div></div>
+                <span class="badge green">Ativo</span>
+              </div>
+              <div class="template-metrics"><div class="tmetric"><strong>38</strong><span>Enviados</span></div><div class="tmetric"><strong>92%</strong><span>Assinam</span></div><div class="tmetric"><strong>1h40</strong><span>Média</span></div></div>
+            </div>
+
+            <div class="template" onclick="selectTemplate('Proposta de compra','Formaliza preço, condições, prazo e validade','22 enviados','78% assinatura','Média 5h10')">
+              <div class="template-top">
+                <div class="template-name"><div class="doc-icon">PC</div><div><strong>Proposta de compra</strong><span>condições comerciais e aceite das partes</span></div></div>
+                <span class="badge green">Ativo</span>
+              </div>
+              <div class="template-metrics"><div class="tmetric"><strong>22</strong><span>Enviados</span></div><div class="tmetric"><strong>78%</strong><span>Assinam</span></div><div class="tmetric"><strong>5h10</strong><span>Média</span></div></div>
+            </div>
+
+            <div class="template" onclick="selectTemplate('Contrato de venda','Contrato final após proposta e documentação','12 enviados','88% assinatura','Média 8h20')">
+              <div class="template-top">
+                <div class="template-name"><div class="doc-icon">CV</div><div><strong>Contrato de venda</strong><span>minuta final, anexos e assinaturas</span></div></div>
+                <span class="badge orange">Jurídico</span>
+              </div>
+              <div class="template-metrics"><div class="tmetric"><strong>12</strong><span>Enviados</span></div><div class="tmetric"><strong>88%</strong><span>Assinam</span></div><div class="tmetric"><strong>8h20</strong><span>Média</span></div></div>
+            </div>
+
+            <div class="template" onclick="selectTemplate('Contrato de locação','Contrato de locação, garantias e anexos','18 enviados','94% assinatura','Média 4h45')">
+              <div class="template-top">
+                <div class="template-name"><div class="doc-icon">CL</div><div><strong>Contrato de locação</strong><span>locador, locatário, garantias e vistoria</span></div></div>
+                <span class="badge green">Ativo</span>
+              </div>
+              <div class="template-metrics"><div class="tmetric"><strong>18</strong><span>Enviados</span></div><div class="tmetric"><strong>94%</strong><span>Assinam</span></div><div class="tmetric"><strong>4h45</strong><span>Média</span></div></div>
+            </div>
+
+            <div class="template" onclick="selectTemplate('Autorização de anúncio','Autoriza divulgação e condições de trabalho do imóvel','16 enviados','81% assinatura','Média 6h00')">
+              <div class="template-top">
+                <div class="template-name"><div class="doc-icon">AA</div><div><strong>Autorização de anúncio</strong><span>uso de fotos, divulgação e canais</span></div></div>
+                <span class="badge blue">Cadastro</span>
+              </div>
+              <div class="template-metrics"><div class="tmetric"><strong>16</strong><span>Enviados</span></div><div class="tmetric"><strong>81%</strong><span>Assinam</span></div><div class="tmetric"><strong>6h00</strong><span>Média</span></div></div>
+            </div>
+
+            <div class="template" onclick="selectTemplate('Termo LGPD e ciência','Termo para tratamento de dados e comunicações','20 enviados','96% assinatura','Média 48m')">
+              <div class="template-top">
+                <div class="template-name"><div class="doc-icon">LG</div><div><strong>Termo LGPD e ciência</strong><span>tratamento de dados, comunicação e histórico</span></div></div>
+                <span class="badge purple">Compliance</span>
+              </div>
+              <div class="template-metrics"><div class="tmetric"><strong>20</strong><span>Enviados</span></div><div class="tmetric"><strong>96%</strong><span>Assinam</span></div><div class="tmetric"><strong>48m</strong><span>Média</span></div></div>
+            </div>
+          </div>
+        </aside>
+
+        <section>
+          <section class="panel">
+            <div class="panel-head">
+              <div><h2>Central de assinaturas digitais</h2><small>Lista operacional de documentos vinculados a clientes, imóveis, imobiliárias, corretores e etapas do funil.</small></div>
+              <span class="badge green">D4Sign · Fase 2</span>
+            </div>
+
+            <div class="toolbar">
+              <div class="tabs">
+                <button class="active">Todos 74</button>
+                <button>Aguardando 18</button>
+                <button>Assinados 126</button>
+                <button>Vencidos 5</button>
+                <button>Jurídico 7</button>
+                <button>Cancelados 3</button>
+              </div>
+              <input class="search" type="search" placeholder="Buscar documento, cliente, imóvel, imobiliária, corretor ou código..." />
+              <select><option>Todas as imobiliárias</option><option>Cirag Boutique</option><option>OMA Imóveis</option><option>Lopes Imóveis</option><option>Brava Company</option></select>
+              <select><option>Todos os tipos</option><option>Ficha de visita</option><option>Proposta</option><option>Contrato de venda</option><option>Contrato de locação</option><option>LGPD</option></select>
+              <select><option>Ordenar: mais recentes</option><option>Vencimento próximo</option><option>Valor do negócio</option><option>Imobiliária</option></select>
+            </div>
+
+            <div class="doc-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Documento</th>
+                    <th>Imobiliária</th>
+                    <th>Cliente / Imóvel</th>
+                    <th>Signatários</th>
+                    <th>Status</th>
+                    <th>Progresso</th>
+                    <th>Vencimento</th>
+                    <th>Funil</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr onclick="selectDocument('Ficha de visita · Carlos Mendes','Cirag Boutique','Apto 3 dorms · Vila Mariana','Carlos Mendes · Ana Souza','Aguardando cliente','50%','Hoje 18h','Visita / Reunião','Enviar lembrete')">
+                    <td><div class="doc-title"><div class="doc-icon">FV</div><div><strong>Ficha de visita · Carlos Mendes</strong><span>DOC-2025-00148 · D4Sign</span></div></div></td>
+                    <td>Cirag Boutique</td>
+                    <td>Apto 3 dorms · Vila Mariana</td>
+                    <td><div class="people"><span class="mini-avatar">CM</span><span class="mini-avatar">AS</span></div></td>
+                    <td><span class="badge orange">Aguardando cliente</span></td>
+                    <td><div class="progress"><b style="width:50%"></b></div></td>
+                    <td>Hoje · 18h</td>
+                    <td><span class="badge blue">Visita</span></td>
+                    <td><button class="btn ghost">Lembrete</button></td>
+                  </tr>
+
+                  <tr onclick="selectDocument('Proposta de compra · Mariana Lima','OMA Imóveis','Apto 2 dorms · Moema','Mariana Lima · Pedro Alves · Proprietário','Em assinatura','66%','Amanhã 12h','Proposta / Negociação','Acompanhar')">
+                    <td><div class="doc-title"><div class="doc-icon">PC</div><div><strong>Proposta de compra · Mariana Lima</strong><span>DOC-2025-00144 · D4Sign</span></div></div></td>
+                    <td>OMA Imóveis</td>
+                    <td>Apto 2 dorms · Moema</td>
+                    <td><div class="people"><span class="mini-avatar">ML</span><span class="mini-avatar">PA</span><span class="mini-avatar">PR</span></div></td>
+                    <td><span class="badge blue">Em assinatura</span></td>
+                    <td><div class="progress"><b style="width:66%"></b></div></td>
+                    <td>Amanhã · 12h</td>
+                    <td><span class="badge purple">Proposta</span></td>
+                    <td><button class="btn ghost">Acompanhar</button></td>
+                  </tr>
+
+                  <tr onclick="selectDocument('Contrato de venda · Aline Rocha','Lopes Imóveis','Cobertura · Moema','Aline Rocha · Bruno Lima · Vendedor','Pendente jurídico','25%','Hoje 16h','Documentação / Contrato','Revisar jurídico')">
+                    <td><div class="doc-title"><div class="doc-icon">CV</div><div><strong>Contrato de venda · Aline Rocha</strong><span>DOC-2025-00139 · minuta jurídica</span></div></div></td>
+                    <td>Lopes Imóveis</td>
+                    <td>Cobertura · Moema</td>
+                    <td><div class="people"><span class="mini-avatar">AR</span><span class="mini-avatar">BL</span><span class="mini-avatar">VD</span></div></td>
+                    <td><span class="badge red">Pendente jurídico</span></td>
+                    <td><div class="progress"><b style="width:25%"></b></div></td>
+                    <td>Hoje · 16h</td>
+                    <td><span class="badge orange">Contrato</span></td>
+                    <td><button class="btn danger">Revisar</button></td>
+                  </tr>
+
+                  <tr onclick="selectDocument('Contrato de locação · Julio Cardoso','Lello Imóveis','Apto 2 dorms · Mooca','Julio Cardoso · Locador · Lello','Assinado','100%','Concluído','Fechado / Pós-venda','Arquivar')">
+                    <td><div class="doc-title"><div class="doc-icon">CL</div><div><strong>Contrato de locação · Julio Cardoso</strong><span>DOC-2025-00131 · certificado disponível</span></div></div></td>
+                    <td>Lello Imóveis</td>
+                    <td>Apto 2 dorms · Mooca</td>
+                    <td><div class="people"><span class="mini-avatar">JC</span><span class="mini-avatar">LO</span><span class="mini-avatar">LI</span></div></td>
+                    <td><span class="badge green">Assinado</span></td>
+                    <td><div class="progress"><b style="width:100%"></b></div></td>
+                    <td>Concluído</td>
+                    <td><span class="badge green">Fechado</span></td>
+                    <td><button class="btn ghost">Arquivar</button></td>
+                  </tr>
+
+                  <tr onclick="selectDocument('Autorização de anúncio · Casa Cerqueira César','Brava Company','Casa Alto Padrão · Cerqueira César','Proprietário · Brava Company','Vencido','0%','Venceu ontem','Cadastro do imóvel','Reenviar')">
+                    <td><div class="doc-title"><div class="doc-icon">AA</div><div><strong>Autorização de anúncio · Casa Cerqueira César</strong><span>DOC-2025-00127 · autorização de divulgação</span></div></div></td>
+                    <td>Brava Company</td>
+                    <td>Casa Alto Padrão · Cerqueira César</td>
+                    <td><div class="people"><span class="mini-avatar">PR</span><span class="mini-avatar">BC</span></div></td>
+                    <td><span class="badge red">Vencido</span></td>
+                    <td><div class="progress"><b style="width:0%"></b></div></td>
+                    <td>Venceu ontem</td>
+                    <td><span class="badge orange">Cadastro</span></td>
+                    <td><button class="btn danger">Reenviar</button></td>
+                  </tr>
+
+                  <tr onclick="selectDocument('Termo LGPD · Fernanda Costa','Robotton Imóveis','Lead qualificado · Saúde','Fernanda Costa · Robotton','Assinado','100%','Concluído','Qualificação IA','Ver certificado')">
+                    <td><div class="doc-title"><div class="doc-icon">LG</div><div><strong>Termo LGPD · Fernanda Costa</strong><span>DOC-2025-00118 · consentimento digital</span></div></div></td>
+                    <td>Robotton Imóveis</td>
+                    <td>Lead qualificado · Saúde</td>
+                    <td><div class="people"><span class="mini-avatar">FC</span><span class="mini-avatar">RI</span></div></td>
+                    <td><span class="badge green">Assinado</span></td>
+                    <td><div class="progress"><b style="width:100%"></b></div></td>
+                    <td>Concluído</td>
+                    <td><span class="badge blue">Lead</span></td>
+                    <td><button class="btn ghost">Certificado</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="detail-panel">
+            <div class="panel-head">
+              <div><h3>Detalhe do documento selecionado</h3><small>Controle de signatários, etapa do funil, vencimento, certificado e trilha de auditoria.</small></div>
+              <span class="badge orange" id="dStatusBadge">Aguardando cliente</span>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-item"><label>Documento</label><strong id="dName">Ficha de visita · Carlos Mendes</strong><span id="dAction">Enviar lembrete</span></div>
+              <div class="detail-item"><label>Imobiliária</label><strong id="dAgency">Cirag Boutique</strong><span>responsável pelo documento</span></div>
+              <div class="detail-item"><label>Cliente / imóvel</label><strong id="dProperty">Apto 3 dorms · Vila Mariana</strong><span>vinculado ao funil</span></div>
+              <div class="detail-item"><label>Signatários</label><strong id="dPeople">Carlos Mendes · Ana Souza</strong><span>ordem de assinatura ativa</span></div>
+              <div class="detail-item"><label>Progresso</label><strong id="dProgress">50%</strong><span id="dDue">Hoje 18h</span></div>
+              <div class="detail-item"><label>Etapa</label><strong id="dStage">Visita / Reunião</strong><span>atualiza o funil automaticamente</span></div>
+            </div>
+          </section>
+        </section>
+
+        <aside class="right-stack">
+          <section class="panel">
+            <div class="panel-head"><div><h3>Resumo operacional</h3><small>Alertas de assinatura</small></div></div>
+            <div class="side-list">
+              <div class="side-row"><div><strong>Vencem hoje</strong><span>precisam de lembrete</span></div><div class="count orange">5</div></div>
+              <div class="side-row"><div><strong>Pendência jurídica</strong><span>contratos ou cláusulas para revisão</span></div><div class="count red">7</div></div>
+              <div class="side-row"><div><strong>Assinados hoje</strong><span>certificados disponíveis</span></div><div class="count green">14</div></div>
+              <div class="side-row"><div><strong>Sem signatário</strong><span>faltam dados do cliente</span></div><div class="count red">3</div></div>
+              <div class="side-row"><div><strong>Falha de envio</strong><span>e-mail/telefone inválido</span></div><div class="count orange">2</div></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Fluxo padrão</h3><small>Do funil à assinatura</small></div></div>
+            <div class="flow">
+              <div class="flow-step"><div class="circle">1</div><div><strong>Negócio avança</strong><span>visita, proposta ou contrato no funil</span></div></div>
+              <div class="connector"></div>
+              <div class="flow-step"><div class="circle">2</div><div><strong>Modelo é sugerido</strong><span>IA indica ficha, proposta ou contrato</span></div></div>
+              <div class="connector"></div>
+              <div class="flow-step"><div class="circle">3</div><div><strong>Dados são preenchidos</strong><span>cliente, imóvel, corretor e imobiliária</span></div></div>
+              <div class="connector"></div>
+              <div class="flow-step"><div class="circle">4</div><div><strong>Envio para D4Sign</strong><span>assinatura, lembretes e certificado</span></div></div>
+              <div class="connector"></div>
+              <div class="flow-step"><div class="circle">5</div><div><strong>Funil atualiza</strong><span>documento assinado move etapa automaticamente</span></div></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Regras e segurança</h3><small>Controle jurídico-operacional</small></div></div>
+            <div class="rules">
+              <div class="rule"><div class="r-ico">✓</div><div><strong>Trilha de auditoria</strong><span>Registrar criação, envio, abertura, assinatura, IP, data/hora e certificado.</span></div></div>
+              <div class="rule"><div class="r-ico">!</div><div><strong>Campos obrigatórios</strong><span>Documento não segue sem CPF/CNPJ, e-mail, telefone, imóvel e imobiliária.</span></div></div>
+              <div class="rule"><div class="r-ico">↺</div><div><strong>Lembretes automáticos</strong><span>Enviar alerta antes do vencimento e após 24h sem assinatura.</span></div></div>
+              <div class="rule"><div class="r-ico">⚖</div><div><strong>Revisão jurídica</strong><span>Contratos com alteração crítica entram em fila de aprovação.</span></div></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Trilha de atividade</h3><small>Eventos recentes</small></div></div>
+            <div class="timeline">
+              <div class="timeline-item orange"><strong>Hoje · lembrete enviado</strong><span>Ficha de visita de Carlos Mendes aguardando assinatura.</span></div>
+              <div class="timeline-item red"><strong>Hoje · contrato em revisão</strong><span>Contrato de venda de Aline Rocha exige validação jurídica.</span></div>
+              <div class="timeline-item green"><strong>Ontem · contrato assinado</strong><span>Contrato de locação de Julio Cardoso concluído com certificado.</span></div>
+              <div class="timeline-item"><strong>Ontem · proposta aberta</strong><span>Mariana Lima visualizou proposta de compra enviada pela OMA.</span></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h3>Template em foco</h3><small>Modelo selecionado</small></div><span class="badge green">Ativo</span></div>
+            <div class="rules">
+              <div class="rule"><div class="r-ico">▤</div><div><strong id="tName">Ficha de visita</strong><span id="tDesc">Usada antes ou após visita presencial</span></div></div>
+              <div class="rule"><div class="r-ico">#</div><div><strong id="tSent">38 enviados</strong><span>volume no mês atual</span></div></div>
+              <div class="rule"><div class="r-ico">%</div><div><strong id="tRate">92% assinatura</strong><span>taxa média de conclusão</span></div></div>
+              <div class="rule"><div class="r-ico">⏱</div><div><strong id="tAvg">Média 1h40</strong><span>tempo médio até assinatura</span></div></div>
+            </div>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h2 id="modalTitle">Enviar documento para assinatura</h2>
+          <p style="margin:5px 0 0;color:var(--gray500);font-size:13px;" id="modalSub">Selecione modelo, negócio, signatários, prazo e integração de assinatura digital.</p>
+        </div>
+        <button class="close" onclick="closeModal()">×</button>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Modelo</label><select><option>Ficha de visita</option><option>Proposta de compra</option><option>Contrato de venda</option><option>Contrato de locação</option><option>Autorização de anúncio</option><option>Termo LGPD</option></select></div>
+        <div class="field"><label>Imobiliária</label><select><option>Cirag Boutique</option><option>OMA Imóveis</option><option>Lopes Imóveis</option><option>Lello Imóveis</option><option>Brava Company</option></select></div>
+        <div class="field"><label>Integração</label><select><option>D4Sign · Produção</option><option>D4Sign · Sandbox</option><option>Assinatura interna</option><option>Upload manual assinado</option></select></div>
+        <div class="field"><label>Cliente</label><input value="Carlos Mendes" /></div>
+        <div class="field two"><label>Imóvel / negócio</label><input value="Apto 3 dorms · Vila Mariana · Cód. 2481" /></div>
+        <div class="field"><label>Corretor</label><input value="Ana Souza" /></div>
+        <div class="field"><label>Prazo de assinatura</label><select><option>Hoje 18h</option><option>24 horas</option><option>48 horas</option><option>7 dias</option></select></div>
+        <div class="field"><label>Ordem de assinatura</label><select><option>Cliente → Corretor → Imobiliária</option><option>Todos simultaneamente</option><option>Imobiliária → Cliente</option></select></div>
+        <div class="field full"><label>Observações / campos variáveis</label><textarea>Preencher automaticamente dados do cliente, imóvel, imobiliária, corretor, valor, data da visita/proposta e etapa do funil. Após assinatura, anexar certificado e atualizar o negócio.</textarea></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal()">Cancelar</button>
+        <button class="btn blue" onclick="closeModal()">Salvar rascunho</button>
+        <button class="btn primary" onclick="closeModal()">Enviar para assinatura</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(type){
+      const title = document.getElementById('modalTitle');
+      const sub = document.getElementById('modalSub');
+      if(type === 'template'){
+        title.textContent = 'Criar novo modelo de documento';
+        sub.textContent = 'Configure campos variáveis, signatários, etapas do funil e regras jurídicas do modelo.';
+      }else{
+        title.textContent = 'Enviar documento para assinatura';
+        sub.textContent = 'Selecione modelo, negócio, signatários, prazo e integração de assinatura digital.';
+      }
+      document.getElementById('modal').classList.add('open');
+    }
+    function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+    function selectTemplate(name, desc, sent, rate, avg){
+      document.querySelectorAll('.template').forEach(c => c.classList.remove('active'));
+      if(event && event.currentTarget) event.currentTarget.classList.add('active');
+      document.getElementById('tName').textContent = name;
+      document.getElementById('tDesc').textContent = desc;
+      document.getElementById('tSent').textContent = sent;
+      document.getElementById('tRate').textContent = rate;
+      document.getElementById('tAvg').textContent = avg;
+    }
+
+    function selectDocument(name, agency, property, people, status, progress, due, stage, action){
+      document.getElementById('dName').textContent = name;
+      document.getElementById('dAgency').textContent = agency;
+      document.getElementById('dProperty').textContent = property;
+      document.getElementById('dPeople').textContent = people;
+      document.getElementById('dProgress').textContent = progress;
+      document.getElementById('dDue').textContent = due;
+      document.getElementById('dStage').textContent = stage;
+      document.getElementById('dAction').textContent = action;
+      const badge = document.getElementById('dStatusBadge');
+      badge.textContent = status;
+      let cls = 'blue';
+      if(status.includes('Assinado')) cls = 'green';
+      if(status.includes('Aguardando') || status.includes('Em assinatura')) cls = 'orange';
+      if(status.includes('Vencido') || status.includes('jurídico')) cls = 'red';
+      badge.className = 'badge ' + cls;
+      document.querySelector('.detail-panel').scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeModal(); });
+  </script>
+
+<script>(function(){var p=(location.pathname.split('/').pop()||'index.html');if(!p||p==='')p='index.html';document.querySelectorAll('.nav-item').forEach(function(a){var h=a.getAttribute('href');a.classList.toggle('active',h===p);});})();</script>
+</body>
+</html>

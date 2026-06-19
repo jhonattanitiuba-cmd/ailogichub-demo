@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AiLogic Hub · Agenda Integrada</title>
+  <style>
+    :root{
+      --navy:#061936; --blue:#0b66ff; --green:#16a56f; --orange:#f59e0b; --red:#e94242;
+      --purple:#7257ff; --gray-900:#0f172a; --gray-700:#334155; --gray-500:#64748b;
+      --gray-300:#d9e2ef; --gray-200:#edf2f7; --gray-100:#f7f9fc; --white:#ffffff;
+      --shadow:0 14px 32px rgba(15,23,42,.08); --radius:18px; --font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+      --blue-bg:#eaf2ff; --green-bg:#eafaf3; --orange-bg:#fff7e6; --red-bg:#fff0f0; --purple-bg:#f1efff;
+    }
+    *{box-sizing:border-box} body{margin:0;font-family:var(--font);background:#f6f9fd;color:var(--gray-900)}
+    .app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+    .sidebar{background:linear-gradient(180deg,#071b3a,#031126);color:#dce8ff;padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto}
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}.logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);font-weight:900;color:white}
+    .brand strong{display:block;font-size:18px;color:white}.brand span{display:block;font-size:12px;margin-top:3px;color:#a8c2ee}
+    .section-title{font-size:11px;color:#7da2d6;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:24px 10px 10px}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:13px;color:#c8d8f4;font-weight:650;font-size:14px;margin:4px 0;text-decoration:none}.nav-item.active{background:linear-gradient(135deg,#0a66ff,#0851cc);color:#fff;box-shadow:0 10px 28px rgba(11,102,255,.28)}.ico{width:21px;text-align:center}
+    .support{margin-top:34px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);border-radius:16px;padding:15px;display:flex;gap:12px;align-items:center}.support small{color:#9bb7e3;display:block;margin-top:2px}
+    .profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0}.avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:white;display:grid;place-items:center;font-weight:800}.profile strong{color:white;font-size:13px;display:block}.profile span{color:#9bb7e3;font-size:11px}
+    .main{padding:22px 26px 36px;overflow:hidden}.header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}.headline h1{margin:0;font-size:28px;letter-spacing:-.03em}.headline p{margin:7px 0 0;color:var(--gray-500);font-size:14px}.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .pill,.btn,select,input{border:1px solid var(--gray-300);background:white;border-radius:12px;height:42px;padding:0 14px;font:inherit;color:var(--gray-700);outline:none}.pill{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px;white-space:nowrap;box-shadow:var(--shadow)}.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(22,165,111,.12)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-weight:800;color:var(--navy);box-shadow:var(--shadow)}.btn.primary{background:linear-gradient(135deg,#082653,#061936);border-color:#061936;color:white}.btn.blue{background:linear-gradient(135deg,#0b66ff,#074cd1);border-color:#0b66ff;color:white}
+    .grid-kpi{display:grid;grid-template-columns:repeat(6,minmax(145px,1fr));gap:14px;margin:18px 0}.kpi{background:white;border:1px solid var(--gray-200);border-radius:var(--radius);padding:17px 18px;box-shadow:var(--shadow);min-height:116px}.kpi-top{display:flex;justify-content:space-between;gap:8px}.kpi-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:var(--blue-bg);color:var(--blue);font-weight:900}.kpi h3{margin:0;color:#1d2b4f;font-size:12px}.kpi .value{margin:8px 0 4px;font-size:26px;font-weight:900;letter-spacing:-.04em}.trend{font-size:11px;color:var(--green);font-weight:800}.trend.red{color:var(--red)}
+    .content-grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}.panel,.side-card,.detail{background:white;border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.panel-head{padding:16px 18px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;gap:12px}.panel-head h2,.panel-head h3,.side-card h3{margin:0;font-size:16px}.panel-head small{color:var(--gray-500);font-size:12px;font-weight:650}
+    .integrations{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 18px;border-bottom:1px solid var(--gray-200)}.integration-card{border:1px solid var(--gray-200);border-radius:16px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff}.integration-left{display:flex;gap:12px;align-items:center;min-width:0}.integration-icon{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:var(--blue-bg);color:var(--blue);font-weight:900}.integration-card strong{display:block;font-size:13px;color:#172554;white-space:nowrap}.integration-card span{display:block;font-size:11px;color:var(--gray-500);margin-top:2px}
+    .badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900;white-space:nowrap}.badge.green{background:var(--green-bg);color:var(--green)}.badge.blue{background:var(--blue-bg);color:var(--blue)}.badge.orange{background:var(--orange-bg);color:#b86b00}.badge.red{background:var(--red-bg);color:var(--red)}.badge.purple{background:var(--purple-bg);color:var(--purple)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid var(--gray-200);align-items:center;background:#fbfdff}.segmented{display:flex;gap:6px;padding:4px;background:#edf3fb;border-radius:14px}.segmented button{border:0;background:transparent;color:var(--gray-700);padding:9px 12px;border-radius:11px;font-weight:800;cursor:pointer;font-size:12px}.segmented button.active{background:var(--navy);color:white}.search{min-width:300px;flex:1}.select-small{min-width:140px;font-size:12px;height:38px}
+    .calendar-shell{padding:16px}.agenda-layout{display:grid;grid-template-columns:280px minmax(0,1fr);gap:14px}.day-focus{border:1px solid var(--gray-200);border-radius:18px;padding:14px;background:linear-gradient(180deg,#fff,#f8fbff)}.mini-date{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.mini-date strong{font-size:15px}.datebox{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;background:var(--navy);color:white;font-weight:900;line-height:1}.datebox small{display:block;font-size:10px;color:#a8c2ee;text-align:center;margin-top:3px}
+    .queue{display:grid;gap:9px}.queue-item{padding:10px;border-radius:14px;border:1px solid var(--gray-200);background:white;cursor:pointer;transition:.15s ease}.queue-item:hover{transform:translateY(-1px);box-shadow:var(--shadow)}.queue-item.selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,102,255,.12)}.queue-item strong{display:block;font-size:12px;margin-bottom:3px}.queue-item span{display:block;font-size:11px;color:var(--gray-500);line-height:1.35}.queue-meta{display:flex;justify-content:space-between;margin-top:8px;align-items:center}.time{font-size:11px;font-weight:900;color:var(--blue);background:var(--blue-bg);padding:5px 7px;border-radius:8px}
+    .week-board{border:1px solid var(--gray-200);border-radius:18px;overflow:hidden;background:white}.week-header{display:grid;grid-template-columns:80px repeat(7,1fr);background:#f8fbff;border-bottom:1px solid var(--gray-200)}.week-header div{padding:13px 10px;font-size:12px;font-weight:900;color:#1d2b4f;border-right:1px solid var(--gray-200);min-height:54px}.week-header div:first-child{color:var(--gray-500);display:flex;align-items:center;justify-content:center}.week-header small{display:block;color:var(--gray-500);font-weight:700;margin-top:2px}
+    .week-grid{display:grid;grid-template-columns:80px repeat(7,1fr)}.hour{padding:18px 8px;color:var(--gray-500);font-size:11px;font-weight:800;border-right:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200);text-align:center;background:#fbfdff;min-height:102px}.day-cell{border-right:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200);padding:8px;min-height:102px;background:#fff}.event{border-radius:13px;padding:9px;margin-bottom:7px;border:1px solid transparent;cursor:pointer;transition:.15s ease}.event:hover{transform:translateY(-1px);box-shadow:var(--shadow)}.event.visit{background:#ecfdf5;border-color:#c9f4df}.event.follow{background:#eff6ff;border-color:#cfe0ff}.event.task{background:#fff7ed;border-color:#ffe3bd}.event.meeting{background:#f5f3ff;border-color:#ddd6fe}.event.signature{background:#f0fdfa;border-color:#b8f5ec}.event.conflict{background:#fff1f2;border-color:#fecdd3}.event strong{display:block;font-size:11px;color:#0f172a;margin-bottom:3px}.event span{display:block;font-size:10px;color:#475569;line-height:1.25}.event-foot{display:flex;justify-content:space-between;align-items:center;margin-top:7px;gap:6px}.sync{font-size:9px;font-weight:900;color:#2563eb;background:white;border-radius:999px;padding:3px 6px;border:1px solid rgba(37,99,235,.18)}.emptyhint{color:#94a3b8;font-size:11px;text-align:center;padding-top:28px}
+    .right-stack{display:grid;gap:14px}.side-card h3{padding:15px 16px;border-bottom:1px solid var(--gray-200)}.side-list{padding:10px 14px 14px;display:grid;gap:9px}.side-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid #eef3f9}.side-row:last-child{border-bottom:0}.side-row strong{font-size:12px;display:block;color:#172554}.side-row span{font-size:11px;display:block;color:var(--gray-500);margin-top:2px}.count{font-weight:900;min-width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:#f1f5f9;color:var(--gray-700);font-size:12px}.count.red{background:var(--red-bg);color:var(--red)}.count.orange{background:var(--orange-bg);color:#b86b00}.count.green{background:var(--green-bg);color:var(--green)}.count.blue{background:var(--blue-bg);color:var(--blue)}.progress-line{height:7px;background:#eef2f7;border-radius:999px;overflow:hidden;margin-top:7px}.progress-line b{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#0b66ff,#19c37d)}
+    .detail{margin-top:16px}.detail-main{display:grid;grid-template-columns:250px repeat(5,1fr);gap:0;border-bottom:1px solid var(--gray-200)}.detail-main>div{padding:14px 16px;border-right:1px solid var(--gray-200);min-height:82px}.detail-main>div:last-child{border-right:0}.detail label{display:block;color:var(--gray-500);font-size:11px;font-weight:800;margin-bottom:5px}.detail strong{display:block;font-size:13px;color:#172554;line-height:1.3}.detail span{display:block;color:var(--gray-500);font-size:11px;margin-top:4px;line-height:1.35}.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:15px 16px 18px}.timeline-item{background:#fbfdff;border:1px solid var(--gray-200);border-radius:15px;padding:12px}.timeline-item small{color:var(--blue);font-weight:900;display:block;margin-bottom:6px;font-size:11px}.timeline-item strong{font-size:12px}.timeline-item p{margin:5px 0 0;color:var(--gray-500);font-size:11px;line-height:1.4}
+    .floating-modal{position:fixed;inset:0;background:rgba(3,17,38,.50);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}.floating-modal.open{display:flex}.modal-card{width:min(720px,100%);background:white;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.25);overflow:hidden}.modal-head{display:flex;justify-content:space-between;gap:16px;padding:20px 22px;border-bottom:1px solid var(--gray-200)}.modal-head h2{margin:0;font-size:20px}.close{border:0;background:#f1f5f9;width:36px;height:36px;border-radius:12px;cursor:pointer;font-size:18px;font-weight:900;color:var(--gray-700)}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:18px 22px 22px}.field label{display:block;font-size:12px;font-weight:800;color:#172554;margin-bottom:6px}.field input,.field select{width:100%;height:42px;box-shadow:none;border-radius:12px}.field.full{grid-column:1/-1}textarea{width:100%;min-height:90px;resize:vertical;border:1px solid var(--gray-300);border-radius:12px;padding:12px 14px;font:inherit;outline:none}.modal-actions{display:flex;justify-content:flex-end;gap:10px;padding:0 22px 22px}
+    @media(max-width:1450px){.grid-kpi{grid-template-columns:repeat(3,1fr)}.content-grid{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(2,1fr)}}@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.agenda-layout{grid-template-columns:1fr}.week-header,.week-grid{min-width:1000px}.week-board{overflow:auto}.integrations{grid-template-columns:repeat(2,1fr)}.detail-main{grid-template-columns:1fr 1fr}.timeline{grid-template-columns:1fr 1fr}}@media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.grid-kpi,.integrations,.right-stack,.timeline,.form-grid{grid-template-columns:1fr}.detail-main{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+  <div class="brand"><div class="logo">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
+  <div class="section-title">Operação</div>
+  <a class="nav-item" href="index.html"><span class="ico">⌂</span>Visão Geral</a>
+  <a class="nav-item" href="imobiliarias.html"><span class="ico">▥</span>Imobiliárias</a>
+  <a class="nav-item" href="corretores.html"><span class="ico">♟</span>Corretores & Equipes</a>
+  <a class="nav-item" href="pessoas.html"><span class="ico">♙</span>Pessoas & Contatos</a>
+  <a class="nav-item" href="leads.html"><span class="ico">◎</span>Leads</a>
+  <a class="nav-item" href="funil.html"><span class="ico">▽</span>Funil de Negócios</a>
+  <a class="nav-item" href="agenda.html"><span class="ico">▦</span>Agenda</a>
+  <a class="nav-item" href="whatsapp.html"><span class="ico">◌</span>WhatsApp · Auditoria</a>
+  <a class="nav-item" href="emails.html"><span class="ico">✉</span>E-mails</a>
+  <div class="section-title">Catálogo</div>
+  <a class="nav-item" href="imoveis.html"><span class="ico">▤</span>Imóveis</a>
+  <a class="nav-item" href="mapa.html"><span class="ico">⌘</span>Mapa de Atuação</a>
+  <a class="nav-item" href="captacao.html"><span class="ico">🏠</span>Captação de Imóveis</a>
+  <a class="nav-item" href="assinaturas.html"><span class="ico">✍</span>Assinaturas · Docs</a>
+  <a class="nav-item" href="anuncios.html"><span class="ico">↗</span>Anúncios · Rodízios</a>
+  <div class="section-title">Inteligência</div>
+  <a class="nav-item" href="credito.html"><span class="ico">$</span>Crédito & Financiamento</a>
+  <a class="nav-item" href="locacao.html"><span class="ico">⇆</span>Locação Online</a>
+  <a class="nav-item" href="relatorios.html"><span class="ico">↟</span>Relatórios</a>
+  <a class="nav-item" href="insights.html"><span class="ico">✦</span>Insights da IA</a>
+  <div class="section-title">Plataforma</div>
+  <a class="nav-item" href="integracoes.html"><span class="ico">⇄</span>Integrações & Automações</a>
+  <a class="nav-item" href="site.html"><span class="ico">🌐</span>Site do Hub</a>
+  <a class="nav-item" href="financeiro.html"><span class="ico">R$</span>Financeiro & Repasses</a>
+  <a class="nav-item" href="suporte.html"><span class="ico">?</span>Suporte & Treinamento</a>
+  <a class="nav-item" href="administrador.html"><span class="ico">⚙</span>Administrador</a>
+  <a class="nav-item" href="config-ia.html"><span class="ico">◈</span>Configurações · IA</a>
+  <div class="support"><div class="ico">☏</div><div><strong>Suporte</strong><small>Central de Ajuda</small></div></div>
+  <div class="profile"><div class="avatar">AF</div><div><strong>Alessandro Ferreira</strong><span>Diretoria · Admin do Hub</span></div></div>
+</aside>
+
+    <main class="main">
+      <header class="header">
+        <div class="headline"><h1>Agenda Integrada</h1><p>Controle central de visitas, tarefas, reuniões, follow-ups e sincronizações das imobiliárias e corretores.</p></div>
+        <div class="actions"><div class="pill"><span class="dot"></span>Sistema ativo · 6 imobiliárias</div><button class="btn" onclick="openModal()">＋ Conectar agenda</button><button class="btn primary" onclick="openModal()">＋ Novo compromisso</button></div>
+      </header>
+
+      <section class="grid-kpi">
+        <article class="kpi"><div class="kpi-top"><div><h3>Visitas hoje</h3><div class="value">15</div><div class="trend">↑ 12% vs. semana anterior</div></div><div class="kpi-icon">□</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Follow-ups pendentes</h3><div class="value">28</div><div class="trend red">9 fora do SLA</div></div><div class="kpi-icon">↺</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Tarefas dos corretores</h3><div class="value">64</div><div class="trend">42 concluídas no período</div></div><div class="kpi-icon">✓</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Conflitos de agenda</h3><div class="value">3</div><div class="trend red">exigem redistribuição</div></div><div class="kpi-icon">!</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Taxa de comparecimento</h3><div class="value">82%</div><div class="trend">↑ 6 p.p. vs. mês anterior</div></div><div class="kpi-icon">↗</div></div></article>
+        <article class="kpi"><div class="kpi-top"><div><h3>Agendas conectadas</h3><div class="value">19</div><div class="trend">Google, Outlook e interna</div></div><div class="kpi-icon">⇄</div></div></article>
+      </section>
+
+      <section class="content-grid">
+        <div>
+          <section class="panel">
+            <div class="panel-head"><div><h2>Central de Agenda do Hub</h2><small>Integração com Google Calendar, Outlook/Microsoft 365, Apple/CalDAV e agenda interna do Hub.</small></div><button class="btn blue" onclick="openModal()">Criar evento inteligente</button></div>
+            <div class="integrations">
+              <div class="integration-card"><div class="integration-left"><div class="integration-icon">G</div><div><strong>Google Calendar</strong><span>admin@ailogichub.app · 2 vias</span></div></div><span class="badge green">Ativo</span></div>
+              <div class="integration-card"><div class="integration-left"><div class="integration-icon">O</div><div><strong>Outlook / 365</strong><span>corretores parceiros</span></div></div><span class="badge blue">Disponível</span></div>
+              <div class="integration-card"><div class="integration-left"><div class="integration-icon">C</div><div><strong>CalDAV / iCloud</strong><span>agenda externa opcional</span></div></div><span class="badge blue">Disponível</span></div>
+              <div class="integration-card"><div class="integration-left"><div class="integration-icon">H</div><div><strong>Agenda interna Hub</strong><span>sincroniza funil e tarefas</span></div></div><span class="badge green">Ativa</span></div>
+            </div>
+            <div class="toolbar">
+              <div class="segmented"><button class="active" onclick="toggleView(this)">Semana</button><button onclick="toggleView(this)">Hoje</button><button onclick="toggleView(this)">Mês</button><button onclick="toggleView(this)">Lista</button></div>
+              <input class="search" type="search" placeholder="Buscar cliente, imóvel, imobiliária, corretor ou compromisso..." />
+              <select class="select-small"><option>Todas as imobiliárias</option><option>Cirag Boutique</option><option>OMA Imóveis</option><option>Lopes Imóveis</option><option>Lello Imóveis</option><option>Brava Company</option></select>
+              <select class="select-small"><option>Todos os corretores</option><option>Ana Souza</option><option>Bruno Lima</option><option>Mariana Lima</option><option>Pedro Alves</option></select>
+              <select class="select-small"><option>Todos os tipos</option><option>Visita</option><option>Follow-up</option><option>Reunião</option><option>Assinatura</option><option>Tarefa</option></select>
+              <select class="select-small"><option>Status: todos</option><option>Confirmado</option><option>Pendente</option><option>Atrasado</option><option>Conflito</option></select>
+            </div>
+
+            <div class="calendar-shell">
+              <div class="agenda-layout">
+                <aside class="day-focus">
+                  <div class="mini-date"><div><strong>Hoje · Terça-feira</strong><span style="display:block;color:var(--gray-500);font-size:12px;margin-top:3px;">Agenda operacional do Hub</span></div><div class="datebox">27<small>MAI</small></div></div>
+                  <div class="queue">
+                    <div class="queue-item selected" onclick="selectEvent('Carlos Mendes · Visita confirmada','Cirag Boutique · Ana Souza','Apto 3 dorms · Vila Mariana','Google Calendar','Hoje 10:00','Confirmar presença 1h antes')"><strong>Carlos Mendes · Visita confirmada</strong><span>Cirag Boutique · Apto Vila Mariana · Ana Souza</span><div class="queue-meta"><span class="time">10:00</span><span class="badge green">Dentro do SLA</span></div></div>
+                    <div class="queue-item" onclick="selectEvent('Mariana Lima · Follow-up proposta','OMA Imóveis · Pedro Alves','Apto 2 dorms · Moema','Agenda interna','Hoje 14:00','Enviar contraproposta')"><strong>Mariana Lima · Follow-up proposta</strong><span>OMA Imóveis · R$ 1,05M · Pedro Alves</span><div class="queue-meta"><span class="time">14:00</span><span class="badge orange">Atenção</span></div></div>
+                    <div class="queue-item" onclick="selectEvent('Aline Rocha · Assinatura','Lopes Imóveis · Bruno Lima','Contrato venda · Jardins','Outlook / 365','Hoje 16:00','Separar documentos finais')"><strong>Aline Rocha · Assinatura</strong><span>Lopes Imóveis · Contrato final · Bruno Lima</span><div class="queue-meta"><span class="time">16:00</span><span class="badge green">Confirmado</span></div></div>
+                    <div class="queue-item" onclick="selectEvent('João Victor · Ativar agenda','Brava Company · Novo corretor','Integração WhatsApp + Google','Agenda interna','Hoje 17:00','Conectar conta e validar permissões')"><strong>João Victor · Ativar agenda</strong><span>Brava Company · novo corretor · integração</span><div class="queue-meta"><span class="time">17:00</span><span class="badge red">Pendente</span></div></div>
+                  </div>
+                </aside>
+
+                <section class="week-board">
+                  <div class="week-header"><div>Horário</div><div>Seg<small>26/05</small></div><div>Ter<small>27/05</small></div><div>Qua<small>28/05</small></div><div>Qui<small>29/05</small></div><div>Sex<small>30/05</small></div><div>Sáb<small>31/05</small></div><div>Dom<small>01/06</small></div></div>
+                  <div class="week-grid">
+                    <div class="hour">09:00</div>
+                    <div class="day-cell"><div class="event follow" onclick="selectEvent('Retorno lead Fernanda Costa','Robotton · Pedro Alves','Apto 3 dorms · Saúde','Google Calendar','Seg 09:20','Enviar opções compatíveis')"><strong>09:20 · Retorno lead</strong><span>Fernanda Costa · Robotton</span><div class="event-foot"><span class="badge blue">Follow-up</span><span class="sync">Google</span></div></div></div>
+                    <div class="day-cell"><div class="event visit" onclick="selectEvent('Carlos Mendes · Visita confirmada','Cirag Boutique · Ana Souza','Apto 3 dorms · Vila Mariana','Google Calendar','Ter 10:00','Confirmar presença 1h antes')"><strong>10:00 · Visita</strong><span>Carlos Mendes · Cirag Boutique</span><div class="event-foot"><span class="badge green">Confirmado</span><span class="sync">Google</span></div></div></div>
+                    <div class="day-cell"><div class="emptyhint">sem conflitos</div></div>
+                    <div class="day-cell"><div class="event meeting" onclick="selectEvent('Reunião de performance','Cirag Boutique · Hub','Leads e campanhas','Google Meet','Qui 09:30','Revisar conversão e tempo de resposta')"><strong>09:30 · Reunião performance</strong><span>Cirag Boutique · Hub</span><div class="event-foot"><span class="badge purple">Reunião</span><span class="sync">Meet</span></div></div></div>
+                    <div class="day-cell"><div class="emptyhint">livre</div></div>
+                    <div class="day-cell"><div class="event visit" onclick="selectEvent('Visita alto padrão','Lopes Imóveis · Bruno Lima','Cobertura · Moema','Outlook / 365','Sáb 09:00','Confirmar chave e portaria')"><strong>09:00 · Visita alto padrão</strong><span>Lopes · Cobertura Moema</span><div class="event-foot"><span class="badge green">Confirmado</span><span class="sync">Outlook</span></div></div></div>
+                    <div class="day-cell"><div class="emptyhint">plantão</div></div>
+                    <div class="hour">12:00</div>
+                    <div class="day-cell"><div class="emptyhint">livre</div></div>
+                    <div class="day-cell"><div class="event task" onclick="selectEvent('Enviar documentação','OMA Imóveis · Mariana Lima','Proposta R$ 1,05M','Agenda interna','Ter 12:30','Solicitar comprovante e RG')"><strong>12:30 · Docs pendentes</strong><span>OMA · Mariana Lima</span><div class="event-foot"><span class="badge orange">Tarefa</span><span class="sync">Hub</span></div></div></div>
+                    <div class="day-cell"><div class="event conflict" onclick="selectEvent('Conflito de agenda detectado','Lello Imóveis · Bruno Lima','Duas visitas no mesmo horário','Agenda interna','Qua 12:00','Redistribuir uma visita')"><strong>12:00 · Conflito</strong><span>Bruno Lima · 2 visitas simultâneas</span><div class="event-foot"><span class="badge red">Conflito</span><span class="sync">Hub</span></div></div></div>
+                    <div class="day-cell"><div class="emptyhint">livre</div></div>
+                    <div class="day-cell"><div class="event follow" onclick="selectEvent('Follow-up pós-visita','Brava Company · Aline Souza','Cliente Marcelo Dias','WhatsApp + Hub','Sex 12:20','Enviar pesquisa e próximos imóveis')"><strong>12:20 · Pós-visita</strong><span>Brava · Marcelo Dias</span><div class="event-foot"><span class="badge blue">Follow-up</span><span class="sync">Hub</span></div></div></div>
+                    <div class="day-cell"><div class="emptyhint">livre</div></div><div class="day-cell"><div class="emptyhint">livre</div></div>
+                    <div class="hour">14:00</div>
+                    <div class="day-cell"><div class="event visit" onclick="selectEvent('Visita Jardins','Cirag Boutique · Ana Souza','Apto Jardins','Google Calendar','Seg 14:30','Enviar localização ao cliente')"><strong>14:30 · Visita Jardins</strong><span>Cirag · Ana Souza</span><div class="event-foot"><span class="badge green">Confirmado</span><span class="sync">Google</span></div></div></div>
+                    <div class="day-cell"><div class="event follow" onclick="selectEvent('Follow-up proposta cliente','OMA Imóveis · Pedro Alves','Mariana Lima · R$ 1,05M','Agenda interna','Ter 14:00','Enviar contraproposta')"><strong>14:00 · Follow-up proposta</strong><span>Mariana Lima · OMA</span><div class="event-foot"><span class="badge orange">Atenção</span><span class="sync">Hub</span></div></div></div>
+                    <div class="day-cell"><div class="event meeting" onclick="selectEvent('Reunião com Robotton','Robotton · Juliana Mendes','Plano de ativação de leads','Google Meet','Qua 14:00','Rever origem de leads e SLA')"><strong>14:00 · Reunião</strong><span>Robotton · performance</span><div class="event-foot"><span class="badge purple">Meet</span><span class="sync">Google</span></div></div></div>
+                    <div class="day-cell"><div class="emptyhint">livre</div></div>
+                    <div class="day-cell"><div class="event task" onclick="selectEvent('Auditar follow-ups atrasados','Hub · Gestão','Corretores com atraso','Agenda interna','Sex 14:30','Cobrar retornos pendentes')"><strong>14:30 · Auditoria SLA</strong><span>9 follow-ups atrasados</span><div class="event-foot"><span class="badge red">Crítico</span><span class="sync">Hub</span></div></div></div>
+                    <div class="day-cell"><div class="emptyhint">livre</div></div><div class="day-cell"><div class="emptyhint">livre</div></div>
+                    <div class="hour">16:00</div>
+                    <div class="day-cell"><div class="emptyhint">livre</div></div>
+                    <div class="day-cell"><div class="event signature" onclick="selectEvent('Assinatura Lopes às 16h','Lopes Imóveis · Bruno Lima','Cliente Aline Rocha','Outlook / 365','Ter 16:00','Validar contrato e assinatura digital')"><strong>16:00 · Assinatura</strong><span>Aline Rocha · Lopes</span><div class="event-foot"><span class="badge green">Contrato</span><span class="sync">Outlook</span></div></div></div>
+                    <div class="day-cell"><div class="emptyhint">livre</div></div>
+                    <div class="day-cell"><div class="event visit" onclick="selectEvent('Visita Pinheiros','OMA Imóveis · Mariana Souza','Apto 2 dorms · Pinheiros','Google Calendar','Qui 16:30','Confirmar portaria')"><strong>16:30 · Visita Pinheiros</strong><span>OMA · Mariana Souza</span><div class="event-foot"><span class="badge green">Confirmado</span><span class="sync">Google</span></div></div></div>
+                    <div class="day-cell"><div class="emptyhint">livre</div></div><div class="day-cell"><div class="emptyhint">livre</div></div><div class="day-cell"><div class="emptyhint">livre</div></div>
+                    <div class="hour">18:00</div>
+                    <div class="day-cell"><div class="emptyhint">livre</div></div>
+                    <div class="day-cell"><div class="event task" onclick="selectEvent('Ativação de WhatsApp e agenda','Brava Company · João Victor','Novo corretor','Agenda interna','Ter 17:00','Conectar Google e WhatsApp')"><strong>17:00 · Ativação</strong><span>Brava · João Victor</span><div class="event-foot"><span class="badge red">Pendente</span><span class="sync">Hub</span></div></div></div>
+                    <div class="day-cell"><div class="emptyhint">livre</div></div><div class="day-cell"><div class="emptyhint">livre</div></div>
+                    <div class="day-cell"><div class="event follow" onclick="selectEvent('Resumo semanal automático','Hub · Gestores','Relatório de agenda e SLA','Agenda interna','Sex 18:00','Enviar relatório aos gestores')"><strong>18:00 · Relatório semanal</strong><span>Hub · Gestores</span><div class="event-foot"><span class="badge blue">Automático</span><span class="sync">Hub</span></div></div></div>
+                    <div class="day-cell"><div class="emptyhint">livre</div></div><div class="day-cell"><div class="emptyhint">livre</div></div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </section>
+
+          <section class="detail">
+            <div class="panel-head"><div><h3>Detalhe do compromisso selecionado</h3><small>Ao clicar em qualquer evento, o gestor vê dados, origem, sincronização e ações vinculadas ao funil.</small></div><span class="badge green" id="detailStatus">Sincronizado</span></div>
+            <div class="detail-main"><div><label>Compromisso</label><strong id="dTitle">Carlos Mendes · Visita confirmada</strong><span id="dContext">Cirag Boutique · Ana Souza</span></div><div><label>Imóvel / negócio</label><strong id="dProperty">Apto 3 dorms · Vila Mariana</strong><span>Vinculado ao funil de negócios</span></div><div><label>Agenda externa</label><strong id="dCalendar">Google Calendar</strong><span>Sincronização em 2 vias</span></div><div><label>Data e horário</label><strong id="dTime">Hoje 10:00</strong><span>Lembrete 60 min antes</span></div><div><label>Próxima ação</label><strong id="dAction">Confirmar presença 1h antes</strong><span>Notificar corretor e cliente</span></div><div><label>Impacto operacional</label><strong>Atualiza o funil automaticamente</strong><span>Visita realizada → solicitar feedback</span></div></div>
+            <div class="timeline"><div class="timeline-item"><small>Automação</small><strong>Evento criado no funil</strong><p>Ao marcar a visita, o negócio muda para “Visita / Reunião” e gera lembretes.</p></div><div class="timeline-item"><small>Google Calendar</small><strong>Sincronização confirmada</strong><p>Evento enviado para a agenda do corretor e para a agenda central do Hub.</p></div><div class="timeline-item"><small>WhatsApp</small><strong>Lembrete programado</strong><p>Cliente e corretor recebem lembrete antes do compromisso, conforme regra do Hub.</p></div><div class="timeline-item"><small>Pós-evento</small><strong>Tarefa automática</strong><p>Após o horário, o sistema cria follow-up para registrar resultado da visita.</p></div></div>
+          </section>
+        </div>
+
+        <aside class="right-stack">
+          <section class="side-card"><h3>Resumo operacional</h3><div class="side-list"><div class="side-row"><div><strong>Visitas de hoje</strong><span>confirmadas e pendentes</span></div><div class="count blue">15</div></div><div class="side-row"><div><strong>Follow-ups atrasados</strong><span>fora do SLA de retorno</span></div><div class="count red">9</div></div><div class="side-row"><div><strong>Conflitos detectados</strong><span>corretor com horários sobrepostos</span></div><div class="count orange">3</div></div><div class="side-row"><div><strong>Sem confirmação</strong><span>cliente ainda não confirmou</span></div><div class="count orange">7</div></div><div class="side-row"><div><strong>Eventos sincronizados</strong><span>Google, Outlook e Hub</span></div><div class="count green">94%</div></div></div></section>
+          <section class="side-card"><h3>Sincronização das agendas</h3><div class="side-list"><div class="side-row"><div style="width:100%;"><strong>Google Calendar</strong><span>12 contas conectadas · 2 vias</span><div class="progress-line"><b style="width:92%;"></b></div></div><span class="badge green">OK</span></div><div class="side-row"><div style="width:100%;"><strong>Outlook / Microsoft 365</strong><span>4 contas conectadas</span><div class="progress-line"><b style="width:64%;"></b></div></div><span class="badge blue">Ativo</span></div><div class="side-row"><div style="width:100%;"><strong>CalDAV / iCloud</strong><span>1 conta em validação</span><div class="progress-line"><b style="width:38%;"></b></div></div><span class="badge orange">Atenção</span></div><div class="side-row"><div style="width:100%;"><strong>Agenda interna</strong><span>todos os eventos do funil</span><div class="progress-line"><b style="width:100%;"></b></div></div><span class="badge green">OK</span></div></div></section>
+          <section class="side-card"><h3>Ranking por agenda</h3><div class="side-list"><div class="side-row"><div><strong>1. Cirag Boutique</strong><span>visitas + follow-ups</span></div><div class="count blue">32</div></div><div class="side-row"><div><strong>2. OMA Imóveis</strong><span>melhor taxa de confirmação</span></div><div class="count green">27</div></div><div class="side-row"><div><strong>3. Lopes Imóveis</strong><span>maior volume de assinatura</span></div><div class="count blue">24</div></div></div></section>
+          <section class="side-card"><h3>Regras automáticas</h3><div class="side-list"><div class="side-row"><div><strong>Visita agendada</strong><span>move negócio para “Visita / Reunião”</span></div><span class="badge green">Ativa</span></div><div class="side-row"><div><strong>Sem retorno em 15 min</strong><span>alerta gestor e corretor</span></div><span class="badge green">Ativa</span></div><div class="side-row"><div><strong>Conflito de horário</strong><span>sugere redistribuição automática</span></div><span class="badge orange">Revisar</span></div><div class="side-row"><div><strong>Pós-visita</strong><span>cria tarefa de feedback e próxima ação</span></div><span class="badge green">Ativa</span></div></div></section>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <div class="floating-modal" id="modal">
+    <div class="modal-card">
+      <div class="modal-head"><div><h2>Novo compromisso inteligente</h2><p style="margin:5px 0 0;color:var(--gray-500);font-size:13px;">Crie visitas, tarefas, reuniões e follow-ups já vinculados ao funil.</p></div><button class="close" onclick="closeModal()">×</button></div>
+      <div class="form-grid"><div class="field"><label>Tipo</label><select><option>Visita com cliente</option><option>Follow-up</option><option>Reunião com imobiliária</option><option>Assinatura / contrato</option><option>Tarefa operacional</option></select></div><div class="field"><label>Agenda de destino</label><select><option>Google Calendar + Agenda Hub</option><option>Outlook / 365 + Agenda Hub</option><option>Apenas Agenda Hub</option><option>CalDAV / iCloud + Agenda Hub</option></select></div><div class="field"><label>Imobiliária</label><select><option>Cirag Boutique Imobiliária</option><option>OMA Imóveis</option><option>Lopes Imóveis</option><option>Lello Imóveis</option><option>Brava Company</option></select></div><div class="field"><label>Corretor responsável</label><select><option>Ana Souza</option><option>Pedro Alves</option><option>Bruno Lima</option><option>Mariana Souza</option><option>Aline Souza</option></select></div><div class="field"><label>Cliente</label><input value="Carlos Mendes" /></div><div class="field"><label>Data e horário</label><input value="27/05/2025 · 10:00" /></div><div class="field full"><label>Descrição / próxima ação</label><textarea>Confirmar presença com o cliente 1h antes, enviar localização do imóvel e registrar feedback após a visita.</textarea></div></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="closeModal()">Salvar e sincronizar</button></div>
+    </div>
+  </div>
+
+  <script>
+    function toggleView(button){ const group = button.parentElement.querySelectorAll('button'); group.forEach(btn => btn.classList.remove('active')); button.classList.add('active'); }
+    function openModal(){ document.getElementById('modal').classList.add('open'); }
+    function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+    function selectEvent(title, context, property, calendar, time, action){
+      document.getElementById('dTitle').textContent = title; document.getElementById('dContext').textContent = context;
+      document.getElementById('dProperty').textContent = property; document.getElementById('dCalendar').textContent = calendar;
+      document.getElementById('dTime').textContent = time; document.getElementById('dAction').textContent = action;
+      const status = document.getElementById('detailStatus'); status.textContent = calendar.includes('interna') ? 'Agenda Hub' : 'Sincronizado'; status.className = calendar.includes('interna') ? 'badge blue' : 'badge green';
+      document.querySelector('.detail').scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+    document.addEventListener('keydown', function(event){ if(event.key === 'Escape') closeModal(); });
+  </script>
+
+<script>(function(){var p=(location.pathname.split('/').pop()||'index.html');if(!p||p==='')p='index.html';document.querySelectorAll('.nav-item').forEach(function(a){var h=a.getAttribute('href');a.classList.toggle('active',h===p);});})();</script>
+</body>
+</html>
