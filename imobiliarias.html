@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="pt-BR"><head>
-<script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script><script>document.documentElement.classList.add("hub-pre");setTimeout(function(){document.documentElement.classList.remove("hub-pre")},4000);</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AiLogic Hub · Imobiliárias</title>
+<!DOCTYPE html><html lang="pt-BR"><head><script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script><script>document.documentElement.classList.add("hub-pre");setTimeout(function(){document.documentElement.classList.remove("hub-pre")},4000);</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AiLogic Hub · Imobiliárias</title>
 <style>
 :root{
   --navy:#061936;--blue:#0b66ff;--blue2:#eaf2ff;--green:#16a56f;--green2:#eafaf3;
@@ -35,7 +34,7 @@
 .detail{margin-top:14px}.detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--gray200)}.detail-item{padding:13px 14px;border-right:1px solid var(--gray200)}.detail-item:last-child{border-right:0}.detail-item label{display:block;color:var(--gray500);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}.detail-item strong{display:block;color:#172554;font-size:12px}.detail-item span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
 @media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,minmax(250px,1fr))}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(3,1fr)}}@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.right-stack{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}}@media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.grid,.right-stack,.detail-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
 </style>
-<style>.ph{display:grid;place-items:center;min-height:60vh}.ph-card{text-align:center;max-width:560px;background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--shadow);padding:48px 40px}.ph-ico{width:72px;height:72px;border-radius:22px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-size:32px;font-weight:950;margin:0 auto 18px}</style>
+
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="hub.css">
 </head><body><div class="app"><aside class="sidebar">
   <div class="brand"><div class="logo">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
@@ -71,8 +70,29 @@
   <div class="profile"><div class="avatar">AF</div><div><strong>Alessandro Ferreira</strong><span>Diretoria · Admin do Hub</span></div></div>
 </aside>
 <main class="main">
-<header class="header"><div class="headline"><h1>Imobiliárias</h1><p>Cadastro e gestão das imobiliárias parceiras do Hub (CRECI, região, status, IA, performance).</p></div><div class="actions"><div class="pill"><span class="dot"></span>Sistema ativo · 6 imobiliárias</div></div></header>
-<div class="ph"><div class="ph-card"><div class="ph-ico">⏳</div><h2 style="margin:0 0 8px;font-size:22px;letter-spacing:-.02em">Tela em construção</h2><p style="color:var(--gray500);margin:0 0 16px;line-height:1.5">Cadastro e gestão das imobiliárias parceiras do Hub (CRECI, região, status, IA, performance).</p><span class="badge blue">MVP · em montagem</span></div></div>
-</main></div>
-<script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script><script src="hub.js" defer></script>
-</body></html>
+<header class="header"><div class="headline"><h1>Imobiliárias</h1><p>Cadastro e gestão das imobiliárias parceiras do Hub · espelhado em tempo real do banco.</p></div>
+<div class="actions"><div class="pill"><span class="dot"></span>Sistema ativo</div><button class="btn primary" id="imb-novo">＋ Nova Imobiliária</button></div></header>
+<section class="kpis" id="imb-kpis"></section>
+<section class="panel"><div class="panel-head"><h3>Imobiliárias na Plataforma</h3></div><div class="table-wrap" style="padding:14px"><table><thead><tr><th>Imobiliária</th><th>CRECI</th><th>Região</th><th>Status</th><th>IA</th><th>Imóveis</th><th>Cidade</th></tr></thead><tbody id="imb-tbody"></tbody></table></div></section>
+<div style="height:14px"></div>
+<section id="imb-cards"></section>
+<script>(function(){
+  var DATA='/api/data';
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function statusBadge(s){var t=(s||'Ativa');var c=/atenç|pausad/i.test(t)?'orange':/implant/i.test(t)?'orange':'green';return '<span class="badge '+c+'">'+esc(t)+'</span>';}
+  fetch(DATA+'?ent=imoveis&action=list').then(function(r){return r.json();}).then(function(im){window.__imoveis=(im&&im.rows)||[];}).catch(function(){window.__imoveis=[];}).finally(function(){
+    fetch(DATA+'?ent=imobiliarias&action=list').then(function(r){return r.json();}).then(function(d){
+      var rows=(d&&d.rows)||[]; var imv=window.__imoveis||[];
+      var cont=function(id){return imv.filter(function(x){return x.imobiliaria_id===id;}).length;};
+      var ativas=rows.filter(function(x){return !/atenç|pausad/i.test((x.extra&&x.extra.status)||x.status||'Ativa');}).length;
+      var kpis=[['Imobiliárias',rows.length,'parceiras'],['Ativas',ativas,'operando'],['Imóveis no catálogo',imv.length,'cross-imobiliária'],['Cidades',[].concat.apply([],rows.map(function(x){return x.cidade?[x.cidade]:[];})).filter(function(v,i,a){return a.indexOf(v)===i;}).length,'atendidas'],['IA ativa',rows.length,'agentes'],['Cobertura','100%','do Hub']];
+      document.getElementById('imb-kpis').innerHTML=kpis.map(function(k){return '<article class="kpi"><div class="kpi-top"><div><h3>'+k[0]+'</h3><div class="value">'+k[1]+'</div><div class="trend">'+k[2]+'</div></div><div class="kpi-icon">'+'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/></svg>'+'</div></div></article>';}).join('');
+      document.getElementById('imb-tbody').innerHTML=rows.map(function(r){var st=(r.extra&&r.extra.status)||r.status||'Ativa';var reg=(r.extra&&r.extra.regiao)||r.cidade||'';return '<tr><td style="font-weight:700">'+esc(r.nome)+'</td><td>'+esc(r.creci||'—')+'</td><td>'+esc(reg)+'</td><td>'+statusBadge(st)+'</td><td><span class="badge green">Ativa</span></td><td>'+cont(r.id)+'</td><td>'+esc(r.cidade||'—')+'</td></tr>';}).join('');
+      document.getElementById('imb-cards').innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">'+rows.map(function(r){var sig=(r.extra&&r.extra.sigla)||(r.nome||'?').slice(0,2).toUpperCase();var cor=(r.extra&&r.extra.cor)||'#061629';var st=(r.extra&&r.extra.status)||r.status||'Ativa';return '<div class="card"><div class="card-top"><div style="display:flex;gap:12px;align-items:center"><div style="width:44px;height:44px;border-radius:12px;background:'+cor+';color:#fff;display:grid;place-items:center;font-weight:800">'+esc(sig)+'</div><div><div style="font-weight:700;color:#172554">'+esc(r.nome)+'</div><div style="font-size:11px;color:var(--gray500)">'+esc((r.extra&&r.extra.regiao)||r.cidade||'')+'</div></div></div>'+statusBadge(st)+'</div><div class="metrics"><div class="metric"><strong>'+cont(r.id)+'</strong><span>imóveis</span></div><div class="metric"><strong>'+esc(r.creci||'—')+'</strong><span>CRECI</span></div><div class="metric"><strong>IA</strong><span>ativa</span></div></div></div>';}).join('')+'</div>';
+    });
+  });
+  document.getElementById('imb-novo').addEventListener('click',function(){alert('Cadastro de imobiliária: em breve neste MVP. A lista já vem do banco em tempo real.');});
+})();</script>
+</main>
+</div>
+<script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script><script src="hub.js" defer></script></body></html>

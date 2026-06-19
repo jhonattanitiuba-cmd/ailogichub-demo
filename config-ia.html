@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="pt-BR"><head>
-<script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script><script>document.documentElement.classList.add("hub-pre");setTimeout(function(){document.documentElement.classList.remove("hub-pre")},4000);</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AiLogic Hub · Configurações · IA</title>
+<!DOCTYPE html><html lang="pt-BR"><head><script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script><script>document.documentElement.classList.add("hub-pre");setTimeout(function(){document.documentElement.classList.remove("hub-pre")},4000);</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AiLogic Hub · Configurações · IA</title>
 <style>
 :root{
   --navy:#061936;--blue:#0b66ff;--blue2:#eaf2ff;--green:#16a56f;--green2:#eafaf3;
@@ -35,7 +34,7 @@
 .detail{margin-top:14px}.detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--gray200)}.detail-item{padding:13px 14px;border-right:1px solid var(--gray200)}.detail-item:last-child{border-right:0}.detail-item label{display:block;color:var(--gray500);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}.detail-item strong{display:block;color:#172554;font-size:12px}.detail-item span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
 @media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,minmax(250px,1fr))}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(3,1fr)}}@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.right-stack{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}}@media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.grid,.right-stack,.detail-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
 </style>
-<style>.ph{display:grid;place-items:center;min-height:60vh}.ph-card{text-align:center;max-width:560px;background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--shadow);padding:48px 40px}.ph-ico{width:72px;height:72px;border-radius:22px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-size:32px;font-weight:950;margin:0 auto 18px}</style>
+
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="hub.css">
 </head><body><div class="app"><aside class="sidebar">
   <div class="brand"><div class="logo">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
@@ -71,8 +70,35 @@
   <div class="profile"><div class="avatar">AF</div><div><strong>Alessandro Ferreira</strong><span>Diretoria · Admin do Hub</span></div></div>
 </aside>
 <main class="main">
-<header class="header"><div class="headline"><h1>Configurações · IA</h1><p>Persona, prompt, critérios de qualificação, SLA e handoff do agente de IA.</p></div><div class="actions"><div class="pill"><span class="dot"></span>Sistema ativo · 6 imobiliárias</div></div></header>
-<div class="ph"><div class="ph-card"><div class="ph-ico">⏳</div><h2 style="margin:0 0 8px;font-size:22px;letter-spacing:-.02em">Tela em construção</h2><p style="color:var(--gray500);margin:0 0 16px;line-height:1.5">Persona, prompt, critérios de qualificação, SLA e handoff do agente de IA.</p><span class="badge blue">MVP · em montagem</span></div></div>
-</main></div>
-<script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script><script src="hub.js" defer></script>
-</body></html>
+<header class="header"><div class="headline"><h1>Configurações · IA</h1><p>Persona, prompt e comportamento do agente de IA do WhatsApp do Hub.</p></div>
+<div class="actions"><div class="pill" id="cfg-statuspill"><span class="dot" style="background:var(--gray300)"></span>Carregando…</div></div></header>
+<div class="layout" style="grid-template-columns:minmax(0,1fr) 340px">
+<section class="panel"><div class="panel-head"><div><h3>Prompt / Persona do agente</h3><small>O agente responde com base neste texto. Salvar aplica na hora.</small></div><button class="btn" id="cfg-ativa">Ativar IA</button></div>
+  <div style="padding:16px"><textarea id="cfg-persona" style="width:100%;min-height:340px;border:1px solid var(--gray300);border-radius:12px;padding:14px;font:inherit;font-size:13px;line-height:1.55;resize:vertical" placeholder="Descreva a persona, o tom de voz, o que o agente pode e não pode fazer..."></textarea>
+  <div style="display:flex;gap:10px;align-items:center;margin-top:12px"><button class="btn blue" id="cfg-save">Salvar</button><span id="cfg-status" style="font-size:12px;color:var(--gray500)"></span></div></div>
+</section>
+<aside class="right-stack" style="grid-template-columns:1fr">
+  <section class="panel"><div class="panel-head"><h3>Boas práticas</h3></div><div class="rules">
+    <div class="rule"><div class="r-ico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v5M12 17v4M3 12h5M17 12h4"/><path d="M12 8l1.5 2.5L16 12l-2.5 1.5L12 16l-1.5-2.5L8 12l2.5-1.5z"/></svg></div><div><strong>Comece simples</strong><span>Apresente-se e pergunte como ajudar.</span></div></div>
+    <div class="rule"><div class="r-ico">!</div><div><strong>Sem travessão</strong><span>Use vírgula ou ponto, fica mais natural.</span></div></div>
+    <div class="rule"><div class="r-ico">@</div><div><strong>Modo teste</strong><span>Hoje responde só Jhonattan e Alessandro.</span></div></div>
+  </div></section>
+  <section class="panel"><div class="panel-head"><h3>Status</h3></div><div class="side-list">
+    <div class="side-row"><div><strong>Motor</strong><span>OpenAI GPT-4o-mini</span></div><span class="badge green">OK</span></div>
+    <div class="side-row"><div><strong>Webhook</strong><span>/api/wa-webhook</span></div><span class="badge green">Ativo</span></div>
+    <div class="side-row"><div><strong>Disparo diário</strong><span>07:00 (cron)</span></div><span class="badge blue">Agendado</span></div>
+  </div></section>
+</aside>
+</div>
+<script>(function(){
+  var API='/api/wa', ativa=false;
+  function setBtn(){var b=document.getElementById('cfg-ativa');b.textContent=ativa?'IA Ativa':'Ativar IA';b.className='btn '+(ativa?'blue':'');var p=document.getElementById('cfg-statuspill');p.innerHTML='<span class="dot" style="background:'+(ativa?'var(--green)':'var(--gray300)')+'"></span>'+(ativa?'IA ativa':'IA inativa');}
+  fetch(API+'?action=config').then(function(r){return r.json();}).then(function(d){ativa=!!d.ia_ativa;document.getElementById('cfg-persona').value=d.ia_persona||'';setBtn();}).catch(function(){setBtn();});
+  document.getElementById('cfg-ativa').addEventListener('click',function(){ativa=!ativa;setBtn();});
+  document.getElementById('cfg-save').addEventListener('click',function(){var st=document.getElementById('cfg-status');st.textContent='salvando…';
+    fetch(API+'?action=config-save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ia_ativa:ativa,ia_persona:document.getElementById('cfg-persona').value})}).then(function(r){return r.json();}).then(function(){st.textContent='salvo · o agente já responde com isso.';setTimeout(function(){st.textContent='';},5000);}).catch(function(e){st.textContent='falha ao salvar.';});
+  });
+})();</script>
+</main>
+</div>
+<script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script><script src="hub.js" defer></script></body></html>
