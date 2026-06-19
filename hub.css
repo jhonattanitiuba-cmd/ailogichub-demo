@@ -1,0 +1,35 @@
+/* ===== AI LOGIC HUB — camada global (fonte, animações, polimento) ===== */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Montserrat padrão: bold nos títulos, regular nos textos */
+:root{ --font:'Montserrat',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif; }
+body{ font-family:var(--font); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+h1,h2,h3,h4,.headline h1,.panel-head h2,.panel-head h3,.brand strong,.kpi .value,.value{ font-family:var(--font); }
+.headline h1,h1{ font-weight:800; letter-spacing:-.03em; }
+h2,h3,.panel-head h2,.panel-head h3,.brand strong,.card h3{ font-weight:700; }
+.kpi .value,.value{ font-weight:800; }
+.badge,.btn,th,.section-title,.count,.chip2,.pill{ font-weight:700; }
+p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
+
+/* ícones SVG inline (substituem emojis) herdam a cor do contexto */
+.hub-ic{ display:inline-flex; align-items:center; justify-content:center; line-height:0; }
+.hub-ic svg{ width:1em; height:1em; }
+.kpi-icon .hub-ic,.card-icon .hub-ic,.r-ico .hub-ic,.ai .hub-ic,.logo .hub-ic{ font-size:20px; }
+.nav-item .ico .hub-ic{ font-size:18px; }
+.ph-ico .hub-ic{ font-size:34px; }
+
+/* animações: entrada da tela + cascata */
+@keyframes hubFade{ from{opacity:0} to{opacity:1} }
+@keyframes hubRise{ from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none} }
+@keyframes hubSide{ from{opacity:0; transform:translateX(-10px)} to{opacity:1; transform:none} }
+.main{ animation:hubFade .4s ease both; }
+.sidebar{ animation:hubSide .5s cubic-bezier(.22,.61,.36,1) both; }
+.hub-rise{ opacity:0; animation:hubRise .55s cubic-bezier(.22,.61,.36,1) forwards; }
+.nav-item{ transition:transform .12s ease, background .15s ease; }
+.nav-item:hover{ transform:translateX(3px); }
+.kpi,.card,.panel{ transition:transform .18s ease, box-shadow .18s ease; }
+.kpi:hover,.card:hover{ transform:translateY(-2px); box-shadow:0 18px 40px rgba(15,23,42,.12); }
+
+@media (prefers-reduced-motion: reduce){
+  .main,.sidebar,.hub-rise{ animation:none !important; opacity:1 !important; transform:none !important; }
+}

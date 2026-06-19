@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AiLogic Hub · Anúncios · Rodízios</title>
+<!DOCTYPE html><html lang="pt-BR"><head>
+<script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login\.html$/.test(location.pathname)){location.replace("login.html");}</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AiLogic Hub · Anúncios · Rodízios</title>
 <style>
 :root{
   --navy:#061936;--blue:#0b66ff;--blue2:#eaf2ff;--green:#16a56f;--green2:#eafaf3;
@@ -35,6 +36,7 @@
 @media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,minmax(250px,1fr))}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(3,1fr)}}@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.right-stack{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}}@media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.grid,.right-stack,.detail-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
 </style>
 <style>.ph{display:grid;place-items:center;min-height:60vh}.ph-card{text-align:center;max-width:560px;background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--shadow);padding:48px 40px}.ph-ico{width:72px;height:72px;border-radius:22px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-size:32px;font-weight:950;margin:0 auto 18px}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="hub.css">
 </head><body><div class="app"><aside class="sidebar">
   <div class="brand"><div class="logo">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
   <div class="section-title">Operação</div>
@@ -72,4 +74,5 @@
 <header class="header"><div class="headline"><h1>Anúncios · Rodízios</h1><p>Publicação multicanal e rodízio justo de anúncios entre corretores e imobiliárias.</p></div><div class="actions"><div class="pill"><span class="dot"></span>Sistema ativo · 6 imobiliárias</div></div></header>
 <div class="ph"><div class="ph-card"><div class="ph-ico">⏳</div><h2 style="margin:0 0 8px;font-size:22px;letter-spacing:-.02em">Tela em construção</h2><p style="color:var(--gray500);margin:0 0 16px;line-height:1.5">Publicação multicanal e rodízio justo de anúncios entre corretores e imobiliárias.</p><span class="badge blue">MVP · em montagem</span></div></div>
 </main></div>
-<script>(function(){var p=(location.pathname.split('/').pop()||'index.html');if(!p||p==='')p='index.html';document.querySelectorAll('.nav-item').forEach(function(a){var h=a.getAttribute('href');a.classList.toggle('active',h===p);});})();</script></body></html>
+<script>(function(){var p=(location.pathname.split('/').pop()||'index.html');if(!p||p==='')p='index.html';document.querySelectorAll('.nav-item').forEach(function(a){var h=a.getAttribute('href');a.classList.toggle('active',h===p);});})();</script><script src="hub.js" defer></script>
+</body></html>

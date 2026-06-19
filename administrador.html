@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login\.html$/.test(location.pathname)){location.replace("login.html");}</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AiLogic Hub · Administrador do Hub</title>
@@ -39,6 +40,7 @@
 .detail{margin-top:14px}.detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--gray200)}.detail-item{padding:13px 14px;border-right:1px solid var(--gray200)}.detail-item:last-child{border-right:0}.detail-item label{display:block;color:var(--gray500);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}.detail-item strong{display:block;color:#172554;font-size:12px}.detail-item span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
 @media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,minmax(250px,1fr))}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(3,1fr)}}@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.right-stack{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}}@media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.grid,.right-stack,.detail-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="hub.css">
 </head>
 <body>
   <div class="app">
@@ -98,5 +100,6 @@
   </div>
 
 <script>(function(){var p=(location.pathname.split('/').pop()||'index.html');if(!p||p==='')p='index.html';document.querySelectorAll('.nav-item').forEach(function(a){var h=a.getAttribute('href');a.classList.toggle('active',h===p);});})();</script>
+<script src="hub.js" defer></script>
 </body>
 </html>

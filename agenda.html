@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login\.html$/.test(location.pathname)){location.replace("login.html");}</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AiLogic Hub · Agenda Integrada</title>
@@ -38,6 +39,7 @@
     .floating-modal{position:fixed;inset:0;background:rgba(3,17,38,.50);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}.floating-modal.open{display:flex}.modal-card{width:min(720px,100%);background:white;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.25);overflow:hidden}.modal-head{display:flex;justify-content:space-between;gap:16px;padding:20px 22px;border-bottom:1px solid var(--gray-200)}.modal-head h2{margin:0;font-size:20px}.close{border:0;background:#f1f5f9;width:36px;height:36px;border-radius:12px;cursor:pointer;font-size:18px;font-weight:900;color:var(--gray-700)}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:18px 22px 22px}.field label{display:block;font-size:12px;font-weight:800;color:#172554;margin-bottom:6px}.field input,.field select{width:100%;height:42px;box-shadow:none;border-radius:12px}.field.full{grid-column:1/-1}textarea{width:100%;min-height:90px;resize:vertical;border:1px solid var(--gray-300);border-radius:12px;padding:12px 14px;font:inherit;outline:none}.modal-actions{display:flex;justify-content:flex-end;gap:10px;padding:0 22px 22px}
     @media(max-width:1450px){.grid-kpi{grid-template-columns:repeat(3,1fr)}.content-grid{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(2,1fr)}}@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.agenda-layout{grid-template-columns:1fr}.week-header,.week-grid{min-width:1000px}.week-board{overflow:auto}.integrations{grid-template-columns:repeat(2,1fr)}.detail-main{grid-template-columns:1fr 1fr}.timeline{grid-template-columns:1fr 1fr}}@media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.grid-kpi,.integrations,.right-stack,.timeline,.form-grid{grid-template-columns:1fr}.detail-main{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
   </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="hub.css">
 </head>
 <body>
   <div class="app">
@@ -204,5 +206,6 @@
   </script>
 
 <script>(function(){var p=(location.pathname.split('/').pop()||'index.html');if(!p||p==='')p='index.html';document.querySelectorAll('.nav-item').forEach(function(a){var h=a.getAttribute('href');a.classList.toggle('active',h===p);});})();</script>
+<script src="hub.js" defer></script>
 </body>
 </html>

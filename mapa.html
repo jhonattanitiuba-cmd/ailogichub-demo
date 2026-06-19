@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login\.html$/.test(location.pathname)){location.replace("login.html");}</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AiLogic Hub · Mapa de Atuação</title>
@@ -147,6 +148,7 @@
     @media(max-width:1100px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:1fr 1fr}.map-status{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.right-stack,.detail-grid,.form-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.map-floating{position:static;width:auto;margin:12px}.map-wrap{min-height:640px}.map-bg{min-height:520px}}
   </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="hub.css">
 </head>
 <body>
   <div class="app">
@@ -494,5 +496,6 @@
   </script>
 
 <script>(function(){var p=(location.pathname.split('/').pop()||'index.html');if(!p||p==='')p='index.html';document.querySelectorAll('.nav-item').forEach(function(a){var h=a.getAttribute('href');a.classList.toggle('active',h===p);});})();</script>
+<script src="hub.js" defer></script>
 </body>
 </html>
