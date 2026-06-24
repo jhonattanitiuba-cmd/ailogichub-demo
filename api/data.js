@@ -41,6 +41,15 @@ function imovOut(r) {
     endereco: r.endereco, bairro: r.bairro, cidade: r.cidade, descricao: r.descricao
   }, e);
 }
+function corOut(r) {
+  const e = r.extra || {};
+  return Object.assign({
+    id: r.id, imobiliaria_id: r.imobiliaria_id, nome: r.nome, email: r.email,
+    telefone: r.telefone, creci: r.creci, perfil: r.perfil, status: (r.ativo ? 'Ativo' : 'Inativo')
+  }, e);
+}
+const TABLE = { imobiliarias: 'imobiliarias', imoveis: 'imoveis', corretores: 'usuarios' };
+const OUT = { imobiliarias: imobOut, imoveis: imovOut, corretores: corOut };
 
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
@@ -48,14 +57,14 @@ module.exports = async (req, res) => {
     if (!DB_URL) { res.status(500).json({ error: 'backend nao configurado (DB_URL)' }); return; }
     const ent = req.query && req.query.ent;
     const action = (req.query && req.query.action) || 'list';
-    if (ent !== 'imobiliarias' && ent !== 'imoveis') { res.status(400).json({ error: 'ent invalido' }); return; }
+    if (!TABLE[ent]) { res.status(400).json({ error: 'ent invalido' }); return; }
     let body = req.body; if (typeof body === 'string') { try { body = JSON.parse(body); } catch (_) { body = {}; } }
     body = body || {};
 
     // ---- LIST ----
     if (action === 'list') {
-      const r = await db(`select * from ${ent} where deleted_at is null order by created_at`);
-      res.status(200).json({ rows: r.rows.map(ent === 'imobiliarias' ? imobOut : imovOut) });
+      const r = await db(`select * from ${TABLE[ent]} where deleted_at is null order by created_at`);
+      res.status(200).json({ rows: r.rows.map(OUT[ent]) });
       return;
     }
 
@@ -63,7 +72,12 @@ module.exports = async (req, res) => {
     if (action === 'delete') {
       const id = body.id || (req.query && req.query.id);
       if (!id) { res.status(400).json({ error: 'id obrigatorio' }); return; }
-      await db(`delete from ${ent} where id=$1`, [id]);
+      if (ent === 'imobiliarias') {
+        const vc = await db(`select (select count(*) from usuarios where imobiliaria_id=$1 and deleted_at is null) cor, (select count(*) from imoveis where imobiliaria_id=$1 and deleted_at is null) imo`, [id]);
+        const cor = +vc.rows[0].cor, imo = +vc.rows[0].imo;
+        if (cor > 0 || imo > 0) { res.status(409).json({ error: 'Imobiliária tem ' + cor + ' corretor(es) e ' + imo + ' imóvel(eis) vinculados. Remova ou realoque antes de excluir.' }); return; }
+      }
+      await db(`delete from ${TABLE[ent]} where id=$1`, [id]);
       res.status(200).json({ ok: true });
       return;
     }
@@ -87,6 +101,21 @@ module.exports = async (req, res) => {
         const r = await db(`insert into imobiliarias(nome,creci,slug,telefone,email,site,instagram,endereco,cidade,lat,lng,raio_atuacao_m,ativo,extra) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning *`,
           [o.nome, o.creci||null, slug, o.telefone||null, o.email||null, o.site||null, o.instagram||null, o.endereco||null, o.cidade||null, lat, lng, raio, ativo, JSON.stringify(extra)]);
         res.status(200).json({ row: imobOut(r.rows[0]) }); return;
+      }
+
+      if (ent === 'corretores') {
+        if (!o.nome) { res.status(400).json({ error: 'nome obrigatorio' }); return; }
+        const ativo = o.status !== 'Inativo' && o.status !== 'Pausado';
+        const perfil = o.perfil || 'corretor';
+        const imob = o.imobiliaria_id || null;
+        if (o.id) {
+          const r = await db(`update usuarios set imobiliaria_id=$1,nome=$2,email=$3,telefone=$4,creci=$5,perfil=$6,ativo=$7,extra=$8,updated_at=now() where id=$9 returning *`,
+            [imob, o.nome, o.email||null, o.telefone||null, o.creci||null, perfil, ativo, JSON.stringify(extra), o.id]);
+          res.status(200).json({ row: corOut(r.rows[0]) }); return;
+        }
+        const r = await db(`insert into usuarios(imobiliaria_id,nome,email,telefone,creci,perfil,ativo,extra) values($1,$2,$3,$4,$5,$6,$7,$8) returning *`,
+          [imob, o.nome, o.email||null, o.telefone||null, o.creci||null, perfil, ativo, JSON.stringify(extra)]);
+        res.status(200).json({ row: corOut(r.rows[0]) }); return;
       }
 
       // imoveis

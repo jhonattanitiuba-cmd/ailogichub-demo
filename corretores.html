@@ -1,78 +1,42 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script><script>document.documentElement.classList.add("hub-pre");setTimeout(function(){document.documentElement.classList.remove("hub-pre")},4000);</script>
-<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AiLogic Hub · Corretores & Equipes</title>
+<!DOCTYPE html><html lang="pt-BR"><head><script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script><script>document.documentElement.classList.add("hub-pre");setTimeout(function(){document.documentElement.classList.remove("hub-pre")},4000);</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AiLogic Hub · Corretores & Equipes</title>
 <style>
 :root{
-  --navy:#061936;--navy2:#09224b;--blue:#0b66ff;--blue2:#eaf2ff;--green:#16a56f;--green2:#eafaf3;
+  --navy:#061936;--blue:#0b66ff;--blue2:#eaf2ff;--green:#16a56f;--green2:#eafaf3;
   --orange:#f59e0b;--orange2:#fff7e6;--red:#e94242;--red2:#fff0f0;--purple:#7257ff;--purple2:#f1efff;
   --cyan:#0ea5e9;--cyan2:#ecfeff;--gray900:#0f172a;--gray700:#334155;--gray500:#64748b;
-  --gray300:#d9e2ef;--gray200:#edf2f7;--gray100:#f7f9fc;--white:#fff;
-  --shadow:0 14px 34px rgba(15,23,42,.08);--soft:0 8px 22px rgba(15,23,42,.055);
-  --radius:18px;--font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --gray300:#d9e2ef;--gray200:#edf2f7;--white:#fff;--shadow:0 14px 34px rgba(15,23,42,.08);
+  --soft:0 8px 22px rgba(15,23,42,.055);--radius:18px;--font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
 }
-*{box-sizing:border-box}
-body{margin:0;font-family:var(--font);background:#f6f9fd;color:var(--gray900)}
+*{box-sizing:border-box} body{margin:0;font-family:var(--font);background:#f6f9fd;color:var(--gray900)}
 .app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
 .sidebar{background:linear-gradient(180deg,#071b3a,#031126);color:#dce8ff;padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto}
-.brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}
-.logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}.logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
 .brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#a8c2ee;font-size:12px;margin-top:3px}
 .section-title{font-size:11px;color:#7da2d6;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:24px 10px 10px}
 .nav-item{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:13px;color:#c8d8f4;font-weight:650;font-size:14px;margin:4px 0;text-decoration:none}
-.nav-item.active{background:linear-gradient(135deg,#0a66ff,#0851cc);color:#fff;box-shadow:0 10px 28px rgba(11,102,255,.28)}
-.ico{width:21px;text-align:center}.support{margin-top:34px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);border-radius:16px;padding:15px;display:flex;gap:12px;align-items:center}
-.support small{color:#9bb7e3;display:block;margin-top:2px}.profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0}
-.avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:white;display:grid;place-items:center;font-weight:800}
-.profile strong{color:white;font-size:13px;display:block}.profile span{color:#9bb7e3;font-size:11px}
-.main{padding:22px 26px 36px;overflow:hidden}.header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}
-.headline h1{margin:0;font-size:28px;letter-spacing:-.03em}.headline p{margin:7px 0 0;color:var(--gray500);font-size:14px;max-width:900px}
-.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.pill,.btn,select,input{border:1px solid var(--gray300);background:#fff;border-radius:12px;height:42px;padding:0 14px;font:inherit;color:var(--gray700);outline:none}
-.pill{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;white-space:nowrap;box-shadow:var(--soft)}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(22,165,111,.12)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-weight:850;color:var(--navy);box-shadow:var(--soft)}
-.btn.primary{background:linear-gradient(135deg,#082653,#061936);border-color:#061936;color:white}.btn.blue{background:linear-gradient(135deg,#0b66ff,#074cd1);border-color:#0b66ff;color:white}
-.btn.ghost{box-shadow:none;background:#fbfdff}.btn.danger{color:var(--red);background:#fff;border-color:#ffd8d8}
-.kpis{display:grid;grid-template-columns:repeat(6,minmax(145px,1fr));gap:14px;margin:18px 0}
-.kpi{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);padding:16px 17px;box-shadow:var(--soft);min-height:112px}
-.kpi-top{display:flex;justify-content:space-between;gap:8px}.kpi h3{margin:0;color:#1d2b4f;font-size:12px}
-.kpi .value{margin:8px 0 4px;font-size:25px;font-weight:950;letter-spacing:-.04em}.trend{font-size:11px;color:var(--green);font-weight:850}.trend.red{color:var(--red)}.trend.orange{color:#b86b00}
-.kpi-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950}
-.panel{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-.panel-head{padding:15px 16px;border-bottom:1px solid var(--gray200);display:flex;justify-content:space-between;align-items:center;gap:12px}
-.panel-head h2,.panel-head h3{margin:0;font-size:16px;letter-spacing:-.02em}.panel-head small{display:block;margin-top:3px;color:var(--gray500);font-size:12px}
-.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:950;white-space:nowrap}
-.badge.green{background:var(--green2);color:var(--green)}.badge.blue{background:var(--blue2);color:var(--blue)}.badge.orange{background:var(--orange2);color:#b86b00}.badge.red{background:var(--red2);color:var(--red)}.badge.purple{background:var(--purple2);color:var(--purple)}.badge.cyan{background:var(--cyan2);color:var(--cyan)}.badge.gray{background:#eef2f7;color:var(--gray700)}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:14px;align-items:start}.right-stack{display:grid;gap:14px}
-.toolbar{display:flex;flex-wrap:wrap;gap:10px;padding:14px 16px;border-bottom:1px solid var(--gray200);align-items:center;background:#fbfdff}
-.tabs{display:flex;gap:6px;overflow:auto}.tabs button{border:0;background:#edf3fb;color:var(--gray700);border-radius:999px;padding:9px 11px;font-weight:850;font-size:12px;cursor:pointer;white-space:nowrap}
-.tabs button.active{background:var(--navy);color:#fff}.search{min-width:320px;flex:1;height:40px}.toolbar select{height:40px;font-size:12px;min-width:135px}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(250px,1fr));gap:14px;padding:16px}.card{border:1px solid var(--gray200);border-radius:18px;background:#fff;padding:14px;box-shadow:var(--soft)}
-.card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}.card h3{margin:0;color:#172554;font-size:15px;line-height:1.25}.card p{margin:5px 0 0;color:var(--gray500);font-size:12px;line-height:1.45}
-.card-icon{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;flex:0 0 auto}
+.nav-item.active{background:linear-gradient(135deg,#0a66ff,#0851cc);color:#fff;box-shadow:0 10px 28px rgba(11,102,255,.28)}.ico{width:22px;text-align:center}
+.support{margin-top:34px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);border-radius:16px;padding:15px;display:flex;gap:12px;align-items:center}.support small{color:#9bb7e3;display:block;margin-top:2px}
+.profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0}.avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:white;display:grid;place-items:center;font-weight:800}.profile strong{color:white;font-size:13px;display:block}.profile span{color:#9bb7e3;font-size:11px}
+.main{padding:22px 26px 36px;overflow:hidden}.header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}.headline h1{margin:0;font-size:28px;letter-spacing:-.03em}.headline p{margin:7px 0 0;color:var(--gray500);font-size:14px;max-width:950px;line-height:1.45}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.pill,.btn,select,input{border:1px solid var(--gray300);background:#fff;border-radius:12px;height:42px;padding:0 14px;font:inherit;color:var(--gray700);outline:none}.pill{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;white-space:nowrap;box-shadow:var(--soft)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(22,165,111,.12)}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-weight:850;color:var(--navy);box-shadow:var(--soft)}.btn.primary{background:linear-gradient(135deg,#082653,#061936);border-color:#061936;color:white}.btn.blue{background:linear-gradient(135deg,#0b66ff,#074cd1);border-color:#0b66ff;color:white}.btn.ghost{box-shadow:none;background:#fbfdff}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(145px,1fr));gap:14px;margin:18px 0}.kpi{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);padding:16px 17px;box-shadow:var(--soft);min-height:112px}.kpi-top{display:flex;justify-content:space-between;gap:8px}.kpi h3{margin:0;color:#1d2b4f;font-size:12px}.kpi .value{margin:8px 0 4px;font-size:25px;font-weight:950;letter-spacing:-.04em}.trend{font-size:11px;color:var(--green);font-weight:850}.trend.red{color:var(--red)}.trend.orange{color:#b86b00}.kpi-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950}
+.panel{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.panel-head{padding:15px 16px;border-bottom:1px solid var(--gray200);display:flex;justify-content:space-between;align-items:center;gap:12px}.panel-head h2,.panel-head h3{margin:0;font-size:16px;letter-spacing:-.02em}.panel-head small{display:block;margin-top:3px;color:var(--gray500);font-size:12px}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:950;white-space:nowrap}.badge.green{background:var(--green2);color:var(--green)}.badge.blue{background:var(--blue2);color:var(--blue)}.badge.orange{background:var(--orange2);color:#b86b00}.badge.red{background:var(--red2);color:var(--red)}.badge.purple{background:var(--purple2);color:var(--purple)}.badge.cyan{background:var(--cyan2);color:var(--cyan)}.badge.gray{background:#eef2f7;color:var(--gray700)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;align-items:start}.right-stack{display:grid;gap:14px}.toolbar{display:flex;flex-wrap:wrap;gap:10px;padding:14px 16px;border-bottom:1px solid var(--gray200);align-items:center;background:#fbfdff}.tabs{display:flex;gap:6px;overflow:auto}.tabs button{border:0;background:#edf3fb;color:var(--gray700);border-radius:999px;padding:9px 11px;font-weight:850;font-size:12px;cursor:pointer;white-space:nowrap}.tabs button.active{background:var(--navy);color:#fff}.search{min-width:320px;flex:1;height:40px}.toolbar select{height:40px;font-size:12px;min-width:135px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(250px,1fr));gap:14px;padding:16px}.card{border:1px solid var(--gray200);border-radius:18px;background:#fff;padding:14px;box-shadow:var(--soft)}.card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}.card h3{margin:0;color:#172554;font-size:15px;line-height:1.25}.card p{margin:5px 0 0;color:var(--gray500);font-size:12px;line-height:1.45}.card-icon{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;flex:0 0 auto}
 .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.metric{background:#fbfdff;border:1px solid var(--gray200);border-radius:13px;padding:8px;text-align:center}.metric strong{display:block;color:#172554;font-size:14px}.metric span{display:block;color:var(--gray500);font-size:10px;margin-top:3px}
-.table-wrap{padding:0 16px 16px;overflow:auto}table{border-collapse:separate;border-spacing:0;width:100%;min-width:880px;background:#fff;border:1px solid var(--gray200);border-radius:16px;overflow:hidden}
-th,td{padding:12px 13px;border-bottom:1px solid #eef3f9;text-align:left;font-size:12px;vertical-align:middle}th{color:#475569;background:#fbfdff;font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:900}tr:last-child td{border-bottom:0}tr:hover td{background:#fbfdff}
-.side-list{padding:10px 14px 14px;display:grid;gap:8px}.side-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #eef3f9}.side-row:last-child{border-bottom:0}
-.side-row strong{display:block;color:#172554;font-size:12px}.side-row span{display:block;color:var(--gray500);font-size:11px;margin-top:2px;line-height:1.35}
+.table-wrap{padding:0 16px 16px;overflow:auto}table{border-collapse:separate;border-spacing:0;width:100%;min-width:880px;background:#fff;border:1px solid var(--gray200);border-radius:16px;overflow:hidden}th,td{padding:12px 13px;border-bottom:1px solid #eef3f9;text-align:left;font-size:12px;vertical-align:middle}th{color:#475569;background:#fbfdff;font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:900}tr:last-child td{border-bottom:0}tr:hover td{background:#fbfdff}
+.side-list{padding:10px 14px 14px;display:grid;gap:8px}.side-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #eef3f9}.side-row:last-child{border-bottom:0}.side-row strong{display:block;color:#172554;font-size:12px}.side-row span{display:block;color:var(--gray500);font-size:11px;margin-top:2px;line-height:1.35}
 .count{font-weight:950;min-width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:#f1f5f9;color:var(--gray700);font-size:12px}.count.red{background:var(--red2);color:var(--red)}.count.orange{background:var(--orange2);color:#b86b00}.count.green{background:var(--green2);color:var(--green)}.count.blue{background:var(--blue2);color:var(--blue)}
-.rules{display:grid;gap:8px;padding:14px}.rule{display:flex;gap:10px;border:1px solid var(--gray200);border-radius:14px;background:#fbfdff;padding:10px}.rule .r-ico{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;flex:0 0 auto}
-.rule strong{display:block;color:#172554;font-size:12px}.rule span{display:block;color:var(--gray500);font-size:11px;margin-top:3px;line-height:1.35}
-.timeline{padding:10px 14px 14px;display:grid;gap:9px}.timeline-item{border-left:3px solid var(--blue);padding:2px 0 2px 10px}.timeline-item.red{border-left-color:var(--red)}.timeline-item.orange{border-left-color:var(--orange)}.timeline-item.green{border-left-color:var(--green)}
-.timeline-item strong{font-size:12px;display:block;color:#172554}.timeline-item span{font-size:11px;color:var(--gray500);display:block;margin-top:3px;line-height:1.35}
-.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px}.field label{display:block;font-size:12px;font-weight:850;color:#172554;margin-bottom:6px}.field input,.field select{width:100%;height:42px;box-shadow:none}.field.full{grid-column:1/-1}.field textarea{width:100%;min-height:90px;border:1px solid var(--gray300);border-radius:12px;padding:12px 14px;font:inherit;outline:none;resize:vertical}
+.rules{display:grid;gap:8px;padding:14px}.rule{display:flex;gap:10px;border:1px solid var(--gray200);border-radius:14px;background:#fbfdff;padding:10px}.rule .r-ico{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;flex:0 0 auto}.rule strong{display:block;color:#172554;font-size:12px}.rule span{display:block;color:var(--gray500);font-size:11px;margin-top:3px;line-height:1.35}
+.timeline{padding:10px 14px 14px;display:grid;gap:9px}.timeline-item{border-left:3px solid var(--blue);padding:2px 0 2px 10px}.timeline-item.red{border-left-color:var(--red)}.timeline-item.orange{border-left-color:var(--orange)}.timeline-item.green{border-left-color:var(--green)}.timeline-item strong{font-size:12px;display:block;color:#172554}.timeline-item span{font-size:11px;color:var(--gray500);display:block;margin-top:3px;line-height:1.35}
 .detail{margin-top:14px}.detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--gray200)}.detail-item{padding:13px 14px;border-right:1px solid var(--gray200)}.detail-item:last-child{border-right:0}.detail-item label{display:block;color:var(--gray500);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}.detail-item strong{display:block;color:#172554;font-size:12px}.detail-item span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
-@media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,minmax(250px,1fr))}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.right-stack{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.grid,.right-stack,.detail-grid,.form-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
+@media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,minmax(250px,1fr))}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(3,1fr)}}@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.right-stack{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}}@media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.grid,.right-stack,.detail-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
 </style>
+<style>.imb-modal{position:fixed;inset:0;background:rgba(6,16,30,.55);z-index:200;display:grid;place-items:center;padding:20px}.imb-modal-card{background:#fff;border-radius:16px;width:100%;max-width:640px;max-height:90vh;overflow:auto;box-shadow:var(--shadow)}.imb-modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--gray200)}.imb-modal-head h3{margin:0;font-size:17px}.imb-modal-head span{cursor:pointer;font-size:26px;color:var(--gray500);line-height:.7}.imb-form{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px}.imb-form label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#334155}.imb-form input,.imb-form select{height:40px;border:1px solid var(--gray300);border-radius:10px;padding:0 12px;font:inherit;font-size:13px;font-weight:400}.imb-modal-foot{display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:16px 20px;border-top:1px solid var(--gray200)}.imb-modal-foot #imb-msg{margin-right:auto;font-size:12px;color:var(--gray500)}@media(max-width:560px){.imb-form{grid-template-columns:1fr}}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="hub.css">
-</head>
-<body>
-<div class="app">
-<aside class="sidebar">
+</head><body><div class="app"><aside class="sidebar">
   <div class="brand"><div class="logo">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
   <div class="section-title">Operação</div>
   <a class="nav-item" href="visaogeral"><span class="ico">⌂</span>Visão Geral</a>
@@ -106,62 +70,57 @@ th,td{padding:12px 13px;border-bottom:1px solid #eef3f9;text-align:left;font-siz
   <div class="profile"><div class="avatar">AF</div><div><strong>Alessandro Ferreira</strong><span>Diretoria · Admin do Hub</span></div></div>
 </aside>
 <main class="main">
-  <header class="header">
-    <div class="headline"><h1>Corretores & Equipes</h1><p>Gestão dos corretores e equipes das imobiliárias: performance, SLA, agenda, leads, permissões, rodízio e resultado.</p></div>
-    <div class="actions"><div class="pill"><span class="dot"></span>Sistema ativo · 6 imobiliárias</div><button class="btn">Importar corretores</button><button class="btn primary">＋ Novo corretor</button></div>
-  </header>
-  <section class="kpis"><article class="kpi"><div class="kpi-top"><div><h3>Corretores ativos</h3><div class="value">38</div><div class="trend ">em 6 imobiliárias</div></div><div class="kpi-icon">👥</div></div></article><article class="kpi"><div class="kpi-top"><div><h3>Tempo médio</h3><div class="value">00:11</div><div class="trend ">resposta humana</div></div><div class="kpi-icon">⏱</div></div></article><article class="kpi"><div class="kpi-top"><div><h3>SLA crítico</h3><div class="value">4</div><div class="trend red">perdem prioridade</div></div><div class="kpi-icon">!</div></div></article><article class="kpi"><div class="kpi-top"><div><h3>Agenda conectada</h3><div class="value">84%</div><div class="trend ">Google/Outlook</div></div><div class="kpi-icon">□</div></div></article><article class="kpi"><div class="kpi-top"><div><h3>Conversão média</h3><div class="value">12,8%</div><div class="trend ">lead para visita</div></div><div class="kpi-icon">↗</div></div></article><article class="kpi"><div class="kpi-top"><div><h3>Fechamentos</h3><div class="value">12</div><div class="trend ">no período</div></div><div class="kpi-icon">✓</div></div></article></section>
-  <section class="layout">
-    <section>
-<section class="panel">
-  <div class="panel-head"><div><h2>Corretores & equipes</h2><small>Controle de usuários comerciais das imobiliárias: performance, SLA, agenda, leads, permissões e repasses.</small></div><span class="badge green">Operacional</span></div>
-  <div class="toolbar">
-    <div class="tabs"><button class="active">Todos 38</button><button>Ativos</button><button>Com SLA crítico</button><button>Alta conversão</button><button>Sem agenda</button></div>
-    <input class="search" placeholder="Buscar corretor, CRECI, imobiliária, região ou equipe..." />
-    <select><option>Todas as imobiliárias</option><option>Cirag Boutique</option><option>OMA Imóveis</option><option>Lopes Imóveis</option></select>
-    <select><option>Ordenar por performance</option><option>Tempo de resposta</option><option>Leads recebidos</option><option>Fechamentos</option></select>
-  </div>
-  <div class="grid">
-    <article class="card"><div class="card-top"><div><h3>Ana Souza</h3><p>Cirag Boutique · CRECI ativo · Jardins e Vila Mariana.</p></div><span class="badge green">Alta performance</span></div><div class="metrics"><div class="metric"><strong>34</strong><span>leads</span></div><div class="metric"><strong>04m</strong><span>resposta</span></div><div class="metric"><strong>18%</strong><span>conv.</span></div></div></article>
-    <article class="card"><div class="card-top"><div><h3>Pedro Alves</h3><p>OMA Imóveis · foco Moema e Bela Vista · agenda conectada.</p></div><span class="badge blue">Ativo</span></div><div class="metrics"><div class="metric"><strong>27</strong><span>leads</span></div><div class="metric"><strong>09m</strong><span>resposta</span></div><div class="metric"><strong>12%</strong><span>conv.</span></div></div></article>
-    <article class="card"><div class="card-top"><div><h3>Bruno Lima</h3><p>Lopes Imóveis · alto padrão · dois conflitos de agenda.</p></div><span class="badge orange">Atenção</span></div><div class="metrics"><div class="metric"><strong>42</strong><span>leads</span></div><div class="metric"><strong>16m</strong><span>resposta</span></div><div class="metric"><strong>2</strong><span>conflitos</span></div></div></article>
-    <article class="card"><div class="card-top"><div><h3>Aline Souza</h3><p>Brava Company · onboarding pendente de WhatsApp e agenda.</p></div><span class="badge red">Implantar</span></div><div class="metrics"><div class="metric"><strong>8</strong><span>leads</span></div><div class="metric"><strong>—</strong><span>agenda</span></div><div class="metric"><strong>1</strong><span>visita</span></div></div></article>
-    <article class="card"><div class="card-top"><div><h3>Juliana Mendes</h3><p>Robotton Imóveis · especialista em locação e salas comerciais.</p></div><span class="badge green">Ativa</span></div><div class="metrics"><div class="metric"><strong>19</strong><span>leads</span></div><div class="metric"><strong>07m</strong><span>resposta</span></div><div class="metric"><strong>4</strong><span>visitas</span></div></div></article>
-    <article class="card"><div class="card-top"><div><h3>Equipe Plantão</h3><p>Fila compartilhada para leads fora do horário comercial.</p></div><span class="badge purple">Rodízio</span></div><div class="metrics"><div class="metric"><strong>12</strong><span>membros</span></div><div class="metric"><strong>24h</strong><span>cobertura</span></div><div class="metric"><strong>5</strong><span>pend.</span></div></div></article>
-  </div>
-</section>
-<section class="panel detail"><div class="panel-head"><div><h3>Modelo de controle por corretor</h3><small>Esses campos são essenciais para distribuir leads e medir resultado.</small></div></div>
-<div class="detail-grid">
-  <div class="detail-item"><label>Identificação</label><strong>Nome, CRECI, imobiliária</strong><span>usuário e vínculo</span></div>
-  <div class="detail-item"><label>Região</label><strong>bairros e raio</strong><span>atuações permitidas</span></div>
-  <div class="detail-item"><label>Fila</label><strong>rodízio e prioridade</strong><span>regras de distribuição</span></div>
-  <div class="detail-item"><label>SLA</label><strong>tempo de resposta</strong><span>alerta e bloqueio por atraso</span></div>
-  <div class="detail-item"><label>Agenda</label><strong>Google/Outlook</strong><span>visitas e conflitos</span></div>
-  <div class="detail-item"><label>Financeiro</label><strong>comissão e repasse</strong><span>por fechamento</span></div>
-</div></section>
-</section>
-    <aside class="right-stack">
-<section class="panel"><div class="panel-head"><div><h3>Controle de acesso</h3><small>Permissões recomendadas</small></div></div><div class="side-list">
-  <div class="side-row"><div><strong>Admin Hub</strong><span>vê tudo, edita regras e repasses</span></div><span class="badge blue">Total</span></div>
-  <div class="side-row"><div><strong>Gestor imobiliária</strong><span>vê equipe e imóveis próprios</span></div><span class="badge green">Parceiro</span></div>
-  <div class="side-row"><div><strong>Corretor</strong><span>vê seus leads, agenda e negócios</span></div><span class="badge orange">Restrito</span></div>
-</div></section>
-<section class="panel"><div class="panel-head"><div><h3>Alertas</h3></div></div><div class="side-list">
-  <div class="side-row"><div><strong>Sem agenda conectada</strong><span>não pode receber visita automática</span></div><div class="count orange">6</div></div>
-  <div class="side-row"><div><strong>SLA crítico</strong><span>acima de 15 min</span></div><div class="count red">4</div></div>
-  <div class="side-row"><div><strong>Sem CRECI validado</strong><span>pendente de conferência</span></div><div class="count red">2</div></div>
-</div></section>
-<section class="panel"><div class="panel-head"><div><h3>Regras de distribuição</h3></div></div><div class="rules">
-  <div class="rule"><div class="r-ico">R</div><div><strong>Rodízio inteligente</strong><span>Distribuir por região, disponibilidade, performance e SLA.</span></div></div>
-  <div class="rule"><div class="r-ico">A</div><div><strong>Aceite obrigatório</strong><span>Lead só conta como assumido após aceite do corretor.</span></div></div>
-  <div class="rule"><div class="r-ico">B</div><div><strong>Bloqueio por atraso</strong><span>Quem atrasa perde prioridade na fila.</span></div></div>
-</div></section>
-</aside>
-  </section>
+<header class="header"><div class="headline"><h1>Corretores & Equipes</h1><p>Corretores das imobiliárias parceiras · cada corretor vinculado a uma imobiliária.</p></div>
+<div class="actions"><div class="pill"><span class="dot"></span>Sistema ativo</div><button class="btn primary" id="cor-novo">＋ Novo Corretor</button></div></header>
+<section class="kpis" id="cor-kpis"></section>
+<section class="panel"><div class="panel-head"><h3>Corretores cadastrados</h3></div><div class="table-wrap" style="padding:14px"><table><thead><tr><th>Corretor</th><th>CRECI</th><th>Imobiliária</th><th>Perfil</th><th>E-mail</th><th>Status</th><th></th></tr></thead><tbody id="cor-tbody"></tbody></table></div></section>
+<div style="height:14px"></div>
+<section id="cor-cards"></section>
+<script>(function(){
+  var DATA='/api/data', G=function(id){return document.getElementById(id);}, imobsList=[], imobMap={};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function inits(n){var p=String(n||'?').replace(/[^A-Za-zÀ-ÿ ]/g,'').trim().split(/\s+/).filter(Boolean);return ((p[0]||'#')[0]+((p[1]||'')[0]||'')).toUpperCase();}
+  function stBadge(s){return '<span class="badge '+(s==='Inativo'?'gray':'green')+'">'+esc(s||'Ativo')+'</span>';}
+  function perfilLabel(p){return p==='gestor'?'Gestor':p==='corretor_autonomo'?'Corretor autônomo':'Corretor';}
+  function loadCor(){
+    Promise.all([fetch(DATA+'?ent=corretores&action=list').then(function(r){return r.json();}),fetch(DATA+'?ent=imobiliarias&action=list').then(function(r){return r.json();})]).then(function(a){
+      var rows=(a[0]&&a[0].rows)||[]; imobsList=(a[1]&&a[1].rows)||[]; imobMap={}; imobsList.forEach(function(x){imobMap[x.id]=x.nome;});
+      var ativos=rows.filter(function(x){return x.status!=='Inativo';}).length;
+      var auton=rows.filter(function(x){return x.perfil==='corretor_autonomo';}).length;
+      var kpis=[['Corretores',rows.length,'no Hub'],['Ativos',ativos,'operando'],['Imobiliárias',imobsList.length,'parceiras'],['Autônomos',auton,'independentes'],['Com CRECI',rows.filter(function(x){return x.creci;}).length,'verificados'],['Vinculados',rows.filter(function(x){return x.imobiliaria_id;}).length,'a imobiliária']];
+      var icU='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="3.5"/><path d="M22 20v-2a4 4 0 0 0-3-3.8"/></svg>';
+      G('cor-kpis').innerHTML=kpis.map(function(k){return '<article class="kpi"><div class="kpi-top"><div><h3>'+k[0]+'</h3><div class="value">'+k[1]+'</div><div class="trend">'+k[2]+'</div></div><div class="kpi-icon">'+icU+'</div></div></article>';}).join('');
+      if(!rows.length){ G('cor-tbody').innerHTML='<tr><td colspan="7" style="padding:24px;text-align:center;color:var(--gray500)">Nenhum corretor ainda. Clique em "Novo Corretor".</td></tr>'; G('cor-cards').innerHTML=''; return; }
+      G('cor-tbody').innerHTML=rows.map(function(r){return '<tr><td style="font-weight:700">'+esc(r.nome)+'</td><td>'+esc(r.creci||'—')+'</td><td>'+esc(imobMap[r.imobiliaria_id]||'— autônomo —')+'</td><td>'+esc(perfilLabel(r.perfil))+'</td><td>'+esc(r.email||'—')+'</td><td>'+stBadge(r.status)+'</td><td style="white-space:nowrap"><button class="btn blue cor-edit" data-id="'+r.id+'" style="height:30px;font-size:11px;padding:0 10px">Editar</button> <button class="btn red cor-del" data-id="'+r.id+'" style="height:30px;font-size:11px;padding:0 10px">Excluir</button></td></tr>';}).join('');
+      G('cor-cards').innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">'+rows.map(function(r){return '<div class="card"><div class="card-top"><div style="display:flex;gap:12px;align-items:center"><div style="width:44px;height:44px;border-radius:50%;background:#061629;color:#fff;display:grid;place-items:center;font-weight:800">'+esc(inits(r.nome))+'</div><div><div style="font-weight:700;color:#172554">'+esc(r.nome)+'</div><div style="font-size:11px;color:var(--gray500)">'+esc(imobMap[r.imobiliaria_id]||'autônomo')+'</div></div></div>'+stBadge(r.status)+'</div><div class="metrics"><div class="metric"><strong>'+esc(r.creci||'—')+'</strong><span>CRECI</span></div><div class="metric"><strong>'+esc(perfilLabel(r.perfil).split(' ')[0])+'</strong><span>perfil</span></div><div class="metric"><strong>'+(r.imobiliaria_id?'Sim':'Não')+'</strong><span>vínculo</span></div></div></div>';}).join('')+'</div>';
+      [].forEach.call(G('cor-tbody').querySelectorAll('.cor-del'),function(b){b.addEventListener('click',function(){ if(!confirm('Excluir este corretor?'))return; fetch(DATA+'?ent=corretores&action=delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:b.getAttribute('data-id')})}).then(function(){loadCor();}); });});
+      [].forEach.call(G('cor-tbody').querySelectorAll('.cor-edit'),function(b){b.addEventListener('click',function(){ openCor(b.getAttribute('data-id'),rows); });});
+      window.__cors=rows;
+    }).catch(function(){ G('cor-tbody').innerHTML='<tr><td colspan="7" style="padding:24px;color:var(--red)">Falha ao carregar.</td></tr>'; });
+  }
+  function openCor(id,rows){
+    var p=id?((rows||window.__cors||[]).filter(function(x){return x.id===id;})[0]||{}):{};
+    G('co-id').value=p.id||'';
+    G('co-nome').value=p.nome||''; G('co-creci').value=p.creci||''; G('co-email').value=p.email||''; G('co-telefone').value=p.telefone||'';
+    var sel=G('co-imob'); if(sel) sel.innerHTML='<option value="">— autônomo (sem imobiliária) —</option>'+imobsList.map(function(im){return '<option value="'+im.id+'"'+(im.id===p.imobiliaria_id?' selected':'')+'>'+(im.nome||'')+'</option>';}).join('');
+    G('co-perfil').value=p.perfil||'corretor'; G('co-status').value=p.status||'Ativo';
+    G('co-titmodal').textContent=id?'Editar Corretor':'Novo Corretor'; G('co-msg').textContent=''; G('co-modal').style.display='grid';
+  }
+  function closeCor(){ var m=G('co-modal'); if(m)m.style.display='none'; }
+  function salvarCor(){
+    var g=function(f){var e=G('co-'+f);return e?e.value.trim():'';}; var msg=G('co-msg');
+    if(!g('nome')){if(msg)msg.textContent='Informe o nome.';return;} if(msg)msg.textContent='salvando…';
+    var pay={nome:g('nome'),creci:g('creci'),email:g('email'),telefone:g('telefone'),imobiliaria_id:G('co-imob').value||null,perfil:G('co-perfil').value,status:G('co-status').value};
+    if(G('co-id').value) pay.id=G('co-id').value;
+    fetch(DATA+'?ent=corretores&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pay)}).then(function(r){return r.json();}).then(function(res){ if(res&&(res.row||res.id)){ closeCor(); loadCor(); } else { if(msg)msg.textContent='falha: '+((res&&res.error)||'erro'); } }).catch(function(){if(msg)msg.textContent='falha ao salvar.';});
+  }
+  G('cor-novo').addEventListener('click',function(){ openCor(null); });
+  document.addEventListener('click',function(e){var el=e.target;function hit(id){return el.id===id||(el.closest&&el.closest('#'+id));}
+    if(hit('co-close')||hit('co-cancel')){closeCor();} else if(hit('co-salvar')){salvarCor();} else if(el===G('co-modal')){closeCor();}
+  });
+  loadCor();
+})();</script>
+<div class="imb-modal" id="co-modal" style="display:none"><div class="imb-modal-card"><div class="imb-modal-head"><h3 id="co-titmodal">Novo Corretor</h3><span id="co-close">×</span></div><input type="hidden" id="co-id"><div class="imb-form"><label style="grid-column:1/-1">Nome *<input id="co-nome" placeholder="Nome do corretor"></label><label>CRECI<input id="co-creci"></label><label>Status<select id="co-status"><option>Ativo</option><option>Inativo</option></select></label><label style="grid-column:1/-1">Imobiliária (vínculo)<select id="co-imob"></select></label><label>Perfil<select id="co-perfil"><option value="corretor">Corretor</option><option value="gestor">Gestor</option><option value="corretor_autonomo">Corretor autônomo</option></select></label><label>Telefone<input id="co-telefone"></label><label style="grid-column:1/-1">E-mail<input id="co-email" type="email"></label></div><div class="imb-modal-foot"><span id="co-msg"></span><button class="btn ghost" id="co-cancel">Cancelar</button><button class="btn blue" id="co-salvar">Salvar</button></div></div></div>
 </main>
 </div>
-
-<script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script>
-<script src="hub.js" defer></script>
-</body>
-</html>
+<script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script><script src="hub.js" defer></script></body></html>
