@@ -75,7 +75,7 @@
 .tt-prog{position:absolute;left:0;top:0;height:3px;background:#fff;z-index:6;transition:width .2s linear}
 @media(max-width:860px){.imv-grid{grid-template-columns:1fr 1fr}.tt{height:calc(100vh - 120px)}.tt-info{right:66px;padding:18px}.tt-price{font-size:22px}}
 @media(max-width:560px){.imv-grid{grid-template-columns:1fr}}
-</style>
+</style><style>.imb-modal{position:fixed;inset:0;background:rgba(6,16,30,.55);z-index:200;display:grid;place-items:center;padding:20px}.imb-modal-card{background:#fff;border-radius:16px;width:100%;max-width:640px;max-height:90vh;overflow:auto;box-shadow:var(--shadow)}.imb-modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--gray200)}.imb-modal-head h3{margin:0;font-size:17px}.imb-modal-head span{cursor:pointer;font-size:26px;color:var(--gray500);line-height:.7}.imb-form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;padding:20px}.imb-form label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#334155}.imb-form input,.imb-form select{height:40px;border:1px solid var(--gray300);border-radius:10px;padding:0 12px;font:inherit;font-size:13px;font-weight:400}.imb-modal-foot{display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:16px 20px;border-top:1px solid var(--gray200)}.imb-modal-foot #iv-msg{margin-right:auto;font-size:12px;color:var(--gray500)}@media(max-width:640px){.imb-form{grid-template-columns:1fr 1fr}}@media(max-width:480px){.imb-form{grid-template-columns:1fr}}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="hub.css">
 </head><body><div class="app"><aside class="sidebar">
   <div class="brand"><div class="logo">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
@@ -117,7 +117,7 @@
 <div id="imv-ger"></div>
 <div id="imv-cli" style="display:none"></div>
 <script>(function(){
-  var DATA='/api/data', imoveis=[], imobMap={}, view='ger', fCidade='', fBairro='', ttIdx=0, ttTimer=null, ttList=[], liked={}, saved={};
+  var DATA='/api/data', imoveis=[], imobMap={}, imobsList=[], view='ger', fCidade='', fBairro='', ttIdx=0, ttTimer=null, ttList=[], liked={}, saved={};
   var G=function(id){return document.getElementById(id);};
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function money(v){return v?'R$ '+Number(v).toLocaleString('pt-BR'):'Sob consulta';}
@@ -148,7 +148,7 @@
     }).join('')+'</div>';
     [].forEach.call(G('imv-ger').querySelectorAll('.imv-card'),function(el,i){el.style.animation='hubRise .45s both';el.style.animationDelay=(i*45)+'ms';});
     [].forEach.call(G('imv-ger').querySelectorAll('.imv-del'),function(b){b.addEventListener('click',function(){ if(!confirm('Excluir este imóvel?'))return; fetch(DATA+'?ent=imoveis&action=delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:b.getAttribute('data-id')})}).then(function(){load();}); });});
-    [].forEach.call(G('imv-ger').querySelectorAll('.imv-edit'),function(b){b.addEventListener('click',function(){ alert('Edição completa em breve. Use a Visão do Cliente para visualizar.'); });});
+    [].forEach.call(G('imv-ger').querySelectorAll('.imv-edit'),function(b){b.addEventListener('click',function(){ openImv(b.getAttribute('data-id')); });});
   }
   function renderCli(){
     ttList=filtered(); ttIdx=Math.min(ttIdx,Math.max(0,ttList.length-1));
@@ -178,6 +178,7 @@
     [].forEach.call(G('imv-cli').querySelectorAll('.tt-act.save'),function(a){a.addEventListener('click',function(){var id=a.getAttribute('data-id');saved[id]=!saved[id];a.classList.toggle('on',saved[id]);});});
     var tt=G('imv-cli').querySelector('.tt');
     tt.addEventListener('wheel',function(e){e.preventDefault();if(e.deltaY>20)go(ttIdx+1);else if(e.deltaY<-20)go(ttIdx-1);},{passive:false});
+    var _ty=0; tt.addEventListener('touchstart',function(e){_ty=e.touches[0].clientY;},{passive:true}); tt.addEventListener('touchend',function(e){var dy=_ty-e.changedTouches[0].clientY;if(dy>45)go(ttIdx+1);else if(dy<-45)go(ttIdx-1);},{passive:true});
     goTo(ttIdx); startTimer();
   }
   var photoTimer=null;
@@ -197,14 +198,38 @@
   function startTimer(){clearInterval(ttTimer);ttTimer=setInterval(function(){ if(view!=='cli'||!ttList.length){return;} goTo(ttIdx+1); },5000);}
   function load(){
     Promise.all([fetch(DATA+'?ent=imoveis&action=list').then(function(r){return r.json();}),fetch(DATA+'?ent=imobiliarias&action=list').then(function(r){return r.json();})]).then(function(a){
-      imoveis=(a[0]&&a[0].rows)||[]; var ims=(a[1]&&a[1].rows)||[]; imobMap={}; ims.forEach(function(x){imobMap[x.id]=x.nome;});
+      imoveis=(a[0]&&a[0].rows)||[]; var ims=(a[1]&&a[1].rows)||[]; imobsList=ims; imobMap={}; ims.forEach(function(x){imobMap[x.id]=x.nome;});
       renderFiltros(); render();
     }).catch(function(){G('imv-ger').innerHTML='<div style="padding:30px;color:var(--red)">Falha ao carregar imóveis.</div>';});
   }
   [].forEach.call(G('imv-seg').querySelectorAll('.seg-btn'),function(b){b.addEventListener('click',function(){view=b.getAttribute('data-v');[].forEach.call(G('imv-seg').querySelectorAll('.seg-btn'),function(x){x.classList.toggle('on',x===b);});G('imv-novo').style.display=view==='ger'?'':'none';render();});});
-  G('imv-novo').addEventListener('click',function(){alert('Cadastro de imóvel: em breve neste MVP. Os imóveis já vêm do banco em tempo real.');});
+  G('imv-novo').addEventListener('click',function(){ openImv(null); });
+  var TIPOS=['Apartamento','Casa','Loft','Cobertura','Sala comercial','Terreno','Outro'];
+  function fillSel(id,opts,val){var s=G(id);if(!s)return;s.innerHTML=opts.map(function(o){return '<option'+(o===val?' selected':'')+'>'+o+'</option>';}).join('');}
+  function openImv(id){
+    var p=id?(imoveis.filter(function(x){return x.id===id;})[0]||{}):{};
+    G('iv-id').value=p.id||'';
+    var iset=function(f,v){var e=G('iv-'+f);if(e)e.value=(v==null?'':v);};
+    iset('titulo',p.titulo);iset('codigo',p.codigo);iset('preco',p.preco);iset('area',p.area);iset('quartos',p.quartos);iset('suites',p.suites);iset('banheiros',p.banheiros);iset('vagas',p.vagas);iset('bairro',p.bairro);iset('cidade',p.cidade||'São Paulo/SP');iset('foto',p.foto);iset('descricao',p.descricao);
+    fillSel('iv-tipo',TIPOS,p.tipo||'Apartamento'); fillSel('iv-finalidade',['Venda','Locação','Temporada'],p.finalidade||'Venda'); fillSel('iv-status',['Disponível','Reservado','Vendido','Inativo'],p.status||'Disponível');
+    var sel=G('iv-imob'); if(sel) sel.innerHTML=imobsList.map(function(im){return '<option value="'+im.id+'"'+(im.id===p.imobiliaria_id?' selected':'')+'>'+(im.nome||'')+'</option>';}).join('');
+    G('iv-titmodal').textContent=id?'Editar Imóvel':'Novo Imóvel'; G('iv-msg').textContent=''; G('iv-modal').style.display='grid';
+  }
+  function closeImv(){ var m=G('iv-modal'); if(m)m.style.display='none'; }
+  function salvarImv(){
+    var g=function(f){var e=G('iv-'+f);return e?e.value.trim():'';}; var msg=G('iv-msg');
+    if(!g('titulo')){if(msg)msg.textContent='Informe o título.';return;} if(!G('iv-imob').value){if(msg)msg.textContent='Selecione a imobiliária.';return;}
+    if(msg)msg.textContent='salvando…'; var n=function(f){var v=g(f);return v?Number(v):null;};
+    var pay={titulo:g('titulo'),imobiliaria_id:G('iv-imob').value,tipo:G('iv-tipo').value,finalidade:G('iv-finalidade').value,status:G('iv-status').value,codigo:g('codigo'),preco:n('preco'),area:n('area'),quartos:n('quartos'),suites:n('suites'),banheiros:n('banheiros'),vagas:n('vagas'),bairro:g('bairro'),cidade:g('cidade'),descricao:g('descricao'),foto:g('foto')};
+    if(G('iv-id').value) pay.id=G('iv-id').value;
+    fetch(DATA+'?ent=imoveis&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pay)}).then(function(r){return r.json();}).then(function(res){ if(res&&(res.row||res.id)){ closeImv(); load(); } else { if(msg)msg.textContent='falha: '+((res&&res.error)||'erro'); } }).catch(function(){if(msg)msg.textContent='falha ao salvar.';});
+  }
+  document.addEventListener('click',function(e){var el=e.target;function hit(id){return el.id===id||(el.closest&&el.closest('#'+id));}
+    if(hit('iv-close')||hit('iv-cancel')){closeImv();} else if(hit('iv-salvar')){salvarImv();} else if(el===G('iv-modal')){closeImv();}
+  });
   load();
 })();</script>
+<div class="imb-modal" id="iv-modal" style="display:none"><div class="imb-modal-card" style="max-width:720px"><div class="imb-modal-head"><h3 id="iv-titmodal">Novo Imóvel</h3><span id="iv-close">×</span></div><input type="hidden" id="iv-id"><div class="imb-form"><label style="grid-column:1/-1">Título *<input id="iv-titulo" placeholder="Ex: Apartamento · Jardins"></label><label>Imobiliária *<select id="iv-imob"></select></label><label>Código<input id="iv-codigo"></label><label>Tipo<select id="iv-tipo"></select></label><label>Finalidade<select id="iv-finalidade"></select></label><label>Status<select id="iv-status"></select></label><label>Preço (R$)<input id="iv-preco" type="number"></label><label>Área (m²)<input id="iv-area" type="number"></label><label>Quartos<input id="iv-quartos" type="number"></label><label>Suítes<input id="iv-suites" type="number"></label><label>Banheiros<input id="iv-banheiros" type="number"></label><label>Vagas<input id="iv-vagas" type="number"></label><label>Bairro<input id="iv-bairro"></label><label>Cidade<input id="iv-cidade"></label><label style="grid-column:1/-1">Foto (URL)<input id="iv-foto" placeholder="https://…"></label><label style="grid-column:1/-1">Descrição<input id="iv-descricao"></label></div><div class="imb-modal-foot"><span id="iv-msg"></span><button class="btn ghost" id="iv-cancel">Cancelar</button><button class="btn blue" id="iv-salvar">Salvar</button></div></div></div>
 </main>
 </div>
 <script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script><script src="hub.js" defer></script></body></html>
