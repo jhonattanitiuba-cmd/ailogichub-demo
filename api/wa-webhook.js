@@ -15,7 +15,7 @@ const PERSONA_PADRAO = 'Você é o assistente virtual do AI Logic Hub, plataform
   'Atenda em português do Brasil, cordial e objetivo, respostas curtas (2 a 4 frases). Não use emojis decorativos.';
 
 async function db(q, params) {
-  const c = new Client({ connectionString: DB_URL, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 8000 });
+  const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
   await c.connect();
   try { return await c.query(q, params); } finally { try { await c.end(); } catch (_) {} }
 }

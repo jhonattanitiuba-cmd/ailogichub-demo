@@ -3,7 +3,7 @@ const { Client } = require('pg');
 const { requireAuth } = require('./_auth');
 const DB_URL = process.env.DB_URL || '';
 async function db(q, p) {
-  const c = new Client({ connectionString: DB_URL, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 8000 });
+  const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
   await c.connect(); try { return await c.query(q, p); } finally { try { await c.end(); } catch (_) {} }
 }
 module.exports = async (req, res) => {
