@@ -1,13 +1,15 @@
 // AI LOGIC HUB — dados do dashboard (Central de Operações) + funil de negócios
 const { Client } = require('pg');
+const { requireAuth } = require('./_auth');
 const DB_URL = process.env.DB_URL || '';
 async function db(q, p) {
-  const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
+  const c = new Client({ connectionString: DB_URL, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 8000 });
   await c.connect(); try { return await c.query(q, p); } finally { try { await c.end(); } catch (_) {} }
 }
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   try {
+    const user = await requireAuth(req, res); if (!user) return;
     if (!DB_URL) { res.status(500).json({ error: 'env' }); return; }
     const action = (req.query && req.query.action) || 'dash';
     if (action === 'funil') {

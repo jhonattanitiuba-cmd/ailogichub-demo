@@ -2,10 +2,11 @@
 // Colunas escalares populadas + coluna `extra jsonb` com os campos do formulário.
 // Segredo DB_URL em env var da Vercel.
 const { Client } = require('pg');
+const { requireAuth } = require('./_auth');
 const DB_URL = process.env.DB_URL || '';
 
 async function db(q, params) {
-  const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
+  const c = new Client({ connectionString: DB_URL, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 8000 });
   await c.connect();
   try { return await c.query(q, params); }
   finally { try { await c.end(); } catch (_) {} }
@@ -54,6 +55,7 @@ const OUT = { imobiliarias: imobOut, imoveis: imovOut, corretores: corOut };
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   try {
+    const user = await requireAuth(req, res); if (!user) return;
     if (!DB_URL) { res.status(500).json({ error: 'backend nao configurado (DB_URL)' }); return; }
     const ent = req.query && req.query.ent;
     const action = (req.query && req.query.action) || 'list';

@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AiLogic Hub · Acesso</title>
-<script>if(localStorage.getItem('ailogic_auth')==='1'){location.replace('/visaogeral');}</script>
+<script src="/api/config"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth.js"></script>
+<script>
+  // se já houver sessão válida, entra direto
+  if (window.hubAuth && window.hubAuth.token && window.hubAuth.token()) { location.replace('/visaogeral'); }
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -97,7 +103,7 @@ body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-heigh
   </section>
 
 <script>
-document.getElementById('form').addEventListener('submit',function(e){
+document.getElementById('form').addEventListener('submit',async function(e){
   e.preventDefault();
   var email=document.getElementById('email').value.trim();
   var pass=document.getElementById('pass').value;
@@ -105,9 +111,17 @@ document.getElementById('form').addEventListener('submit',function(e){
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent='Informe um e-mail válido.'; return; }
   if(pass.length<4){ err.textContent='Senha muito curta.'; return; }
   err.textContent='';
-  try{ localStorage.setItem('ailogic_auth','1'); localStorage.setItem('ailogic_user',email); }catch(_){}
-  var btn=document.querySelector('.btn'); btn.textContent='Entrando...';
-  setTimeout(function(){ location.href='/visaogeral'; },350);
+  var btn=document.querySelector('.btn'); var original=btn.innerHTML; btn.textContent='Entrando...'; btn.disabled=true;
+  try{
+    if(!window.hubAuth) throw new Error('Config de autenticação não carregou.');
+    await window.hubAuth.signIn(email,pass);
+    try{ localStorage.setItem('ailogic_user',email); }catch(_){}
+    location.href='/visaogeral';
+  }catch(ex){
+    var msg=(ex&&ex.message)||'Falha no login.';
+    if(/invalid login|credenciais|invalid/i.test(msg)) msg='E-mail ou senha incorretos.';
+    err.textContent=msg; btn.innerHTML=original; btn.disabled=false;
+  }
 });
 </script>
 </body>

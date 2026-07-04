@@ -34,7 +34,7 @@ Responda aqui mesmo com um "oi". O agente já conhece a sua base e vai conversar
 *Brava Company*`;
 
 async function db(q, p) {
-  const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
+  const c = new Client({ connectionString: DB_URL, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 8000 });
   await c.connect();
   try { return await c.query(q, p); } finally { try { await c.end(); } catch (_) {} }
 }

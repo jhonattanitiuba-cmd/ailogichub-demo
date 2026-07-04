@@ -1,1 +1,12 @@
 .vercel
+
+# Segredos — NUNCA versionar
+.env
+.env.*
+!.env.example
+hub-secrets.*
+*.secret
+node_modules
+
+# Config com chaves do Supabase (injetada no deploy) — não versionar
+hub-config.js

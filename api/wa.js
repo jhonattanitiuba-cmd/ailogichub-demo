@@ -4,6 +4,7 @@
 // Segredos via env vars da Vercel — nunca no repo.
 //   EVO_BASE, EVO_KEY, WA_INSTANCE, DB_URL
 const { Client } = require('pg');
+const { requireAuth } = require('./_auth');
 
 const EVO_BASE = (process.env.EVO_BASE || '').replace(/\/$/, '');
 const EVO_KEY  = process.env.EVO_KEY || '';
@@ -18,7 +19,7 @@ function num8(jid) { return String(jid || '').split('@')[0].replace(/\D/g, '').s
 function allowedJid(jid) { return ALLOW8.indexOf(num8(jid)) >= 0; }
 
 async function db(q, params) {
-  const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
+  const c = new Client({ connectionString: DB_URL, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 8000 });
   await c.connect();
   try { return await c.query(q, params); }
   finally { try { await c.end(); } catch (_) {} }
@@ -61,6 +62,7 @@ module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   const action = (req.query && req.query.action) || 'status';
   try {
+    const user = await requireAuth(req, res); if (!user) return;
     if (!EVO_BASE || !EVO_KEY || !DB_URL) {
       res.status(500).json({ error: 'backend nao configurado (faltam env vars)' });
       return;
