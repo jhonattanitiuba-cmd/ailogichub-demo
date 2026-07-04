@@ -1,8 +1,8 @@
 // AI LOGIC HUB — Guard de autenticação server-side (Supabase Auth / GoTrue)
 // Verifica o access_token (JWT) do usuário chamando o GoTrue self-hosted.
 // Segredos/config via env vars da Vercel: SUPABASE_URL, SUPABASE_ANON_KEY.
-const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
+const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/$/, '');
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 function bearer(req) {
   const h = (req.headers && (req.headers.authorization || req.headers.Authorization)) || '';
