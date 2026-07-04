@@ -5,59 +5,79 @@
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>AiLogic Hub · WhatsApp Auditoria</title>
 <style>
-:root{--navy:#061936;--blue:#0b66ff;--blue2:#eaf2ff;--green:#16a56f;--green2:#eafaf3;--orange:#f59e0b;--orange2:#fff7e6;--red:#e94242;--red2:#fff0f0;--gray900:#0f172a;--gray700:#334155;--gray500:#64748b;--gray300:#d9e2ef;--gray200:#edf2f7;--shadow:0 14px 34px rgba(15,23,42,.08);--soft:0 8px 22px rgba(15,23,42,.055);--radius:18px;--font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
-*{box-sizing:border-box}body{margin:0;font-family:var(--font);background:#f6f9fd;color:var(--gray900)}a{text-decoration:none;color:inherit}
-.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
-.sidebar{background:linear-gradient(180deg,#071b3a,#031126);color:#dce8ff;padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto}
-.brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}.logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
-.brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#a8c2ee;font-size:12px;margin-top:3px}
-.section-title{font-size:11px;color:#7da2d6;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:24px 10px 10px}
-.nav-item{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:13px;color:#c8d8f4;font-weight:650;font-size:14px;margin:4px 0}
-.nav-item.active{background:linear-gradient(135deg,#0a66ff,#0851cc);color:#fff;box-shadow:0 10px 28px rgba(11,102,255,.28)}.ico{width:22px;text-align:center}
-.profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0;margin-top:22px;border-top:1px solid rgba(255,255,255,.10)}.avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:#fff;display:grid;place-items:center;font-weight:800}.profile strong{color:#fff;font-size:13px;display:block}.profile span{color:#9bb7e3;font-size:11px}
-.main{padding:22px 26px 36px;overflow:hidden;display:flex;flex-direction:column;min-height:100vh}
-.header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:16px}.headline h1{margin:0;font-size:26px;letter-spacing:-.03em}.headline p{margin:6px 0 0;color:var(--gray500);font-size:13.5px}
-.pill{height:40px;border:1px solid var(--gray300);background:#fff;border-radius:999px;padding:0 14px;display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:850;color:var(--gray700);box-shadow:var(--soft)}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--gray300)}.dot.on{background:var(--green);box-shadow:0 0 0 4px rgba(22,165,111,.14)}
+:root{
+  --bg:#0a1020;--panel:#111a2e;--panel2:#0d1526;--border:#1f2c48;--border2:#26344f;
+  --text:#e7eefb;--muted:#8b9bb9;--navy:#061936;
+  --blue:#3b82f6;--blue-s:#1d4ed8;--blueSoft:rgba(59,130,246,.16);
+  --green:#22c55e;--green2:rgba(34,197,94,.15);--orange:#f59e0b;--orange2:rgba(245,158,11,.15);
+  --red:#f87171;--red2:rgba(248,113,113,.15);
+  --radius:16px;--font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}html,body{background:var(--bg)}
+body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;color:inherit}
+.app{display:grid;grid-template-columns:262px 1fr;min-height:100vh}
+.sidebar{background:linear-gradient(180deg,#0a1a38,#050c1c);color:#cddcf5;padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto;border-right:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:30px}.logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
+.brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#8fb0e6;font-size:12px;margin-top:3px}
+.section-title{font-size:11px;color:#6f8cba;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:22px 10px 10px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:12px;color:#b7c9e8;font-weight:650;font-size:14px;margin:3px 0}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff}
+.nav-item.active{background:linear-gradient(135deg,#0a66ff,#0748bb);color:#fff;box-shadow:0 10px 26px rgba(11,102,255,.35)}.ico{width:22px;text-align:center}
+.profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0;margin-top:20px;border-top:1px solid rgba(255,255,255,.08)}.avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:#fff;display:grid;place-items:center;font-weight:800}.profile strong{color:#fff;font-size:13px;display:block}.profile span{color:#8fb0e6;font-size:11px}
+.main{padding:22px 26px 26px;display:flex;flex-direction:column;min-height:100vh;overflow:hidden}
+.header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:16px}.headline h1{margin:0;font-size:25px;letter-spacing:-.03em;color:#fff}.headline p{margin:6px 0 0;color:var(--muted);font-size:13.5px}
+.pill{height:40px;border:1px solid var(--border2);background:var(--panel);border-radius:999px;padding:0 15px;display:inline-flex;align-items:center;gap:9px;font-size:12.5px;font-weight:750;color:var(--text)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}.dot.on{background:var(--green);box-shadow:0 0 0 4px var(--green2)}
 .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
-.kpi{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--soft);display:flex;justify-content:space-between;align-items:center;gap:10px}
-.kpi h3{margin:0;color:#1d2b4f;font-size:12.5px;font-weight:800}.kpi .value{margin:6px 0 0;font-size:28px;font-weight:950;letter-spacing:-.04em}.kpi small{color:var(--gray500);font-size:11px}
-.kpi-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-weight:950;font-size:18px}
-.ic-blue{background:var(--blue2);color:var(--blue)}.ic-orange{background:var(--orange2);color:#b86b00}.ic-green{background:var(--green2);color:var(--green)}
-.wa-layout{display:grid;grid-template-columns:360px minmax(0,1fr);gap:14px;align-items:stretch;flex:1;min-height:0}
-.panel{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:0;overflow:hidden}
-.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 9px;font-size:10.5px;font-weight:900;white-space:nowrap}
-.badge.green{background:var(--green2);color:var(--green)}.badge.blue{background:var(--blue2);color:var(--blue)}.badge.red{background:var(--red2);color:var(--red)}.badge.gray{background:#eef2f7;color:var(--gray700)}
-.instance-card{padding:14px 16px;border-bottom:1px solid var(--gray200);display:flex;gap:12px;align-items:center;background:#fbfdff}
-.wa-logo{width:42px;height:42px;border-radius:13px;background:#e8fff5;color:#0aa565;display:grid;place-items:center;font-size:20px;font-weight:900}
-.instance-card strong{display:block;font-size:13.5px;color:#172554}.instance-card span{display:block;color:var(--gray500);font-size:11px;margin-top:2px}
-.searchbar{padding:12px 14px;border-bottom:1px solid var(--gray200)}.searchbar input{width:100%;height:40px;border:1px solid var(--gray300);border-radius:12px;padding:0 13px;font:inherit;font-size:13px;color:var(--gray700);outline:none}
+.kpi{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:17px 19px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.kpi h3{margin:0;color:var(--muted);font-size:12.5px;font-weight:700}.kpi .value{margin:7px 0 3px;font-size:29px;font-weight:900;letter-spacing:-.04em;color:#fff}.kpi small{color:var(--muted);font-size:11px}
+.kpi-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-weight:900;font-size:19px}
+.ic-blue{background:var(--blueSoft);color:#7ab0ff}.ic-orange{background:var(--orange2);color:#fbbf5a}.ic-green{background:var(--green2);color:#4ade80}
+.wa-layout{display:grid;grid-template-columns:360px minmax(0,1fr);gap:14px;flex:1;min-height:0}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 10px;font-size:10.5px;font-weight:800;white-space:nowrap}
+.badge.green{background:var(--green2);color:#4ade80}.badge.blue{background:var(--blueSoft);color:#7ab0ff}.badge.red{background:var(--red2);color:var(--red)}.badge.gray{background:rgba(255,255,255,.06);color:var(--muted)}
+.instance-card{padding:15px 16px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:center;background:var(--panel2)}
+.wa-logo{width:42px;height:42px;border-radius:13px;background:var(--green2);color:#4ade80;display:grid;place-items:center;font-size:20px;font-weight:900}
+.instance-card strong{display:block;font-size:13.5px;color:#fff}.instance-card span{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.searchbar{padding:12px 14px;border-bottom:1px solid var(--border)}
+.inp{width:100%;height:42px;border:1px solid var(--border2);border-radius:12px;padding:0 14px;font:inherit;font-size:13px;color:var(--text);background:var(--panel2);outline:none}
+.inp:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--blueSoft)}.inp::placeholder{color:#5f7194}
 .conversation-list{overflow:auto;flex:1;min-height:0}
-.conversation{display:grid;grid-template-columns:40px 1fr auto;gap:11px;padding:12px 14px;border-bottom:1px solid #eef3f9;cursor:pointer}
-.conversation:hover{background:#fbfdff}.conversation.selected{background:#eef6ff;box-shadow:inset 3px 0 0 var(--blue)}
-.conv-avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:900;font-size:13px}
-.conv-title strong{font-size:13px;color:#172554;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-.conversation p{margin:3px 0 0;color:var(--gray500);font-size:11.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
-.conv-meta{display:flex;align-items:center}.unread{width:9px;height:9px;border-radius:50%;background:var(--green)}
-.empty{padding:26px 20px;text-align:center;color:var(--gray500);font-size:13px;margin:auto}
+.conversation{display:grid;grid-template-columns:40px 1fr auto;gap:11px;padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer}
+.conversation:hover{background:rgba(255,255,255,.03)}.conversation.selected{background:var(--blueSoft);box-shadow:inset 3px 0 0 var(--blue)}
+.conv-avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--blueSoft);color:#7ab0ff;font-weight:800;font-size:13px}
+.conv-title strong{font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.conversation p{margin:3px 0 0;color:var(--muted);font-size:11.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.conv-meta{display:flex;align-items:center}.unread{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px var(--green2)}
+.empty{padding:26px 20px;text-align:center;color:var(--muted);font-size:13px;margin:auto}
 .chat-box{display:flex;flex-direction:column;min-height:0}
-.chat-header{padding:13px 16px;border-bottom:1px solid var(--gray200);display:flex;justify-content:space-between;align-items:center;gap:12px;background:#fbfdff}
-.client{display:flex;align-items:center;gap:11px;min-width:0}.client strong{display:block;font-size:14.5px;color:#172554}.client span{display:block;color:var(--gray500);font-size:11.5px;margin-top:2px}
+.chat-header{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--panel2)}
+.client{display:flex;align-items:center;gap:11px;min-width:0}.client strong{display:block;font-size:14.5px;color:#fff}.client span{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
 .chat-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.btn{height:38px;border:1px solid var(--gray300);background:#fff;border-radius:11px;padding:0 13px;display:inline-flex;align-items:center;gap:7px;font:inherit;font-weight:800;font-size:12.5px;color:var(--navy);box-shadow:var(--soft);cursor:pointer}
-.btn.primary{background:linear-gradient(135deg,#0b66ff,#074cd1);border-color:#0b66ff;color:#fff}.btn:disabled{opacity:.5;cursor:not-allowed}
-.chat-stream{flex:1;min-height:0;overflow:auto;padding:18px 18px;display:flex;flex-direction:column;gap:10px;background:#f8fbff}
-.msg{max-width:74%;padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.42;box-shadow:var(--soft)}
-.msg strong{display:block;font-size:10.5px;font-weight:800;opacity:.7;margin-bottom:3px}
-.msg.in{align-self:flex-start;background:#fff;border:1px solid var(--gray200);border-bottom-left-radius:5px;color:#172554}
-.msg.out{align-self:flex-end;background:#dcfce7;border:1px solid #bbf7d0;border-bottom-right-radius:5px;color:#14532d}
-.stream-empty{margin:auto;color:var(--gray500);font-size:13px;text-align:center;max-width:280px}
-.composer{padding:13px 16px;border-top:1px solid var(--gray200);display:flex;gap:10px;background:#fff}
-.composer input{flex:1;height:44px;border:1px solid var(--gray300);border-radius:12px;padding:0 14px;font:inherit;font-size:13.5px;outline:none}
-.composer input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(11,102,255,.12)}
-@media(max-width:1100px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.kpis{grid-template-columns:1fr}.wa-layout{grid-template-columns:1fr}.chat-stream{min-height:340px}}
+.btn{height:38px;border:1px solid var(--border2);background:var(--panel2);border-radius:11px;padding:0 14px;display:inline-flex;align-items:center;gap:7px;font:inherit;font-weight:750;font-size:12.5px;color:var(--text);cursor:pointer;transition:filter .12s,transform .06s}
+.btn:hover{filter:brightness(1.15)}.btn:active{transform:translateY(1px)}
+.btn.primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-color:#1d4ed8;color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+.chat-stream{flex:1;min-height:0;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.msg{max-width:74%;padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.45}
+.msg strong{display:block;font-size:10.5px;font-weight:700;opacity:.8;margin-bottom:3px}
+.msg.in{align-self:flex-start;background:var(--panel);border:1px solid var(--border2);border-bottom-left-radius:5px;color:var(--text)}
+.msg.out{align-self:flex-end;background:linear-gradient(135deg,#123b2c,#0f3325);border:1px solid #1f5c46;border-bottom-right-radius:5px;color:#d6f5e3}
+.stream-empty{margin:auto;color:var(--muted);font-size:13px;text-align:center;max-width:300px;line-height:1.5}
+.composer{padding:13px 16px;border-top:1px solid var(--border);display:flex;gap:10px;background:var(--panel)}
+.composer .inp{height:44px}
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(3,8,18,.72);backdrop-filter:blur(3px);display:none;place-items:center;z-index:50}
+.modal-bg.open{display:grid}
+.modal{width:400px;max-width:92vw;background:var(--panel);border:1px solid var(--border2);border-radius:18px;padding:22px;box-shadow:0 30px 70px rgba(0,0,0,.5)}
+.modal h3{margin:0 0 4px;font-size:18px;color:#fff}.modal p{margin:0 0 16px;color:var(--muted);font-size:12.5px}
+.modal label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 6px}
+.modal select.inp{height:42px}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+@media(max-width:1100px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.kpis{grid-template-columns:1fr}.wa-layout{grid-template-columns:1fr}.chat-stream{min-height:320px}}
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="hub.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body><div class="app"><aside class="sidebar">
   <div class="brand"><div class="logo">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
@@ -106,33 +126,31 @@
 
   <section class="wa-layout">
     <div class="panel">
-      <div class="instance-card">
-        <div class="wa-logo">◌</div>
-        <div><strong id="instName">Canal do Hub</strong><span id="instNum">—</span></div>
-      </div>
-      <div class="searchbar"><input id="convSearch" placeholder="Buscar conversa ou telefone..." /></div>
+      <div class="instance-card"><div class="wa-logo">◌</div><div><strong id="instName">Canal do Hub</strong><span id="instNum">—</span></div></div>
+      <div class="searchbar"><input class="inp" id="convSearch" placeholder="Buscar conversa ou telefone..." /></div>
       <div class="conversation-list" id="convList"><div class="empty">Carregando conversas…</div></div>
     </div>
 
     <div class="panel chat-box">
       <div class="chat-header">
-        <div class="client">
-          <div class="conv-avatar" id="clientAvatar">–</div>
-          <div><strong id="clientName">Selecione uma conversa</strong><span id="clientMeta">As mensagens reais aparecem aqui</span></div>
-        </div>
-        <div class="chat-actions">
-          <span class="badge gray" id="statusBadge">—</span>
-          <button class="btn primary" id="btnLead" disabled>＋ Criar lead</button>
-        </div>
+        <div class="client"><div class="conv-avatar" id="clientAvatar">–</div><div><strong id="clientName">Selecione uma conversa</strong><span id="clientMeta">As mensagens reais aparecem aqui</span></div></div>
+        <div class="chat-actions"><span class="badge gray" id="statusBadge">—</span><button class="btn primary" id="btnLead" disabled>＋ Criar lead</button></div>
       </div>
       <div class="chat-stream" id="chatStream"><div class="stream-empty">Escolha uma conversa à esquerda para ver o histórico real de mensagens.</div></div>
-      <div class="composer">
-        <input id="waInput" placeholder="Escreva uma mensagem para o cliente (WhatsApp)..." disabled />
-        <button class="btn primary" id="waSend" disabled>Enviar</button>
-      </div>
+      <div class="composer"><input class="inp" id="waInput" placeholder="Escreva uma mensagem para o cliente (WhatsApp)..." disabled /><button class="btn primary" id="waSend" disabled>Enviar</button></div>
     </div>
   </section>
 </main>
+</div>
+
+<div class="modal-bg" id="leadModal">
+  <div class="modal">
+    <h3>Criar lead</h3><p>A partir desta conversa do WhatsApp.</p>
+    <label>Nome do lead</label><input class="inp" id="leadNome" />
+    <label>Telefone</label><input class="inp" id="leadFone" disabled />
+    <label>Imobiliária</label><select class="inp" id="leadImob"></select>
+    <div class="modal-actions"><button class="btn" id="leadCancel">Cancelar</button><button class="btn primary" id="leadSave">Criar lead</button></div>
+  </div>
 </div>
 
 <script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script>
@@ -149,17 +167,13 @@
 
   function openChat(jid,nome){
     curJid=jid;curNome=nome;curFone=foneFmt(jid);
-    $("clientAvatar").textContent=inits(nome);
-    $("clientName").textContent=nome;
-    $("clientMeta").textContent=curFone+" · WhatsApp Hub";
+    $("clientAvatar").textContent=inits(nome);$("clientName").textContent=nome;$("clientMeta").textContent=curFone+" · WhatsApp Hub";
     var b=$("statusBadge");b.textContent="Conversa espelhada";b.className="badge blue";
     $("btnLead").disabled=false;$("waInput").disabled=false;$("waSend").disabled=false;
     var st=$("chatStream");st.innerHTML='<div class="stream-empty">Carregando mensagens…</div>';
     fetch(API+"?action=messages&jid="+encodeURIComponent(jid),{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
       var msgs=(d&&d.msgs)||[];
-      st.innerHTML=msgs.length?msgs.map(function(m){
-        return '<div class="msg '+(m.fromMe?"out":"in")+'"><strong>'+(m.fromMe?"Hub":esc(m.autor||nome))+' · '+hhmm(m.ts)+'</strong>'+esc(m.texto)+'</div>';
-      }).join(""):'<div class="stream-empty">Sem mensagens no período espelhado.</div>';
+      st.innerHTML=msgs.length?msgs.map(function(m){return '<div class="msg '+(m.fromMe?"out":"in")+'"><strong>'+(m.fromMe?"Hub":esc(m.autor||nome))+' · '+hhmm(m.ts)+'</strong>'+esc(m.texto)+'</div>';}).join(""):'<div class="stream-empty">Sem mensagens no período espelhado.</div>';
       st.scrollTop=st.scrollHeight;
     }).catch(function(){st.innerHTML='<div class="stream-empty" style="color:var(--red)">Falha ao carregar as mensagens.</div>';});
   }
@@ -170,64 +184,55 @@
     list.innerHTML=chats.map(function(c){
       return '<div class="conversation" data-jid="'+esc(c.jid)+'" data-nome="'+esc(c.nome)+'"><div class="conv-avatar">'+esc(inits(c.nome))+'</div><div style="min-width:0"><div class="conv-title"><strong>'+esc(c.nome)+'</strong></div><p>'+(c.fromMe?"Você: ":"")+esc(c.ultima||"")+'</p></div><div class="conv-meta">'+(!c.fromMe?'<span class="unread" title="aguardando retorno"></span>':'')+'</div></div>';
     }).join("");
-    Array.prototype.forEach.call(list.querySelectorAll(".conversation"),function(it){
-      it.addEventListener("click",function(){
-        Array.prototype.forEach.call(list.querySelectorAll(".conversation"),function(x){x.classList.remove("selected");});
-        it.classList.add("selected");openChat(it.getAttribute("data-jid"),it.getAttribute("data-nome"));
-      });
-    });
+    Array.prototype.forEach.call(list.querySelectorAll(".conversation"),function(it){it.addEventListener("click",function(){Array.prototype.forEach.call(list.querySelectorAll(".conversation"),function(x){x.classList.remove("selected");});it.classList.add("selected");openChat(it.getAttribute("data-jid"),it.getAttribute("data-nome"));});});
   }
 
   function loadChats(){
     fetch(API+"?action=chats",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
-      allChats=(d&&d.chats)||[];
-      setK("conversas",allChats.length);
-      setK("aguardando",allChats.filter(function(c){return !c.fromMe;}).length);
-      renderList(allChats);
+      allChats=(d&&d.chats)||[];setK("conversas",allChats.length);setK("aguardando",allChats.filter(function(c){return !c.fromMe;}).length);renderList(allChats);
     }).catch(function(){$("convList").innerHTML='<div class="empty" style="color:var(--red)">Falha ao carregar conversas.</div>';});
   }
-
   function loadAux(){
     fetch(DATA+"?ent=leads&action=list",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){leadsCount=((d&&d.rows)||[]).length;setK("leads",leadsCount);}).catch(function(){});
     fetch(DATA+"?ent=imobiliarias&action=list",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){imobs=(d&&d.rows)||[];}).catch(function(){});
   }
 
-  // busca local
   var search=$("convSearch");
-  if(search)search.addEventListener("input",function(){
-    var q=search.value.trim().toLowerCase();
-    renderList(!q?allChats:allChats.filter(function(c){return (c.nome||"").toLowerCase().indexOf(q)>=0 || String(c.jid).indexOf(q)>=0;}));
-  });
+  if(search)search.addEventListener("input",function(){var q=search.value.trim().toLowerCase();renderList(!q?allChats:allChats.filter(function(c){return (c.nome||"").toLowerCase().indexOf(q)>=0||String(c.jid).indexOf(q)>=0;}));});
 
-  // enviar mensagem real
   function send(){var inp=$("waInput");var t=inp.value.trim();if(!t||!curJid)return;inp.value="";
     fetch(API+"?action=send",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jid:curJid,text:t})}).then(function(r){return r.json();}).then(function(){setTimeout(function(){openChat(curJid,curNome);},900);}).catch(function(){alert("Falha ao enviar a mensagem.");});}
   $("waSend").addEventListener("click",send);
   $("waInput").addEventListener("keydown",function(e){if(e.key==="Enter")send();});
 
-  // criar lead a partir da conversa
-  $("btnLead").addEventListener("click",function(){
+  // modal criar lead
+  var modal=$("leadModal");
+  function openLead(){
     if(!curJid)return;
     if(!imobs.length){alert("Cadastre uma imobiliária antes de criar leads.");return;}
-    var nome=prompt("Nome do lead:",curNome||"");if(!nome)return;
-    var imobId=imobs[0].id;
-    if(imobs.length>1){
-      var opts=imobs.map(function(i,ix){return (ix+1)+") "+i.nome;}).join("\n");
-      var pick=prompt("Vincular a qual imobiliária?\n"+opts,"1");var idx=parseInt(pick,10)-1;
-      if(isNaN(idx)||!imobs[idx])return;imobId=imobs[idx].id;
-    }
-    fetch(DATA+"?ent=leads&action=save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({nome:nome,telefone:String(curJid).split("@")[0],imobiliaria_id:imobId})})
+    $("leadNome").value=curNome||"";
+    $("leadFone").value=String(curJid).split("@")[0];
+    $("leadImob").innerHTML=imobs.map(function(i){return '<option value="'+esc(i.id)+'">'+esc(i.nome)+'</option>';}).join("");
+    modal.classList.add("open");
+  }
+  function closeLead(){modal.classList.remove("open");}
+  $("btnLead").addEventListener("click",openLead);
+  $("leadCancel").addEventListener("click",closeLead);
+  modal.addEventListener("click",function(e){if(e.target===modal)closeLead();});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")closeLead();});
+  $("leadSave").addEventListener("click",function(){
+    var nome=$("leadNome").value.trim();if(!nome){alert("Informe o nome.");return;}
+    var imobId=$("leadImob").value;
+    var btn=$("leadSave");btn.disabled=true;btn.textContent="Criando…";
+    fetch(DATA+"?ent=leads&action=save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({nome:nome,telefone:$("leadFone").value,imobiliaria_id:imobId})})
       .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
-      .then(function(x){if(x.ok){alert("Lead criado! Ele já aparece na tela Leads.");leadsCount++;setK("leads",leadsCount);}else{alert("Não foi possível criar o lead: "+((x.j&&x.j.error)||"erro desconhecido"));}})
-      .catch(function(){alert("Falha na requisição.");});
+      .then(function(x){btn.disabled=false;btn.textContent="Criar lead";if(x.ok){closeLead();leadsCount++;setK("leads",leadsCount);alert("Lead criado! Já aparece na tela Leads.");}else{alert("Não foi possível criar o lead: "+((x.j&&x.j.error)||"erro desconhecido"));}})
+      .catch(function(){btn.disabled=false;btn.textContent="Criar lead";alert("Falha na requisição.");});
   });
 
-  // status do canal
   fetch(API+"?action=status",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
-    var on=(d&&d.status==="conectado");
-    var dot=$("statusDot"),txt=$("statusText");
-    if(dot)dot.className="dot"+(on?" on":"");
-    if(txt)txt.textContent=on?"Canal conectado":"Canal desconectado";
+    var on=(d&&d.status==="conectado");var dot=$("statusDot"),txt=$("statusText");
+    if(dot)dot.className="dot"+(on?" on":"");if(txt)txt.textContent=on?"Canal conectado":"Canal desconectado";
     if(on&&d.numero){$("instNum").textContent=foneFmt(d.numero);}
   }).catch(function(){var t=$("statusText");if(t)t.textContent="Status indisponível";});
 
