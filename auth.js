@@ -95,6 +95,30 @@
   function boot() { if (window.supabase) client(); else setTimeout(boot, 60); }
   boot();
 
+  // ---- pinta o usuário logado no rodapé da sidebar (.profile) ----
+  function paintUser() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY); if (!raw) return;
+      var s = JSON.parse(raw);
+      var u = (s && s.user) || (s && s.currentSession && s.currentSession.user);
+      if (!u) return;
+      var meta = u.user_metadata || {};
+      var email = u.email || '';
+      var nome = meta.nome || (email ? email.split('@')[0] : 'Usuário');
+      var perfil = meta.perfil || 'Usuário';
+      var ini = (nome.trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('') || 'U').toUpperCase();
+      function apply() {
+        var p = document.querySelector('.profile'); if (!p) return;
+        var st = p.querySelector('strong'); if (st) st.textContent = nome;
+        var sp = p.querySelector('span'); if (sp) sp.textContent = perfil.charAt(0).toUpperCase() + perfil.slice(1);
+        var av = p.querySelector('.avatar'); if (av) av.textContent = ini;
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+      else apply();
+    } catch (_) {}
+  }
+
   // roda o gate assim que possível (fora da tela de login)
   guard();
+  paintUser();
 })();
