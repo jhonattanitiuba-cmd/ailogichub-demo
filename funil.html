@@ -71,6 +71,18 @@ a{text-decoration:none;color:inherit}
 .rank strong{display:block;font-size:12.5px;color:var(--heading)}.rank span{display:block;font-size:11px;color:var(--muted);margin-top:1px}
 .note{padding:14px;color:var(--muted);font-size:12px;line-height:1.5}
 .empty{padding:26px;text-align:center;color:var(--muted);font-size:13px}
+.modal-bg{position:fixed;inset:0;background:rgba(3,8,20,.62);backdrop-filter:blur(4px);display:none;place-items:center;z-index:60;padding:20px}
+.modal-bg.open{display:grid}
+.modal{width:470px;max-width:94vw;max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--border2);border-radius:18px;box-shadow:var(--shadow)}
+.modal-h{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.modal-h h3{margin:0;font-size:19px;color:var(--heading);letter-spacing:-.02em}.modal-h p{margin:4px 0 0;color:var(--muted);font-size:12.5px}
+.modal-x{cursor:pointer;color:var(--muted);font-size:22px;line-height:1;background:none;border:0;padding:0}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+.mcell{background:var(--panel);padding:13px 18px}.mcell.full{grid-column:1/-1}
+.mcell label{display:block;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}.mcell strong{font-size:13.5px;color:var(--text);font-weight:650}
+.modal-f{padding:15px 18px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border)}
+.btn{height:38px;border:1px solid var(--border2);background:var(--panel2);border-radius:11px;padding:0 16px;font:inherit;font-weight:750;font-size:12.5px;color:var(--text);cursor:pointer}
+.btn:hover{filter:brightness(1.08)}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
 @media(max-width:1200px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto}.main{height:auto}.sidebar{height:auto}.kpis{grid-template-columns:repeat(2,1fr)}.board-wrap{grid-template-columns:1fr}.kanban{min-height:420px}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -137,6 +149,12 @@ a{text-decoration:none;color:inherit}
 </main>
 </div>
 
+<div class="modal-bg" id="dealModal"><div class="modal">
+  <div class="modal-h"><div><h3 id="dLead">—</h3><p id="dSub">—</p></div><button class="modal-x" id="dClose">×</button></div>
+  <div class="mgrid" id="dGrid"></div>
+  <div class="modal-f"><button class="btn" id="dClose2">Fechar</button></div>
+</div></div>
+
 <script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script>
 <script src="hub.js" defer></script>
 <script>/*funil-real*/(function(){
@@ -146,7 +164,30 @@ a{text-decoration:none;color:inherit}
   function brl(v){return 'R$ '+Math.round(v).toLocaleString('pt-BR');}
   function money(v){return v!=null&&v!==''?brl(Number(v)):'a definir';}
   function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
-  var dragId=null;
+  var dragId=null, dealsById={}, justDragged=false, modal=document.getElementById('dealModal');
+  function fld(label,val,full){return '<div class="mcell'+(full?' full':'')+'"><label>'+label+'</label><strong>'+esc(val==null||val===''?'—':val)+'</strong></div>';}
+  function openDeal(c){ if(!c) return;
+    document.getElementById('dLead').textContent=c.lead_nome||'Negócio';
+    document.getElementById('dSub').textContent=[c.imob_nome,c.origem].filter(Boolean).join(' · ')||'—';
+    document.getElementById('dGrid').innerHTML=
+       fld('Imóvel',c.imovel_desc||(c.imovel_codigo?'Cód. '+c.imovel_codigo:'—'),true)
+      +fld('Valor',c.valor?money(c.valor):'a definir')
+      +fld('Etapa',c.etapa)
+      +fld('Imobiliária',c.imob_nome)
+      +fld('Corretor',c.corretor_nome)
+      +fld('Origem',c.origem)
+      +fld('Tentativas',c.tentativas)
+      +fld('SLA',c.sla)
+      +fld('Último contato',c.ultimo_contato)
+      +(c.status_label?fld('Status',c.status_label,true):'')
+      +(c.motivo_perda?fld('Motivo da perda',c.motivo_perda,true):'');
+    modal.classList.add('open');
+  }
+  function closeDeal(){modal.classList.remove('open');}
+  document.getElementById('dClose').addEventListener('click',closeDeal);
+  document.getElementById('dClose2').addEventListener('click',closeDeal);
+  modal.addEventListener('click',function(e){if(e.target===modal)closeDeal();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDeal();});
 
   function card(c){
     var cor=ORIGEM_COR[c.origem]||'#64748b';
@@ -164,6 +205,7 @@ a{text-decoration:none;color:inherit}
   }
 
   function render(etapas,cards){
+    dealsById={}; cards.forEach(function(c){dealsById[c.id]=c;});
     if((!etapas||!etapas.length)&&cards.length){var seen={};etapas=[];cards.forEach(function(c){if(c.etapa&&!seen[c.etapa]){seen[c.etapa]=1;etapas.push({key:c.etapa,nome:c.etapa});}});}
     if(!etapas||!etapas.length){K.innerHTML='<div class="empty">Sem negócios no funil ainda.</div>';computePanels([],[]);return;}
     K.innerHTML=etapas.map(function(e,i){
@@ -200,8 +242,9 @@ a{text-decoration:none;color:inherit}
 
   function wireDnD(){
     K.querySelectorAll('.kcard').forEach(function(el){
-      el.addEventListener('dragstart',function(){dragId=el.getAttribute('data-id');el.style.opacity='.5';});
-      el.addEventListener('dragend',function(){el.style.opacity='';});
+      el.addEventListener('dragstart',function(){dragId=el.getAttribute('data-id');justDragged=true;el.style.opacity='.5';});
+      el.addEventListener('dragend',function(){el.style.opacity='';setTimeout(function(){justDragged=false;},60);});
+      el.addEventListener('click',function(){if(justDragged)return;openDeal(dealsById[el.getAttribute('data-id')]);});
     });
     K.querySelectorAll('.kbody').forEach(function(body){
       body.addEventListener('dragover',function(e){e.preventDefault();body.style.background='var(--blueSoft)';});
