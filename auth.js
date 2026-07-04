@@ -13,6 +13,14 @@
   var STORAGE_KEY = 'ailogic-auth'; // storageKey fixo do supabase-js
   var FLAG = 'ailogic_auth';        // flag legada usada pelo gate inline das telas
 
+  // ---- tema (claro/escuro) global, aplicado o quanto antes ----
+  try { document.documentElement.setAttribute('data-theme', localStorage.getItem('ailogic_theme') || 'light'); } catch (_) {}
+  window.hubTheme = {
+    get: function () { return document.documentElement.getAttribute('data-theme') || 'light'; },
+    set: function (t) { try { localStorage.setItem('ailogic_theme', t); } catch (_) {} document.documentElement.setAttribute('data-theme', t); },
+    toggle: function () { this.set(this.get() === 'dark' ? 'light' : 'dark'); }
+  };
+
   // ---- lê o access_token direto do localStorage (síncrono, não espera o supabase-js) ----
   function readToken() {
     try {
