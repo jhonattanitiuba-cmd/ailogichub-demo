@@ -200,8 +200,18 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   var search=$("convSearch");
   if(search)search.addEventListener("input",function(){var q=search.value.trim().toLowerCase();renderList(!q?allChats:allChats.filter(function(c){return (c.nome||"").toLowerCase().indexOf(q)>=0||String(c.jid).indexOf(q)>=0;}));});
 
+  function appendMsg(txt){
+    var st=$("chatStream");var em=st.querySelector(".stream-empty");if(em)st.innerHTML="";
+    var d=new Date(),hh=("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);
+    var el=document.createElement("div");el.className="msg out";
+    el.innerHTML='<strong>Hub · '+hh+'</strong>'+esc(txt);
+    st.appendChild(el);st.scrollTop=st.scrollHeight;return el;
+  }
   function send(){var inp=$("waInput");var t=inp.value.trim();if(!t||!curJid)return;inp.value="";
-    fetch(API+"?action=send",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jid:curJid,text:t})}).then(function(r){return r.json();}).then(function(){setTimeout(function(){openChat(curJid,curNome);},900);}).catch(function(){alert("Falha ao enviar a mensagem.");});}
+    var jid=curJid, bubble=appendMsg(t);   // otimista: aparece na hora
+    fetch(API+"?action=send",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jid:jid,text:t})})
+      .then(function(r){if(!r.ok)throw 0;})
+      .catch(function(){bubble.style.opacity=".55";bubble.innerHTML+='<div style="font-size:9.5px;color:var(--red);margin-top:3px">falha ao enviar · toque para tentar de novo</div>';bubble.style.cursor="pointer";bubble.onclick=function(){bubble.remove();inp.value=t;send();};});}
   $("waSend").addEventListener("click",send);
   $("waInput").addEventListener("keydown",function(e){if(e.key==="Enter")send();});
 
