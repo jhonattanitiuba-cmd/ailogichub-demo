@@ -49,8 +49,21 @@ function corOut(r) {
     telefone: r.telefone, creci: r.creci, perfil: r.perfil, status: (r.ativo ? 'Ativo' : 'Inativo')
   }, e);
 }
-const TABLE = { imobiliarias: 'imobiliarias', imoveis: 'imoveis', corretores: 'usuarios' };
-const OUT = { imobiliarias: imobOut, imoveis: imovOut, corretores: corOut };
+function leadOut(r) {
+  const e = r.extra || {};
+  return Object.assign({
+    id: r.id, imobiliaria_id: r.imobiliaria_id, nome: r.nome, telefone: r.telefone, email: r.email,
+    status: r.status, fonte_id: r.fonte_id, responsavel_id: r.responsavel_id, score: r.score,
+    interesse: r.interesse, motivo_perda: r.motivo_perda, ultimo_contato: r.ultimo_contato, created_at: r.created_at
+  }, e);
+}
+function fonteOut(r) {
+  return { id: r.id, imobiliaria_id: r.imobiliaria_id, nome: r.nome, canal: r.canal, ativo: r.ativo };
+}
+const TABLE = { imobiliarias: 'imobiliarias', imoveis: 'imoveis', corretores: 'usuarios', leads: 'leads', fontes: 'fontes_lead' };
+const OUT = { imobiliarias: imobOut, imoveis: imovOut, corretores: corOut, leads: leadOut, fontes: fonteOut };
+// tabelas que têm coluna deleted_at (soft delete)
+const SOFT = new Set(['imobiliarias', 'imoveis', 'usuarios', 'leads']);
 
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
@@ -65,7 +78,8 @@ module.exports = async (req, res) => {
 
     // ---- LIST ----
     if (action === 'list') {
-      const r = await db(`select * from ${TABLE[ent]} where deleted_at is null order by created_at`);
+      const where = SOFT.has(TABLE[ent]) ? 'where deleted_at is null' : '';
+      const r = await db(`select * from ${TABLE[ent]} ${where} order by created_at`);
       res.status(200).json({ rows: r.rows.map(OUT[ent]) });
       return;
     }
@@ -86,6 +100,7 @@ module.exports = async (req, res) => {
 
     // ---- SAVE (insert/update) ----
     if (action === 'save') {
+      if (ent === 'leads' || ent === 'fontes') { res.status(400).json({ error: 'save nao suportado para ' + ent + ' (somente leitura por enquanto)' }); return; }
       const o = body;
       const extra = { ...o }; delete extra.id;
 
