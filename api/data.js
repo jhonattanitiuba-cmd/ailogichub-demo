@@ -100,7 +100,20 @@ module.exports = async (req, res) => {
 
     // ---- SAVE (insert/update) ----
     if (action === 'save') {
-      if (ent === 'leads' || ent === 'fontes') { res.status(400).json({ error: 'save nao suportado para ' + ent + ' (somente leitura por enquanto)' }); return; }
+      if (ent === 'fontes') { res.status(400).json({ error: 'save nao suportado para fontes' }); return; }
+      if (ent === 'leads') {
+        const o = body;
+        if (!o.nome) { res.status(400).json({ error: 'nome obrigatorio' }); return; }
+        if (!o.imobiliaria_id) { res.status(400).json({ error: 'imobiliaria_id obrigatorio' }); return; }
+        if (o.id) {
+          const r = await db(`update leads set nome=$1,telefone=$2,email=$3,interesse=$4,updated_at=now() where id=$5 returning *`,
+            [o.nome, o.telefone || null, o.email || null, o.interesse || null, o.id]);
+          res.status(200).json({ row: leadOut(r.rows[0]) }); return;
+        }
+        const r = await db(`insert into leads(imobiliaria_id,nome,telefone,email,interesse) values($1,$2,$3,$4,$5) returning *`,
+          [o.imobiliaria_id, o.nome, o.telefone || null, o.email || null, o.interesse || null]);
+        res.status(200).json({ row: leadOut(r.rows[0]) }); return;
+      }
       const o = body;
       const extra = { ...o }; delete extra.id;
 
