@@ -127,7 +127,7 @@ module.exports = async (req, res) => {
         grupo: String(c.remoteJid || '').endsWith('@g.us'),
         ultima: c.lastMessage ? msgText(c.lastMessage) : '',
         fromMe: !!(c.lastMessage && c.lastMessage.key && c.lastMessage.key.fromMe)
-      })).filter(c => c.jid && allowedJid(c.jid))   // MODO TESTE: só Jhonattan + Alessandro
+      })).filter(c => c.jid && !c.grupo)   // espelhamento liberado (exclui grupos)
         .sort((a, b) => new Date(b.atualizado || 0) - new Date(a.atualizado || 0));
       if (cutoff) chats = chats.filter(c => c.atualizado && new Date(c.atualizado) >= cutoff);
       res.status(200).json({ chats });
@@ -138,7 +138,7 @@ module.exports = async (req, res) => {
     if (action === 'messages') {
       const jid = req.query && req.query.jid;
       if (!jid) { res.status(400).json({ error: 'jid obrigatorio' }); return; }
-      if (!allowedJid(jid)) { res.status(403).json({ error: 'numero fora do modo teste' }); return; }
+      // espelhamento liberado: sem filtro de numero
       const cutoff = await getCutoff();
       const r = await evo('/chat/findMessages/' + INSTANCE, 'POST', { where: { key: { remoteJid: jid } }, limit: 60 });
       const recs = (r.body && r.body.messages && r.body.messages.records) || [];
@@ -161,7 +161,7 @@ module.exports = async (req, res) => {
       if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
       const jid = b && b.jid, text = b && b.text;
       if (!jid || !text) { res.status(400).json({ error: 'jid e text obrigatorios' }); return; }
-      if (!allowedJid(jid)) { res.status(403).json({ error: 'numero fora do modo teste' }); return; }
+      // espelhamento liberado: sem filtro de numero
       const number = String(jid).endsWith('@s.whatsapp.net') ? String(jid).split('@')[0] : jid;
       const r = await evo('/message/sendText/' + INSTANCE, 'POST', { number, text });
       res.status(r.ok ? 200 : 500).json({ ok: r.ok, resp: r.body });

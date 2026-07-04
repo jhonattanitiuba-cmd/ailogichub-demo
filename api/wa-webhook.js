@@ -115,6 +115,13 @@ module.exports = async (req, res) => {
     if (String(remoteJid).endsWith('@g.us')) { res.status(200).json({ ignored: 'grupo' }); return; }
     if (!texto.trim()) { res.status(200).json({ ignored: 'sem texto' }); return; }
 
+    // ===== TRAVA GLOBAL: IA NÃO RESPONDE NINGUÉM (apenas auditoria/espelhamento) =====
+    // Enquanto isto estiver true, o webhook nunca envia resposta automática,
+    // independentemente de ia_ativa/allowlist no banco. Trocar para false quando
+    // a resposta automática for liberada de forma controlada.
+    const IA_RESPOSTA_DESLIGADA = true;
+    if (IA_RESPOSTA_DESLIGADA) { res.status(200).json({ ignored: 'ia_global_off' }); return; }
+
     const cfg = (await db('select ia_ativa, ia_allowlist, ia_persona, espelho_desde from canais_whatsapp where instancia=$1', [INSTANCE])).rows[0] || {};
     if (!cfg.ia_ativa) { res.status(200).json({ ignored: 'ia off' }); return; }
     const allow = Array.isArray(cfg.ia_allowlist) ? cfg.ia_allowlist : [];
