@@ -59,6 +59,11 @@ body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-heigh
 .btn:hover{transform:translateY(-2px);box-shadow:0 18px 38px rgba(11,102,255,.42)}
 .btn:active{transform:translateY(0)}
 .err{color:#e94242;font-size:12.5px;font-weight:600;margin-top:12px;min-height:16px;text-align:center}
+.note{color:var(--green);font-size:12.5px;font-weight:600;margin-top:2px;text-align:center}
+.note:empty{display:none}
+.signup-row{margin-top:14px;text-align:center;font-size:12.5px;color:var(--gray500)}
+.signup-row a{color:var(--blue);text-decoration:none;font-weight:700;cursor:pointer}
+.signup-row a:hover{text-decoration:underline}
 .foot{margin-top:24px;text-align:center;font-size:11.5px;color:#94a3b8}
 .badge-sec{display:inline-flex;align-items:center;gap:6px;margin-top:18px;font-size:11px;color:var(--green);font-weight:700;background:#eafaf3;border:1px solid #c8efdd;padding:6px 11px;border-radius:999px}
 /* botão minimalista de instalar o app */
@@ -118,6 +123,8 @@ body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-heigh
       <button class="btn" type="submit">Entrar no Hub
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
       <div class="err" id="err"></div>
+      <div class="note" id="note"></div>
+      <div class="signup-row">Primeiro acesso? <a href="#" id="signupLink">Criar conta</a></div>
       <div class="foot">Acesso restrito · ambiente monitorado e auditado<br><span class="badge-sec"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s7-3.2 7-9V6l-7-3-7 3v6c0 5.8 7 9 7 9Z"/></svg>Conexão segura</span></div>
       <div class="install-wrap" id="installWrap" style="display:none">
         <button type="button" class="install-btn" id="installBtn">
@@ -156,6 +163,42 @@ document.getElementById('form').addEventListener('submit',async function(e){
     var msg=(ex&&ex.message)||'Falha no login.';
     if(/invalid login|credenciais|invalid/i.test(msg)) msg='E-mail ou senha incorretos.';
     err.textContent=msg; btn.innerHTML=original; btn.disabled=false;
+  }
+});
+</script>
+
+<script>
+/* ---- Primeiro acesso: criar conta (Supabase signUp via anon key) ---- */
+document.getElementById('signupLink').addEventListener('click',async function(e){
+  e.preventDefault();
+  var email=document.getElementById('email').value.trim();
+  var pass=document.getElementById('pass').value;
+  var err=document.getElementById('err');
+  var note=document.getElementById('note');
+  err.textContent=''; note.textContent='';
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent='Preencha o e-mail para criar a conta.'; return; }
+  // hub restrito: só permite auto-cadastro de e-mails corporativos @ailogichub.app
+  if(!/@ailogichub\.app$/i.test(email)){ err.textContent='O primeiro acesso é só para e-mails @ailogichub.app.'; return; }
+  if(pass.length<6){ err.textContent='Defina uma senha com pelo menos 6 caracteres.'; return; }
+  var link=this; var orig=link.textContent; link.textContent='Criando...'; link.style.pointerEvents='none';
+  try{
+    if(!window.hubAuth) throw new Error('Config de autenticação não carregou.');
+    var data=await window.hubAuth.signUp(email,pass);
+    if(data && data.session){
+      // confirmação de e-mail desligada → já autenticado
+      try{ localStorage.setItem('ailogic_user',email); }catch(_){}
+      location.href='/visaogeral'; return;
+    }
+    // sem sessão → Supabase exige confirmação por e-mail
+    note.textContent='Conta criada. Confirme pelo link enviado para '+email+' e depois entre.';
+  }catch(ex){
+    var msg=(ex&&ex.message)||'Não foi possível criar a conta.';
+    if(/not allowed|disabled|signup/i.test(msg)) msg='Auto-cadastro desativado no servidor. Peça a criação do usuário a quem administra o Supabase.';
+    else if(/already registered|already been registered|exists/i.test(msg)) msg='Esse e-mail já tem conta. Use "Entrar no Hub".';
+    else if(/password/i.test(msg)) msg='Senha fraca demais para o servidor. Tente uma senha mais forte.';
+    err.textContent=msg;
+  }finally{
+    link.textContent=orig; link.style.pointerEvents='';
   }
 });
 </script>
