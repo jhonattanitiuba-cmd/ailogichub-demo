@@ -88,6 +88,13 @@
       setFlag(true);
       return r.data;
     },
+    async signUp(email, password) {
+      var c = client(); if (!c) throw new Error('config ausente');
+      var r = await c.auth.signUp({ email: email, password: password });
+      if (r.error) throw r.error;
+      if (r.data && r.data.session) setFlag(true); // confirmacao de email desligada -> ja logado
+      return r.data;                               // sem session -> precisa confirmar email
+    },
     async signOut() {
       try { var c = client(); if (c) await c.auth.signOut(); } catch (_) {}
       setFlag(false);
