@@ -1,65 +1,85 @@
-<!DOCTYPE html><html lang="pt-BR"><head><script src="/api/config"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/auth.js"></script><script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script><script>document.documentElement.classList.add("hub-pre");setTimeout(function(){document.documentElement.classList.remove("hub-pre")},4000);</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AiLogic Hub · Central de Operações</title>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('ailogic_theme')||'light')}catch(e){}</script>
+<script src="/api/config"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/auth.js"></script>
+<script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AiLogic Hub · Central de Operações</title>
 <style>
 :root{
-  --navy:#061936;--blue:#0b66ff;--blue2:#eaf2ff;--green:#16a56f;--green2:#eafaf3;
-  --orange:#f59e0b;--orange2:#fff7e6;--red:#e94242;--red2:#fff0f0;--purple:#7257ff;--purple2:#f1efff;
-  --cyan:#0ea5e9;--cyan2:#ecfeff;--gray900:#0f172a;--gray700:#334155;--gray500:#64748b;
-  --gray300:#d9e2ef;--gray200:#edf2f7;--white:#fff;--shadow:0 14px 34px rgba(15,23,42,.08);
-  --soft:0 8px 22px rgba(15,23,42,.055);--radius:18px;--font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --bg:#f6f9fd;--panel:#fff;--panel2:#fbfdff;--border:#eef2f7;--border2:#dfe7f2;
+  --text:#0f172a;--heading:#172554;--muted:#64748b;
+  --blue:#0b66ff;--blueSoft:#eaf2ff;--green:#16a56f;--greenSoft:#eafaf3;
+  --orange:#f59e0b;--orangeSoft:#fff7e6;--red:#e94242;--redSoft:#fff0f0;--purple:#7257ff;--purpleSoft:#f1efff;
+  --shadow:0 14px 34px rgba(15,23,42,.08);--soft:0 6px 18px rgba(15,23,42,.05);
 }
-*{box-sizing:border-box} body{margin:0;font-family:var(--font);background:#f6f9fd;color:var(--gray900)}
-.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
-.sidebar{background:linear-gradient(180deg,#071b3a,#031126);color:#dce8ff;padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto}
-.brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}.logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
-.brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#a8c2ee;font-size:12px;margin-top:3px}
-.section-title{font-size:11px;color:#7da2d6;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:24px 10px 10px}
-.nav-item{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:13px;color:#c8d8f4;font-weight:650;font-size:14px;margin:4px 0;text-decoration:none}
-.nav-item.active{background:linear-gradient(135deg,#0a66ff,#0851cc);color:#fff;box-shadow:0 10px 28px rgba(11,102,255,.28)}.ico{width:22px;text-align:center}
-.support{margin-top:34px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);border-radius:16px;padding:15px;display:flex;gap:12px;align-items:center}.support small{color:#9bb7e3;display:block;margin-top:2px}
-.profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0}.avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:white;display:grid;place-items:center;font-weight:800}.profile strong{color:white;font-size:13px;display:block}.profile span{color:#9bb7e3;font-size:11px}
-.main{padding:22px 26px 36px;overflow:hidden}.header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}.headline h1{margin:0;font-size:28px;letter-spacing:-.03em}.headline p{margin:7px 0 0;color:var(--gray500);font-size:14px;max-width:950px;line-height:1.45}
-.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.pill,.btn,select,input{border:1px solid var(--gray300);background:#fff;border-radius:12px;height:42px;padding:0 14px;font:inherit;color:var(--gray700);outline:none}.pill{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;white-space:nowrap;box-shadow:var(--soft)}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(22,165,111,.12)}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-weight:850;color:var(--navy);box-shadow:var(--soft)}.btn.primary{background:linear-gradient(135deg,#082653,#061936);border-color:#061936;color:white}.btn.blue{background:linear-gradient(135deg,#0b66ff,#074cd1);border-color:#0b66ff;color:white}.btn.ghost{box-shadow:none;background:#fbfdff}
-.kpis{display:grid;grid-template-columns:repeat(6,minmax(145px,1fr));gap:14px;margin:18px 0}.kpi{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);padding:16px 17px;box-shadow:var(--soft);min-height:112px}.kpi-top{display:flex;justify-content:space-between;gap:8px}.kpi h3{margin:0;color:#1d2b4f;font-size:12px}.kpi .value{margin:8px 0 4px;font-size:25px;font-weight:950;letter-spacing:-.04em}.trend{font-size:11px;color:var(--green);font-weight:850}.trend.red{color:var(--red)}.trend.orange{color:#b86b00}.kpi-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950}
-.panel{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.panel-head{padding:15px 16px;border-bottom:1px solid var(--gray200);display:flex;justify-content:space-between;align-items:center;gap:12px}.panel-head h2,.panel-head h3{margin:0;font-size:16px;letter-spacing:-.02em}.panel-head small{display:block;margin-top:3px;color:var(--gray500);font-size:12px}
-.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:950;white-space:nowrap}.badge.green{background:var(--green2);color:var(--green)}.badge.blue{background:var(--blue2);color:var(--blue)}.badge.orange{background:var(--orange2);color:#b86b00}.badge.red{background:var(--red2);color:var(--red)}.badge.purple{background:var(--purple2);color:var(--purple)}.badge.cyan{background:var(--cyan2);color:var(--cyan)}.badge.gray{background:#eef2f7;color:var(--gray700)}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;align-items:start}.right-stack{display:grid;gap:14px}.toolbar{display:flex;flex-wrap:wrap;gap:10px;padding:14px 16px;border-bottom:1px solid var(--gray200);align-items:center;background:#fbfdff}.tabs{display:flex;gap:6px;overflow:auto}.tabs button{border:0;background:#edf3fb;color:var(--gray700);border-radius:999px;padding:9px 11px;font-weight:850;font-size:12px;cursor:pointer;white-space:nowrap}.tabs button.active{background:var(--navy);color:#fff}.search{min-width:320px;flex:1;height:40px}.toolbar select{height:40px;font-size:12px;min-width:135px}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(250px,1fr));gap:14px;padding:16px}.card{border:1px solid var(--gray200);border-radius:18px;background:#fff;padding:14px;box-shadow:var(--soft)}.card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}.card h3{margin:0;color:#172554;font-size:15px;line-height:1.25}.card p{margin:5px 0 0;color:var(--gray500);font-size:12px;line-height:1.45}.card-icon{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;flex:0 0 auto}
-.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.metric{background:#fbfdff;border:1px solid var(--gray200);border-radius:13px;padding:8px;text-align:center}.metric strong{display:block;color:#172554;font-size:14px}.metric span{display:block;color:var(--gray500);font-size:10px;margin-top:3px}
-.table-wrap{padding:0 16px 16px;overflow:auto}table{border-collapse:separate;border-spacing:0;width:100%;min-width:880px;background:#fff;border:1px solid var(--gray200);border-radius:16px;overflow:hidden}th,td{padding:12px 13px;border-bottom:1px solid #eef3f9;text-align:left;font-size:12px;vertical-align:middle}th{color:#475569;background:#fbfdff;font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:900}tr:last-child td{border-bottom:0}tr:hover td{background:#fbfdff}
-.side-list{padding:10px 14px 14px;display:grid;gap:8px}.side-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #eef3f9}.side-row:last-child{border-bottom:0}.side-row strong{display:block;color:#172554;font-size:12px}.side-row span{display:block;color:var(--gray500);font-size:11px;margin-top:2px;line-height:1.35}
-.count{font-weight:950;min-width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:#f1f5f9;color:var(--gray700);font-size:12px}.count.red{background:var(--red2);color:var(--red)}.count.orange{background:var(--orange2);color:#b86b00}.count.green{background:var(--green2);color:var(--green)}.count.blue{background:var(--blue2);color:var(--blue)}
-.rules{display:grid;gap:8px;padding:14px}.rule{display:flex;gap:10px;border:1px solid var(--gray200);border-radius:14px;background:#fbfdff;padding:10px}.rule .r-ico{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;flex:0 0 auto}.rule strong{display:block;color:#172554;font-size:12px}.rule span{display:block;color:var(--gray500);font-size:11px;margin-top:3px;line-height:1.35}
-.timeline{padding:10px 14px 14px;display:grid;gap:9px}.timeline-item{border-left:3px solid var(--blue);padding:2px 0 2px 10px}.timeline-item.red{border-left-color:var(--red)}.timeline-item.orange{border-left-color:var(--orange)}.timeline-item.green{border-left-color:var(--green)}.timeline-item strong{font-size:12px;display:block;color:#172554}.timeline-item span{font-size:11px;color:var(--gray500);display:block;margin-top:3px;line-height:1.35}
-.detail{margin-top:14px}.detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--gray200)}.detail-item{padding:13px 14px;border-right:1px solid var(--gray200)}.detail-item:last-child{border-right:0}.detail-item label{display:block;color:var(--gray500);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}.detail-item strong{display:block;color:#172554;font-size:12px}.detail-item span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
-@media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,minmax(250px,1fr))}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(3,1fr)}}@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.right-stack{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}}@media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.grid,.right-stack,.detail-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
+:root[data-theme="dark"]{
+  --bg:#0a1020;--panel:#111a2e;--panel2:#0d1526;--border:#1f2c48;--border2:#26344f;
+  --text:#e7eefb;--heading:#ffffff;--muted:#8b9bb9;
+  --blue:#3b82f6;--blueSoft:rgba(59,130,246,.16);--green:#22c55e;--greenSoft:rgba(34,197,94,.15);
+  --orange:#f59e0b;--orangeSoft:rgba(245,158,11,.15);--red:#f87171;--redSoft:rgba(248,113,113,.15);--purple:#a78bfa;--purpleSoft:rgba(167,139,250,.15);
+  --shadow:0 14px 34px rgba(0,0,0,.4);--soft:0 6px 18px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text)}a{text-decoration:none;color:inherit}
+.app{display:grid;grid-template-columns:262px 1fr;height:100vh;overflow:hidden}
+.sidebar{background:linear-gradient(180deg,#0a1a38,#050c1c);color:#cddcf5;padding:24px 18px;height:100vh;overflow:auto;border-right:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:30px}.logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
+.brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#8fb0e6;font-size:12px;margin-top:3px}
+.section-title{font-size:11px;color:#6f8cba;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:22px 10px 10px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:12px;color:#b7c9e8;font-weight:650;font-size:14px;margin:3px 0}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff}.nav-item.active{background:linear-gradient(135deg,#0a66ff,#0748bb);color:#fff;box-shadow:0 10px 26px rgba(11,102,255,.35)}.ico{width:22px;text-align:center}
+.profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0;margin-top:20px;border-top:1px solid rgba(255,255,255,.08)}.avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:#fff;display:grid;place-items:center;font-weight:800}.profile strong{color:#fff;font-size:13px;display:block}.profile span{color:#8fb0e6;font-size:11px}
+.main{padding:22px 26px 30px;height:100vh;overflow:auto}
+.header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
+.headline h1{margin:0;font-size:25px;letter-spacing:-.03em;color:var(--heading)}.headline p{margin:5px 0 0;color:var(--muted);font-size:13px;max-width:760px}
+.head-actions{display:flex;gap:9px;align-items:center}
+.pill{height:38px;border:1px solid var(--border2);background:var(--panel);border-radius:999px;padding:0 14px;display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:750;color:var(--text)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px var(--greenSoft)}
+.icon-btn{width:38px;height:38px;border:1px solid var(--border2);background:var(--panel);border-radius:11px;display:grid;place-items:center;cursor:pointer;font-size:16px;color:var(--text)}.icon-btn:hover{filter:brightness(1.08)}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:13px;margin-bottom:16px}
+.kpi{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:15px 16px;box-shadow:var(--soft)}
+.kpi-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.kpi h3{margin:0;color:var(--muted);font-size:11.5px;font-weight:700}.kpi .value{margin:8px 0 3px;font-size:25px;font-weight:900;letter-spacing:-.03em;color:var(--heading)}.kpi small{color:var(--muted);font-size:10.5px}
+.kpi-ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-weight:900;font-size:16px;background:var(--blueSoft);color:var(--blue)}
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:16px}
+.grid2b{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--soft);overflow:hidden}
+.panel-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.panel-head h3{margin:0;font-size:15px;color:var(--heading)}.panel-head .tag{font-size:11px;color:var(--muted);font-weight:700}
+.funnel{display:flex;gap:4px;overflow-x:auto;padding:18px 16px}
+.fstep{flex:1;min-width:96px;text-align:center}
+.fstep .fn{font-size:9px;color:var(--muted);text-transform:uppercase;font-weight:800;min-height:24px;line-height:1.2}
+.fstep .fv{font-weight:900;font-size:19px;margin-top:6px;color:var(--heading)}
+.fstep .fp{font-size:10px;color:var(--blue);font-weight:800;margin-top:2px}
+.farrow{align-self:center;color:var(--muted);font-size:13px;padding-top:14px}
+.olist{padding:12px 16px 14px}
+.orow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}.orow:last-child{border-bottom:0}
+.odot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+.orow .on{flex:1;font-size:13px;color:var(--text)}.orow .oc{font-weight:800;font-size:13px;color:var(--heading)}.orow .op{font-size:11px;color:var(--muted);min-width:42px;text-align:right}
+.rank{display:flex;align-items:center;gap:11px;padding:11px 16px;border-bottom:1px solid var(--border)}.rank:last-child{border-bottom:0}
+.rank .pos{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--blueSoft);color:var(--blue);font-weight:900;font-size:12px;flex:0 0 auto}
+.rank strong{display:block;font-size:13px;color:var(--heading)}.rank span{display:block;font-size:11px;color:var(--muted);margin-top:1px}
+.table-wrap{overflow:auto}table{border-collapse:separate;border-spacing:0;width:100%;min-width:640px}
+th,td{padding:12px 15px;border-bottom:1px solid var(--border);text-align:left;font-size:12.5px;color:var(--text)}
+th{color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;font-weight:800;background:var(--panel2)}
+tr:last-child td{border-bottom:0}td.strong{font-weight:700;color:var(--heading)}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 9px;font-size:10.5px;font-weight:800}
+.badge.green{background:var(--greenSoft);color:var(--green)}.badge.orange{background:var(--orangeSoft);color:#b8860b}.badge.gray{background:var(--blueSoft);color:var(--blue)}
+.empty{padding:24px;text-align:center;color:var(--muted);font-size:13px}
+@media(max-width:1400px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto}.main{height:auto}.sidebar{height:auto}.grid2,.grid2b{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
 </style>
-<style>
-.fstage{flex:1;min-width:96px;text-align:center;background:#fbfdff;border:1px solid var(--gray200);border-radius:14px;padding:13px 8px}
-.fstage .fi{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;margin:0 auto 7px;background:var(--blue2);color:var(--blue);font-weight:900}
-.fstage.last{background:linear-gradient(135deg,#082653,#061936);border-color:#061936;color:#fff}
-.fstage.last .fi{background:rgba(255,255,255,.16);color:#fff}
-.fconn{align-self:center;color:var(--gray300);font-size:18px}
-.alert-cell{display:flex;gap:11px;align-items:flex-start;background:#fbfdff;border:1px solid var(--gray200);border-radius:14px;padding:13px}
-.alert-cell .ai{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-weight:900;flex:0 0 auto}
-.donut{width:150px;height:150px;border-radius:50%;position:relative;flex:0 0 auto}
-.donut .hole{position:absolute;inset:22px;border-radius:50%;background:#fff;display:grid;place-items:center;text-align:center}
-.kcol{min-width:236px;flex:0 0 auto}
-.kcard{background:#fff;border:1px solid var(--gray200);border-radius:14px;padding:11px;box-shadow:var(--soft);margin-bottom:9px;cursor:default}
-.kbody{background:#fbfdff;border:1px solid var(--gray200);border-radius:16px;padding:9px;min-height:90px}
-.obadge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:900;padding:3px 8px;border-radius:999px}
-.chip2{border:1px solid var(--gray300);background:#fff;border-radius:999px;padding:7px 11px;font-weight:850;font-size:12px;color:var(--gray700);white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
-.chip2.on{background:var(--navy);color:#fff;border-color:var(--navy)}
-.scrollx{display:flex;gap:11px;overflow-x:auto;padding-bottom:6px}
-</style>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="hub.css">
-</head><body><div class="app"><aside class="sidebar">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body><div class="app"><aside class="sidebar">
   <div class="brand"><div class="logo">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
   <div class="section-title">Operação</div>
   <a class="nav-item" href="visaogeral"><span class="ico">⌂</span>Visão Geral</a>
   <a class="nav-item" href="imobiliarias"><span class="ico">▥</span>Imobiliárias</a>
-  <a class="nav-item" href="corretores"><span class="ico">♟</span>Corretores & Equipes</a>
-  <a class="nav-item" href="pessoas"><span class="ico">♙</span>Pessoas & Contatos</a>
+  <a class="nav-item" href="corretores"><span class="ico">♟</span>Corretores &amp; Equipes</a>
+  <a class="nav-item" href="pessoas"><span class="ico">♙</span>Pessoas &amp; Contatos</a>
   <a class="nav-item" href="leads"><span class="ico">◎</span>Leads</a>
   <a class="nav-item" href="funil"><span class="ico">▽</span>Funil de Negócios</a>
   <a class="nav-item" href="agenda"><span class="ico">▦</span>Agenda</a>
@@ -72,76 +92,122 @@
   <a class="nav-item" href="assinaturas"><span class="ico">✍</span>Assinaturas · Docs</a>
   <a class="nav-item" href="anuncios"><span class="ico">↗</span>Anúncios · Rodízios</a>
   <div class="section-title">Inteligência</div>
-  <a class="nav-item" href="credito"><span class="ico">$</span>Crédito & Financiamento</a>
+  <a class="nav-item" href="credito"><span class="ico">$</span>Crédito &amp; Financiamento</a>
   <a class="nav-item" href="locacao"><span class="ico">⇆</span>Locação Online</a>
   <a class="nav-item" href="relatorios"><span class="ico">↟</span>Relatórios</a>
   <a class="nav-item" href="insights"><span class="ico">✦</span>Insights da IA</a>
   <div class="section-title">Plataforma</div>
-  <a class="nav-item" href="integracoes"><span class="ico">⇄</span>Integrações & Automações</a>
+  <a class="nav-item" href="integracoes"><span class="ico">⇄</span>Integrações &amp; Automações</a>
   <a class="nav-item" href="site"><span class="ico">🌐</span>Site do Hub</a>
-  <a class="nav-item" href="financeiro"><span class="ico">R$</span>Financeiro & Repasses</a>
-  <a class="nav-item" href="suporte"><span class="ico">?</span>Suporte & Treinamento</a>
+  <a class="nav-item" href="financeiro"><span class="ico">R$</span>Financeiro &amp; Repasses</a>
+  <a class="nav-item" href="suporte"><span class="ico">?</span>Suporte &amp; Treinamento</a>
   <a class="nav-item" href="administrador"><span class="ico">⚙</span>Administrador</a>
   <a class="nav-item" href="config-ia"><span class="ico">◈</span>Configurações · IA</a>
-  <div class="support"><div class="ico">☏</div><div><strong>Suporte</strong><small>Central de Ajuda</small></div></div>
-  <div class="profile"><div class="avatar">AF</div><div><strong>Alessandro Ferreira</strong><span>Diretoria · Admin do Hub</span></div></div>
+  <div class="profile"><div class="avatar">AL</div><div><strong>AiLogic Hub</strong><span>Acesso protegido</span></div></div>
 </aside>
+
 <main class="main">
-<header class="header"><div class="headline"><h1>Central de Operações do Hub</h1><p>Controle completo das imobiliárias, leads, imóveis, IA e funil comercial — visão consolidada de toda a operação parceira.</p></div>
-<div class="actions"><div class="pill"><span class="dot"></span>Sistema ativo · 6 imobiliárias</div><button class="btn ghost">📅 01/05 – 31/05/2025</button><button class="btn">Relatório</button><button class="btn primary">＋ Nova Imobiliária</button></div></header>
+  <header class="header">
+    <div class="headline"><h1>Central de Operações</h1><p>Visão consolidada de imobiliárias, leads, imóveis e funil comercial — dados reais do Hub.</p></div>
+    <div class="head-actions"><div class="pill"><span class="dot"></span><span id="imobPill">— imobiliárias</span></div><button class="icon-btn" id="themeToggle" title="Alternar tema">🌙</button></div>
+  </header>
 
-<section class="kpis">
-<article class="kpi"><div class="kpi-top"><div><h3>Imobiliárias Ativas</h3><div class="value" id="vg-imob-total">6</div></div><div class="kpi-icon">▥</div></div><div style="display:flex;gap:16px;margin-top:8px"><div><strong id="vg-imob-ativas" style="color:var(--green);font-weight:950;font-size:15px">4</strong><div style="font-size:9px;color:var(--gray500);text-transform:uppercase;letter-spacing:.04em">Ativas</div></div><div><strong id="vg-imob-implant" style="color:var(--blue);font-weight:950;font-size:15px">1</strong><div style="font-size:9px;color:var(--gray500);text-transform:uppercase">Implant.</div></div><div><strong id="vg-imob-pausada" style="color:var(--orange);font-weight:950;font-size:15px">1</strong><div style="font-size:9px;color:var(--gray500);text-transform:uppercase">Pausada</div></div></div></article>
-<article class="kpi"><div class="kpi-top"><div><h3>Leads no Período</h3><div class="value">1.754</div><div class="trend ">↑ +18,6% vs. anterior</div></div><div class="kpi-icon">👥</div></div></article>
-<article class="kpi"><div class="kpi-top"><div><h3>Qualificados pela IA</h3><div class="value">532</div><div class="trend blue">30,3% taxa de qualificação</div></div><div class="kpi-icon">✨</div></div></article>
-<article class="kpi"><div class="kpi-top"><div><h3>Negócios em Andamento</h3><div class="value">148</div><div class="trend blue">R$ 4,28M em pipeline</div></div><div class="kpi-icon">📁</div></div></article>
-<article class="kpi"><div class="kpi-top"><div><h3>Conversão Geral</h3><div class="value">8,4%</div><div class="trend ">↑ +1,2 p.p.</div></div><div class="kpi-icon">📊</div></div></article>
-<article class="kpi"><div class="kpi-top"><div><h3>Valor Potencial</h3><div class="value">R$ 9,73M</div><div class="trend blue">R$ 657 mil ticket médio</div></div><div class="kpi-icon">$</div></div></article>
-</section>
+  <section class="kpis">
+    <article class="kpi"><div class="kpi-top"><div><h3>Imobiliárias</h3><div class="value" data-k="imob">—</div><small id="imobBreak">ativas na plataforma</small></div><div class="kpi-ic">▥</div></div></article>
+    <article class="kpi"><div class="kpi-top"><div><h3>Leads</h3><div class="value" data-k="leads">—</div><small id="leadsBreak">no banco</small></div><div class="kpi-ic">◎</div></div></article>
+    <article class="kpi"><div class="kpi-top"><div><h3>Imóveis</h3><div class="value" data-k="imoveis">—</div><small>cadastrados</small></div><div class="kpi-ic">▤</div></div></article>
+    <article class="kpi"><div class="kpi-top"><div><h3>Negócios no funil</h3><div class="value" data-k="negocios">—</div><small>em andamento</small></div><div class="kpi-ic">▽</div></div></article>
+    <article class="kpi"><div class="kpi-top"><div><h3>Valor em pipeline</h3><div class="value" data-k="pipeline">—</div><small>soma dos negócios</small></div><div class="kpi-ic">$</div></div></article>
+    <article class="kpi"><div class="kpi-top"><div><h3>Conversas WhatsApp</h3><div class="value" data-k="conversas">—</div><small>espelhadas</small></div><div class="kpi-ic">◌</div></div></article>
+  </section>
 
-<section class="panel" style="margin-bottom:14px"><div class="panel-head"><div><h3>Atenção necessária</h3></div><span class="badge red">5 itens</span></div>
-<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:11px;padding:14px">
-<div class="alert-cell"><div class="ai badge red">⏱</div><div><div class="value" style="font-size:22px;font-weight:950;color:var(--red)">128</div><strong style="font-size:12px;color:#172554">Leads sem atendimento</strong><div style="font-size:10px;color:var(--gray500)">há mais de 24h</div></div></div><div class="alert-cell"><div class="ai badge green"><span class="wa-ico"></span></div><div><div class="value" style="font-size:22px;font-weight:950;color:var(--green)">73</div><strong style="font-size:12px;color:#172554">Conversas WhatsApp</strong><div style="font-size:10px;color:var(--gray500)">pendentes de retorno</div></div></div><div class="alert-cell"><div class="ai badge orange">📁</div><div><div class="value" style="font-size:22px;font-weight:950;color:var(--orange)">34</div><strong style="font-size:12px;color:#172554">Negócios parados</strong><div style="font-size:10px;color:var(--gray500)">há mais de 7 dias</div></div></div><div class="alert-cell"><div class="ai badge blue">🏠</div><div><div class="value" style="font-size:22px;font-weight:950;color:var(--blue)">112</div><strong style="font-size:12px;color:#172554">Imóveis incompletos</strong><div style="font-size:10px;color:var(--gray500)">sem fotos ou descrição</div></div></div><div class="alert-cell"><div class="ai badge purple">🤖</div><div><div class="value" style="font-size:22px;font-weight:950;color:var(--purple)">18</div><strong style="font-size:12px;color:#172554">IA sem treinamento</strong><div style="font-size:10px;color:var(--gray500)">atualizar</div></div></div>
-</div></section>
+  <section class="grid2">
+    <div class="panel"><div class="panel-head"><h3>Funil geral</h3><span class="tag">por etapa</span></div><div class="funnel" id="funnel"><div class="empty">Carregando…</div></div></div>
+    <div class="panel"><div class="panel-head"><h3>Origem dos leads</h3><span class="tag">distribuição real</span></div><div class="olist" id="origem"><div class="empty">Carregando…</div></div></div>
+  </section>
 
-<section class="layout">
-<section style="display:grid;gap:14px;min-width:0">
-  <div style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px">
-    <section class="panel"><div class="panel-head"><div><h3>Funil Geral de Leads</h3></div><span class="badge blue">conversão 3,6%</span></div>
-      <div class="scrollx" style="padding:16px"><div class="fstage "><div class="fi">👥</div><div class="num" style="font-weight:950;font-size:18px">1.754</div><div style="font-weight:900;font-size:11px;color:var(--blue)">100%</div><div style="font-size:9px;margin-top:3px;opacity:.7">Novo Lead</div></div><span class="fconn">›</span><div class="fstage "><div class="fi">✨</div><div class="num" style="font-weight:950;font-size:18px">876</div><div style="font-weight:900;font-size:11px;color:var(--blue)">49,9%</div><div style="font-size:9px;margin-top:3px;opacity:.7">IA Qualificado</div></div><span class="fconn">›</span><div class="fstage "><div class="fi">✔</div><div class="num" style="font-weight:950;font-size:18px">532</div><div style="font-weight:900;font-size:11px;color:var(--blue)">30,3%</div><div style="font-size:9px;margin-top:3px;opacity:.7">Qualificado</div></div><span class="fconn">›</span><div class="fstage "><div class="fi">🎧</div><div class="num" style="font-weight:950;font-size:18px">312</div><div style="font-weight:900;font-size:11px;color:var(--blue)">17,8%</div><div style="font-size:9px;margin-top:3px;opacity:.7">Em Atendimento</div></div><span class="fconn">›</span><div class="fstage "><div class="fi">📅</div><div class="num" style="font-weight:950;font-size:18px">148</div><div style="font-weight:900;font-size:11px;color:var(--blue)">8,4%</div><div style="font-size:9px;margin-top:3px;opacity:.7">Visita Agendada</div></div><span class="fconn">›</span><div class="fstage "><div class="fi">📄</div><div class="num" style="font-weight:950;font-size:18px">86</div><div style="font-weight:900;font-size:11px;color:var(--blue)">4,9%</div><div style="font-size:9px;margin-top:3px;opacity:.7">Proposta</div></div><span class="fconn">›</span><div class="fstage last"><div class="fi">🏆</div><div class="num" style="font-weight:950;font-size:18px">63</div><div style="font-weight:900;font-size:11px;color:#fff">3,6%</div><div style="font-size:9px;margin-top:3px;opacity:.7">Fechado</div></div></div>
-    </section>
-    <section class="panel"><div class="panel-head"><div><h3>Origem dos leads</h3></div></div>
-      <div style="display:flex;flex-direction:column;align-items:center;padding:16px"><div class="donut" style="background:conic-gradient(#16a56f 0% 42.1%,#ec4899 42.1% 60.8%,#0b66ff 60.8% 76%,#f59e0b 76% 88.3%,#64748b 88.3% 95.89999999999999%,#7257ff 95.89999999999999% 99.99999999999999%)"><div class="hole"><div class="num" style="font-weight:950;font-size:20px">1.754</div><div style="font-size:10px;color:var(--gray500)">leads</div></div></div>
-      <div style="width:100%;margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0"><span style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:3px;background:#16a56f"></span>WhatsApp</span><span class="text" style="color:var(--gray500)"><strong style="color:#172554">42,1%</strong> · 738</span></div><div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0"><span style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:3px;background:#ec4899"></span>Instagram</span><span class="text" style="color:var(--gray500)"><strong style="color:#172554">18,7%</strong> · 328</span></div><div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0"><span style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:3px;background:#0b66ff"></span>Portal</span><span class="text" style="color:var(--gray500)"><strong style="color:#172554">15,2%</strong> · 267</span></div><div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0"><span style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:3px;background:#f59e0b"></span>Google</span><span class="text" style="color:var(--gray500)"><strong style="color:#172554">12,3%</strong> · 216</span></div><div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0"><span style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:3px;background:#64748b"></span>Site</span><span class="text" style="color:var(--gray500)"><strong style="color:#172554">7,6%</strong> · 133</span></div><div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0"><span style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:3px;background:#7257ff"></span>Indicação</span><span class="text" style="color:var(--gray500)"><strong style="color:#172554">4,1%</strong> · 72</span></div></div></div>
-    </section>
-  </div>
-  <div style="display:grid;grid-template-columns:340px minmax(0,1fr);gap:14px">
-    <section class="panel"><div class="panel-head"><div><h3>Ranking de Performance</h3></div></div><div class="table-wrap" style="padding:14px"><table style="min-width:0"><thead><tr><th>#</th><th>Imobiliária</th><th>Leads</th><th>Conv.</th><th>Receita</th></tr></thead><tbody><tr><td style="font-weight:950;color:var(--navy)">1</td><td style="font-weight:800">Cirag Boutique</td><td>325</td><td>12,4%</td><td style="font-weight:800">R$ 2,14M</td></tr><tr><td style="font-weight:950;color:var(--navy)">2</td><td style="font-weight:800">OMA Imóveis</td><td>241</td><td>9,8%</td><td style="font-weight:800">R$ 1,68M</td></tr><tr><td style="font-weight:950;color:var(--navy)">3</td><td style="font-weight:800">Lopes Imóveis</td><td>198</td><td>8,1%</td><td style="font-weight:800">R$ 1,37M</td></tr><tr><td style="font-weight:950;color:var(--navy)">4</td><td style="font-weight:800">Lello Imóveis</td><td>164</td><td>7,3%</td><td style="font-weight:800">R$ 1,12M</td></tr><tr><td style="font-weight:950;color:var(--navy)">5</td><td style="font-weight:800">Brava Company</td><td>93</td><td>6,5%</td><td style="font-weight:800">R$ 0,62M</td></tr></tbody></table></div></section>
-    <section class="panel"><div class="panel-head"><div><h3>Imobiliárias na Plataforma</h3></div><a class="badge blue" href="imobiliarias" style="text-decoration:none">Ver todas ›</a></div><div class="table-wrap" style="padding:14px"><table><thead><tr><th>Imobiliária</th><th>CRECI</th><th>Região</th><th>Status</th><th>WA</th><th>IA</th><th>Imóveis</th><th>Leads</th><th>Pipeline</th><th>Conv.</th></tr></thead><tbody id="vg-imob-tbody"><tr><td style="font-weight:800">Cirag Boutique Imobiliária</td><td>325194</td><td>Jardins · SP</td><td><span class="badge green">Ativa</span></td><td><span class="wa-ico"></span></td><td><span class="badge green">Ativa</span></td><td>286</td><td>325</td><td style="font-weight:800">R$ 2,14M</td><td>12,4%</td></tr><tr><td style="font-weight:800">OMA Imóveis</td><td>941-J</td><td>Bela Vista · SP</td><td><span class="badge green">Ativa</span></td><td><span class="wa-ico"></span></td><td><span class="badge green">Ativa</span></td><td>198</td><td>241</td><td style="font-weight:800">R$ 1,68M</td><td>9,8%</td></tr><tr><td style="font-weight:800">Lopes Imóveis (LPS SP)</td><td>024073-J</td><td>Moema · SP</td><td><span class="badge green">Ativa</span></td><td><span class="wa-ico"></span></td><td><span class="badge green">Ativa</span></td><td>372</td><td>198</td><td style="font-weight:800">R$ 1,37M</td><td>8,1%</td></tr><tr><td style="font-weight:800">Lello Imóveis</td><td>—</td><td>Mooca · SP</td><td><span class="badge orange">Implantando</span></td><td><span class="wa-ico"></span></td><td><span class="badge green">Ativa</span></td><td>121</td><td>164</td><td style="font-weight:800">R$ 1,12M</td><td>7,3%</td></tr><tr><td style="font-weight:800">Brava Company</td><td>—</td><td>Pinheiros · SP</td><td><span class="badge orange">Atenção</span></td><td><span class="wa-ico"></span></td><td><span class="badge green">Ativa</span></td><td>89</td><td>93</td><td style="font-weight:800">R$ 0,62M</td><td>6,5%</td></tr></tbody></table></div></section>
-  </div>
-</section>
-<aside class="right-stack" style="grid-template-columns:1fr">
-  <section class="panel"><div class="panel-head"><div><h3>✦ Insights da IA</h3></div></div><div class="rules"><div class="rule"><div class="r-ico">📍</div><div><strong>Maior demanda por região</strong><span>Jardins lidera com 24% dos leads, seguido por Moema (18%).</span></div></div><div class="rule"><div class="r-ico">$</div><div><strong>Faixa de preço mais buscada</strong><span>Imóveis entre R$ 800 mil e R$ 1,5 mi representam 41% das buscas qualificadas.</span></div></div><div class="rule"><div class="r-ico">📈</div><div><strong>Oportunidade detectada</strong><span>Alto interesse por imóveis com 2 dormitórios na Mooca.</span></div></div></div></section>
-  <section class="panel"><div class="panel-head"><div><h3>📅 Agenda do Hub</h3></div></div><div class="side-list"><div class="side-row"><div><strong>Visitas agendadas</strong><span>hoje</span></div><div class="count blue">15</div></div><div class="side-row"><div><strong>Follow-ups</strong><span>pendentes</span></div><div class="count blue">28</div></div><div class="side-row"><div><strong>Implantações</strong><span>em andamento</span></div><div class="count blue">3</div></div></div></section>
-</aside>
-</section>
-<script>(function(){
-  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-  function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
-  Promise.all([fetch('/api/data?ent=imobiliarias&action=list').then(function(r){return r.json();}),fetch('/api/data?ent=imoveis&action=list').then(function(r){return r.json();})]).then(function(a){
-    var imobs=(a[0]&&a[0].rows)||[], imv=(a[1]&&a[1].rows)||[];
-    if(!imobs.length) return;
-    var cont=function(id){return imv.filter(function(x){return x.imobiliaria_id===id;}).length;};
-    var stOf=function(r){return (r.extra&&r.extra.status)||r.status||'Ativa';};
-    var pausada=imobs.filter(function(r){return /pausad/i.test(stOf(r));}).length;
-    var implant=imobs.filter(function(r){return /implant|atenç/i.test(stOf(r));}).length;
-    var ativas=imobs.length-pausada-implant;
-    set('vg-imob-total',imobs.length); set('vg-imob-ativas',ativas); set('vg-imob-implant',implant); set('vg-imob-pausada',pausada);
-    var tb=document.getElementById('vg-imob-tbody');
-    if(tb){ tb.innerHTML=imobs.map(function(r){var st=stOf(r);var sc=/atenç|pausad/i.test(st)?'orange':/implant/i.test(st)?'orange':'green';var reg=(r.extra&&r.extra.regiao)||r.cidade||'';return '<tr><td style="font-weight:800">'+esc(r.nome)+'</td><td>'+esc(r.creci||'—')+'</td><td>'+esc(reg)+'</td><td><span class="badge '+sc+'">'+esc(st)+'</span></td><td><span class="wa-ico"></span></td><td><span class="badge green">Ativa</span></td><td>'+cont(r.id)+'</td><td>—</td><td>—</td><td>—</td></tr>';}).join(''); }
-    if(window.hubIcons) window.hubIcons();
-  }).catch(function(){});
-})();</script>
+  <section class="grid2b">
+    <div class="panel"><div class="panel-head"><h3>Ranking por imobiliária</h3><span class="tag">negócios no funil</span></div><div id="ranking"><div class="empty">Carregando…</div></div></div>
+    <div class="panel"><div class="panel-head"><h3>Situação dos leads</h3><span class="tag">por status</span></div><div class="olist" id="statusLeads"><div class="empty">Carregando…</div></div></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h3>Imobiliárias na plataforma</h3><span class="tag" id="imobCount">—</span></div>
+    <div class="table-wrap"><table><thead><tr><th>Imobiliária</th><th>Cidade</th><th>Imóveis</th><th>Leads</th><th>Status</th></tr></thead><tbody id="imobRows"><tr><td colspan="5" class="empty">Carregando…</td></tr></tbody></table></div>
+  </section>
 </main>
 </div>
-<script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script><script src="hub.js" defer></script></body></html>
+
+<script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script>
+<script src="hub.js" defer></script>
+<script>/*vg-real*/(function(){
+  var DATA="/api/data", DASH="/api/dash", WA="/api/wa";
+  var CORES=['#0b66ff','#16a56f','#f59e0b','#7257ff','#ec4899','#64748b','#0ea5e9','#e94242'];
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function brl(v){return 'R$ '+Math.round(v).toLocaleString('pt-BR');}
+  function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
+  function get(ent){return fetch(DATA+'?ent='+ent+'&action=list',{cache:'no-store'}).then(function(r){return r.ok?r.json():{rows:[]};}).then(function(d){return d.rows||[];}).catch(function(){return [];});}
+
+  Promise.all([
+    get('imobiliarias'), get('leads'), get('imoveis'), get('fontes'),
+    fetch(DASH,{cache:'no-store'}).then(function(r){return r.json();}).catch(function(){return {};}),
+    fetch(DASH+'?action=funil',{cache:'no-store'}).then(function(r){return r.json();}).catch(function(){return {cards:[]};}),
+    fetch(WA+'?action=chats',{cache:'no-store'}).then(function(r){return r.json();}).catch(function(){return {chats:[]};})
+  ]).then(function(a){
+    var imobs=a[0],leads=a[1],imoveis=a[2],fontes=a[3];
+    var etapas=(a[4]&&a[4].funil&&a[4].funil.etapas)||[];
+    var cards=(a[5]&&a[5].cards)||[];
+    var chats=(a[6]&&a[6].chats)||[];
+
+    kset('imob',imobs.length);
+    var ativas=imobs.filter(function(i){return (i.status||'')!=='Pausado';}).length;
+    document.getElementById('imobBreak').textContent=ativas+' ativas · '+(imobs.length-ativas)+' pausadas';
+    document.getElementById('imobPill').textContent=imobs.length+' imobiliárias';
+    kset('leads',leads.length);
+    var qual=leads.filter(function(l){return /qualif/i.test(l.status||'');}).length;
+    document.getElementById('leadsBreak').textContent=qual+' qualificados';
+    kset('imoveis',imoveis.length);
+    kset('negocios',cards.length);
+    kset('pipeline',brl(cards.reduce(function(s,c){return s+(Number(c.valor)||0);},0)));
+    kset('conversas',chats.length);
+
+    var fn=document.getElementById('funnel');
+    if(etapas.length){
+      var base=(etapas[0]&&etapas[0].negocios)||cards.length||0;
+      fn.innerHTML=etapas.map(function(e,i){
+        var n=e.negocios!=null?e.negocios:cards.filter(function(c){return c.etapa===e.key;}).length;
+        var pct=base?Math.round(n/base*100):0;
+        return (i?'<span class="farrow">›</span>':'')+'<div class="fstep"><div class="fn">'+esc(e.nome)+'</div><div class="fv">'+n+'</div><div class="fp">'+pct+'%</div></div>';
+      }).join('');
+    } else fn.innerHTML='<div class="empty">Sem dados de funil.</div>';
+
+    var fmap={}; fontes.forEach(function(f){fmap[f.id]=f.nome||f.canal;});
+    var byF={}; leads.forEach(function(l){var k=fmap[l.fonte_id]||'Sem origem';byF[k]=(byF[k]||0)+1;});
+    var ord=Object.keys(byF).map(function(k){return {n:k,c:byF[k]};}).sort(function(x,y){return y.c-x.c;});
+    document.getElementById('origem').innerHTML=ord.length?ord.map(function(o,i){var pct=leads.length?Math.round(o.c/leads.length*100):0;return '<div class="orow"><span class="odot" style="background:'+CORES[i%CORES.length]+'"></span><span class="on">'+esc(o.n)+'</span><span class="oc">'+o.c+'</span><span class="op">'+pct+'%</span></div>';}).join(''):'<div class="empty">Sem leads ainda.</div>';
+
+    var byImob={}; cards.forEach(function(c){var k=c.imob_nome||'—';(byImob[k]=byImob[k]||{n:0,v:0}).n++;byImob[k].v+=(Number(c.valor)||0);});
+    var rank=Object.keys(byImob).map(function(k){return {nome:k,n:byImob[k].n,v:byImob[k].v};}).sort(function(x,y){return y.n-x.n;}).slice(0,5);
+    document.getElementById('ranking').innerHTML=rank.length?rank.map(function(r,i){return '<div class="rank"><div class="pos">'+(i+1)+'</div><div><strong>'+esc(r.nome)+'</strong><span>'+r.n+' negócios'+(r.v?' · '+brl(r.v):'')+'</span></div></div>';}).join(''):'<div class="empty">Sem negócios ainda.</div>';
+
+    var byS={}; leads.forEach(function(l){var k=l.status||'sem status';byS[k]=(byS[k]||0)+1;});
+    var so=Object.keys(byS).map(function(k){return {n:k,c:byS[k]};}).sort(function(x,y){return y.c-x.c;});
+    document.getElementById('statusLeads').innerHTML=so.length?so.map(function(o,i){var pct=leads.length?Math.round(o.c/leads.length*100):0;return '<div class="orow"><span class="odot" style="background:'+CORES[i%CORES.length]+'"></span><span class="on">'+esc(o.n)+'</span><span class="oc">'+o.c+'</span><span class="op">'+pct+'%</span></div>';}).join(''):'<div class="empty">Sem leads ainda.</div>';
+
+    var imovByImob={},leadByImob={};
+    imoveis.forEach(function(m){imovByImob[m.imobiliaria_id]=(imovByImob[m.imobiliaria_id]||0)+1;});
+    leads.forEach(function(l){leadByImob[l.imobiliaria_id]=(leadByImob[l.imobiliaria_id]||0)+1;});
+    document.getElementById('imobCount').textContent=imobs.length+' no total';
+    var tb=document.getElementById('imobRows');
+    tb.innerHTML=imobs.length?imobs.map(function(i){
+      var st=(i.status||'')==='Pausado'?'<span class="badge orange">Pausado</span>':'<span class="badge green">Ativo</span>';
+      return '<tr><td class="strong">'+esc(i.nome)+'</td><td>'+esc(i.cidade||'—')+'</td><td>'+(imovByImob[i.id]||0)+'</td><td>'+(leadByImob[i.id]||0)+'</td><td>'+st+'</td></tr>';
+    }).join(''):'<tr><td colspan="5" class="empty">Nenhuma imobiliária cadastrada.</td></tr>';
+  });
+
+  var tt=document.getElementById('themeToggle');
+  function syncIcon(){tt.textContent=(window.hubTheme&&window.hubTheme.get()==='dark')?'☀️':'🌙';}
+  syncIcon();tt.addEventListener('click',function(){if(window.hubTheme){window.hubTheme.toggle();syncIcon();}});
+})();</script>
+</body>
+</html>
