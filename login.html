@@ -2,7 +2,13 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AiLogic Hub · Acesso</title>
+<title>AiLogic Hub · Acesso</title><link rel="icon" href="/assets/favicon.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#061936">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AiLogic Hub">
 <script src="/api/config"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/auth.js"></script>
@@ -55,6 +61,20 @@ body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-heigh
 .err{color:#e94242;font-size:12.5px;font-weight:600;margin-top:12px;min-height:16px;text-align:center}
 .foot{margin-top:24px;text-align:center;font-size:11.5px;color:#94a3b8}
 .badge-sec{display:inline-flex;align-items:center;gap:6px;margin-top:18px;font-size:11px;color:var(--green);font-weight:700;background:#eafaf3;border:1px solid #c8efdd;padding:6px 11px;border-radius:999px}
+/* botão minimalista de instalar o app */
+.install-wrap{margin-top:18px;text-align:center}
+.install-btn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 16px;border:1.5px solid var(--gray300);border-radius:11px;background:#fff;color:#334155;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:border .15s,color .15s,box-shadow .15s,background .15s}
+.install-btn:hover{border-color:var(--blue);color:var(--blue);box-shadow:0 6px 16px rgba(11,102,255,.14)}
+.install-btn svg{width:16px;height:16px}
+/* popover de instruções para iOS */
+.ios-tip{position:fixed;inset:0;z-index:50;display:none;place-items:center;background:rgba(6,25,54,.42);backdrop-filter:blur(3px);padding:20px}
+.ios-tip.show{display:grid}
+.ios-tip .box{max-width:320px;background:#fff;border-radius:18px;padding:24px 22px;box-shadow:0 30px 70px rgba(6,25,54,.35);text-align:center;animation:inUp .35s cubic-bezier(.22,.61,.36,1) both}
+.ios-tip .box h3{margin:0 0 8px;font-size:16px;font-weight:800;color:#0f172a}
+.ios-tip .box p{margin:0;font-size:13px;line-height:1.6;color:var(--gray500)}
+.ios-tip .box .sh{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:var(--blue2);color:var(--blue);margin:14px 5px 4px;vertical-align:middle}
+.ios-tip .box .arw{color:#94a3b8;font-weight:800}
+.ios-tip .box button{margin-top:18px;height:42px;width:100%;border:0;border-radius:12px;background:linear-gradient(135deg,#0b66ff,#074cd1);color:#fff;font:inherit;font-weight:800;font-size:13.5px;cursor:pointer}
 /* animações */
 @keyframes float1{50%{transform:translate(-24px,30px)}}
 @keyframes float2{50%{transform:translate(26px,-22px)}}
@@ -72,7 +92,7 @@ body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-heigh
 <body>
   <section class="brandside">
     <div class="glow g1"></div><div class="glow g2"></div><div class="grid-bg"></div>
-    <div class="bs-top logo"><div class="mk">AI</div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
+    <div class="bs-top logo"><div class="mk"><img src="/assets/logo-mark.png" alt="AiLogic Hub" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block"></div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
     <div class="bs-mid hero">
       <h1>A operação imobiliária inteira, orquestrada por IA.</h1>
       <p>Leads, qualificação, funil, imóveis, WhatsApp e repasses de todas as imobiliárias parceiras — em um só Hub.</p>
@@ -99,8 +119,23 @@ body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-heigh
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
       <div class="err" id="err"></div>
       <div class="foot">Acesso restrito · ambiente monitorado e auditado<br><span class="badge-sec"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s7-3.2 7-9V6l-7-3-7 3v6c0 5.8 7 9 7 9Z"/></svg>Conexão segura</span></div>
+      <div class="install-wrap" id="installWrap" style="display:none">
+        <button type="button" class="install-btn" id="installBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          Instalar app
+        </button>
+      </div>
     </form>
   </section>
+
+  <!-- instruções de instalação para iOS (Safari não expõe prompt automático) -->
+  <div class="ios-tip" id="iosTip">
+    <div class="box">
+      <h3>Instalar no iPhone / iPad</h3>
+      <p>Toque em <span class="sh"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="m8 7 4-4 4 4"/><path d="M4 13v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/></svg></span> <span class="arw">→</span> e escolha <strong>“Adicionar à Tela de Início”</strong>.</p>
+      <button type="button" id="iosTipClose">Entendi</button>
+    </div>
+  </div>
 
 <script>
 document.getElementById('form').addEventListener('submit',async function(e){
@@ -123,6 +158,61 @@ document.getElementById('form').addEventListener('submit',async function(e){
     err.textContent=msg; btn.innerHTML=original; btn.disabled=false;
   }
 });
+</script>
+
+<script>
+/* ---- Instalação do app (PWA) ---- */
+(function(){
+  var wrap=document.getElementById('installWrap');
+  var btn=document.getElementById('installBtn');
+  var iosTip=document.getElementById('iosTip');
+  var iosClose=document.getElementById('iosTipClose');
+  if(!wrap||!btn) return;
+
+  // registra o service worker (necessário para o prompt de instalação no Android/Chrome)
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',function(){
+      navigator.serviceWorker.register('/sw.js').catch(function(){});
+    });
+  }
+
+  var ua=navigator.userAgent||'';
+  var isIOS=/iP(hone|ad|od)/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  var isStandalone=(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone===true;
+  var deferredPrompt=null;
+
+  // já instalado → não mostra nada
+  if(isStandalone) return;
+
+  // Android / Chrome / Edge: captura o evento e revela o botão
+  window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault();
+    deferredPrompt=e;
+    wrap.style.display='block';
+  });
+
+  // iOS: não há beforeinstallprompt → mostra botão que abre instruções
+  if(isIOS){ wrap.style.display='block'; }
+
+  btn.addEventListener('click',async function(){
+    if(deferredPrompt){
+      deferredPrompt.prompt();
+      try{ await deferredPrompt.userChoice; }catch(_){}
+      deferredPrompt=null;
+      wrap.style.display='none';
+      return;
+    }
+    if(isIOS){ iosTip.classList.add('show'); return; }
+    // fallback (navegador ainda não disponibilizou o prompt)
+    iosTip.classList.add('show');
+  });
+
+  if(iosClose){ iosClose.addEventListener('click',function(){ iosTip.classList.remove('show'); }); }
+  if(iosTip){ iosTip.addEventListener('click',function(e){ if(e.target===iosTip) iosTip.classList.remove('show'); }); }
+
+  // instalado com sucesso → esconde o botão
+  window.addEventListener('appinstalled',function(){ wrap.style.display='none'; });
+})();
 </script>
 </body>
 </html>
