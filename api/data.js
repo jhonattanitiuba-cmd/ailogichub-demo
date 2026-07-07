@@ -69,10 +69,18 @@ function negOut(r) {
     fechado_em: r.fechado_em, created_at: r.created_at
   };
 }
-const TABLE = { imobiliarias: 'imobiliarias', imoveis: 'imoveis', corretores: 'usuarios', leads: 'leads', fontes: 'fontes_lead', negocios: 'negocios' };
-const OUT = { imobiliarias: imobOut, imoveis: imovOut, corretores: corOut, leads: leadOut, fontes: fonteOut, negocios: negOut };
+function atividadeOut(r) {
+  return { id: r.id, imobiliaria_id: r.imobiliaria_id, lead_id: r.lead_id, negocio_id: r.negocio_id, responsavel_id: r.responsavel_id, titulo: r.titulo, tipo: r.tipo, inicio: r.inicio, fim: r.fim, concluida: r.concluida, created_at: r.created_at };
+}
+function contratoOut(r) {
+  return { id: r.id, imobiliaria_id: r.imobiliaria_id, negocio_id: r.negocio_id, status_assinatura: r.status_assinatura, assinado_em: r.assinado_em, url_assinado: r.url_assinado, created_at: r.created_at };
+}
+const TABLE = { imobiliarias: 'imobiliarias', imoveis: 'imoveis', corretores: 'usuarios', leads: 'leads', fontes: 'fontes_lead', negocios: 'negocios', agenda: 'atividades', contratos: 'contratos' };
+const OUT = { imobiliarias: imobOut, imoveis: imovOut, corretores: corOut, leads: leadOut, fontes: fonteOut, negocios: negOut, agenda: atividadeOut, contratos: contratoOut };
 // tabelas que têm coluna deleted_at (soft delete)
 const SOFT = new Set(['imobiliarias', 'imoveis', 'usuarios', 'leads', 'negocios']);
+// entidades somente-leitura (bloqueiam save)
+const READONLY = new Set(['fontes', 'negocios', 'agenda', 'contratos']);
 
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
@@ -109,7 +117,7 @@ module.exports = async (req, res) => {
 
     // ---- SAVE (insert/update) ----
     if (action === 'save') {
-      if (ent === 'fontes' || ent === 'negocios') { res.status(400).json({ error: 'save nao suportado para ' + ent + ' (somente leitura)' }); return; }
+      if (READONLY.has(ent)) { res.status(400).json({ error: 'save nao suportado para ' + ent + ' (somente leitura)' }); return; }
       if (ent === 'leads') {
         const o = body;
         if (!o.nome) { res.status(400).json({ error: 'nome obrigatorio' }); return; }
