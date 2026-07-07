@@ -95,10 +95,18 @@ module.exports = async (req, res) => {
     let body = req.body; if (typeof body === 'string') { try { body = JSON.parse(body); } catch (_) { body = {}; } }
     body = body || {};
 
-    // ---- LIST ----
+    // ---- LIST (com escopo RBAC) ----
     if (action === 'list') {
-      const where = SOFT.has(TABLE[ent]) ? 'where deleted_at is null' : '';
-      const r = await db(`select * from ${TABLE[ent]} ${where} order by created_at`);
+      const conds = [], params = [];
+      if (SOFT.has(TABLE[ent])) conds.push('deleted_at is null');
+      if (!user.isAdmin) {
+        if (!user.imobiliariaId) { res.status(200).json({ rows: [] }); return; } // sem escopo definido -> nada
+        const col = (ent === 'imobiliarias') ? 'id' : 'imobiliaria_id';
+        params.push(user.imobiliariaId);
+        conds.push(col + ' = $' + params.length);
+      }
+      const where = conds.length ? 'where ' + conds.join(' and ') : '';
+      const r = await db(`select * from ${TABLE[ent]} ${where} order by created_at`, params);
       res.status(200).json({ rows: r.rows.map(OUT[ent]) });
       return;
     }
@@ -107,6 +115,12 @@ module.exports = async (req, res) => {
     if (action === 'delete') {
       const id = body.id || (req.query && req.query.id);
       if (!id) { res.status(400).json({ error: 'id obrigatorio' }); return; }
+      if (!user.isAdmin) {
+        if (!user.imobiliariaId) { res.status(403).json({ error: 'sem permissao' }); return; }
+        const col = (ent === 'imobiliarias') ? 'id' : 'imobiliaria_id';
+        const chk = await db(`select 1 from ${TABLE[ent]} where id=$1 and ${col}=$2`, [id, user.imobiliariaId]);
+        if (!chk.rows[0]) { res.status(403).json({ error: 'sem permissao sobre este registro' }); return; }
+      }
       if (ent === 'imobiliarias') {
         const vc = await db(`select (select count(*) from usuarios where imobiliaria_id=$1 and deleted_at is null) cor, (select count(*) from imoveis where imobiliaria_id=$1 and deleted_at is null) imo`, [id]);
         const cor = +vc.rows[0].cor, imo = +vc.rows[0].imo;
@@ -120,6 +134,19 @@ module.exports = async (req, res) => {
     // ---- SAVE (insert/update) ----
     if (action === 'save') {
       if (READONLY.has(ent)) { res.status(400).json({ error: 'save nao suportado para ' + ent + ' (somente leitura)' }); return; }
+      // RBAC: não-admin fica preso à própria imobiliária
+      if (!user.isAdmin) {
+        if (!user.imobiliariaId) { res.status(403).json({ error: 'sem permissao' }); return; }
+        if (ent === 'imobiliarias') {
+          if (!body.id || String(body.id) !== String(user.imobiliariaId)) { res.status(403).json({ error: 'sem permissao' }); return; }
+        } else {
+          if (body.id) {
+            const chk = await db(`select 1 from ${TABLE[ent]} where id=$1 and imobiliaria_id=$2`, [body.id, user.imobiliariaId]);
+            if (!chk.rows[0]) { res.status(403).json({ error: 'sem permissao sobre este registro' }); return; }
+          }
+          body.imobiliaria_id = user.imobiliariaId; // força escopo
+        }
+      }
       if (ent === 'leads') {
         const o = body;
         if (!o.nome) { res.status(400).json({ error: 'nome obrigatorio' }); return; }

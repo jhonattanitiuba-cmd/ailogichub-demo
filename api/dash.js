@@ -17,12 +17,20 @@ module.exports = async (req, res) => {
       body = body || {};
       const id = body.id, etapa = body.etapa;
       if (!id || !etapa) { res.status(400).json({ error: 'id e etapa obrigatorios' }); return; }
+      if (!user.isAdmin) {
+        if (!user.imobiliariaId) { res.status(403).json({ error: 'sem permissao' }); return; }
+        const chk = await db('select 1 from funil_negocios where id=$1 and imobiliaria_id=$2', [id, user.imobiliariaId]);
+        if (!chk.rows[0]) { res.status(403).json({ error: 'sem permissao sobre este registro' }); return; }
+      }
       await db('update funil_negocios set etapa=$1 where id=$2', [etapa, id]);
       res.status(200).json({ ok: true });
       return;
     }
     if (action === 'funil') {
-      const r = await db('select id, imob_nome, lead_nome, imovel_desc, imovel_codigo, corretor_nome, valor, etapa, origem, tentativas, sla, status_label, ultimo_contato, motivo_perda from funil_negocios order by criado_em');
+      if (!user.isAdmin && !user.imobiliariaId) { res.status(200).json({ cards: [] }); return; }
+      const scope = (!user.isAdmin) ? ' where imobiliaria_id=$1' : '';
+      const params = (!user.isAdmin) ? [user.imobiliariaId] : [];
+      const r = await db('select id, imob_nome, lead_nome, imovel_desc, imovel_codigo, corretor_nome, valor, etapa, origem, tentativas, sla, status_label, ultimo_contato, motivo_perda from funil_negocios' + scope + ' order by criado_em', params);
       res.status(200).json({ cards: r.rows.map(x => ({ ...x, valor: x.valor != null ? Number(x.valor) : null })) });
       return;
     }

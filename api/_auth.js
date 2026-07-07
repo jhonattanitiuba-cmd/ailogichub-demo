@@ -1,8 +1,15 @@
-// AI LOGIC HUB — Guard de autenticação server-side (Supabase Auth / GoTrue)
-// Verifica o access_token (JWT) do usuário chamando o GoTrue self-hosted.
-// Segredos/config via env vars da Vercel: SUPABASE_URL, SUPABASE_ANON_KEY.
+// AI LOGIC HUB — Guard de autenticação + RBAC (Supabase Auth / GoTrue)
+// Verifica o access_token do usuário e resolve perfil + imobiliária para
+// permitir que cada API filtre os dados por permissão.
+// Config via env vars: SUPABASE_URL, SUPABASE_ANON_KEY, DB_URL.
+const { Client } = require('pg');
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const DB_URL = process.env.DB_URL || '';
+
+// perfis com acesso total (veem todas as imobiliárias)
+const ADMIN_ROLES = ['admin', 'administrador', 'diretor', 'diretoria', 'dono', 'owner', 'super'];
+function isAdminRole(p) { return ADMIN_ROLES.indexOf(String(p || '').toLowerCase()) >= 0; }
 
 function bearer(req) {
   const h = (req.headers && (req.headers.authorization || req.headers.Authorization)) || '';
@@ -10,7 +17,13 @@ function bearer(req) {
   return m ? m[1].trim() : null;
 }
 
-// Retorna o usuário autenticado (objeto do GoTrue) ou null.
+async function db(q, p) {
+  const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
+  await c.connect();
+  try { return await c.query(q, p); } finally { try { await c.end(); } catch (_) {} }
+}
+
+// valida o token no GoTrue e retorna o usuário do Supabase (ou null)
 async function getUser(req) {
   try {
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
@@ -24,7 +37,30 @@ async function getUser(req) {
   } catch (_) { return null; }
 }
 
-// Uso no handler:  const user = await requireAuth(req, res); if (!user) return;
+// resolve perfil + imobiliaria_id a partir da tabela usuarios (fonte de
+// verdade) com fallback para o user_metadata do Supabase.
+async function resolveScope(user) {
+  const meta = (user && user.user_metadata) || {};
+  let perfil = meta.perfil || null;
+  let imobiliariaId = meta.imobiliaria_id || null;
+  try {
+    if (DB_URL && user && user.id) {
+      const r = await db('select perfil, imobiliaria_id from usuarios where auth_user_id=$1 and deleted_at is null limit 1', [user.id]);
+      if (r.rows[0]) {
+        perfil = r.rows[0].perfil || perfil;
+        if (r.rows[0].imobiliaria_id) imobiliariaId = r.rows[0].imobiliaria_id;
+      }
+    }
+  } catch (_) {}
+  const isAdmin = isAdminRole(perfil);
+  return {
+    user: user, authId: user && user.id, email: user && user.email,
+    perfil: perfil, imobiliariaId: imobiliariaId, isAdmin: isAdmin
+  };
+}
+
+// Uso no handler:  const ctx = await requireAuth(req, res); if (!ctx) return;
+// ctx.isAdmin -> vê tudo;  ctx.imobiliariaId -> escopo do usuário.
 async function requireAuth(req, res) {
   const user = await getUser(req);
   if (!user) {
@@ -32,7 +68,7 @@ async function requireAuth(req, res) {
     res.status(401).json({ error: 'nao autenticado' });
     return null;
   }
-  return user;
+  return await resolveScope(user);
 }
 
-module.exports = { getUser, requireAuth };
+module.exports = { getUser, requireAuth, isAdminRole };
