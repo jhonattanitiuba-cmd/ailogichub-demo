@@ -60,10 +60,19 @@ function leadOut(r) {
 function fonteOut(r) {
   return { id: r.id, imobiliaria_id: r.imobiliaria_id, nome: r.nome, canal: r.canal, ativo: r.ativo };
 }
-const TABLE = { imobiliarias: 'imobiliarias', imoveis: 'imoveis', corretores: 'usuarios', leads: 'leads', fontes: 'fontes_lead' };
-const OUT = { imobiliarias: imobOut, imoveis: imovOut, corretores: corOut, leads: leadOut, fontes: fonteOut };
+function negOut(r) {
+  return {
+    id: r.id, imobiliaria_id: r.imobiliaria_id, lead_id: r.lead_id, imovel_id: r.imovel_id,
+    responsavel_id: r.responsavel_id, etapa_funil: r.etapa_funil,
+    valor: r.valor != null ? Number(r.valor) : null, comissao: r.comissao != null ? Number(r.comissao) : null,
+    rlor: r.rlor != null ? Number(r.rlor) : null, motivo_perda: r.motivo_perda,
+    fechado_em: r.fechado_em, created_at: r.created_at
+  };
+}
+const TABLE = { imobiliarias: 'imobiliarias', imoveis: 'imoveis', corretores: 'usuarios', leads: 'leads', fontes: 'fontes_lead', negocios: 'negocios' };
+const OUT = { imobiliarias: imobOut, imoveis: imovOut, corretores: corOut, leads: leadOut, fontes: fonteOut, negocios: negOut };
 // tabelas que têm coluna deleted_at (soft delete)
-const SOFT = new Set(['imobiliarias', 'imoveis', 'usuarios', 'leads']);
+const SOFT = new Set(['imobiliarias', 'imoveis', 'usuarios', 'leads', 'negocios']);
 
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
@@ -100,7 +109,7 @@ module.exports = async (req, res) => {
 
     // ---- SAVE (insert/update) ----
     if (action === 'save') {
-      if (ent === 'fontes') { res.status(400).json({ error: 'save nao suportado para fontes' }); return; }
+      if (ent === 'fontes' || ent === 'negocios') { res.status(400).json({ error: 'save nao suportado para ' + ent + ' (somente leitura)' }); return; }
       if (ent === 'leads') {
         const o = body;
         if (!o.nome) { res.status(400).json({ error: 'nome obrigatorio' }); return; }
