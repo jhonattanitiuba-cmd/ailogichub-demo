@@ -1,84 +1,62 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><script src="/api/config"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/auth.js"></script>
-<script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script><script>document.documentElement.classList.add("hub-pre");setTimeout(function(){document.documentElement.classList.remove("hub-pre")},4000);</script>
+<head>
+<script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('ailogic_theme')||'light')}catch(e){}</script>
+<script src="/api/config"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/auth.js"></script>
+<script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script>
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AiLogic Hub · Pessoas & Contatos</title><link rel="icon" href="/assets/favicon.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<title>AiLogic Hub · Pessoas &amp; Contatos</title><link rel="icon" href="/assets/favicon.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <style>
-:root{
-  --navy:#061936;--navy2:#09224b;--blue:#0b66ff;--blue2:#eaf2ff;--green:#16a56f;--green2:#eafaf3;
-  --orange:#f59e0b;--orange2:#fff7e6;--red:#e94242;--red2:#fff0f0;--purple:#7257ff;--purple2:#f1efff;
-  --cyan:#0ea5e9;--cyan2:#ecfeff;--gray900:#0f172a;--gray700:#334155;--gray500:#64748b;
-  --gray300:#d9e2ef;--gray200:#edf2f7;--gray100:#f7f9fc;--white:#fff;
-  --shadow:0 14px 34px rgba(15,23,42,.08);--soft:0 8px 22px rgba(15,23,42,.055);
-  --radius:18px;--font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:var(--font);background:#f6f9fd;color:var(--gray900)}
-.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
-.sidebar{background:linear-gradient(180deg,#071b3a,#031126);color:#dce8ff;padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto}
-.brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}
-.logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
-.brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#a8c2ee;font-size:12px;margin-top:3px}
-.section-title{font-size:11px;color:#7da2d6;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:24px 10px 10px}
-.nav-item{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:13px;color:#c8d8f4;font-weight:650;font-size:14px;margin:4px 0;text-decoration:none}
-.nav-item.active{background:linear-gradient(135deg,#0a66ff,#0851cc);color:#fff;box-shadow:0 10px 28px rgba(11,102,255,.28)}
-.ico{width:21px;text-align:center}.support{margin-top:34px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);border-radius:16px;padding:15px;display:flex;gap:12px;align-items:center}
-.support small{color:#9bb7e3;display:block;margin-top:2px}.profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0}
-.avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:white;display:grid;place-items:center;font-weight:800}
-.profile strong{color:white;font-size:13px;display:block}.profile span{color:#9bb7e3;font-size:11px}
-.main{padding:22px 26px 36px;overflow:hidden}.header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}
-.headline h1{margin:0;font-size:28px;letter-spacing:-.03em}.headline p{margin:7px 0 0;color:var(--gray500);font-size:14px;max-width:900px}
-.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.pill,.btn,select,input{border:1px solid var(--gray300);background:#fff;border-radius:12px;height:42px;padding:0 14px;font:inherit;color:var(--gray700);outline:none}
-.pill{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;white-space:nowrap;box-shadow:var(--soft)}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(22,165,111,.12)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-weight:850;color:var(--navy);box-shadow:var(--soft)}
-.btn.primary{background:linear-gradient(135deg,#082653,#061936);border-color:#061936;color:white}.btn.blue{background:linear-gradient(135deg,#0b66ff,#074cd1);border-color:#0b66ff;color:white}
-.btn.ghost{box-shadow:none;background:#fbfdff}.btn.danger{color:var(--red);background:#fff;border-color:#ffd8d8}
-.kpis{display:grid;grid-template-columns:repeat(6,minmax(145px,1fr));gap:14px;margin:18px 0}
-.kpi{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);padding:16px 17px;box-shadow:var(--soft);min-height:112px}
-.kpi-top{display:flex;justify-content:space-between;gap:8px}.kpi h3{margin:0;color:#1d2b4f;font-size:12px}
-.kpi .value{margin:8px 0 4px;font-size:25px;font-weight:950;letter-spacing:-.04em}.trend{font-size:11px;color:var(--green);font-weight:850}.trend.red{color:var(--red)}.trend.orange{color:#b86b00}
-.kpi-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950}
-.panel{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-.panel-head{padding:15px 16px;border-bottom:1px solid var(--gray200);display:flex;justify-content:space-between;align-items:center;gap:12px}
-.panel-head h2,.panel-head h3{margin:0;font-size:16px;letter-spacing:-.02em}.panel-head small{display:block;margin-top:3px;color:var(--gray500);font-size:12px}
-.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:950;white-space:nowrap}
-.badge.green{background:var(--green2);color:var(--green)}.badge.blue{background:var(--blue2);color:var(--blue)}.badge.orange{background:var(--orange2);color:#b86b00}.badge.red{background:var(--red2);color:var(--red)}.badge.purple{background:var(--purple2);color:var(--purple)}.badge.cyan{background:var(--cyan2);color:var(--cyan)}.badge.gray{background:#eef2f7;color:var(--gray700)}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:14px;align-items:start}.right-stack{display:grid;gap:14px}
-.toolbar{display:flex;flex-wrap:wrap;gap:10px;padding:14px 16px;border-bottom:1px solid var(--gray200);align-items:center;background:#fbfdff}
-.tabs{display:flex;gap:6px;overflow:auto}.tabs button{border:0;background:#edf3fb;color:var(--gray700);border-radius:999px;padding:9px 11px;font-weight:850;font-size:12px;cursor:pointer;white-space:nowrap}
-.tabs button.active{background:var(--navy);color:#fff}.search{min-width:320px;flex:1;height:40px}.toolbar select{height:40px;font-size:12px;min-width:135px}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(250px,1fr));gap:14px;padding:16px}.card{border:1px solid var(--gray200);border-radius:18px;background:#fff;padding:14px;box-shadow:var(--soft)}
-.card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}.card h3{margin:0;color:#172554;font-size:15px;line-height:1.25}.card p{margin:5px 0 0;color:var(--gray500);font-size:12px;line-height:1.45}
-.card-icon{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;flex:0 0 auto}
-.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.metric{background:#fbfdff;border:1px solid var(--gray200);border-radius:13px;padding:8px;text-align:center}.metric strong{display:block;color:#172554;font-size:14px}.metric span{display:block;color:var(--gray500);font-size:10px;margin-top:3px}
-.table-wrap{padding:0 16px 16px;overflow:auto}table{border-collapse:separate;border-spacing:0;width:100%;min-width:880px;background:#fff;border:1px solid var(--gray200);border-radius:16px;overflow:hidden}
-th,td{padding:12px 13px;border-bottom:1px solid #eef3f9;text-align:left;font-size:12px;vertical-align:middle}th{color:#475569;background:#fbfdff;font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:900}tr:last-child td{border-bottom:0}tr:hover td{background:#fbfdff}
-.side-list{padding:10px 14px 14px;display:grid;gap:8px}.side-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #eef3f9}.side-row:last-child{border-bottom:0}
-.side-row strong{display:block;color:#172554;font-size:12px}.side-row span{display:block;color:var(--gray500);font-size:11px;margin-top:2px;line-height:1.35}
-.count{font-weight:950;min-width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:#f1f5f9;color:var(--gray700);font-size:12px}.count.red{background:var(--red2);color:var(--red)}.count.orange{background:var(--orange2);color:#b86b00}.count.green{background:var(--green2);color:var(--green)}.count.blue{background:var(--blue2);color:var(--blue)}
-.rules{display:grid;gap:8px;padding:14px}.rule{display:flex;gap:10px;border:1px solid var(--gray200);border-radius:14px;background:#fbfdff;padding:10px}.rule .r-ico{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;flex:0 0 auto}
-.rule strong{display:block;color:#172554;font-size:12px}.rule span{display:block;color:var(--gray500);font-size:11px;margin-top:3px;line-height:1.35}
-.timeline{padding:10px 14px 14px;display:grid;gap:9px}.timeline-item{border-left:3px solid var(--blue);padding:2px 0 2px 10px}.timeline-item.red{border-left-color:var(--red)}.timeline-item.orange{border-left-color:var(--orange)}.timeline-item.green{border-left-color:var(--green)}
-.timeline-item strong{font-size:12px;display:block;color:#172554}.timeline-item span{font-size:11px;color:var(--gray500);display:block;margin-top:3px;line-height:1.35}
-.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px}.field label{display:block;font-size:12px;font-weight:850;color:#172554;margin-bottom:6px}.field input,.field select{width:100%;height:42px;box-shadow:none}.field.full{grid-column:1/-1}.field textarea{width:100%;min-height:90px;border:1px solid var(--gray300);border-radius:12px;padding:12px 14px;font:inherit;outline:none;resize:vertical}
-.detail{margin-top:14px}.detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--gray200)}.detail-item{padding:13px 14px;border-right:1px solid var(--gray200)}.detail-item:last-child{border-right:0}.detail-item label{display:block;color:var(--gray500);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}.detail-item strong{display:block;color:#172554;font-size:12px}.detail-item span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
-@media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,minmax(250px,1fr))}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.right-stack{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.grid,.right-stack,.detail-grid,.form-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
+:root{--bg:#f6f9fd;--panel:#fff;--panel2:#fbfdff;--border:#eef2f7;--border2:#dfe7f2;--text:#0f172a;--heading:#172554;--muted:#64748b;--blue:#0b66ff;--blueSoft:#eaf2ff;--green:#16a56f;--greenSoft:#eafaf3;--orange:#f59e0b;--orangeSoft:#fff7e6;--purple:#7257ff;--purpleSoft:#f1efff;--shadow:0 14px 34px rgba(15,23,42,.08);--soft:0 6px 18px rgba(15,23,42,.05);}
+:root[data-theme="dark"]{--bg:#0a1020;--panel:#111a2e;--panel2:#0d1526;--border:#1f2c48;--border2:#26344f;--text:#e7eefb;--heading:#fff;--muted:#8b9bb9;--blue:#3b82f6;--blueSoft:rgba(59,130,246,.16);--green:#22c55e;--greenSoft:rgba(34,197,94,.15);--orange:#f59e0b;--orangeSoft:rgba(245,158,11,.15);--purple:#a78bfa;--purpleSoft:rgba(167,139,250,.15);--shadow:0 14px 34px rgba(0,0,0,.4);--soft:0 6px 18px rgba(0,0,0,.3);}
+*{box-sizing:border-box}html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text)}a{text-decoration:none;color:inherit}
+.app{display:grid;grid-template-columns:262px 1fr;height:100vh;overflow:hidden}
+.sidebar{background:linear-gradient(180deg,#0a1a38,#050c1c);color:#cddcf5;padding:24px 18px;height:100vh;overflow:auto;border-right:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:30px}.logo{width:44px;height:44px;border-radius:13px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
+.brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#8fb0e6;font-size:12px;margin-top:3px}
+.section-title{font-size:11px;color:#6f8cba;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:22px 10px 10px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:12px;color:#b7c9e8;font-weight:650;font-size:14px;margin:3px 0}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff}.nav-item.active{background:linear-gradient(135deg,#0a66ff,#0748bb);color:#fff;box-shadow:0 10px 26px rgba(11,102,255,.35)}.ico{width:22px;text-align:center}
+.profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0;margin-top:20px;border-top:1px solid rgba(255,255,255,.08)}.avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:#fff;display:grid;place-items:center;font-weight:800}.profile strong{color:#fff;font-size:13px;display:block}.profile span{color:#8fb0e6;font-size:11px}
+.main{padding:22px 26px 30px;height:100vh;overflow:auto;display:flex;flex-direction:column}
+.header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
+.headline h1{margin:0;font-size:25px;letter-spacing:-.03em;color:var(--heading)}.headline p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.icon-btn{width:38px;height:38px;border:1px solid var(--border2);background:var(--panel);border-radius:11px;display:grid;place-items:center;cursor:pointer;font-size:16px;color:var(--text)}.icon-btn:hover{filter:brightness(1.08)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:16px}
+.kpi{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:15px 16px;box-shadow:var(--soft)}
+.kpi h3{margin:0;color:var(--muted);font-size:11.5px;font-weight:700}.kpi .value{margin:7px 0 2px;font-size:24px;font-weight:900;letter-spacing:-.03em;color:var(--heading)}.kpi small{color:var(--muted);font-size:10.5px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--soft);overflow:hidden;flex:1;display:flex;flex-direction:column;min-height:0}
+.toolbar{padding:13px 15px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.inp{height:40px;border:1px solid var(--border2);border-radius:11px;padding:0 13px;font:inherit;font-size:13px;color:var(--text);background:var(--panel2);outline:none}
+.inp:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--blueSoft)}.search{flex:1;min-width:220px}
+.table-wrap{overflow:auto;flex:1;min-height:0}table{border-collapse:separate;border-spacing:0;width:100%;min-width:760px}
+th,td{padding:12px 15px;border-bottom:1px solid var(--border);text-align:left;font-size:12.5px;color:var(--text)}
+th{position:sticky;top:0;color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;font-weight:800;background:var(--panel2);z-index:1}
+tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{font-weight:700;color:var(--heading)}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 9px;font-size:10.5px;font-weight:800}
+.badge.blue{background:var(--blueSoft);color:var(--blue)}.badge.green{background:var(--greenSoft);color:var(--green)}.badge.purple{background:var(--purpleSoft);color:var(--purple)}.badge.gray{background:var(--border);color:var(--muted)}
+.empty{padding:30px;text-align:center;color:var(--muted);font-size:13px}
+.modal-bg{position:fixed;inset:0;background:rgba(3,8,20,.62);backdrop-filter:blur(4px);display:none;place-items:center;z-index:60;padding:20px}.modal-bg.open{display:grid}
+.modal{width:460px;max-width:94vw;max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--border2);border-radius:18px;box-shadow:var(--shadow)}
+.modal-h{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.modal-h h3{margin:0;font-size:19px;color:var(--heading)}.modal-h p{margin:4px 0 0;color:var(--muted);font-size:12.5px}
+.modal-x{cursor:pointer;color:var(--muted);font-size:22px;background:none;border:0}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+.mcell{background:var(--panel);padding:13px 18px}.mcell.full{grid-column:1/-1}.mcell label{display:block;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}.mcell strong{font-size:13.5px;color:var(--text);font-weight:650}
+.modal-f{padding:15px 18px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border)}
+.btn{height:38px;border:1px solid var(--border2);background:var(--panel2);border-radius:11px;padding:0 16px;font:inherit;font-weight:750;font-size:12.5px;color:var(--text);cursor:pointer}
+@media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto}.main{height:auto}.sidebar{height:auto}.kpis{grid-template-columns:repeat(2,1fr)}}
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="hub.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
-<body>
-<div class="app">
-<aside class="sidebar">
+<body><div class="app"><aside class="sidebar">
   <div class="brand"><div class="logo"><img src="/assets/logo-mark.png" alt="AiLogic Hub" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block"></div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
   <div class="section-title">Operação</div>
   <a class="nav-item" href="visaogeral"><span class="ico">⌂</span>Visão Geral</a>
   <a class="nav-item" href="imobiliarias"><span class="ico">▥</span>Imobiliárias</a>
-  <a class="nav-item" href="corretores"><span class="ico">♟</span>Corretores & Equipes</a>
-  <a class="nav-item" href="pessoas"><span class="ico">♙</span>Pessoas & Contatos</a>
+  <a class="nav-item" href="corretores"><span class="ico">♟</span>Corretores &amp; Equipes</a>
+  <a class="nav-item" href="pessoas"><span class="ico">♙</span>Pessoas &amp; Contatos</a>
   <a class="nav-item" href="leads"><span class="ico">◎</span>Leads</a>
   <a class="nav-item" href="funil"><span class="ico">▽</span>Funil de Negócios</a>
   <a class="nav-item" href="agenda"><span class="ico">▦</span>Agenda</a>
@@ -91,77 +69,105 @@ th,td{padding:12px 13px;border-bottom:1px solid #eef3f9;text-align:left;font-siz
   <a class="nav-item" href="assinaturas"><span class="ico">✍</span>Assinaturas · Docs</a>
   <a class="nav-item" href="anuncios"><span class="ico">↗</span>Anúncios · Rodízios</a>
   <div class="section-title">Inteligência</div>
-  <a class="nav-item" href="credito"><span class="ico">$</span>Crédito & Financiamento</a>
+  <a class="nav-item" href="credito"><span class="ico">$</span>Crédito &amp; Financiamento</a>
   <a class="nav-item" href="locacao"><span class="ico">⇆</span>Locação Online</a>
   <a class="nav-item" href="relatorios"><span class="ico">↟</span>Relatórios</a>
   <a class="nav-item" href="insights"><span class="ico">✦</span>Insights da IA</a>
   <div class="section-title">Plataforma</div>
-  <a class="nav-item" href="integracoes"><span class="ico">⇄</span>Integrações & Automações</a>
+  <a class="nav-item" href="integracoes"><span class="ico">⇄</span>Integrações &amp; Automações</a>
   <a class="nav-item" href="site"><span class="ico">🌐</span>Site do Hub</a>
-  <a class="nav-item" href="financeiro"><span class="ico">R$</span>Financeiro & Repasses</a>
-  <a class="nav-item" href="suporte"><span class="ico">?</span>Suporte & Treinamento</a>
+  <a class="nav-item" href="financeiro"><span class="ico">R$</span>Financeiro &amp; Repasses</a>
+  <a class="nav-item" href="suporte"><span class="ico">?</span>Suporte &amp; Treinamento</a>
   <a class="nav-item" href="administrador"><span class="ico">⚙</span>Administrador</a>
   <a class="nav-item" href="config-ia"><span class="ico">◈</span>Configurações · IA</a>
-  <div class="support"><div class="ico">☏</div><div><strong>Suporte</strong><small>Central de Ajuda</small></div></div>
-  <div class="profile"><div class="avatar">AF</div><div><strong>Alessandro Ferreira</strong><span>Diretoria · Admin do Hub</span></div></div>
+  <div class="profile"><div class="avatar">AL</div><div><strong>AiLogic Hub</strong><span>Acesso protegido</span></div></div>
 </aside>
+
 <main class="main">
   <header class="header">
-    <div class="headline"><h1>Pessoas & Contatos</h1><p>Base única de relacionamento do Hub: clientes, proprietários, compradores, locatários, investidores, fiadores, parceiros e histórico completo.</p></div>
-    <div class="actions"><div class="pill"><span class="dot"></span>Sistema ativo · 6 imobiliárias</div><button class="btn">Importar contatos</button><button class="btn primary">＋ Novo contato</button></div>
+    <div class="headline"><h1>Pessoas &amp; Contatos</h1><p>Visão unificada de clientes (leads) e equipe (corretores) — dados reais.</p></div>
+    <div class="head-actions"><button class="icon-btn" id="themeToggle" title="Alternar tema">🌙</button></div>
   </header>
-  <section class="kpis"><article class="kpi"><div class="kpi-top"><div><h3>Contatos totais</h3><div class="value">2.184</div><div class="trend ">base consolidada</div></div><div class="kpi-icon">♙</div></div></article><article class="kpi"><div class="kpi-top"><div><h3>Leads quentes</h3><div class="value">146</div><div class="trend ">exigem prioridade</div></div><div class="kpi-icon">🔥</div></div></article><article class="kpi"><div class="kpi-top"><div><h3>Sem LGPD</h3><div class="value">37</div><div class="trend orange">corrigir consentimento</div></div><div class="kpi-icon">!</div></div></article><article class="kpi"><div class="kpi-top"><div><h3>Duplicados</h3><div class="value">14</div><div class="trend red">unificar cadastros</div></div><div class="kpi-icon">⛔</div></div></article><article class="kpi"><div class="kpi-top"><div><h3>Interações</h3><div class="value">8.420</div><div class="trend ">WhatsApp/e-mail/agenda</div></div><div class="kpi-icon">⇄</div></div></article><article class="kpi"><div class="kpi-top"><div><h3>Score médio</h3><div class="value">81%</div><div class="trend ">qualificação IA</div></div><div class="kpi-icon">✓</div></div></article></section>
-  <section class="layout">
-    <section>
-<section class="panel">
-  <div class="panel-head"><div><h2>Base única de pessoas do Hub</h2><small>Clientes, proprietários, investidores, locatários, fiadores, parceiros e contatos relacionados ao funil.</small></div><span class="badge green">CRM central</span></div>
-  <div class="toolbar">
-    <div class="tabs"><button class="active">Todos 2.184</button><button>Compradores</button><button>Proprietários</button><button>Locatários</button><button>Investidores</button><button>Sem LGPD</button></div>
-    <input class="search" placeholder="Buscar pessoa, telefone, e-mail, CPF/CNPJ, imóvel ou origem..." />
-    <select><option>Todas as imobiliárias</option><option>Cirag Boutique</option><option>OMA Imóveis</option><option>Lopes Imóveis</option></select>
-    <select><option>Status: todos</option><option>Lead quente</option><option>Em atendimento</option><option>Cliente ativo</option><option>Inativo</option></select>
-  </div>
-  <div class="grid">
-    <article class="card"><div class="card-top"><div><h3>Carlos Mendes</h3><p>Comprador · busca apartamento 3 dorms na Vila Mariana até R$ 750 mil.</p></div><span class="badge green">Lead quente</span></div><div class="metrics"><div class="metric"><strong>4</strong><span>interações</span></div><div class="metric"><strong>2</strong><span>imóveis</span></div><div class="metric"><strong>84%</strong><span>score</span></div></div></article>
-    <article class="card"><div class="card-top"><div><h3>Mariana Lima</h3><p>Compradora · proposta em negociação com OMA Imóveis. Necessita simulação.</p></div><span class="badge orange">Proposta</span></div><div class="metrics"><div class="metric"><strong>7</strong><span>interações</span></div><div class="metric"><strong>1</strong><span>proposta</span></div><div class="metric"><strong>92%</strong><span>score</span></div></div></article>
-    <article class="card"><div class="card-top"><div><h3>Roberto Almeida</h3><p>Proprietário · autorizou captação de casa em Pinheiros com exclusividade.</p></div><span class="badge blue">Proprietário</span></div><div class="metrics"><div class="metric"><strong>1</strong><span>imóvel</span></div><div class="metric"><strong>OK</strong><span>LGPD</span></div><div class="metric"><strong>R$1,9M</strong><span>valor</span></div></div></article>
-    <article class="card"><div class="card-top"><div><h3>Fernanda Costa</h3><p>Lead qualificado pelo WhatsApp · precisa de retorno humano em até 15 minutos.</p></div><span class="badge red">SLA</span></div><div class="metrics"><div class="metric"><strong>31m</strong><span>sem retorno</span></div><div class="metric"><strong>3</strong><span>tentativas</span></div><div class="metric"><strong>Alta</strong><span>prioridade</span></div></div></article>
-    <article class="card"><div class="card-top"><div><h3>Aline Rocha</h3><p>Cliente em contrato · documentos em assinatura digital e follow-up pós-venda.</p></div><span class="badge purple">Contrato</span></div><div class="metrics"><div class="metric"><strong>100%</strong><span>docs</span></div><div class="metric"><strong>R$980k</strong><span>negócio</span></div><div class="metric"><strong>Hoje</strong><span>assina</span></div></div></article>
-    <article class="card"><div class="card-top"><div><h3>Julio Cardoso</h3><p>Locatário · contrato finalizado; possível indicação para nova locação.</p></div><span class="badge green">Fechado</span></div><div class="metrics"><div class="metric"><strong>1</strong><span>contrato</span></div><div class="metric"><strong>5★</strong><span>pós-venda</span></div><div class="metric"><strong>Sim</strong><span>indicação</span></div></div></article>
-  </div>
-</section>
-<section class="panel detail"><div class="panel-head"><div><h3>Campos obrigatórios do contato</h3><small>O desenvolvedor deve tratar essa base como entidade central conectada a leads, imóveis, WhatsApp, e-mails, agenda e documentos.</small></div></div>
-<div class="detail-grid">
-  <div class="detail-item"><label>Identidade</label><strong>Nome, CPF/CNPJ, tipo</strong><span>comprador, vendedor, locatário, investidor</span></div>
-  <div class="detail-item"><label>Contato</label><strong>WhatsApp, e-mail</strong><span>canais verificados e preferenciais</span></div>
-  <div class="detail-item"><label>Interesse</label><strong>região, tipo, ticket</strong><span>perfil de compra/locação</span></div>
-  <div class="detail-item"><label>Origem</label><strong>campanha, indicação, portal</strong><span>atribuição comercial</span></div>
-  <div class="detail-item"><label>Consentimento</label><strong>LGPD</strong><span>data, fonte e aceite</span></div>
-  <div class="detail-item"><label>Histórico</label><strong>timeline única</strong><span>todas as interações</span></div>
-</div></section>
-</section>
-    <aside class="right-stack">
-<section class="panel"><div class="panel-head"><div><h3>Alertas</h3><small>Pessoas que exigem ação</small></div></div><div class="side-list">
-  <div class="side-row"><div><strong>Sem retorno humano</strong><span>leads qualificados aguardando corretor</span></div><div class="count red">9</div></div>
-  <div class="side-row"><div><strong>Sem LGPD</strong><span>cadastros incompletos</span></div><div class="count orange">37</div></div>
-  <div class="side-row"><div><strong>Duplicados suspeitos</strong><span>mesmo telefone/e-mail</span></div><div class="count red">14</div></div>
-</div></section>
-<section class="panel"><div class="panel-head"><div><h3>Regras</h3><small>Base única</small></div></div><div class="rules">
-  <div class="rule"><div class="r-ico">1</div><div><strong>Uma pessoa, vários papéis</strong><span>O mesmo cadastro pode ser comprador, proprietário e investidor.</span></div></div>
-  <div class="rule"><div class="r-ico">2</div><div><strong>Timeline obrigatória</strong><span>Toda interação vira histórico auditável.</span></div></div>
-  <div class="rule"><div class="r-ico">3</div><div><strong>LGPD antes de campanha</strong><span>Comunicação ativa exige consentimento registrado.</span></div></div>
-</div></section>
-<section class="panel"><div class="panel-head"><div><h3>Próximas ações</h3></div></div><div class="timeline">
-  <div class="timeline-item red"><strong>Hoje</strong><span>Cobrar retorno de 9 leads quentes.</span></div>
-  <div class="timeline-item orange"><strong>Semanal</strong><span>Deduplicar contatos por telefone/e-mail.</span></div>
-  <div class="timeline-item green"><strong>Mensal</strong><span>Reativar investidores e proprietários inativos.</span></div>
-</div></section>
-</aside>
+
+  <section class="kpis">
+    <article class="kpi"><h3>Total de pessoas</h3><div class="value" data-k="total">—</div><small>clientes + equipe</small></article>
+    <article class="kpi"><h3>Clientes</h3><div class="value" data-k="clientes">—</div><small>leads no banco</small></article>
+    <article class="kpi"><h3>Equipe</h3><div class="value" data-k="equipe">—</div><small>corretores / usuários</small></article>
+    <article class="kpi"><h3>Com telefone</h3><div class="value" data-k="fone">—</div><small>contatáveis</small></article>
+  </section>
+
+  <section class="panel">
+    <div class="toolbar">
+      <input class="inp search" id="q" placeholder="Buscar nome, telefone ou e-mail..." />
+      <select class="inp" id="fTipo"><option value="">Todos</option><option value="cliente">Clientes</option><option value="equipe">Equipe</option></select>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Nome</th><th>Tipo</th><th>Telefone</th><th>E-mail</th><th>Imobiliária</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="5" class="empty">Carregando…</td></tr></tbody></table>
+    </div>
   </section>
 </main>
 </div>
 
+<div class="modal-bg" id="modal"><div class="modal">
+  <div class="modal-h"><div><h3 id="mTit">—</h3><p id="mSub">—</p></div><button class="modal-x" id="mClose">×</button></div>
+  <div class="mgrid" id="mGrid"></div>
+  <div class="modal-f"><button class="btn" id="mClose2">Fechar</button></div>
+</div></div>
+
 <script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script>
 <script src="hub.js" defer></script>
+<script>/*pes-real*/(function(){
+  var DATA="/api/data";
+  var pessoas=[],imobMap={},modal=document.getElementById('modal');
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
+  function get(ent){return fetch(DATA+'?ent='+ent+'&action=list',{cache:'no-store'}).then(function(r){return r.ok?r.json():{rows:[]};}).then(function(d){return d.rows||[];}).catch(function(){return [];});}
+  function fld(l,v,full){return '<div class="mcell'+(full?' full':'')+'"><label>'+l+'</label><strong>'+esc(v==null||v===''?'—':v)+'</strong></div>';}
+  function tipoBadge(t){return t==='equipe'?'<span class="badge purple">Equipe</span>':'<span class="badge blue">Cliente</span>';}
+
+  function renderRows(list){
+    var tb=document.getElementById('rows');
+    if(!list.length){tb.innerHTML='<tr><td colspan="5" class="empty">Nenhuma pessoa encontrada.</td></tr>';return;}
+    tb.innerHTML=list.map(function(p,ix){
+      return '<tr data-i="'+ix+'"><td class="strong">'+esc(p.nome||'—')+'</td><td>'+tipoBadge(p.tipo)+'</td><td>'+esc(p.telefone||'—')+'</td><td>'+esc(p.email||'—')+'</td><td>'+esc(imobMap[p.imobiliaria_id]||'—')+'</td></tr>';
+    }).join('');
+    Array.prototype.forEach.call(tb.querySelectorAll('tr'),function(tr){tr.addEventListener('click',function(){openIt(list[+tr.getAttribute('data-i')]);});});
+  }
+  function openIt(p){ if(!p)return;
+    document.getElementById('mTit').textContent=p.nome||'Pessoa';
+    document.getElementById('mSub').textContent=(p.tipo==='equipe'?'Equipe':'Cliente')+(p.papel?' · '+p.papel:'');
+    document.getElementById('mGrid').innerHTML=fld('Telefone',p.telefone)+fld('E-mail',p.email)+fld('Tipo',p.tipo==='equipe'?'Equipe':'Cliente')+fld('Papel/Status',p.papel)+fld('Imobiliária',imobMap[p.imobiliaria_id],true);
+    modal.classList.add('open');
+  }
+  function close_(){modal.classList.remove('open');}
+  document.getElementById('mClose').addEventListener('click',close_);document.getElementById('mClose2').addEventListener('click',close_);
+  modal.addEventListener('click',function(e){if(e.target===modal)close_();});document.addEventListener('keydown',function(e){if(e.key==='Escape')close_();});
+
+  function applyFilter(){
+    var q=document.getElementById('q').value.trim().toLowerCase(),tp=document.getElementById('fTipo').value;
+    renderRows(pessoas.filter(function(p){
+      if(tp&&p.tipo!==tp)return false;
+      if(!q)return true;return ((p.nome||'')+' '+(p.telefone||'')+' '+(p.email||'')).toLowerCase().indexOf(q)>=0;
+    }));
+  }
+  document.getElementById('q').addEventListener('input',applyFilter);document.getElementById('fTipo').addEventListener('change',applyFilter);
+
+  Promise.all([get('leads'),get('corretores'),get('imobiliarias')]).then(function(a){
+    a[2].forEach(function(i){imobMap[i.id]=i.nome;});
+    var cli=a[0].map(function(l){return {nome:l.nome,telefone:l.telefone,email:l.email,imobiliaria_id:l.imobiliaria_id,tipo:'cliente',papel:l.status};});
+    var eq=a[1].map(function(u){return {nome:u.nome,telefone:u.telefone,email:u.email,imobiliaria_id:u.imobiliaria_id,tipo:'equipe',papel:u.perfil||u.status};});
+    pessoas=cli.concat(eq).sort(function(x,y){return (x.nome||'').localeCompare(y.nome||'');});
+    kset('total',pessoas.length);
+    kset('clientes',cli.length);
+    kset('equipe',eq.length);
+    kset('fone',pessoas.filter(function(p){return p.telefone;}).length);
+    renderRows(pessoas);
+  });
+
+  var tt=document.getElementById('themeToggle');
+  function syncIcon(){tt.textContent=(window.hubTheme&&window.hubTheme.get()==='dark')?'☀️':'🌙';}
+  syncIcon();tt.addEventListener('click',function(){if(window.hubTheme){window.hubTheme.toggle();syncIcon();}});
+})();</script>
 </body>
 </html>
