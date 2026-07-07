@@ -1,69 +1,63 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><script src="/api/config"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/auth.js"></script>
-<script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script><script>document.documentElement.classList.add("hub-pre");setTimeout(function(){document.documentElement.classList.remove("hub-pre")},4000);</script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AiLogic Hub · Captação de Imóveis</title><link rel="icon" href="/assets/favicon.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-  <style>
-    :root{
-      --navy:#061936;--blue:#0b66ff;--blue2:#eaf2ff;--green:#16a56f;--green2:#eafaf3;
-      --orange:#f59e0b;--orange2:#fff7e6;--red:#e94242;--red2:#fff0f0;--purple:#7257ff;
-      --purple2:#f1efff;--cyan:#0ea5e9;--cyan2:#ecfeff;--gray900:#0f172a;--gray700:#334155;
-      --gray500:#64748b;--gray300:#d9e2ef;--gray200:#edf2f7;--white:#fff;
-      --shadow:0 14px 34px rgba(15,23,42,.08);--soft:0 8px 22px rgba(15,23,42,.055);
-      --radius:18px;--font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:var(--font);background:#f6f9fd;color:var(--gray900)}
-    .app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
-    .sidebar{background:linear-gradient(180deg,#071b3a,#031126);color:#dce8ff;padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto}
-    .brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}.logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
-    .brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#a8c2ee;font-size:12px;margin-top:3px}
-    .section-title{font-size:11px;color:#7da2d6;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:24px 10px 10px}
-    .nav-item{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:13px;color:#c8d8f4;font-weight:650;font-size:14px;margin:4px 0;text-decoration:none}
-    .nav-item.active{background:linear-gradient(135deg,#0a66ff,#0851cc);color:#fff;box-shadow:0 10px 28px rgba(11,102,255,.28)}
-    .ico{width:22px;text-align:center}.support{margin-top:34px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);border-radius:16px;padding:15px;display:flex;gap:12px;align-items:center}
-    .support small{color:#9bb7e3;display:block;margin-top:2px}.profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0}
-    .avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:white;display:grid;place-items:center;font-weight:800}
-    .profile strong{color:white;font-size:13px;display:block}.profile span{color:#9bb7e3;font-size:11px}
-    .main{padding:22px 26px 36px;overflow:hidden}.header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}
-    .headline h1{margin:0;font-size:28px;letter-spacing:-.03em}.headline p{margin:7px 0 0;color:var(--gray500);font-size:14px;max-width:980px;line-height:1.45}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.pill,.btn,select,input{border:1px solid var(--gray300);background:#fff;border-radius:12px;height:42px;padding:0 14px;font:inherit;color:var(--gray700);outline:none}
-    .pill{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;white-space:nowrap;box-shadow:var(--soft)}.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(22,165,111,.12)}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-weight:850;color:var(--navy);box-shadow:var(--soft)}
-    .btn.primary{background:linear-gradient(135deg,#082653,#061936);border-color:#061936;color:white}.btn.blue{background:linear-gradient(135deg,#0b66ff,#074cd1);border-color:#0b66ff;color:white}.btn.ghost{box-shadow:none;background:#fbfdff}.btn.danger{color:var(--red);background:#fff;border-color:#ffd8d8}
-    .kpis{display:grid;grid-template-columns:repeat(6,minmax(145px,1fr));gap:14px;margin:18px 0}.kpi{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);padding:16px 17px;box-shadow:var(--soft);min-height:112px}
-    .kpi-top{display:flex;justify-content:space-between;gap:8px}.kpi h3{margin:0;color:#1d2b4f;font-size:12px}.kpi .value{margin:8px 0 4px;font-size:25px;font-weight:950;letter-spacing:-.04em}
-    .trend{font-size:11px;color:var(--green);font-weight:850}.trend.red{color:var(--red)}.trend.orange{color:#b86b00}.kpi-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950}
-    .panel{background:#fff;border:1px solid var(--gray200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.panel-head{padding:15px 16px;border-bottom:1px solid var(--gray200);display:flex;justify-content:space-between;align-items:center;gap:12px}
-    .panel-head h2,.panel-head h3{margin:0;font-size:16px;letter-spacing:-.02em}.panel-head small{display:block;margin-top:3px;color:var(--gray500);font-size:12px}
-    .badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:950;white-space:nowrap}
-    .badge.green{background:var(--green2);color:var(--green)}.badge.blue{background:var(--blue2);color:var(--blue)}.badge.orange{background:var(--orange2);color:#b86b00}.badge.red{background:var(--red2);color:var(--red)}.badge.purple{background:var(--purple2);color:var(--purple)}.badge.cyan{background:var(--cyan2);color:var(--cyan)}.badge.gray{background:#eef2f7;color:var(--gray700)}
-    .layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;align-items:start}.right-stack{display:grid;gap:14px}
-    .toolbar{display:flex;flex-wrap:wrap;gap:10px;padding:14px 16px;border-bottom:1px solid var(--gray200);align-items:center;background:#fbfdff}.tabs{display:flex;gap:6px;overflow:auto}.tabs button{border:0;background:#edf3fb;color:var(--gray700);border-radius:999px;padding:9px 11px;font-weight:850;font-size:12px;cursor:pointer;white-space:nowrap}.tabs button.active{background:var(--navy);color:#fff}.search{min-width:320px;flex:1;height:40px}.toolbar select{height:40px;font-size:12px;min-width:135px}
-    .notice{display:flex;gap:12px;align-items:flex-start;margin:16px;padding:14px;border:1px solid #cfe0ff;background:#f0f6ff;border-radius:16px}.notice .nicon{width:34px;height:34px;border-radius:12px;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:950;flex:0 0 auto}.notice strong{display:block;color:#172554;font-size:13px}.notice p{margin:4px 0 0;color:#334155;font-size:12px;line-height:1.45}
-    .grid{display:grid;grid-template-columns:repeat(3,minmax(250px,1fr));gap:14px;padding:16px}.card{border:1px solid var(--gray200);border-radius:18px;background:#fff;padding:14px;box-shadow:var(--soft)}.card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}.card h3{margin:0;color:#172554;font-size:15px;line-height:1.25}.card p{margin:5px 0 0;color:var(--gray500);font-size:12px;line-height:1.45}
-    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.metric{background:#fbfdff;border:1px solid var(--gray200);border-radius:13px;padding:8px;text-align:center}.metric strong{display:block;color:#172554;font-size:14px}.metric span{display:block;color:var(--gray500);font-size:10px;margin-top:3px}
-    .flow{display:grid;grid-template-columns:repeat(8,minmax(135px,1fr));gap:10px;padding:16px;overflow:auto}.step{border:1px solid var(--gray200);border-radius:16px;background:#fff;padding:12px;min-height:112px}.step .num{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;margin-bottom:8px}.step strong{display:block;color:#172554;font-size:12px}.step span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
-    .table-wrap{padding:0 16px 16px;overflow:auto}table{border-collapse:separate;border-spacing:0;width:100%;min-width:1060px;background:#fff;border:1px solid var(--gray200);border-radius:16px;overflow:hidden}th,td{padding:12px 13px;border-bottom:1px solid #eef3f9;text-align:left;font-size:12px;vertical-align:middle}th{color:#475569;background:#fbfdff;font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:900}tr:last-child td{border-bottom:0}tr:hover td{background:#fbfdff}
-    .side-list{padding:10px 14px 14px;display:grid;gap:8px}.side-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #eef3f9}.side-row:last-child{border-bottom:0}.side-row strong{display:block;color:#172554;font-size:12px}.side-row span{display:block;color:var(--gray500);font-size:11px;margin-top:2px;line-height:1.35}.count{font-weight:950;min-width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:#f1f5f9;color:var(--gray700);font-size:12px}.count.red{background:var(--red2);color:var(--red)}.count.orange{background:var(--orange2);color:#b86b00}.count.green{background:var(--green2);color:var(--green)}.count.blue{background:var(--blue2);color:var(--blue)}
-    .rules{display:grid;gap:8px;padding:14px}.rule{display:flex;gap:10px;border:1px solid var(--gray200);border-radius:14px;background:#fbfdff;padding:10px}.rule .r-ico{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--blue2);color:var(--blue);font-weight:950;flex:0 0 auto}.rule strong{display:block;color:#172554;font-size:12px}.rule span{display:block;color:var(--gray500);font-size:11px;margin-top:3px;line-height:1.35}
-    .timeline{padding:10px 14px 14px;display:grid;gap:9px}.timeline-item{border-left:3px solid var(--blue);padding:2px 0 2px 10px}.timeline-item.red{border-left-color:var(--red)}.timeline-item.orange{border-left-color:var(--orange)}.timeline-item.green{border-left-color:var(--green)}.timeline-item strong{font-size:12px;display:block;color:#172554}.timeline-item span{font-size:11px;color:var(--gray500);display:block;margin-top:3px;line-height:1.35}
-    .detail{margin-top:14px}.detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--gray200)}.detail-item{padding:13px 14px;border-right:1px solid var(--gray200)}.detail-item:last-child{border-right:0}.detail-item label{display:block;color:var(--gray500);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}.detail-item strong{display:block;color:#172554;font-size:12px}.detail-item span{display:block;color:var(--gray500);font-size:11px;margin-top:4px;line-height:1.35}
-    @media(max-width:1550px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,minmax(250px,1fr))}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(3,1fr)}}@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.right-stack{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}}@media(max-width:720px){.main{padding:18px 14px}.header{flex-direction:column}.kpis,.grid,.right-stack,.detail-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.search{min-width:100%}}
-  </style>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="hub.css">
+<head>
+<script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('ailogic_theme')||'light')}catch(e){}</script>
+<script src="/api/config"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/auth.js"></script>
+<script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AiLogic Hub · Captação de Imóveis</title><link rel="icon" href="/assets/favicon.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<style>
+:root{--bg:#f6f9fd;--panel:#fff;--panel2:#fbfdff;--border:#eef2f7;--border2:#dfe7f2;--text:#0f172a;--heading:#172554;--muted:#64748b;--blue:#0b66ff;--blueSoft:#eaf2ff;--green:#16a56f;--greenSoft:#eafaf3;--orange:#f59e0b;--orangeSoft:#fff7e6;--red:#e94242;--redSoft:#fff0f0;--purple:#7257ff;--purpleSoft:#f1efff;--shadow:0 14px 34px rgba(15,23,42,.08);--soft:0 6px 18px rgba(15,23,42,.05);}
+:root[data-theme="dark"]{--bg:#0a1020;--panel:#111a2e;--panel2:#0d1526;--border:#1f2c48;--border2:#26344f;--text:#e7eefb;--heading:#fff;--muted:#8b9bb9;--blue:#3b82f6;--blueSoft:rgba(59,130,246,.16);--green:#22c55e;--greenSoft:rgba(34,197,94,.15);--orange:#f59e0b;--orangeSoft:rgba(245,158,11,.15);--red:#f87171;--redSoft:rgba(248,113,113,.15);--purple:#a78bfa;--purpleSoft:rgba(167,139,250,.15);--shadow:0 14px 34px rgba(0,0,0,.4);--soft:0 6px 18px rgba(0,0,0,.3);}
+*{box-sizing:border-box}html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text)}a{text-decoration:none;color:inherit}
+.app{display:grid;grid-template-columns:262px 1fr;height:100vh;overflow:hidden}
+.sidebar{background:linear-gradient(180deg,#0a1a38,#050c1c);color:#cddcf5;padding:24px 18px;height:100vh;overflow:auto;border-right:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:30px}.logo{width:44px;height:44px;border-radius:13px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
+.brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#8fb0e6;font-size:12px;margin-top:3px}
+.section-title{font-size:11px;color:#6f8cba;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:22px 10px 10px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:12px;color:#b7c9e8;font-weight:650;font-size:14px;margin:3px 0}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff}.nav-item.active{background:linear-gradient(135deg,#0a66ff,#0748bb);color:#fff;box-shadow:0 10px 26px rgba(11,102,255,.35)}.ico{width:22px;text-align:center}
+.profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0;margin-top:20px;border-top:1px solid rgba(255,255,255,.08)}.avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:#fff;display:grid;place-items:center;font-weight:800}.profile strong{color:#fff;font-size:13px;display:block}.profile span{color:#8fb0e6;font-size:11px}
+.main{padding:22px 26px 30px;height:100vh;overflow:auto;display:flex;flex-direction:column}
+.header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
+.headline h1{margin:0;font-size:25px;letter-spacing:-.03em;color:var(--heading)}.headline p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.icon-btn{width:38px;height:38px;border:1px solid var(--border2);background:var(--panel);border-radius:11px;display:grid;place-items:center;cursor:pointer;color:var(--text)}.icon-btn:hover{filter:brightness(1.08)}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:16px}
+.kpi{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:15px 16px;box-shadow:var(--soft)}
+.kpi h3{margin:0;color:var(--muted);font-size:11.5px;font-weight:700}.kpi .value{margin:7px 0 2px;font-size:23px;font-weight:900;letter-spacing:-.03em;color:var(--heading)}.kpi small{color:var(--muted);font-size:10.5px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--soft);overflow:hidden;flex:1;display:flex;flex-direction:column;min-height:0}
+.toolbar{padding:13px 15px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.inp{height:40px;border:1px solid var(--border2);border-radius:11px;padding:0 13px;font:inherit;font-size:13px;color:var(--text);background:var(--panel2);outline:none}
+.inp:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--blueSoft)}.search{flex:1;min-width:220px}
+.table-wrap{overflow:auto;flex:1;min-height:0}table{border-collapse:separate;border-spacing:0;width:100%;min-width:840px}
+th,td{padding:12px 15px;border-bottom:1px solid var(--border);text-align:left;font-size:12.5px;color:var(--text)}
+th{position:sticky;top:0;color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;font-weight:800;background:var(--panel2);z-index:1}
+td.num{text-align:right;font-variant-numeric:tabular-nums}th.num{text-align:right}
+tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{font-weight:700;color:var(--heading)}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 9px;font-size:10.5px;font-weight:800}
+.badge.green{background:var(--greenSoft);color:var(--green)}.badge.orange{background:var(--orangeSoft);color:#b8860b}.badge.blue{background:var(--blueSoft);color:var(--blue)}.badge.purple{background:var(--purpleSoft);color:var(--purple)}.badge.gray{background:var(--border);color:var(--muted)}
+.empty{padding:30px;text-align:center;color:var(--muted);font-size:13px}
+.modal-bg{position:fixed;inset:0;background:rgba(3,8,20,.62);backdrop-filter:blur(4px);display:none;place-items:center;z-index:60;padding:20px}.modal-bg.open{display:grid}
+.modal{width:480px;max-width:94vw;max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--border2);border-radius:18px;box-shadow:var(--shadow)}
+.modal-h{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.modal-h h3{margin:0;font-size:19px;color:var(--heading)}.modal-h p{margin:4px 0 0;color:var(--muted);font-size:12.5px}
+.modal-x{cursor:pointer;color:var(--muted);font-size:22px;background:none;border:0}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+.mcell{background:var(--panel);padding:13px 18px}.mcell.full{grid-column:1/-1}.mcell label{display:block;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}.mcell strong{font-size:13.5px;color:var(--text);font-weight:650}
+.modal-f{padding:15px 18px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border)}
+.btn{height:38px;border:1px solid var(--border2);background:var(--panel2);border-radius:11px;padding:0 16px;font:inherit;font-weight:750;font-size:12.5px;color:var(--text);cursor:pointer}
+@media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto}.main{height:auto}.sidebar{height:auto}.kpis{grid-template-columns:repeat(2,1fr)}}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
-<body>
-  <div class="app">
-    <aside class="sidebar">
+<body><div class="app"><aside class="sidebar">
   <div class="brand"><div class="logo"><img src="/assets/logo-mark.png" alt="AiLogic Hub" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block"></div><div><strong>AiLogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
   <div class="section-title">Operação</div>
   <a class="nav-item" href="visaogeral"><span class="ico">⌂</span>Visão Geral</a>
   <a class="nav-item" href="imobiliarias"><span class="ico">▥</span>Imobiliárias</a>
-  <a class="nav-item" href="corretores"><span class="ico">♟</span>Corretores & Equipes</a>
-  <a class="nav-item" href="pessoas"><span class="ico">♙</span>Pessoas & Contatos</a>
+  <a class="nav-item" href="corretores"><span class="ico">♟</span>Corretores &amp; Equipes</a>
+  <a class="nav-item" href="pessoas"><span class="ico">♙</span>Pessoas &amp; Contatos</a>
   <a class="nav-item" href="leads"><span class="ico">◎</span>Leads</a>
   <a class="nav-item" href="funil"><span class="ico">▽</span>Funil de Negócios</a>
   <a class="nav-item" href="agenda"><span class="ico">▦</span>Agenda</a>
@@ -72,248 +66,118 @@
   <div class="section-title">Catálogo</div>
   <a class="nav-item" href="imoveis"><span class="ico">▤</span>Imóveis</a>
   <a class="nav-item" href="mapa"><span class="ico">⌘</span>Mapa de Atuação</a>
-  <a class="nav-item" href="captacao"><span class="ico">🏠</span>Captação de Imóveis</a>
+  <a class="nav-item active" href="captacao"><span class="ico">🏠</span>Captação de Imóveis</a>
   <a class="nav-item" href="assinaturas"><span class="ico">✍</span>Assinaturas · Docs</a>
   <a class="nav-item" href="anuncios"><span class="ico">↗</span>Anúncios · Rodízios</a>
   <div class="section-title">Inteligência</div>
-  <a class="nav-item" href="credito"><span class="ico">$</span>Crédito & Financiamento</a>
+  <a class="nav-item" href="credito"><span class="ico">$</span>Crédito &amp; Financiamento</a>
   <a class="nav-item" href="locacao"><span class="ico">⇆</span>Locação Online</a>
   <a class="nav-item" href="relatorios"><span class="ico">↟</span>Relatórios</a>
   <a class="nav-item" href="insights"><span class="ico">✦</span>Insights da IA</a>
   <div class="section-title">Plataforma</div>
-  <a class="nav-item" href="integracoes"><span class="ico">⇄</span>Integrações & Automações</a>
+  <a class="nav-item" href="integracoes"><span class="ico">⇄</span>Integrações &amp; Automações</a>
   <a class="nav-item" href="site"><span class="ico">🌐</span>Site do Hub</a>
-  <a class="nav-item" href="financeiro"><span class="ico">R$</span>Financeiro & Repasses</a>
-  <a class="nav-item" href="suporte"><span class="ico">?</span>Suporte & Treinamento</a>
+  <a class="nav-item" href="financeiro"><span class="ico">R$</span>Financeiro &amp; Repasses</a>
+  <a class="nav-item" href="suporte"><span class="ico">?</span>Suporte &amp; Treinamento</a>
   <a class="nav-item" href="administrador"><span class="ico">⚙</span>Administrador</a>
   <a class="nav-item" href="config-ia"><span class="ico">◈</span>Configurações · IA</a>
-  <div class="support"><div class="ico">☏</div><div><strong>Suporte</strong><small>Central de Ajuda</small></div></div>
-  <div class="profile"><div class="avatar">AF</div><div><strong>Alessandro Ferreira</strong><span>Diretoria · Admin do Hub</span></div></div>
+  <div class="profile"><div class="avatar">AL</div><div><strong>AiLogic Hub</strong><span>Acesso protegido</span></div></div>
 </aside>
 
-    <main class="main">
-      <header class="header">
-        <div class="headline">
-          <h1>Captação de Imóveis</h1>
-          <p>Esteira para imóveis enviados em lote por imobiliárias e corretores, imóveis cadastrados individualmente e imóveis enviados diretamente por proprietários. Quando o proprietário cadastra sozinho, o Hub valida o imóvel e encontra a imobiliária ou corretor autônomo mais adequado para assumir visitas, atendimento e negociação.</p>
-        </div>
-        <div class="actions">
-          <div class="pill"><span class="dot"></span>Sistema ativo · uploads em lote + proprietários</div>
-          <button class="btn">Importar lote</button>
-          <button class="btn primary">＋ Cadastrar imóvel/proprietário</button>
-        </div>
-      </header>
+<main class="main">
+  <header class="header">
+    <div class="headline"><h1>Captação de Imóveis</h1><p>Imóveis captados por status, finalidade e tipo — dados reais do catálogo.</p></div>
+    <div class="head-actions"><button class="icon-btn" id="themeToggle" title="Alternar tema">🌙</button></div>
+  </header>
 
-      <section class="kpis">
-        <article class="kpi"><div class="kpi-top"><div><h3>Lotes recebidos</h3><div class="value">18</div><div class="trend">planilhas/API/XML</div></div><div class="kpi-icon">⇧</div></div></article>
-        <article class="kpi"><div class="kpi-top"><div><h3>Imóveis importados</h3><div class="value">1.248</div><div class="trend">em validação e catálogo</div></div><div class="kpi-icon">⌂</div></div></article>
-        <article class="kpi"><div class="kpi-top"><div><h3>Proprietários diretos</h3><div class="value">64</div><div class="trend">cadastro pelo site</div></div><div class="kpi-icon">♙</div></div></article>
-        <article class="kpi"><div class="kpi-top"><div><h3>Sem responsável</h3><div class="value">23</div><div class="trend orange">precisa match</div></div><div class="kpi-icon">?</div></div></article>
-        <article class="kpi"><div class="kpi-top"><div><h3>Duplicidades</h3><div class="value">31</div><div class="trend red">quarentena</div></div><div class="kpi-icon">!</div></div></article>
-        <article class="kpi"><div class="kpi-top"><div><h3>Prontos para publicar</h3><div class="value">684</div><div class="trend">score acima de 80</div></div><div class="kpi-icon">✓</div></div></article>
-      </section>
+  <section class="kpis">
+    <article class="kpi"><h3>Imóveis captados</h3><div class="value" data-k="total">—</div><small>no catálogo</small></article>
+    <article class="kpi"><h3>Disponíveis</h3><div class="value" data-k="disp">—</div><small>prontos p/ anúncio</small></article>
+    <article class="kpi"><h3>Para venda</h3><div class="value" data-k="venda">—</div><small>finalidade venda</small></article>
+    <article class="kpi"><h3>Para locação</h3><div class="value" data-k="locacao">—</div><small>finalidade locação</small></article>
+    <article class="kpi"><h3>Sem preço</h3><div class="value" data-k="sempreco">—</div><small>a completar</small></article>
+  </section>
 
-      <section class="layout">
-        <section>
-          <section class="panel">
-            <div class="panel-head">
-              <div><h2>Entrada de imóveis no Hub</h2><small>Três caminhos: lote de imobiliária/corretor, cadastro unitário e proprietário direto.</small></div>
-              <span class="badge green">MVP operacional</span>
-            </div>
+  <section class="panel">
+    <div class="toolbar">
+      <input class="inp search" id="q" placeholder="Buscar por título, cidade ou código..." />
+      <select class="inp" id="fFin"><option value="">Toda finalidade</option></select>
+      <select class="inp" id="fStatus"><option value="">Todo status</option></select>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Imóvel</th><th>Tipo</th><th>Finalidade</th><th class="num">Preço</th><th>Cidade</th><th>Status</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="6" class="empty">Carregando…</td></tr></tbody></table>
+    </div>
+  </section>
+</main>
+</div>
 
-            <div class="toolbar">
-              <div class="tabs">
-                <button class="active">Todos 1.248</button>
-                <button>Lotes 18</button>
-                <button>Proprietários 64</button>
-                <button>Sem responsável 23</button>
-                <button>Duplicados 31</button>
-                <button>Prontos 684</button>
-              </div>
-              <input class="search" placeholder="Buscar endereço, proprietário, imobiliária, corretor, lote, código ou status..." />
-              <select><option>Origem: todas</option><option>Lote da imobiliária</option><option>Lote de corretor autônomo</option><option>Proprietário direto</option><option>Cadastro manual Hub</option></select>
-              <select><option>Status: todos</option><option>Importado</option><option>Validando</option><option>Sem responsável</option><option>Em quarentena</option><option>Publicado</option></select>
-            </div>
-
-            <div class="notice">
-              <div class="nicon">!</div>
-              <div>
-                <strong>Nova regra do produto</strong>
-                <p>Imobiliárias e corretores poderão subir imóveis em lote. Proprietários também poderão cadastrar imóveis diretamente no site do Hub. Quando o imóvel vier direto do proprietário, o sistema não deve publicar automaticamente: primeiro valida dados, verifica duplicidade, solicita autorização e sugere a imobiliária ou corretor autônomo mais adequado para assumir as visitas.</p>
-              </div>
-            </div>
-
-            <div class="grid">
-              <article class="card">
-                <div class="card-top"><div><h3>Lote · Cirag Boutique</h3><p>Arquivo XLSX com 186 imóveis. 172 válidos, 8 duplicados e 6 com endereço incompleto.</p></div><span class="badge blue">Lote imobiliária</span></div>
-                <div class="metrics"><div class="metric"><strong>186</strong><span>itens</span></div><div class="metric"><strong>172</strong><span>válidos</span></div><div class="metric"><strong>8</strong><span>duplic.</span></div></div>
-              </article>
-
-              <article class="card">
-                <div class="card-top"><div><h3>Lote · João Santos</h3><p>Corretor autônomo parceiro enviou 42 imóveis de Moema e Brooklin para validação.</p></div><span class="badge cyan">Lote autônomo</span></div>
-                <div class="metrics"><div class="metric"><strong>42</strong><span>itens</span></div><div class="metric"><strong>CRECI</strong><span>OK</span></div><div class="metric"><strong>11</strong><span>pend.</span></div></div>
-              </article>
-
-              <article class="card">
-                <div class="card-top"><div><h3>Proprietário · Roberto Almeida</h3><p>Casa em Pinheiros cadastrada diretamente. Precisa escolher responsável por visitas.</p></div><span class="badge orange">Sem responsável</span></div>
-                <div class="metrics"><div class="metric"><strong>R$1,98M</strong><span>valor</span></div><div class="metric"><strong>3</strong><span>sugestões</span></div><div class="metric"><strong>D4Sign</strong><span>pend.</span></div></div>
-              </article>
-
-              <article class="card">
-                <div class="card-top"><div><h3>Proprietária · Ana Martins</h3><p>Apartamento nos Jardins. IA sugere Cirag Boutique por região, ticket e performance.</p></div><span class="badge purple">Match sugerido</span></div>
-                <div class="metrics"><div class="metric"><strong>92%</strong><span>match</span></div><div class="metric"><strong>Cirag</strong><span>sugestão</span></div><div class="metric"><strong>Hoje</strong><span>aprovar</span></div></div>
-              </article>
-
-              <article class="card">
-                <div class="card-top"><div><h3>Studio · Bela Vista</h3><p>Imóvel importado por lote, mas já existe cadastro similar no Hub. Publicação bloqueada.</p></div><span class="badge red">Quarentena</span></div>
-                <div class="metrics"><div class="metric"><strong>98%</strong><span>similar</span></div><div class="metric"><strong>Geo</strong><span>igual</span></div><div class="metric"><strong>Hub</strong><span>revisar</span></div></div>
-              </article>
-
-              <article class="card">
-                <div class="card-top"><div><h3>Cobertura · Moema</h3><p>Imóvel validado, autorizado, com responsável aceito e pronto para publicação/campanha.</p></div><span class="badge green">Pronto</span></div>
-                <div class="metrics"><div class="metric"><strong>89%</strong><span>score</span></div><div class="metric"><strong>Lopes</strong><span>resp.</span></div><div class="metric"><strong>Ads</strong><span>pronto</span></div></div>
-              </article>
-            </div>
-          </section>
-
-          <section class="panel detail">
-            <div class="panel-head">
-              <div><h3>Fluxo completo de captação</h3><small>Da entrada em lote ou cadastro do proprietário até publicação e visita.</small></div>
-            </div>
-            <div class="flow">
-              <div class="step"><div class="num">1</div><strong>Entrada</strong><span>Lote, cadastro unitário ou proprietário direto.</span></div>
-              <div class="step"><div class="num">2</div><strong>Validação IA</strong><span>Campos, fotos, preço, endereço e qualidade.</span></div>
-              <div class="step"><div class="num">3</div><strong>Duplicidade</strong><span>Comparar endereço, geo, fotos, matrícula e proprietário.</span></div>
-              <div class="step"><div class="num">4</div><strong>Autorização</strong><span>D4Sign para anúncio, visitas e tratamento de dados.</span></div>
-              <div class="step"><div class="num">5</div><strong>Match responsável</strong><span>Escolher imobiliária ou corretor autônomo ideal.</span></div>
-              <div class="step"><div class="num">6</div><strong>Aceite</strong><span>Responsável aceita assumir visitas e atendimento.</span></div>
-              <div class="step"><div class="num">7</div><strong>Publicação</strong><span>Vai para site do Hub e campanhas.</span></div>
-              <div class="step"><div class="num">8</div><strong>Visitas</strong><span>Agenda, ficha de visita e funil.</span></div>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head">
-              <div><h3>Fila operacional de captação</h3><small>Controle para o gestor saber o que publicar, bloquear, corrigir ou distribuir.</small></div>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Imóvel</th>
-                    <th>Origem</th>
-                    <th>Proprietário / Enviador</th>
-                    <th>Status</th>
-                    <th>Responsável sugerido</th>
-                    <th>Match</th>
-                    <th>Pendência</th>
-                    <th>Próxima ação</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>Casa · Pinheiros</strong><br><span style="color:#64748b;">R$ 1.980.000 · 180m²</span></td>
-                    <td><span class="badge orange">Proprietário direto</span></td>
-                    <td>Roberto Almeida</td>
-                    <td><span class="badge orange">Sem responsável</span></td>
-                    <td>Robotton Imóveis ou João Santos</td>
-                    <td>87%</td>
-                    <td>Autorização D4Sign</td>
-                    <td>Enviar convite para assumir visitas</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Apto · Jardins</strong><br><span style="color:#64748b;">R$ 1.420.000 · 118m²</span></td>
-                    <td><span class="badge orange">Proprietário direto</span></td>
-                    <td>Ana Martins</td>
-                    <td><span class="badge purple">Match sugerido</span></td>
-                    <td>Cirag Boutique</td>
-                    <td>92%</td>
-                    <td>Aceite da imobiliária</td>
-                    <td>Solicitar aceite Cirag</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Studio · Bela Vista</strong><br><span style="color:#64748b;">R$ 480.000 · 42m²</span></td>
-                    <td><span class="badge blue">Lote OMA</span></td>
-                    <td>OMA Imóveis</td>
-                    <td><span class="badge red">Quarentena</span></td>
-                    <td>—</td>
-                    <td>98% duplicado</td>
-                    <td>Conflito de cadastro</td>
-                    <td>Auditar titularidade</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Cobertura · Moema</strong><br><span style="color:#64748b;">R$ 2.850.000 · 280m²</span></td>
-                    <td><span class="badge blue">Lote Lopes</span></td>
-                    <td>Lopes Imóveis</td>
-                    <td><span class="badge green">Pronto</span></td>
-                    <td>Lopes Imóveis</td>
-                    <td>100%</td>
-                    <td>Nenhuma</td>
-                    <td>Publicar e impulsionar</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </section>
-
-        <aside class="right-stack">
-          <section class="panel">
-            <div class="panel-head"><div><h3>Tipos de entrada</h3><small>Como o imóvel chega ao Hub</small></div></div>
-            <div class="side-list">
-              <div class="side-row"><div><strong>Lote de imobiliária</strong><span>XLSX, CSV, XML, API ou painel</span></div><div class="count blue">18</div></div>
-              <div class="side-row"><div><strong>Lote de autônomo</strong><span>parceiro com CRECI validado</span></div><div class="count cyan">4</div></div>
-              <div class="side-row"><div><strong>Proprietário direto</strong><span>cadastro pelo site do Hub</span></div><div class="count orange">64</div></div>
-              <div class="side-row"><div><strong>Cadastro manual Hub</strong><span>equipe interna ou suporte</span></div><div class="count green">12</div></div>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head"><div><h3>Regra para proprietário direto</h3><small>Antes de publicar</small></div></div>
-            <div class="rules">
-              <div class="rule"><div class="r-ico">1</div><div><strong>Validar imóvel</strong><span>Endereço, fotos, preço, metragem, proprietário, duplicidade e documentação mínima.</span></div></div>
-              <div class="rule"><div class="r-ico">2</div><div><strong>Assinar autorização</strong><span>Proprietário autoriza anúncio, visitas, contato comercial e tratamento de dados.</span></div></div>
-              <div class="rule"><div class="r-ico">3</div><div><strong>Escolher responsável</strong><span>Hub sugere imobiliária ou corretor autônomo por região, performance, disponibilidade e perfil do imóvel.</span></div></div>
-              <div class="rule"><div class="r-ico">4</div><div><strong>Aceite obrigatório</strong><span>Responsável precisa aceitar o imóvel antes de receber leads e visitas.</span></div></div>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head"><div><h3>Critérios de match</h3><small>Responsável por visitas</small></div></div>
-            <div class="rules">
-              <div class="rule"><div class="r-ico">R</div><div><strong>Região e raio</strong><span>Quem atua melhor no bairro e tem agenda disponível.</span></div></div>
-              <div class="rule"><div class="r-ico">T</div><div><strong>Tipo e ticket</strong><span>Especialidade em alto padrão, locação, comercial ou popular.</span></div></div>
-              <div class="rule"><div class="r-ico">P</div><div><strong>Performance</strong><span>SLA, conversão, visitas realizadas, propostas e fechamento.</span></div></div>
-              <div class="rule"><div class="r-ico">F</div><div><strong>Financeiro</strong><span>Contrato vigente, CRECI, repasse configurado e sem bloqueio.</span></div></div>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head"><div><h3>Alertas</h3><small>O que exige ação</small></div></div>
-            <div class="side-list">
-              <div class="side-row"><div><strong>Sem responsável</strong><span>imóveis de proprietário aguardando match</span></div><div class="count orange">23</div></div>
-              <div class="side-row"><div><strong>Duplicidade alta</strong><span>não publicar sem auditoria</span></div><div class="count red">31</div></div>
-              <div class="side-row"><div><strong>Sem autorização</strong><span>D4Sign pendente</span></div><div class="count red">18</div></div>
-              <div class="side-row"><div><strong>Lotes com erro</strong><span>campos obrigatórios faltando</span></div><div class="count orange">6</div></div>
-              <div class="side-row"><div><strong>Prontos para campanha</strong><span>score acima de 80</span></div><div class="count green">684</div></div>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head"><div><h3>Próximas ações</h3></div></div>
-            <div class="timeline">
-              <div class="timeline-item red"><strong>Hoje</strong><span>Auditar 31 duplicidades antes de liberar publicação.</span></div>
-              <div class="timeline-item orange"><strong>Hoje</strong><span>Enviar autorização para 18 proprietários diretos.</span></div>
-              <div class="timeline-item green"><strong>Amanhã</strong><span>Rodar match de responsáveis para 23 imóveis sem responsável.</span></div>
-              <div class="timeline-item"><strong>Semanal</strong><span>Relatório de lotes importados, erros, aprovados e publicados.</span></div>
-            </div>
-          </section>
-        </aside>
-      </section>
-    </main>
-  </div>
+<div class="modal-bg" id="modal"><div class="modal">
+  <div class="modal-h"><div><h3 id="mTit">—</h3><p id="mSub">—</p></div><button class="modal-x" id="mClose">×</button></div>
+  <div class="mgrid" id="mGrid"></div>
+  <div class="modal-f"><button class="btn" id="mClose2">Fechar</button></div>
+</div></div>
 
 <script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script>
 <script src="hub.js" defer></script>
+<script>/*cap-real*/(function(){
+  var DATA="/api/data";
+  var imoveis=[],imobMap={},modal=document.getElementById('modal');
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function brl(v){return v==null?'—':'R$ '+Math.round(v).toLocaleString('pt-BR');}
+  function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
+  function cap(s){s=String(s||'');return s?s.charAt(0).toUpperCase()+s.slice(1):'—';}
+  function get(ent){return fetch(DATA+'?ent='+ent+'&action=list',{cache:'no-store'}).then(function(r){return r.ok?r.json():{rows:[]};}).then(function(d){return d.rows||[];}).catch(function(){return [];});}
+  function fld(l,v,full){return '<div class="mcell'+(full?' full':'')+'"><label>'+l+'</label><strong>'+esc(v==null||v===''?'—':v)+'</strong></div>';}
+  function stBadge(s){var t=(s||'').toLowerCase();var cls=/dispon/.test(t)?'green':/vend|locad/.test(t)?'blue':/reserv/.test(t)?'orange':'gray';return '<span class="badge '+cls+'">'+esc(cap(s))+'</span>';}
+
+  function renderRows(list){
+    var tb=document.getElementById('rows');
+    if(!list.length){tb.innerHTML='<tr><td colspan="6" class="empty">Nenhum imóvel encontrado.</td></tr>';return;}
+    tb.innerHTML=list.map(function(m,ix){
+      return '<tr data-i="'+ix+'"><td class="strong">'+esc(m.titulo||'—')+(m.codigo?' · '+esc(m.codigo):'')+'</td><td>'+esc(cap(m.tipo))+'</td><td>'+esc(cap(m.finalidade))+'</td><td class="num">'+brl(m.preco)+'</td><td>'+esc(m.cidade||'—')+'</td><td>'+stBadge(m.status)+'</td></tr>';
+    }).join('');
+    Array.prototype.forEach.call(tb.querySelectorAll('tr'),function(tr){tr.addEventListener('click',function(){openIt(list[+tr.getAttribute('data-i')]);});});
+  }
+  function openIt(m){ if(!m)return;
+    document.getElementById('mTit').textContent=m.titulo||'Imóvel';
+    document.getElementById('mSub').textContent=[imobMap[m.imobiliaria_id],m.codigo?'Cód. '+m.codigo:''].filter(Boolean).join(' · ')||'—';
+    document.getElementById('mGrid').innerHTML=fld('Tipo',cap(m.tipo))+fld('Finalidade',cap(m.finalidade))+fld('Preço',brl(m.preco))+fld('Área',m.area?m.area+' m²':'—')+fld('Quartos',m.quartos)+fld('Vagas',m.vagas)+fld('Cidade',m.cidade)+fld('Bairro',m.bairro)+fld('Status',cap(m.status),true)+fld('Imobiliária',imobMap[m.imobiliaria_id],true);
+    modal.classList.add('open');
+  }
+  function close_(){modal.classList.remove('open');}
+  document.getElementById('mClose').addEventListener('click',close_);document.getElementById('mClose2').addEventListener('click',close_);
+  modal.addEventListener('click',function(e){if(e.target===modal)close_();});document.addEventListener('keydown',function(e){if(e.key==='Escape')close_();});
+
+  function applyFilter(){
+    var q=document.getElementById('q').value.trim().toLowerCase(),fi=document.getElementById('fFin').value,st=document.getElementById('fStatus').value;
+    renderRows(imoveis.filter(function(m){
+      if(fi&&(m.finalidade||'')!==fi)return false;
+      if(st&&(m.status||'')!==st)return false;
+      if(!q)return true;return ((m.titulo||'')+' '+(m.cidade||'')+' '+(m.codigo||'')).toLowerCase().indexOf(q)>=0;
+    }));
+  }
+  ['q','fFin','fStatus'].forEach(function(id){var el=document.getElementById(id);el.addEventListener(id==='q'?'input':'change',applyFilter);});
+
+  Promise.all([get('imoveis'),get('imobiliarias')]).then(function(a){
+    imoveis=a[0]; a[1].forEach(function(i){imobMap[i.id]=i.nome;});
+    imoveis.sort(function(x,y){return new Date(y.created_at||0)-new Date(x.created_at||0);});
+    var low=function(s){return (s||'').toLowerCase();};
+    kset('total',imoveis.length);
+    kset('disp',imoveis.filter(function(m){return /dispon/.test(low(m.status));}).length);
+    kset('venda',imoveis.filter(function(m){return /venda/.test(low(m.finalidade));}).length);
+    kset('locacao',imoveis.filter(function(m){return /loca/.test(low(m.finalidade));}).length);
+    kset('sempreco',imoveis.filter(function(m){return m.preco==null;}).length);
+    var fins={},sts={};
+    imoveis.forEach(function(m){if(m.finalidade)fins[m.finalidade]=1;if(m.status)sts[m.status]=1;});
+    var ff=document.getElementById('fFin');Object.keys(fins).forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=cap(v);ff.appendChild(o);});
+    var fs=document.getElementById('fStatus');Object.keys(sts).forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=cap(v);fs.appendChild(o);});
+    renderRows(imoveis);
+  });
+
+  var tt=document.getElementById('themeToggle');
+  function syncIcon(){var d=window.hubTheme&&window.hubTheme.get()==='dark';tt.innerHTML=d?"<svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'/></svg>":"<svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z'/></svg>";}
+  syncIcon();tt.addEventListener('click',function(){if(window.hubTheme){window.hubTheme.toggle();syncIcon();}});
+})();</script>
 </body>
 </html>

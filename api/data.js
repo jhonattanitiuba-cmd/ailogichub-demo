@@ -37,9 +37,11 @@ function imovOut(r) {
   const e = r.extra || {};
   return Object.assign({
     id: r.id, imobiliaria_id: r.imobiliaria_id, titulo: r.titulo, codigo: r.codigo,
+    tipo: r.tipo, finalidade: r.finalidade, status: r.status,
     preco: r.preco != null ? Number(r.preco) : null, area: r.area_util != null ? Number(r.area_util) : null,
     quartos: r.quartos, suites: r.suites, banheiros: r.banheiros, vagas: r.vagas,
-    endereco: r.endereco, bairro: r.bairro, cidade: r.cidade, descricao: r.descricao
+    endereco: r.endereco, bairro: r.bairro, cidade: r.cidade, uf: r.uf, descricao: r.descricao,
+    lat: r.lat != null ? Number(r.lat) : null, lng: r.lng != null ? Number(r.lng) : null
   }, e);
 }
 function corOut(r) {
