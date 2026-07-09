@@ -1,4 +1,4 @@
-// AI LOGIC HUB — entrega a config PÚBLICA do front (URL + anon key) como JS.
+// AILOGIC HUB — entrega a config PÚBLICA do front (URL + anon key) como JS.
 // Lê das env vars da Vercel; nada versionado. A anon key é pública por design.
 module.exports = async (req, res) => {
   const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';

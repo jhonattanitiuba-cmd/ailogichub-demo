@@ -1,4 +1,4 @@
-// AI LOGIC HUB — Vitrine PÚBLICA de imóveis (sem autenticação, somente leitura).
+// AILOGIC HUB — Vitrine PÚBLICA de imóveis (sem autenticação, somente leitura).
 // Alimenta a página /vitrine (feed estilo TikTok) para clientes finais.
 // Retorna apenas imóveis disponíveis e campos seguros de exibição (sem endereço exato,
 // sem dados internos). Segredo DB_URL em env var da Vercel.

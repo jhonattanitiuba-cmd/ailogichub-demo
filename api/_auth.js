@@ -1,4 +1,4 @@
-// AI LOGIC HUB — Guard de autenticação + RBAC (Supabase Auth / GoTrue)
+// AILOGIC HUB — Guard de autenticação + RBAC (Supabase Auth / GoTrue)
 // Verifica o access_token do usuário e resolve perfil + imobiliária para
 // permitir que cada API filtre os dados por permissão.
 // Config via env vars: SUPABASE_URL, SUPABASE_ANON_KEY, DB_URL.

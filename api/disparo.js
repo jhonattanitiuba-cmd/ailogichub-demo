@@ -1,4 +1,4 @@
-// AI LOGIC HUB — Disparo inicial (mensagem validada) às 07:00. Idempotente via flag no banco.
+// AILOGIC HUB — Disparo inicial (mensagem validada) às 07:00. Idempotente via flag no banco.
 // Enviado pelo número do Hub (ailogic-hub-principal) para Jhonattan e Alessandro.
 // Acionado por: Vercel Cron (10:00 UTC = 07:00 BRT) e/ou Task Scheduler local (reforço).
 const { Client } = require('pg');
@@ -8,7 +8,7 @@ const INSTANCE = process.env.WA_INSTANCE || 'ailogic-hub-principal';
 const DB_URL   = process.env.DB_URL || '';
 
 const ALVOS = ['5511991612610', '5511995568148']; // Jhonattan, Alessandro
-const MSG = `*ATUALIZAÇÃO · AI LOGIC HUB*
+const MSG = `*ATUALIZAÇÃO · AILOGIC HUB*
 Data: 17/06/2026
 
 Bom dia! Resumo da evolução:

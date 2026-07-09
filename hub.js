@@ -1,4 +1,4 @@
-/* ===== AI LOGIC HUB — comportamento global ===== */
+/* ===== AILOGIC HUB — comportamento global ===== */
 (function(){
   'use strict';
 

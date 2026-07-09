@@ -1,4 +1,4 @@
-// AI LOGIC HUB — dados do dashboard (Central de Operações) + funil de negócios
+// AILOGIC HUB — dados do dashboard (Central de Operações) + funil de negócios
 const { Client } = require('pg');
 const { requireAuth } = require('./_auth');
 const DB_URL = process.env.DB_URL || '';

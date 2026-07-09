@@ -1,4 +1,4 @@
-/* ===== AI LOGIC HUB — camada de autenticação (Supabase Auth) =====
+/* ===== AILOGIC HUB — camada de autenticação (Supabase Auth) =====
  * Depende de: hub-config.js (window.HUB_CONFIG) e supabase-js (window.supabase).
  * Responsabilidades:
  *   1) Interceptar fetch('/api/...') e anexar o access_token (Bearer).
