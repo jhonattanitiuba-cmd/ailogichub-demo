@@ -82,7 +82,7 @@ const OUT = { imobiliarias: imobOut, imoveis: imovOut, corretores: corOut, leads
 // tabelas que têm coluna deleted_at (soft delete)
 const SOFT = new Set(['imobiliarias', 'imoveis', 'usuarios', 'leads', 'negocios']);
 // entidades somente-leitura (bloqueiam save)
-const READONLY = new Set(['fontes', 'negocios', 'agenda', 'contratos']);
+const READONLY = new Set(['fontes', 'negocios', 'contratos']);
 
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
@@ -159,6 +159,21 @@ module.exports = async (req, res) => {
         const r = await db(`insert into leads(imobiliaria_id,nome,telefone,email,interesse) values($1,$2,$3,$4,$5) returning *`,
           [o.imobiliaria_id, o.nome, o.telefone || null, o.email || null, o.interesse || null]);
         res.status(200).json({ row: leadOut(r.rows[0]) }); return;
+      }
+      if (ent === 'agenda') {
+        const o = body;
+        if (!o.titulo) { res.status(400).json({ error: 'titulo obrigatorio' }); return; }
+        const concl = (o.concluida === true || o.concluida === 'true');
+        const ini = o.inicio || null, fim = o.fim || null;
+        if (o.id) {
+          const r = await db(`update atividades set titulo=$1,tipo=$2,inicio=$3,fim=$4,concluida=$5 where id=$6 returning *`,
+            [o.titulo, o.tipo || null, ini, fim, concl, o.id]);
+          res.status(200).json({ row: atividadeOut(r.rows[0]) }); return;
+        }
+        if (!o.imobiliaria_id) { res.status(400).json({ error: 'imobiliaria_id obrigatorio' }); return; }
+        const r = await db(`insert into atividades(imobiliaria_id,titulo,tipo,inicio,fim,concluida,lead_id,negocio_id,responsavel_id) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *`,
+          [o.imobiliaria_id, o.titulo, o.tipo || null, ini, fim, concl, o.lead_id || null, o.negocio_id || null, o.responsavel_id || null]);
+        res.status(200).json({ row: atividadeOut(r.rows[0]) }); return;
       }
       const o = body;
       const extra = { ...o }; delete extra.id;
