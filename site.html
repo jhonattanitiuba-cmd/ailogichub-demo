@@ -27,6 +27,53 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
 .big{width:74px;height:74px;border-radius:20px;display:grid;place-items:center;margin:0 auto 18px;background:var(--blueSoft);color:var(--blue);font-size:32px;font-weight:900}
 .card h2{margin:0 0 8px;font-size:20px;color:var(--heading)}.card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
 .tag{display:inline-block;margin-top:18px;font-size:11.5px;color:var(--muted);background:var(--panel2);border:1px solid var(--border);border-radius:999px;padding:7px 13px}
+.wrap{display:grid;gap:18px;padding-bottom:20px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--soft);padding:20px 22px}
+.panel h3{margin:0 0 3px;font-size:15.5px;color:var(--heading);letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
+.panel .desc{margin:0 0 16px;color:var(--muted);font-size:12.5px;line-height:1.5}
+.live{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:#16a56f;background:rgba(22,165,111,.1);border:1px solid rgba(22,165,111,.25);border-radius:999px;padding:5px 11px}
+.live .dot{width:8px;height:8px;border-radius:50%;background:#16a56f;box-shadow:0 0 0 0 rgba(22,165,111,.5);animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(22,165,111,.45)}70%{box-shadow:0 0 0 7px rgba(22,165,111,0)}100%{box-shadow:0 0 0 0 rgba(22,165,111,0)}}
+.urlrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+.urlbox{flex:1;min-width:220px;display:flex;align-items:center;gap:10px;height:48px;border:1.5px solid var(--border2);background:var(--panel2);border-radius:12px;padding:0 14px;font-size:14px;color:var(--heading);font-weight:600;overflow:hidden}
+.urlbox svg{flex:none;width:17px;height:17px;color:var(--blue)}
+.urlbox .u{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn{height:48px;border:0;border-radius:12px;padding:0 17px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;box-shadow:0 10px 24px rgba(11,102,255,.25)}
+.btn:hover{filter:brightness(1.05)}.btn svg{width:16px;height:16px}
+.btn.ghost{background:var(--panel);color:var(--text);border:1.5px solid var(--border2);box-shadow:none}
+.btn.ghost:hover{border-color:var(--blue);color:var(--blue)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+@media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{border:1px solid var(--border);border-radius:14px;background:var(--panel2);padding:15px 16px}
+.kpi .n{font-size:26px;font-weight:900;color:var(--heading);letter-spacing:-.02em;line-height:1}
+.kpi .l{font-size:12px;color:var(--muted);margin-top:6px;font-weight:600}
+.alert{display:flex;align-items:center;gap:12px;margin-top:15px;padding:13px 15px;border-radius:13px;background:rgba(233,151,66,.09);border:1px solid rgba(233,151,66,.28);font-size:13px;color:var(--text);line-height:1.45}
+.alert.ok{background:rgba(22,165,111,.08);border-color:rgba(22,165,111,.26)}
+.alert .ai{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(233,151,66,.16);color:#c77d1a}
+.alert.ok .ai{background:rgba(22,165,111,.16);color:#16a56f}
+.alert a{color:var(--blue);font-weight:700}
+.alert .ai svg{width:18px;height:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+.pvbar{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.seg{display:inline-flex;border:1px solid var(--border2);border-radius:11px;overflow:hidden;background:var(--panel2)}
+.seg button{border:0;background:transparent;padding:8px 14px;font:inherit;font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.seg button.on{background:var(--blue);color:#fff}
+.seg button svg{width:15px;height:15px}
+.preview{border:1px solid var(--border);border-radius:14px;background:var(--panel2);padding:16px;display:grid;place-items:center;overflow:hidden}
+.frame{width:100%;transition:max-width .3s ease;max-width:100%}
+.frame.mob{max-width:390px}
+.frame iframe{width:100%;height:440px;border:0;border-radius:11px;background:#f6f9fd;box-shadow:0 8px 24px rgba(15,23,42,.12);display:block}
+.share{display:grid;gap:12px}
+.msg{border:1px solid var(--border);border-radius:13px;background:var(--panel2);padding:13px 15px}
+.msg .mt{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px}
+.msg .mc{font-size:13px;color:var(--text);line-height:1.5}
+.msg .mr{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+.chip{font-size:12.5px;font-weight:700;border-radius:999px;padding:8px 14px;cursor:pointer;border:1.5px solid var(--border2);background:var(--panel);color:var(--text);display:inline-flex;align-items:center;gap:7px}
+.chip:hover{border-color:var(--blue);color:var(--blue)}.chip svg{width:15px;height:15px}
+.chip.wa{border-color:rgba(22,165,111,.4);color:#16a56f}.chip.wa:hover{background:rgba(22,165,111,.08)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#0f172a;color:#fff;font-size:13px;font-weight:600;padding:11px 18px;border-radius:12px;box-shadow:0 14px 34px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head><body><div class="app"><aside class="sidebar">
@@ -62,9 +109,139 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
   <div class="profile"><div class="avatar">AL</div><div><strong>AILogic Hub</strong><span>Acesso protegido</span></div></div>
 </aside>
 <main class="main">
-  <header class="header"><div class="headline"><h1>Site do Hub</h1><p>Site e páginas do Hub.</p></div><button class="icon-btn" id="themeToggle" title="Alternar tema"><svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z'/></svg></button></header>
-  <div class="stage"><div class="card"><div class="big">◍</div><h2>Em construção</h2><p>Configuração do site, páginas de imóveis e métricas de visitas aparecerão aqui quando o site for publicado.</p><span class="tag">Sem números fictícios, esta tela mostrará dados reais quando a fonte for conectada.</span></div></div>
+  <header class="header"><div class="headline"><h1>Site do Hub</h1><p>Publique, pré-visualize e divulgue o seu site público de imóveis.</p></div><button class="icon-btn" id="themeToggle" title="Alternar tema"><svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z'/></svg></button></header>
+
+  <div class="wrap">
+    <div class="panel">
+      <h3>Endereço do site <span class="live"><span class="dot"></span>No ar</span></h3>
+      <p class="desc">Este é o link público da sua vitrine de imóveis. Qualquer pessoa pode abrir, sem login, e ver os imóveis disponíveis.</p>
+      <div class="urlrow">
+        <div class="urlbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg><span class="u" id="siteUrl">-</span></div>
+        <button class="btn ghost" id="copyUrl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button>
+        <a class="btn" id="openUrl" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>Abrir site</a>
+        <button class="btn ghost" id="shareUrl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>Compartilhar</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>O que está publicado</h3>
+      <p class="desc">Resumo em tempo real do que os clientes veem no site. Dados dos imóveis disponíveis.</p>
+      <div class="kpis">
+        <div class="kpi"><div class="n" id="kTotal">-</div><div class="l">Imóveis no ar</div></div>
+        <div class="kpi"><div class="n" id="kVenda">-</div><div class="l">Para venda</div></div>
+        <div class="kpi"><div class="n" id="kLoc">-</div><div class="l">Para locação</div></div>
+        <div class="kpi"><div class="n" id="kCidades">-</div><div class="l">Cidades atendidas</div></div>
+      </div>
+      <div id="fotoAlert"></div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <div class="pvbar">
+          <h3 style="flex:1;margin:0">Pré-visualização</h3>
+          <div class="seg" id="seg">
+            <button data-w="full" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 20h8"/></svg>Computador</button>
+            <button data-w="mob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>Celular</button>
+          </div>
+        </div>
+        <div class="preview"><div class="frame" id="frame"><iframe id="pvFrame" title="Pré-visualização do site" loading="lazy"></iframe></div></div>
+      </div>
+
+      <div class="panel">
+        <h3>Divulgação rápida</h3>
+        <p class="desc">Mensagens prontas com o link do site para compartilhar com clientes.</p>
+        <div class="share">
+          <div class="msg">
+            <div class="mt">Mensagem curta</div>
+            <div class="mc" id="msg1">-</div>
+            <div class="mr">
+              <button class="chip" data-copy="msg1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button>
+              <a class="chip wa" id="wa1" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.8.7.7-2.7-.2-.3A8 8 0 1 1 12 20Zm4.4-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3 2.8 2.8 0 0 0-.9 2.1 4.9 4.9 0 0 0 1 2.6 11 11 0 0 0 4.3 3.8c1.6.6 1.6.4 1.9.4a2.5 2.5 0 0 0 1.6-1.1 2 2 0 0 0 .1-1.1c0-.1-.2-.2-.4-.3Z"/></svg>WhatsApp</a>
+            </div>
+          </div>
+          <div class="msg">
+            <div class="mt">Mensagem completa</div>
+            <div class="mc" id="msg2">-</div>
+            <div class="mr">
+              <button class="chip" data-copy="msg2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button>
+              <a class="chip" id="mail1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>E-mail</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
 </main></div>
+<script>
+(function(){
+  var origin=location.origin;
+  var url=origin+'/vitrine';
+  document.getElementById('siteUrl').textContent=url.replace(/^https?:\/\//,'');
+  document.getElementById('openUrl').href=url;
+  document.getElementById('pvFrame').src='/vitrine';
+
+  var toast=document.getElementById('toast');
+  function tset(m){ toast.textContent=m; toast.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(function(){toast.classList.remove('show');},1900); }
+  function copy(text,label){
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(function(){tset((label||'Link')+' copiado');},function(){fallback(text,label);}); }
+    else fallback(text,label);
+  }
+  function fallback(text,label){ var t=document.createElement('textarea'); t.value=text; document.body.appendChild(t); t.select(); try{document.execCommand('copy');tset((label||'Link')+' copiado');}catch(e){} document.body.removeChild(t); }
+
+  document.getElementById('copyUrl').addEventListener('click',function(){copy(url,'Link');});
+  document.getElementById('shareUrl').addEventListener('click',function(){
+    if(navigator.share){ navigator.share({title:'AILogic Hub',text:'Confira nossos imóveis disponíveis',url:url}).catch(function(){}); }
+    else copy(url,'Link');
+  });
+
+  // mensagens de divulgação
+  var m1='Confira nossos imóveis disponíveis: '+url;
+  var m2='Olá! Selecionamos imóveis que podem ser do seu interesse. Veja a nossa vitrine completa, com fotos e detalhes, direto pelo link: '+url;
+  document.getElementById('msg1').textContent=m1;
+  document.getElementById('msg2').textContent=m2;
+  document.getElementById('wa1').href='https://wa.me/?text='+encodeURIComponent(m1);
+  document.getElementById('mail1').href='mailto:?subject='+encodeURIComponent('Imóveis disponíveis - AILogic Hub')+'&body='+encodeURIComponent(m2);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-copy]'),function(b){
+    b.addEventListener('click',function(){ var el=document.getElementById(b.getAttribute('data-copy')); copy(el.textContent,'Mensagem'); });
+  });
+
+  // alternância de largura da pré-visualização
+  var frame=document.getElementById('frame'), seg=document.getElementById('seg');
+  seg.addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b)return;
+    Array.prototype.forEach.call(seg.querySelectorAll('button'),function(x){x.classList.toggle('on',x===b);});
+    frame.classList.toggle('mob',b.getAttribute('data-w')==='mob');
+  });
+
+  // KPIs reais do que está publicado
+  function isVenda(f){ return /venda|vend/i.test(f||''); }
+  function isLoc(f){ return /loca|alug/i.test(f||''); }
+  fetch('/api/vitrine').then(function(r){return r.json();}).then(function(d){
+    var rows=(d&&d.rows)||[];
+    var venda=0,loc=0,semFoto=0; var cidades={};
+    rows.forEach(function(x){
+      if(isVenda(x.finalidade))venda++; else if(isLoc(x.finalidade))loc++;
+      if(!x.foto&&(!x.fotos||!x.fotos.length))semFoto++;
+      var c=(x.cidade||'').trim(); if(c)cidades[c.toLowerCase()]=1;
+    });
+    document.getElementById('kTotal').textContent=rows.length;
+    document.getElementById('kVenda').textContent=venda;
+    document.getElementById('kLoc').textContent=loc;
+    document.getElementById('kCidades').textContent=Object.keys(cidades).length;
+    var al=document.getElementById('fotoAlert');
+    if(!rows.length){
+      al.innerHTML='<div class="alert"><span class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><span>Nenhum imóvel disponível no site ainda. Cadastre imóveis em <a href="imoveis">Imóveis</a> com status disponível para eles aparecerem aqui.</span></div>';
+    } else if(semFoto>0){
+      al.innerHTML='<div class="alert"><span class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 15 5-5 4 4 3-3 6 6"/></svg></span><span><strong>'+semFoto+'</strong> '+(semFoto===1?'imóvel está':'imóveis estão')+' sem foto e '+(semFoto===1?'aparece':'aparecem')+' com um espaço neutro no site. Adicione fotos em <a href="imoveis">Imóveis</a> para melhorar a vitrine.</span></div>';
+    } else {
+      al.innerHTML='<div class="alert ok"><span class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span>Todos os imóveis publicados têm ao menos uma foto. Seu site está pronto para divulgar.</span></div>';
+    }
+  }).catch(function(){
+    document.getElementById('fotoAlert').innerHTML='<div class="alert"><span class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><span>Não foi possível carregar os dados do site agora. Tente novamente em instantes.</span></div>';
+  });
+})();
+</script>
 <script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/.html$/,'');a.classList.toggle('active',h===p);});})();</script>
 <script src="hub.js" defer></script>
 <script>(function(){var tt=document.getElementById('themeToggle');function s(){var d=window.hubTheme&&window.hubTheme.get()==='dark';tt.innerHTML=d?"<svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'/></svg>":"<svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z'/></svg>";}s();tt.addEventListener('click',function(){if(window.hubTheme){window.hubTheme.toggle();s();}});})();</script>
