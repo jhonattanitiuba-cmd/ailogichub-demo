@@ -4,10 +4,10 @@
 <script src="/api/config"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/auth.js"></script>
 <script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script>
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AiLogic Hub · Integrações & Automações</title><link rel="icon" href="/assets/favicon.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<title>AiLogic Hub · Integrações & Automações</title><link rel="stylesheet" href="/tokens.css"><link rel="icon" href="/assets/favicon.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <style>
 :root{--bg:#f6f9fd;--panel:#fff;--panel2:#fbfdff;--border:#eef2f7;--border2:#dfe7f2;--text:#0f172a;--heading:#172554;--muted:#64748b;--blue:#0b66ff;--blueSoft:#eaf2ff;--shadow:0 14px 34px rgba(15,23,42,.08);--soft:0 6px 18px rgba(15,23,42,.05);}
-:root[data-theme="dark"]{--bg:#0a1020;--panel:#111a2e;--panel2:#0d1526;--border:#1f2c48;--border2:#26344f;--text:#e7eefb;--heading:#fff;--muted:#8b9bb9;--blue:#3b82f6;--blueSoft:rgba(59,130,246,.16);--shadow:0 14px 34px rgba(0,0,0,.4);--soft:0 6px 18px rgba(0,0,0,.3);}
+:root[data-theme="dark"]{--bg:#0a1020;--panel:#111a2e;--panel2:#0d1526;--border:#1f2c48;--border2:#26344f;--text:#e7eefb;--heading:#fff;--muted:#8b9bb9;--blue:#0b66ff;--blueSoft:rgba(59,130,246,.16);--shadow:0 14px 34px rgba(0,0,0,.4);--soft:0 6px 18px rgba(0,0,0,.3);}
 *{box-sizing:border-box}html,body{height:100%;overflow:hidden;background:var(--bg)}
 body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text)}a{text-decoration:none;color:inherit}
 .app{display:grid;grid-template-columns:262px 1fr;height:100vh;overflow:hidden}
@@ -44,7 +44,7 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
   <div class="section-title">Catálogo</div>
   <a class="nav-item" href="imoveis"><span class="ico">▤</span>Imóveis</a>
   <a class="nav-item" href="mapa"><span class="ico">⌘</span>Mapa de Atuação</a>
-  <a class="nav-item" href="captacao"><span class="ico">🏠</span>Captação de Imóveis</a>
+  <a class="nav-item" href="captacao"><span class="ico">⊞</span>Captação de Imóveis</a>
   <a class="nav-item" href="assinaturas"><span class="ico">✍</span>Assinaturas · Docs</a>
   <a class="nav-item" href="anuncios"><span class="ico">↗</span>Anúncios · Rodízios</a>
   <div class="section-title">Inteligência</div>
@@ -54,7 +54,7 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
   <a class="nav-item" href="insights"><span class="ico">✦</span>Insights da IA</a>
   <div class="section-title">Plataforma</div>
   <a class="nav-item" href="integracoes"><span class="ico">⇄</span>Integrações &amp; Automações</a>
-  <a class="nav-item" href="site"><span class="ico">🌐</span>Site do Hub</a>
+  <a class="nav-item" href="site"><span class="ico">◍</span>Site do Hub</a>
   <a class="nav-item" href="financeiro"><span class="ico">R$</span>Financeiro &amp; Repasses</a>
   <a class="nav-item" href="suporte"><span class="ico">?</span>Suporte &amp; Treinamento</a>
   <a class="nav-item" href="administrador"><span class="ico">⚙</span>Administrador</a>
@@ -62,8 +62,8 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
   <div class="profile"><div class="avatar">AL</div><div><strong>AiLogic Hub</strong><span>Acesso protegido</span></div></div>
 </aside>
 <main class="main">
-  <header class="header"><div class="headline"><h1>Integrações & Automações</h1><p>Conectores e automações do Hub.</p></div><button class="icon-btn" id="themeToggle" title="Alternar tema">🌙</button></header>
-  <div class="stage"><div class="card"><div class="big">⇄</div><h2>Em construção</h2><p>Conectores (portais, CRMs, planilhas) e regras de automação aparecerão aqui conforme forem configurados.</p><span class="tag">Sem números fictícios — esta tela mostrará dados reais quando a fonte for conectada.</span></div></div>
+  <header class="header"><div class="headline"><h1>Integrações & Automações</h1><p>Conectores e automações do Hub.</p></div><button class="icon-btn" id="themeToggle" title="Alternar tema"><svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z'/></svg></button></header>
+  <div class="stage"><div class="card"><div class="big">⇄</div><h2>Em construção</h2><p>Conectores (portais, CRMs, planilhas) e regras de automação aparecerão aqui conforme forem configurados.</p><span class="tag">Sem números fictícios, esta tela mostrará dados reais quando a fonte for conectada.</span></div></div>
 </main></div>
 <script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/.html$/,'');a.classList.toggle('active',h===p);});})();</script>
 <script src="hub.js" defer></script>

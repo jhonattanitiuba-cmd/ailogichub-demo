@@ -12,7 +12,9 @@ const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
 const NUM_ALESSANDRO = '5511995568148';
 
 const PERSONA_PADRAO = 'Você é o assistente virtual do AI Logic Hub, plataforma imobiliária. ' +
-  'Atenda em português do Brasil, cordial e objetivo, respostas curtas (2 a 4 frases). Não use emojis decorativos.';
+  'Atenda em português do Brasil, cordial e objetivo, respostas curtas (2 a 4 frases). ' +
+  'Padrão de escrita obrigatório: não use travessão (— ou –); prefira vírgula, ponto ou frases separadas. ' +
+  'Não use emojis (nem decorativos nem genéricos). Mantenha tom profissional e consistente.';
 
 async function db(q, params) {
   const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
@@ -39,7 +41,7 @@ async function contextoBase() {
     const nImov = (await db('select count(*) n from imoveis where deleted_at is null')).rows[0].n;
     const lista = imob.map(i => i.nome + (i.cidade ? ' (' + i.cidade + ')' : '')).join('; ') || 'nenhuma ainda';
     return 'CONTEXTO ATUAL DA PLATAFORMA (lido do banco agora):\n' +
-      '- Imobiliárias cadastradas: ' + imob.length + ' — ' + lista + '\n' +
+      '- Imobiliárias cadastradas: ' + imob.length + ', ' + lista + '\n' +
       '- Imóveis cadastrados: ' + nImov + '\n' +
       '- Canal WhatsApp do Hub: conectado e espelhado na plataforma.';
   } catch (_) { return 'CONTEXTO: plataforma AI Logic Hub ativa.'; }
@@ -65,11 +67,13 @@ async function historico(remoteJid, currentId, cutoff) {
   } catch (_) { return []; }
 }
 
-// remove travessão (cara de bot) e normaliza
+// remove travessão e emojis (cara de bot) e normaliza
 function limparBot(t) {
   if (!t) return t;
   return String(t)
     .replace(/\s*[—–]\s*/g, ', ')   // travessão/en-dash -> vírgula
+    // emojis genéricos e pictogramas (mantém letras/acentos/pontuação normais)
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu, '')
     .replace(/\s+,/g, ',')
     .replace(/,\s*,/g, ',')
     .replace(/\s{2,}/g, ' ')
@@ -79,7 +83,7 @@ function respostaBasica(t) {
   const s = (t || '').toLowerCase();
   if (/alug/.test(s)) return 'Perfeito! Para locação, me diga a região e a faixa de aluguel que procura.';
   if (/compr|venda/.test(s)) return 'Ótimo! Para compra, qual região e faixa de valor você tem em mente?';
-  return 'Olá! Sou o assistente do AI Logic Hub. Posso te ajudar com imóveis para comprar ou alugar — me conta o que procura.';
+  return 'Olá! Sou o assistente do AI Logic Hub. Posso te ajudar com imóveis para comprar ou alugar. Me conta o que procura.';
 }
 
 async function respostaIA(persona, contexto, messages) {

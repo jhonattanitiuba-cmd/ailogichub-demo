@@ -1,0 +1,13 @@
+/* AiLogic Hub — tokens canônicos (fonte + paleta unicos).
+   Fonte de verdade da identidade visual: fonte Inter e azul de marca #0b66ff.
+   Carregado no <head> de todas as telas para padronizar cores e tipografia. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root{
+  --navy:#061936;--blue:#0b66ff;--blue2:#eaf2ff;--green:#16a56f;--green2:#eafaf3;
+  --orange:#f59e0b;--orange2:#fff7e6;--red:#e94242;--red2:#fff0f0;--purple:#7257ff;--purple2:#f1efff;
+  --cyan:#0ea5e9;--cyan2:#ecfeff;--gray900:#0f172a;--gray700:#334155;--gray500:#64748b;
+  --gray300:#d9e2ef;--gray200:#edf2f7;--white:#fff;--shadow:0 14px 34px rgba(15,23,42,.08);
+  --soft:0 8px 22px rgba(15,23,42,.055);--radius:18px;
+  --font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
