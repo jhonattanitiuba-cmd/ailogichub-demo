@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('ailogic_theme')||'light')}catch(e){}</script>
+<script src="/api/config"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/auth.js"></script>
+<script>if(localStorage.getItem("ailogic_auth")!=="1"&&!/login/.test(location.pathname)){location.replace("/login");}</script>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AILogic Hub · Manual do usuário</title><link rel="stylesheet" href="/tokens.css"><link rel="icon" href="/assets/favicon.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<style>
+:root{--bg:#f6f9fd;--panel:#fff;--panel2:#fbfdff;--border:#eef2f7;--border2:#dfe7f2;--text:#0f172a;--heading:#172554;--muted:#64748b;--blue:#0b66ff;--blueSoft:#eaf2ff;--shadow:0 14px 34px rgba(15,23,42,.08);--soft:0 6px 18px rgba(15,23,42,.05);}
+:root[data-theme="dark"]{--bg:#0a1020;--panel:#111a2e;--panel2:#0d1526;--border:#1f2c48;--border2:#26344f;--text:#e7eefb;--heading:#fff;--muted:#8b9bb9;--blue:#0b66ff;--blueSoft:rgba(59,130,246,.16);--shadow:0 14px 34px rgba(0,0,0,.4);--soft:0 6px 18px rgba(0,0,0,.3);}
+*{box-sizing:border-box}html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text)}a{text-decoration:none;color:inherit}
+.app{display:grid;grid-template-columns:262px 1fr;height:100vh;overflow:hidden}
+.sidebar{background:linear-gradient(180deg,#0a1a38,#050c1c);color:#cddcf5;padding:24px 18px;height:100vh;overflow:auto;border-right:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:30px}.logo{width:44px;height:44px;border-radius:13px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
+.brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#8fb0e6;font-size:12px;margin-top:3px}
+.section-title{font-size:11px;color:#6f8cba;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin:22px 10px 10px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:12px;color:#b7c9e8;font-weight:650;font-size:14px;margin:3px 0}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff}.nav-item.active{background:linear-gradient(135deg,#0a66ff,#0748bb);color:#fff;box-shadow:0 10px 26px rgba(11,102,255,.35)}.ico{width:22px;text-align:center}
+.profile{display:flex;align-items:center;gap:12px;padding:20px 4px 0;margin-top:20px;border-top:1px solid rgba(255,255,255,.08)}.avatar{width:38px;height:38px;border-radius:50%;background:#0b66ff;color:#fff;display:grid;place-items:center;font-weight:800}.profile strong{color:#fff;font-size:13px;display:block}.profile span{color:#8fb0e6;font-size:11px}
+.main{padding:22px 26px 30px;height:100vh;overflow:auto;display:flex;flex-direction:column;scroll-behavior:smooth}
+.header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
+.headline h1{margin:0;font-size:25px;letter-spacing:-.03em;color:var(--heading)}.headline p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.icon-btn{width:38px;height:38px;border:1px solid var(--border2);background:var(--panel);border-radius:11px;display:grid;place-items:center;cursor:pointer;color:var(--text)}.icon-btn:hover{filter:brightness(1.08)}
+.mtoolbar{display:flex;gap:12px;align-items:center;margin-bottom:18px}
+.search{position:relative;flex:1}
+.search input{width:100%;height:48px;border:1.5px solid var(--border2);background:var(--panel);border-radius:13px;padding:0 15px 0 44px;font:inherit;font-size:14px;color:var(--text);outline:none;box-shadow:var(--soft)}
+.search input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(11,102,255,.13)}
+.search svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted);pointer-events:none}
+.btn{height:48px;border:0;border-radius:12px;padding:0 17px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;box-shadow:0 10px 24px rgba(11,102,255,.25);white-space:nowrap}
+.btn:hover{filter:brightness(1.05)}.btn svg{width:16px;height:16px}
+.mlayout{display:grid;grid-template-columns:230px 1fr;gap:24px;align-items:start;padding-bottom:20px}
+@media(max-width:900px){.mlayout{grid-template-columns:1fr}.toc{display:none}}
+.toc{position:sticky;top:0;align-self:start}
+.toc .tt{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 10px 10px}
+.toc a{display:block;font-size:13px;color:var(--muted);font-weight:600;padding:7px 12px;border-radius:9px}
+.toc a:hover{background:var(--panel);color:var(--blue)}
+.toc a.sub{font-size:12.5px;padding-left:22px;color:var(--muted);font-weight:500}
+.toc .tgrp{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--heading);margin:14px 0 4px 12px}
+.mcontent{min-width:0}
+.grp{margin-bottom:26px}
+.ghead{font-size:13px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--blue);margin:0 0 12px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--soft);padding:22px 24px;margin-bottom:14px;scroll-margin-top:16px}
+.card h2{margin:0 0 4px;font-size:18px;color:var(--heading);letter-spacing:-.01em;display:flex;align-items:center;gap:11px}
+.card h2 .cico{flex:none;width:34px;height:34px;border-radius:10px;background:var(--blueSoft);color:var(--blue);display:grid;place-items:center;font-size:16px;font-weight:800}
+.card .role{font-size:11px;font-weight:800;border-radius:999px;padding:4px 10px;margin-left:auto;white-space:nowrap}
+.card .role.soon{color:#c77d1a;background:rgba(233,151,66,.12)}
+.card .lead{color:var(--muted);font-size:13px;line-height:1.55;margin:8px 0 0}
+.card h3{font-size:12.5px;font-weight:800;color:var(--heading);margin:16px 0 8px;text-transform:uppercase;letter-spacing:.04em}
+.card p{margin:8px 0;font-size:13.5px;line-height:1.6;color:var(--text)}
+.card ol,.card ul{margin:8px 0;padding-left:20px}.card li{margin:5px 0;font-size:13.5px;line-height:1.55}
+.card strong{color:var(--heading)}
+.card a.inl{color:var(--blue);font-weight:700}
+.tipbox{display:flex;gap:11px;align-items:flex-start;background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-top:12px;font-size:12.5px;color:var(--muted);line-height:1.55}
+.tipbox svg{flex:none;width:17px;height:17px;color:var(--blue);margin-top:1px}
+.nores{display:none;padding:26px;text-align:center;color:var(--muted);font-size:13px;background:var(--panel);border:1px dashed var(--border2);border-radius:14px}
+.qlinks{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.qlinks a{font-size:12.5px;font-weight:700;color:var(--blue);background:var(--blueSoft);border:1px solid rgba(11,102,255,.2);border-radius:999px;padding:7px 13px}
+.qlinks a:hover{filter:brightness(.97)}
+@media print{
+  html,body{height:auto;overflow:visible}
+  .app{display:block}
+  .sidebar,.header .icon-btn,.mtoolbar,.toc{display:none!important}
+  .main{height:auto;overflow:visible;padding:0}
+  .mlayout{display:block}
+  .card{box-shadow:none;border-color:#ddd;break-inside:avoid}
+  .grp{break-inside:avoid}
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head><body><div class="app"><aside class="sidebar">
+  <div class="brand"><div class="logo"><img src="/assets/logo-mark.png" alt="AILogic Hub" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block"></div><div><strong>AILogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
+  <div class="section-title">Operação</div>
+  <a class="nav-item" href="visaogeral"><span class="ico">⌂</span>Visão Geral</a>
+  <a class="nav-item" href="imobiliarias"><span class="ico">▥</span>Imobiliárias</a>
+  <a class="nav-item" href="corretores"><span class="ico">♟</span>Corretores &amp; Equipes</a>
+  <a class="nav-item" href="pessoas"><span class="ico">♙</span>Pessoas &amp; Contatos</a>
+  <a class="nav-item" href="leads"><span class="ico">◎</span>Leads</a>
+  <a class="nav-item" href="funil"><span class="ico">▽</span>Funil de Negócios</a>
+  <a class="nav-item" href="agenda"><span class="ico">▦</span>Agenda</a>
+  <a class="nav-item" href="whatsapp"><span class="ico">◌</span>WhatsApp · Auditoria</a>
+  <a class="nav-item" href="emails"><span class="ico">✉</span>E-mails</a>
+  <div class="section-title">Catálogo</div>
+  <a class="nav-item" href="imoveis"><span class="ico">▤</span>Imóveis</a>
+  <a class="nav-item" href="mapa"><span class="ico">⌘</span>Mapa de Atuação</a>
+  <a class="nav-item" href="captacao"><span class="ico">⊞</span>Captação de Imóveis</a>
+  <a class="nav-item" href="assinaturas"><span class="ico">✍</span>Assinaturas · Docs</a>
+  <a class="nav-item" href="anuncios"><span class="ico">↗</span>Anúncios · Rodízios</a>
+  <div class="section-title">Inteligência</div>
+  <a class="nav-item" href="credito"><span class="ico">$</span>Crédito &amp; Financiamento</a>
+  <a class="nav-item" href="locacao"><span class="ico">⇆</span>Locação Online</a>
+  <a class="nav-item" href="relatorios"><span class="ico">↟</span>Relatórios</a>
+  <a class="nav-item" href="insights"><span class="ico">✦</span>Insights da IA</a>
+  <div class="section-title">Plataforma</div>
+  <a class="nav-item" href="integracoes"><span class="ico">⇄</span>Integrações &amp; Automações</a>
+  <a class="nav-item" href="site"><span class="ico">◍</span>Site do Hub</a>
+  <a class="nav-item" href="financeiro"><span class="ico">R$</span>Financeiro &amp; Repasses</a>
+  <a class="nav-item" href="suporte"><span class="ico">?</span>Suporte &amp; Treinamento</a>
+  <a class="nav-item" href="administrador"><span class="ico">⚙</span>Administrador</a>
+  <a class="nav-item" href="config-ia"><span class="ico">◈</span>Configurações · IA</a>
+  <div class="profile"><div class="avatar">AL</div><div><strong>AILogic Hub</strong><span>Acesso protegido</span></div></div>
+</aside>
+<main class="main">
+  <header class="header"><div class="headline"><h1>Manual do usuário</h1><p>Guia completo de todas as telas e fluxos do AILogic Hub.</p></div><button class="icon-btn" id="themeToggle" title="Alternar tema"><svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z'/></svg></button></header>
+
+  <div class="mtoolbar">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="q" type="search" placeholder="Buscar no manual (ex.: leads, agenda, acesso, financiamento)" autocomplete="off">
+    </div>
+    <button class="btn" id="btnPrint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>Imprimir / PDF</button>
+  </div>
+
+  <div class="mlayout">
+    <aside class="toc" id="toc">
+      <div class="tt">Índice</div>
+      <a href="#intro">Bem-vindo ao Hub</a>
+      <a href="#acessos">Primeiros acessos</a>
+      <a href="#perfis">Perfis e permissões</a>
+      <div class="tgrp">Operação</div>
+      <a class="sub" href="#s-visaogeral">Visão Geral</a>
+      <a class="sub" href="#s-imobiliarias">Imobiliárias</a>
+      <a class="sub" href="#s-corretores">Corretores &amp; Equipes</a>
+      <a class="sub" href="#s-pessoas">Pessoas &amp; Contatos</a>
+      <a class="sub" href="#s-leads">Leads</a>
+      <a class="sub" href="#s-funil">Funil de Negócios</a>
+      <a class="sub" href="#s-agenda">Agenda</a>
+      <a class="sub" href="#s-whatsapp">WhatsApp · Auditoria</a>
+      <a class="sub" href="#s-emails">E-mails</a>
+      <div class="tgrp">Catálogo</div>
+      <a class="sub" href="#s-imoveis">Imóveis</a>
+      <a class="sub" href="#s-mapa">Mapa de Atuação</a>
+      <a class="sub" href="#s-captacao">Captação de Imóveis</a>
+      <a class="sub" href="#s-assinaturas">Assinaturas · Docs</a>
+      <a class="sub" href="#s-anuncios">Anúncios · Rodízios</a>
+      <div class="tgrp">Inteligência</div>
+      <a class="sub" href="#s-credito">Crédito &amp; Financiamento</a>
+      <a class="sub" href="#s-locacao">Locação Online</a>
+      <a class="sub" href="#s-relatorios">Relatórios</a>
+      <a class="sub" href="#s-insights">Insights da IA</a>
+      <div class="tgrp">Plataforma</div>
+      <a class="sub" href="#s-integracoes">Integrações &amp; Automações</a>
+      <a class="sub" href="#s-site">Site do Hub</a>
+      <a class="sub" href="#s-financeiro">Financeiro &amp; Repasses</a>
+      <a class="sub" href="#s-suporte">Suporte &amp; Treinamento</a>
+      <a class="sub" href="#s-administrador">Administrador</a>
+      <a class="sub" href="#s-configia">Configurações · IA</a>
+      <div class="tgrp">Para o cliente</div>
+      <a class="sub" href="#s-vitrine">Vitrine pública</a>
+      <a href="#ajuda">Precisa de mais ajuda</a>
+    </aside>
+
+    <div class="mcontent" id="content">
+
+      <div class="grp">
+        <article class="card" id="intro">
+          <h2><span class="cico">⌂</span>Bem-vindo ao AILogic Hub</h2>
+          <p class="lead">O AILogic Hub é a plataforma de inteligência imobiliária que reúne, num só lugar, as imobiliárias, os corretores, os imóveis, os leads, o funil de vendas, a agenda, o atendimento por WhatsApp e o site público de imóveis.</p>
+          <h3>Como o Hub funciona</h3>
+          <p>Cada tela do menu à esquerda cobre uma parte da operação. Você navega pelo menu, e o que aparece depende do seu perfil de acesso e dos dados já cadastrados.</p>
+          <p>O Hub mostra <strong>dados reais</strong>: quando uma tela aparece vazia, quase sempre é porque ainda falta cadastrar algo (uma imobiliária, um imóvel, um usuário), e não um erro. Este manual explica, tela por tela, o que fazer.</p>
+          <div class="tipbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg><span>Use a busca no topo para achar rapidamente qualquer assunto, ou o índice à esquerda para pular direto para uma tela. Para levar o manual impresso ou em PDF, use o botão Imprimir / PDF.</span></div>
+        </article>
+      </div>
+
+      <div class="grp">
+        <article class="card" id="acessos">
+          <h2><span class="cico">⇧</span>Primeiros acessos</h2>
+          <p class="lead">Como instalar o app, criar a sua conta e entrar no Hub.</p>
+          <h3>Instalar o app no celular</h3>
+          <ul>
+            <li><strong>Android:</strong> abra a tela de login no navegador e toque em <strong>Instalar app</strong>, depois confirme. O Hub passa a abrir como um aplicativo.</li>
+            <li><strong>iPhone:</strong> abra a tela de login no Safari, toque no botão Compartilhar e escolha <strong>Adicionar à Tela de Início</strong>.</li>
+          </ul>
+          <h3>Primeiro acesso (criar a conta)</h3>
+          <ol>
+            <li>Na tela de login, toque em <strong>Primeiro acesso? Criar conta</strong>.</li>
+            <li>Informe o seu <strong>e-mail</strong> e crie uma senha (mínimo de 6 caracteres).</li>
+            <li>Use o <strong>mesmo e-mail</strong> que o administrador cadastrou para você, é por ele que o seu perfil e acesso são reconhecidos.</li>
+          </ol>
+          <h3>Esqueci a senha</h3>
+          <p>Na tela de login, informe o e-mail e toque em <strong>Esqueci a senha</strong>. Se houver uma conta para esse e-mail, você recebe um link para criar uma nova senha (confira também a caixa de spam).</p>
+          <h3>Entrar, sair e trocar o tema</h3>
+          <p>Depois de criar a conta, é só entrar normalmente com e-mail e senha. Para <strong>sair</strong>, use o botão de saída no rodapé do menu, ao lado do seu nome. O botão de <strong>sol/lua</strong> no canto superior direito alterna entre o tema claro e o escuro.</p>
+        </article>
+      </div>
+
+      <div class="grp">
+        <article class="card" id="perfis">
+          <h2><span class="cico">⚙</span>Perfis e permissões</h2>
+          <p class="lead">O que cada pessoa enxerga depende do seu perfil de acesso.</p>
+          <ul>
+            <li><strong>Diretoria e Administrador:</strong> acesso total. Enxergam todas as imobiliárias, imóveis, leads e números do Hub.</li>
+            <li><strong>Gestor e Corretor:</strong> acesso no escopo da <strong>própria imobiliária</strong>. Veem apenas os dados da sua empresa.</li>
+          </ul>
+          <p>O acesso é ligado <strong>pelo e-mail</strong>: o administrador cadastra a pessoa em <a class="inl" href="administrador">Administrador</a> com nome, e-mail e perfil; quando essa pessoa faz o Primeiro acesso com o mesmo e-mail, ela herda o perfil definido ali.</p>
+          <div class="tipbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg><span>Se você entrou e as telas aparecem vazias, provavelmente o seu e-mail ainda não tem perfil definido, ou a imobiliária e os imóveis ainda não foram cadastrados. Fale com o administrador.</span></div>
+        </article>
+      </div>
+
+      <div class="grp">
+        <div class="ghead">Operação</div>
+
+        <article class="card" id="s-visaogeral">
+          <h2><span class="cico">⌂</span>Visão Geral</h2>
+          <p class="lead">Para que serve: painel inicial com o resumo da operação, imobiliárias, leads, imóveis e o funil comercial, a partir dos dados reais do Hub.</p>
+          <h3>Como usar</h3>
+          <ol><li>É a tela que abre ao entrar. Use-a para ter o panorama do dia.</li><li>Os números vêm dos cadastros; quanto mais completo o Hub, mais rico o painel.</li><li>A partir dela, navegue para a área que precisa aprofundar pelo menu.</li></ol>
+        </article>
+
+        <article class="card" id="s-imobiliarias">
+          <h2><span class="cico">▥</span>Imobiliárias</h2>
+          <p class="lead">Para que serve: cadastro das imobiliárias parceiras do Hub.</p>
+          <h3>Como usar</h3>
+          <ol><li>Clique em <strong>Nova imobiliária</strong>.</li><li>Preencha nome, cidade, contato e os demais dados.</li><li>Salve. Para alterar, clique na imobiliária e use o botão de editar.</li></ol>
+        </article>
+
+        <article class="card" id="s-corretores">
+          <h2><span class="cico">♟</span>Corretores &amp; Equipes</h2>
+          <p class="lead">Para que serve: cadastro dos corretores e a que imobiliária cada um pertence.</p>
+          <h3>Como usar</h3>
+          <ol><li>Clique em <strong>Novo corretor</strong>.</li><li>Informe nome, e-mail, telefone e a imobiliária.</li><li>Salve. O corretor passa a poder receber leads e negócios.</li></ol>
+        </article>
+
+        <article class="card" id="s-pessoas">
+          <h2><span class="cico">♙</span>Pessoas &amp; Contatos</h2>
+          <p class="lead">Para que serve: visão unificada de clientes (leads) e equipe (corretores) num só lugar.</p>
+          <h3>Como usar</h3>
+          <ol><li>Use a lista para localizar uma pessoa.</li><li>Clique para abrir o detalhe com as informações de contato.</li></ol>
+        </article>
+
+        <article class="card" id="s-leads">
+          <h2><span class="cico">◎</span>Leads</h2>
+          <p class="lead">Para que serve: captação, qualificação e acompanhamento dos leads (clientes interessados), inclusive os que chegam pelo WhatsApp.</p>
+          <h3>Como usar</h3>
+          <ol><li>Acompanhe a lista de leads que chegam.</li><li>Clique num lead para ver o detalhe e o histórico.</li><li>A distribuição entre corretores é feita em <a class="inl" href="anuncios">Anúncios &amp; Rodízios</a>.</li></ol>
+        </article>
+
+        <article class="card" id="s-funil">
+          <h2><span class="cico">▽</span>Funil de Negócios</h2>
+          <p class="lead">Para que serve: acompanhar cada oportunidade pelas etapas até o fechamento (do lead à qualificação, visitas, propostas e vendas).</p>
+          <h3>Como usar</h3>
+          <ol><li>Veja os negócios organizados por etapa.</li><li>Mova cada oportunidade conforme ela avança.</li><li>Os números de Relatórios e Insights usam esses dados.</li></ol>
+        </article>
+
+        <article class="card" id="s-agenda">
+          <h2><span class="cico">▦</span>Agenda</h2>
+          <p class="lead">Para que serve: compromissos, visitas e retornos da equipe, num calendário.</p>
+          <h3>Como usar</h3>
+          <ol><li>Clique em <strong>Novo compromisso</strong> ou escolha um dia no calendário.</li><li>Preencha título, tipo, início e fim; vincule a um lead ou negócio quando fizer sentido.</li><li>Marque como <strong>concluído</strong> ao finalizar, ou edite e exclua quando precisar. Use <strong>Hoje</strong> para voltar ao dia atual.</li></ol>
+        </article>
+
+        <article class="card" id="s-whatsapp">
+          <h2><span class="cico">◌</span>WhatsApp · Auditoria</h2>
+          <p class="lead">Para que serve: acompanhar dentro do Hub as conversas reais do WhatsApp da empresa.</p>
+          <h3>Como usar</h3>
+          <ol><li>Abra uma conversa para ler o histórico.</li><li>Responda manualmente pelo botão <strong>Enviar</strong>.</li><li>Se o contato for uma oportunidade, use <strong>Criar lead</strong> para registrá-lo.</li></ol>
+          <div class="tipbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg><span>O tom e as respostas automáticas do agente de IA são ajustados em <a class="inl" href="config-ia">Configurações · IA</a>. O estado da conexão fica em <a class="inl" href="integracoes">Integrações &amp; Automações</a>.</span></div>
+        </article>
+
+        <article class="card" id="s-emails">
+          <h2><span class="cico">✉</span>E-mails <span class="role soon">Em breve</span></h2>
+          <p class="lead">Caixa de entrada e campanhas de e-mail. Esta tela é liberada quando um canal de e-mail é conectado; até lá, mostra o aviso de que ainda está sendo preparada.</p>
+        </article>
+      </div>
+
+      <div class="grp">
+        <div class="ghead">Catálogo</div>
+
+        <article class="card" id="s-imoveis">
+          <h2><span class="cico">▤</span>Imóveis</h2>
+          <p class="lead">Para que serve: cadastro dos imóveis do Hub, que alimentam a vitrine pública.</p>
+          <h3>Como usar</h3>
+          <ol><li>Clique em <strong>Novo imóvel</strong>.</li><li>Preencha finalidade (venda ou locação), tipo, preço, bairro e cidade.</li><li>No campo de fotos, cole uma <strong>URL por linha</strong>; a primeira vira a capa.</li><li>Salve. Imóveis com status disponível aparecem automaticamente na <a class="inl" href="vitrine" target="_blank" rel="noopener">Vitrine pública</a>.</li></ol>
+        </article>
+
+        <article class="card" id="s-mapa">
+          <h2><span class="cico">⌘</span>Mapa de Atuação</h2>
+          <p class="lead">Para que serve: ver a distribuição geográfica dos imóveis por região, a partir dos dados reais.</p>
+          <h3>Como usar</h3>
+          <ol><li>Consulte o mapa para entender onde está concentrada a oferta.</li><li>Use como apoio para captação e divulgação por região.</li></ol>
+        </article>
+
+        <article class="card" id="s-captacao">
+          <h2><span class="cico">⊞</span>Captação de Imóveis</h2>
+          <p class="lead">Para que serve: acompanhar os imóveis captados por status, finalidade e tipo.</p>
+          <h3>Como usar</h3>
+          <ol><li>Veja o resumo dos imóveis em captação.</li><li>Clique para abrir os detalhes de cada um.</li></ol>
+        </article>
+
+        <article class="card" id="s-assinaturas">
+          <h2><span class="cico">✍</span>Assinaturas · Docs</h2>
+          <p class="lead">Para que serve: contratos e documentos com status de assinatura digital.</p>
+          <h3>Como usar</h3>
+          <ol><li>Acompanhe o status de assinatura de cada contrato.</li><li>Clique para abrir o documento no detalhe.</li></ol>
+        </article>
+
+        <article class="card" id="s-anuncios">
+          <h2><span class="cico">↗</span>Anúncios · Rodízios</h2>
+          <p class="lead">Para que serve: distribuir os leads entre os corretores de forma justa, por rodízio.</p>
+          <h3>Como usar</h3>
+          <ol><li>Veja a <strong>fila</strong> de leads sem responsável.</li><li>Clique em <strong>Distribuir por rodízio</strong> para repartir automaticamente entre os corretores com menos leads, ou atribua um lead manualmente.</li><li>No painel de carga, ligue ou desligue quem participa do rodízio.</li></ol>
+        </article>
+      </div>
+
+      <div class="grp">
+        <div class="ghead">Inteligência</div>
+
+        <article class="card" id="s-credito">
+          <h2><span class="cico">$</span>Crédito &amp; Financiamento</h2>
+          <p class="lead">Para que serve: simular o financiamento de um imóvel com contas reais.</p>
+          <h3>Como usar</h3>
+          <ol><li>Informe valor do imóvel, entrada, prazo em meses e a taxa anual.</li><li>Compare os sistemas <strong>SAC</strong> (parcela decrescente) e <strong>PRICE</strong> (parcela fixa).</li><li>Confira o alerta de comprometimento de renda e a tabela por ano.</li></ol>
+        </article>
+
+        <article class="card" id="s-locacao">
+          <h2><span class="cico">⇆</span>Locação Online</h2>
+          <p class="lead">Para que serve: montar a proposta de locação, calcular custos e reunir a documentação.</p>
+          <h3>Como usar</h3>
+          <ol><li>Informe aluguel, condomínio, IPTU, taxa de administração e prazo. Se quiser, escolha um imóvel de locação do catálogo para preencher o aluguel.</li><li>Escolha a garantia (caução, seguro-fiança ou fiador); os números se atualizam.</li><li>Use <strong>Copiar proposta</strong> ou <strong>Imprimir / PDF</strong>, e marque os documentos no checklist.</li></ol>
+        </article>
+
+        <article class="card" id="s-relatorios">
+          <h2><span class="cico">↟</span>Relatórios</h2>
+          <p class="lead">Para que serve: análises consolidadas de conversão, receita e desempenho, calculadas com dados reais.</p>
+          <h3>Como usar</h3>
+          <ol><li>Consulte os indicadores para acompanhar os resultados.</li><li>Quanto mais completo o funil e os cadastros, mais precisos os relatórios.</li></ol>
+        </article>
+
+        <article class="card" id="s-insights">
+          <h2><span class="cico">✦</span>Insights da IA</h2>
+          <p class="lead">Para que serve: oportunidades, gargalos e recomendações calculados a partir dos seus dados.</p>
+          <h3>Como usar</h3>
+          <ol><li>Leia as recomendações e os gráficos gerados do seu funil e catálogo.</li><li>Use <strong>Atualizar</strong> para recalcular com os dados mais recentes.</li></ol>
+        </article>
+      </div>
+
+      <div class="grp">
+        <div class="ghead">Plataforma</div>
+
+        <article class="card" id="s-integracoes">
+          <h2><span class="cico">⇄</span>Integrações &amp; Automações</h2>
+          <p class="lead">Para que serve: ver o status das conexões do Hub (WhatsApp, IA, banco, site) e as automações que trabalham por você.</p>
+          <h3>Como usar</h3>
+          <ol><li>Confira o selo de status de cada integração; use <strong>Verificar conexões</strong> para atualizar.</li><li>No bloco de automações, ligue ou desligue a <strong>resposta automática da IA</strong> no WhatsApp.</li></ol>
+        </article>
+
+        <article class="card" id="s-site">
+          <h2><span class="cico">◍</span>Site do Hub</h2>
+          <p class="lead">Para que serve: publicar, pré-visualizar e divulgar o site público de imóveis (a vitrine).</p>
+          <h3>Como usar</h3>
+          <ol><li>Copie ou compartilhe o <strong>link do site</strong>.</li><li>Veja quantos imóveis estão no ar e se algum está sem foto.</li><li>Pré-visualize no modo computador ou celular e use as mensagens prontas de divulgação.</li></ol>
+        </article>
+
+        <article class="card" id="s-financeiro">
+          <h2><span class="cico">R$</span>Financeiro &amp; Repasses</h2>
+          <p class="lead">Para que serve: valores, comissões e repasses dos negócios.</p>
+          <h3>Como usar</h3>
+          <ol><li>Acompanhe os valores e comissões dos negócios fechados.</li><li>Clique para abrir o detalhe de cada repasse.</li></ol>
+        </article>
+
+        <article class="card" id="s-suporte">
+          <h2><span class="cico">?</span>Suporte &amp; Treinamento</h2>
+          <p class="lead">Para que serve: central de ajuda com primeiros passos, guias por tela e perguntas frequentes.</p>
+          <h3>Como usar</h3>
+          <ol><li>Use a busca para achar um guia ou uma dúvida.</li><li>Siga a checklist de <strong>Primeiros passos</strong> para começar.</li><li>Fale com o suporte pelo cartão de contato.</li></ol>
+        </article>
+
+        <article class="card" id="s-administrador">
+          <h2><span class="cico">⚙</span>Administrador</h2>
+          <p class="lead">Para que serve: gerenciar usuários e acessos, definindo o perfil de cada pessoa.</p>
+          <h3>Como usar</h3>
+          <ol><li>Clique em <strong>Novo usuário</strong>.</li><li>Informe nome e <strong>e-mail</strong> (é por ele que o acesso é ligado) e escolha o perfil.</li><li>A pessoa faz o Primeiro acesso com o mesmo e-mail e herda o perfil definido aqui.</li></ol>
+        </article>
+
+        <article class="card" id="s-configia">
+          <h2><span class="cico">◈</span>Configurações · IA</h2>
+          <p class="lead">Para que serve: ajustar a persona, o tom e o comportamento do agente de IA do WhatsApp.</p>
+          <h3>Como usar</h3>
+          <ol><li>Defina a persona e o tom do agente.</li><li>Use <strong>Ativar IA</strong> para ligar as respostas automáticas e <strong>Salvar</strong> para guardar.</li></ol>
+        </article>
+      </div>
+
+      <div class="grp">
+        <div class="ghead">Para o cliente</div>
+        <article class="card" id="s-vitrine">
+          <h2><span class="cico">◍</span>Vitrine pública</h2>
+          <p class="lead">Para que serve: é a página pública dos imóveis, sem login, que os clientes acessam.</p>
+          <h3>Como usar</h3>
+          <ol><li>Só entram imóveis com status <strong>disponível</strong>; cadastre boas fotos em <a class="inl" href="imoveis">Imóveis</a>.</li><li>Divulgue o link pela tela <a class="inl" href="site">Site do Hub</a>.</li><li>O cliente pode buscar por bairro ou cidade, filtrar por finalidade e abrir o detalhe de cada imóvel.</li></ol>
+        </article>
+      </div>
+
+      <div class="grp">
+        <article class="card" id="ajuda">
+          <h2><span class="cico">?</span>Precisa de mais ajuda?</h2>
+          <p class="lead">Se ficou alguma dúvida, temos por onde seguir.</p>
+          <p>Acesse <a class="inl" href="suporte">Suporte &amp; Treinamento</a> para os primeiros passos, guias por tela e perguntas frequentes. Para falar com a nossa equipe, escreva para <a class="inl" href="mailto:suporte@ailogichub.app">suporte@ailogichub.app</a>.</p>
+          <div class="qlinks">
+            <a href="suporte">Suporte &amp; Treinamento</a>
+            <a href="administrador">Administrador</a>
+            <a href="imoveis">Imóveis</a>
+            <a href="site">Site do Hub</a>
+          </div>
+        </article>
+      </div>
+
+      <div class="nores" id="nores">Nada encontrado para a sua busca. Tente outras palavras ou use o índice à esquerda.</div>
+
+    </div>
+  </div>
+</main></div>
+<script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/.html$/,'');a.classList.toggle('active',h===p);});})();</script>
+<script>
+(function(){
+  // impressão
+  document.getElementById('btnPrint').addEventListener('click',function(){ window.print(); });
+
+  // índice: rolagem suave dentro do main (o main é o container de scroll)
+  var main=document.querySelector('.main');
+  document.getElementById('toc').addEventListener('click',function(e){
+    var a=e.target.closest('a'); if(!a)return;
+    var id=(a.getAttribute('href')||'').replace('#',''); var t=document.getElementById(id);
+    if(t){ e.preventDefault(); main.scrollTo({top:t.offsetTop-8,behavior:'smooth'}); }
+  });
+
+  // busca ao vivo: filtra os cartões e esconde grupos vazios
+  var q=document.getElementById('q'), nores=document.getElementById('nores');
+  var cards=Array.prototype.slice.call(document.querySelectorAll('#content .card'));
+  var grps=Array.prototype.slice.call(document.querySelectorAll('#content .grp'));
+  q.addEventListener('input',function(){
+    var v=(q.value||'').trim().toLowerCase(), any=false;
+    cards.forEach(function(c){ var hit=!v||c.textContent.toLowerCase().indexOf(v)>=0; c.style.display=hit?'':'none'; if(hit)any=true; });
+    grps.forEach(function(g){ var vis=g.querySelector('.card:not([style*="display: none"])'); g.style.display=vis?'':'none'; });
+    nores.style.display=(v&&!any)?'block':'none';
+  });
+})();
+</script>
+<script src="hub.js" defer></script>
+<script>(function(){var tt=document.getElementById('themeToggle');function s(){var d=window.hubTheme&&window.hubTheme.get()==='dark';tt.innerHTML=d?"<svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'/></svg>":"<svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z'/></svg>";}s();tt.addEventListener('click',function(){if(window.hubTheme){window.hubTheme.toggle();s();}});})();</script>
+</body></html>
