@@ -11,6 +11,12 @@ const DB_URL = process.env.DB_URL || '';
 const ADMIN_ROLES = ['admin', 'administrador', 'diretor', 'diretoria', 'dono', 'owner', 'super'];
 function isAdminRole(p) { return ADMIN_ROLES.indexOf(String(p || '').toLowerCase()) >= 0; }
 
+// e-mails "fundadores" que entram como admin do Hub mesmo sem linha em usuarios
+// (bootstrap do primeiro acesso). Pode ser sobrescrito por env FOUNDER_EMAILS.
+const FOUNDER_EMAILS = (process.env.FOUNDER_EMAILS || 'tecnologia@ailogichub.app')
+  .split(',').map(function (e) { return e.trim().toLowerCase(); }).filter(Boolean);
+function isFounder(email) { return !!email && FOUNDER_EMAILS.indexOf(String(email).toLowerCase()) >= 0; }
+
 function bearer(req) {
   const h = (req.headers && (req.headers.authorization || req.headers.Authorization)) || '';
   const m = /^Bearer\s+(.+)$/i.exec(h);
@@ -41,20 +47,32 @@ async function getUser(req) {
 // verdade) com fallback para o user_metadata do Supabase.
 async function resolveScope(user) {
   const meta = (user && user.user_metadata) || {};
+  const email = (user && user.email) || null;
   let perfil = meta.perfil || null;
   let imobiliariaId = meta.imobiliaria_id || null;
   try {
     if (DB_URL && user && user.id) {
-      const r = await db('select perfil, imobiliaria_id from usuarios where auth_user_id=$1 and deleted_at is null limit 1', [user.id]);
+      // 1) fonte de verdade: linha ligada ao login (auth_user_id)
+      let r = await db('select id, perfil, imobiliaria_id from usuarios where auth_user_id=$1 and deleted_at is null limit 1', [user.id]);
+      // 2) fallback por e-mail (verificado pelo GoTrue): liga o perfil sem depender de auth_user_id
+      if (!r.rows[0] && email) {
+        r = await db('select id, perfil, imobiliaria_id from usuarios where lower(email)=lower($1) and deleted_at is null order by created_at limit 1', [email]);
+        if (r.rows[0]) {
+          // backfill: torna o vínculo permanente para os próximos acessos
+          try { await db('update usuarios set auth_user_id=$1 where id=$2 and auth_user_id is null', [user.id, r.rows[0].id]); } catch (_) {}
+        }
+      }
       if (r.rows[0]) {
         perfil = r.rows[0].perfil || perfil;
         if (r.rows[0].imobiliaria_id) imobiliariaId = r.rows[0].imobiliaria_id;
       }
     }
   } catch (_) {}
-  const isAdmin = isAdminRole(perfil);
+  // 3) bootstrap de fundador: e-mail do dono entra como admin do Hub
+  let isAdmin = isAdminRole(perfil);
+  if (!isAdmin && isFounder(email)) { perfil = perfil || 'admin'; isAdmin = true; }
   return {
-    user: user, authId: user && user.id, email: user && user.email,
+    user: user, authId: user && user.id, email: email,
     perfil: perfil, imobiliariaId: imobiliariaId, isAdmin: isAdmin
   };
 }
