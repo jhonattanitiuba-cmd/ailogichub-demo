@@ -1,8 +1,8 @@
 /* ===== AI LOGIC HUB — camada global (fonte, animações, polimento) ===== */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-/* Montserrat padrão: bold nos títulos, regular nos textos */
-:root{ --font:'Montserrat',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif; }
+/* Inter padrão: bold nos títulos, regular nos textos */
+:root{ --font:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif; }
 body{ font-family:var(--font); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
 h1,h2,h3,h4,.headline h1,.panel-head h2,.panel-head h3,.brand strong,.kpi .value,.value{ font-family:var(--font); }
 .headline h1,h1{ font-weight:700; letter-spacing:-.02em; }
@@ -26,8 +26,8 @@ p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 .panel,.kpi,.card,.alert-cell,.fstage,.fcard,.kbody,.fcol-body,.metric,.rule,.ph-card,.table-wrap table,table,.support{ border-radius:10px !important; }
 .nav-item,.btn,.pill,select,input,.search,.chip2,.kpi-icon,.card-icon,.r-ico,.ai,.logo,.fi,.ph-ico,.fst-ic,.kpi-ic,.alc-ic,.ins-ic{ border-radius:8px !important; }
 
-/* ===== varredura de fonte: Montserrat em TUDO + labels padronizadas em Bold ===== */
-*{ font-family:'Montserrat',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif !important; }
+/* ===== varredura de fonte: Inter em TUDO + labels padronizadas em Bold ===== */
+*{ font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif !important; }
 .trend{ font-weight:700 !important; }
 
 /* ===== badges sólidos: cor no box, fonte branca, fundo predominante + hover ===== */

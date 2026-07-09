@@ -10,11 +10,10 @@ const DB_URL   = process.env.DB_URL || '';
 const ALVOS = ['5511991612610', '5511995568148']; // Jhonattan, Alessandro
 const MSG = `*ATUALIZAÇÃO · AI LOGIC HUB*
 Data: 17/06/2026
-———————————————
 
 Bom dia! Resumo da evolução:
 
-• Plataforma no ar — ailogichub.app (com SSL)
+• Plataforma no ar, ailogichub.app (com SSL)
 • E-mail corporativo blindado (SPF, DKIM e DMARC)
 • Banco de dados do Hub estruturado (multi-tenant)
 • WhatsApp do Hub conectado e espelhado na plataforma
@@ -22,7 +21,7 @@ Bom dia! Resumo da evolução:
 • Funil e identidade visual editáveis
 • Seu agente de IA já está ativo
 
-*Novidade — personalize seu agente:*
+*Novidade, personalize seu agente:*
 Responda aqui mesmo com um "oi". O agente já conhece a sua base e vai conversar com você para se personalizar do seu jeito.
 
 *Próximos passos:*
@@ -30,7 +29,6 @@ Responda aqui mesmo com um "oi". O agente já conhece a sua base e vai conversar
 • Popular imóveis (Cirag)
 • Ata da Reunião 2/4
 
-———————————————
 *Brava Company*`;
 
 async function db(q, p) {
