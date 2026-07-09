@@ -95,6 +95,12 @@
       if (r.data && r.data.session) setFlag(true); // confirmacao de email desligada -> ja logado
       return r.data;                               // sem session -> precisa confirmar email
     },
+    async resetPassword(email) {
+      var c = client(); if (!c) throw new Error('config ausente');
+      var r = await c.auth.resetPasswordForEmail(email, { redirectTo: location.origin + '/redefinir' });
+      if (r.error) throw r.error;
+      return true;
+    },
     async signOut() {
       try { var c = client(); if (c) await c.auth.signOut(); } catch (_) {}
       setFlag(false);

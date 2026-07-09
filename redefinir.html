@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AILogic Hub · Redefinir senha</title>
+<link rel="stylesheet" href="/tokens.css">
+<link rel="icon" href="/assets/favicon.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#061936">
+<script src="/api/config"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:#f6f9fd;color:#0f172a;min-height:100vh;display:grid;place-items:center;padding:24px}
+.card{width:100%;max-width:400px;background:#fff;border:1px solid #eaf0f9;border-radius:20px;box-shadow:0 18px 50px rgba(6,25,54,.1);padding:30px 28px}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.brand .mk{width:44px;height:44px;border-radius:12px;overflow:hidden;box-shadow:0 8px 20px rgba(6,25,54,.2)}
+.brand .mk img{width:100%;height:100%;object-fit:cover;display:block}
+.brand strong{display:block;font-size:16px;font-weight:800;letter-spacing:-.01em}
+.brand span{display:block;font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0b66ff}
+h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+.sub{color:#64748b;font-size:14px;line-height:1.5;margin-bottom:22px}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:7px}
+.field input{width:100%;height:50px;border:1.5px solid #d9e2ef;border-radius:13px;padding:0 14px;font:inherit;font-size:14px;color:#0f172a;background:#fff;outline:none;transition:border .15s,box-shadow .15s}
+.field input:focus{border-color:#0b66ff;box-shadow:0 0 0 4px rgba(11,102,255,.13)}
+.btn{width:100%;height:52px;border:0;border-radius:14px;background:linear-gradient(135deg,#0b66ff,#074cd1);color:#fff;font:inherit;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 14px 30px rgba(11,102,255,.3);transition:transform .12s,box-shadow .15s}
+.btn:hover{transform:translateY(-2px)}.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.err{color:#e94242;font-size:12.5px;font-weight:600;margin-top:12px;min-height:16px;text-align:center}
+.note{color:#16a56f;font-size:13px;font-weight:600;margin-top:12px;text-align:center;line-height:1.5}
+.link{display:block;text-align:center;margin-top:18px;font-size:13px;color:#0b66ff;font-weight:700;text-decoration:none}
+.link:hover{text-decoration:underline}
+.state{text-align:center;padding:14px 0}
+.state .spin{width:34px;height:34px;border:3px solid #e6edf7;border-top-color:#0b66ff;border-radius:50%;margin:0 auto 14px;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.state .ic{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;margin:0 auto 12px}
+.state .ic.bad{background:#fff0f0;color:#e94242}.state .ic.ok{background:#eafaf3;color:#16a56f}
+.state .ic svg{width:26px;height:26px}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand"><span class="mk"><img src="/assets/logo-mark.png" alt="AILogic Hub"></span><span><strong>AILogic Hub</strong><span>Redefinir senha</span></span></div>
+
+  <!-- carregando -->
+  <div id="loading" class="state"><div class="spin"></div><div class="sub" style="margin:0">Validando o link de redefinição...</div></div>
+
+  <!-- link inválido/expirado -->
+  <div id="invalid" class="state hide">
+    <div class="ic bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg></div>
+    <h1>Link inválido ou expirado</h1>
+    <div class="sub">Este link de redefinição não é mais válido. Peça um novo em "Esqueci a senha" na tela de login.</div>
+    <a class="link" href="/login">Voltar ao login</a>
+  </div>
+
+  <!-- formulário de nova senha -->
+  <form id="form" class="hide">
+    <h1>Criar nova senha</h1>
+    <div class="sub">Defina a nova senha da sua conta. Mínimo de 6 caracteres.</div>
+    <div class="field"><label for="p1">Nova senha</label><input id="p1" type="password" autocomplete="new-password" placeholder="••••••••"></div>
+    <div class="field"><label for="p2">Confirmar senha</label><input id="p2" type="password" autocomplete="new-password" placeholder="••••••••"></div>
+    <button class="btn" type="submit" id="save">Salvar nova senha</button>
+    <div class="err" id="err"></div>
+  </form>
+
+  <!-- sucesso -->
+  <div id="done" class="state hide">
+    <div class="ic ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <h1>Senha alterada</h1>
+    <div class="sub">Sua nova senha foi salva. Agora é só entrar no Hub.</div>
+    <a class="link" href="/login" style="font-weight:800">Entrar no Hub</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  var loading=document.getElementById('loading'),invalid=document.getElementById('invalid'),
+      form=document.getElementById('form'),done=document.getElementById('done'),err=document.getElementById('err');
+  function show(el){[loading,invalid,form,done].forEach(function(x){x.classList.add('hide');});el.classList.remove('hide');}
+
+  var cfg=window.HUB_CONFIG||{};
+  if(!window.supabase||!cfg.SUPABASE_URL||!cfg.SUPABASE_ANON_KEY){ show(invalid); return; }
+
+  // cliente próprio: detecta o token de recuperação no hash da URL; não persiste
+  // sessão (storageKey padrão, diferente do app) para não interferir no login.
+  var sb=window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
+    auth:{ detectSessionInUrl:true, persistSession:false, autoRefreshToken:false, flowType:'implicit' }
+  });
+
+  var ready=false;
+  function ok(){ if(ready)return; ready=true; show(form); }
+
+  sb.auth.onAuthStateChange(function(evt, session){ if(session) ok(); });
+  // rede de segurança: confere a sessão após o processamento do hash
+  setTimeout(function(){
+    sb.auth.getSession().then(function(r){
+      if(r && r.data && r.data.session){ ok(); }
+      else if(!ready){ show(invalid); }
+    }).catch(function(){ if(!ready) show(invalid); });
+  }, 1400);
+
+  form.addEventListener('submit',async function(e){
+    e.preventDefault();
+    err.textContent='';
+    var p1=document.getElementById('p1').value, p2=document.getElementById('p2').value;
+    if(p1.length<6){ err.textContent='A senha deve ter pelo menos 6 caracteres.'; return; }
+    if(p1!==p2){ err.textContent='As senhas não conferem.'; return; }
+    var b=document.getElementById('save'); b.disabled=true; b.textContent='Salvando...';
+    try{
+      var r=await sb.auth.updateUser({ password: p1 });
+      if(r.error) throw r.error;
+      try{ await sb.auth.signOut(); }catch(_){}
+      show(done);
+    }catch(ex){
+      var msg=(ex&&ex.message)||'Não foi possível salvar a senha.';
+      if(/same.*password|different from the old/i.test(msg)) msg='A nova senha precisa ser diferente da anterior.';
+      err.textContent=msg; b.disabled=false; b.textContent='Salvar nova senha';
+    }
+  });
+})();
+</script>
+</body>
+</html>
