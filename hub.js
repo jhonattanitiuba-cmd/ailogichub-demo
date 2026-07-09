@@ -253,7 +253,31 @@
     window.addEventListener('popstate', function(){ navigate(location.pathname, false); });
   }
 
+  /* ---------- 10) botão Sair (logout) no rodapé da sidebar ---------- */
+  function doLogout(){
+    try{
+      if(window.hubAuth && typeof window.hubAuth.signOut==='function'){ window.hubAuth.signOut(); return; }
+    }catch(_){}
+    // fallback: limpa o estado local e volta para o login
+    try{ localStorage.removeItem('ailogic_auth'); localStorage.removeItem('ailogic-auth'); }catch(_){}
+    location.replace('/login');
+  }
+  function setupLogout(){
+    var prof=document.querySelector('.sidebar .profile') || document.querySelector('.profile');
+    if(!prof || prof.querySelector('.hub-logout')) return;
+    if(!document.getElementById('hub-logout-style')){
+      var st=document.createElement('style'); st.id='hub-logout-style';
+      st.textContent='.hub-logout{margin-left:auto;flex:none;width:34px;height:34px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#cddcf5;border-radius:10px;display:grid;place-items:center;cursor:pointer;transition:background .15s,color .15s,border-color .15s}.hub-logout:hover{background:rgba(233,66,66,.16);border-color:rgba(233,66,66,.5);color:#ffb4b4}.hub-logout svg{width:18px;height:18px}.sb-collapsed .hub-logout{margin:8px auto 0}';
+      document.head.appendChild(st);
+    }
+    var b=document.createElement('button');
+    b.type='button'; b.className='hub-logout'; b.title='Sair'; b.setAttribute('aria-label','Sair');
+    b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>';
+    b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); doLogout(); });
+    prof.appendChild(b);
+  }
+
   try{ window.hubIcons=function(){ try{replaceIconHosts();cleanText();}catch(e){} }; }catch(e){}
-  function run(){ try{ replaceIconHosts(); cleanText(); active(); setupCollapse(); cascadeSidebar(); revealContent(document.querySelector('.main'), true); document.documentElement.classList.remove('hub-pre'); setupNav(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
+  function run(){ try{ replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); cascadeSidebar(); revealContent(document.querySelector('.main'), true); document.documentElement.classList.remove('hub-pre'); setupNav(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
