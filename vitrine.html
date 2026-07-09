@@ -2,236 +2,275 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AiLogic Hub · Vitrine de Imóveis</title>
 <link rel="stylesheet" href="/tokens.css">
 <link rel="icon" href="/assets/favicon.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-<meta name="theme-color" content="#061936">
+<meta name="theme-color" content="#0b66ff">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden;background:#061936;font-family:var(--font);color:#fff;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);background:#f6f9fd;color:#0f172a;-webkit-font-smoothing:antialiased;min-height:100vh}
 a{color:inherit;text-decoration:none}
-/* topo */
-.top{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:10px;padding:14px 16px calc(14px + env(safe-area-inset-top));background:linear-gradient(180deg,rgba(6,25,54,.85),rgba(6,25,54,0))}
-.top .mk{width:34px;height:34px;border-radius:10px;overflow:hidden;flex:none;box-shadow:0 6px 16px rgba(0,0,0,.35)}
-.top .mk img{width:100%;height:100%;object-fit:cover;display:block}
-.top .tt-name{font-weight:800;font-size:15px;letter-spacing:-.01em}
-.top .tt-sub{font-size:10.5px;color:#a8c2ee;letter-spacing:.1em;text-transform:uppercase}
-/* chips de bairro */
-.chips{position:fixed;top:calc(58px + env(safe-area-inset-top));left:0;right:0;z-index:19;display:flex;gap:8px;padding:6px 16px;overflow-x:auto;scrollbar-width:none}
+img{max-width:100%;display:block}
+.wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+/* header */
+.hdr{position:sticky;top:0;z-index:30;background:rgba(246,249,253,.85);backdrop-filter:blur(10px);border-bottom:1px solid #e6edf7}
+.hdr-in{max-width:1200px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px;flex:none}
+.brand .mk{width:40px;height:40px;border-radius:11px;overflow:hidden;box-shadow:0 6px 16px rgba(6,25,54,.18)}
+.brand strong{display:block;font-size:16px;font-weight:800;letter-spacing:-.01em;color:#0f172a}
+.brand span{display:block;font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0b66ff}
+.tools{display:flex;gap:10px;align-items:center;margin-left:auto;flex-wrap:wrap}
+.search{position:relative}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:#94a3b8}
+.search input{height:42px;width:240px;max-width:52vw;border:1px solid #d9e2ef;border-radius:12px;padding:0 14px 0 38px;font:inherit;font-size:14px;background:#fff;color:#0f172a;outline:none;transition:border .15s,box-shadow .15s}
+.search input:focus{border-color:#0b66ff;box-shadow:0 0 0 4px rgba(11,102,255,.12)}
+.sel{height:42px;border:1px solid #d9e2ef;border-radius:12px;padding:0 12px;font:inherit;font-size:14px;font-weight:600;background:#fff;color:#334155;outline:none;cursor:pointer}
+/* chips */
+.chips{display:flex;gap:8px;overflow-x:auto;padding:14px 0 4px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
-.chip{flex:none;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);font-size:12.5px;font-weight:700;color:#dce8ff;cursor:pointer;white-space:nowrap;backdrop-filter:blur(6px)}
-.chip.active{background:var(--blue);border-color:var(--blue);color:#fff}
-/* feed */
-.feed{position:fixed;inset:0;overflow:hidden}
-.strip{height:100%;transition:transform .45s cubic-bezier(.22,.61,.36,1)}
-.slide{position:relative;height:100%;width:100%;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
-.ph{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .7s ease;transform:scale(1.04);animation:ken 12s ease-in-out infinite alternate}
-.ph.on{opacity:1}
-.ph.noimg{background:linear-gradient(160deg,#0a2a5e,#071b3a 55%,#030d20);animation:none}
-@keyframes ken{from{transform:scale(1.02)}to{transform:scale(1.13)}}
-.scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,25,54,.15) 0%,rgba(6,25,54,0) 30%,rgba(3,10,25,.55) 70%,rgba(3,10,25,.92) 100%)}
-.body{position:relative;z-index:2;padding:20px 78px 34px 20px;padding-bottom:calc(34px + env(safe-area-inset-bottom))}
-.tags{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
-.tag{font-size:11px;font-weight:800;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(6px);letter-spacing:.02em}
-.tag.fin{background:var(--blue);border-color:var(--blue)}
-.tag.temp{background:var(--green);border-color:var(--green)}
-.title{font-size:24px;line-height:1.15;font-weight:800;letter-spacing:-.02em;margin-bottom:6px;text-shadow:0 2px 14px rgba(0,0,0,.4)}
-.loc{font-size:13.5px;color:#cfe0ff;margin-bottom:14px}
-.price{display:inline-flex;align-items:baseline;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);padding:8px 14px;border-radius:14px;backdrop-filter:blur(8px);margin-bottom:14px}
-.price b{font-size:22px;font-weight:900;letter-spacing:-.02em}
-.price small{font-size:11px;color:#bcd2f5}
-.specs{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px}
-.spec{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#e6eeff}
-.spec svg{width:17px;height:17px;opacity:.85}
-.desc{font-size:13px;line-height:1.5;color:#c4d4f0;max-width:560px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.by{margin-top:12px;font-size:11.5px;color:#8fb0e6}
-.by b{color:#cfe0ff;font-weight:700}
-/* trilha lateral */
-.rail{position:absolute;right:12px;bottom:calc(34px + env(safe-area-inset-bottom));z-index:3;display:flex;flex-direction:column;gap:16px;align-items:center}
-.rbtn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;color:#fff;cursor:pointer;font:inherit}
-.rbtn .ic{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);display:grid;place-items:center;backdrop-filter:blur(8px);transition:transform .12s,background .15s}
-.rbtn:active .ic{transform:scale(.9)}
-.rbtn.on .ic{background:var(--blue);border-color:var(--blue)}
-.rbtn.on.like .ic{background:var(--red);border-color:var(--red)}
-.rbtn svg{width:22px;height:22px}
-.rbtn small{font-size:11px;font-weight:700;color:#dce8ff}
-/* indicadores de foto */
-.dots{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;gap:4px;padding:10px 14px calc(10px + env(safe-area-inset-top))}
-.dots i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.28)}
-.dots i.on{background:#fff}
+.chip{flex:none;padding:8px 15px;border-radius:999px;background:#fff;border:1px solid #d9e2ef;font-size:13px;font-weight:700;color:#475569;cursor:pointer;white-space:nowrap;transition:.15s}
+.chip:hover{border-color:#0b66ff;color:#0b66ff}
+.chip.active{background:#0b66ff;border-color:#0b66ff;color:#fff}
+.count{color:#64748b;font-size:13px;font-weight:600;padding:10px 2px 2px}
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:22px;padding:8px 0 60px}
+.card{background:#fff;border:1px solid #eaf0f9;border-radius:18px;overflow:hidden;box-shadow:0 8px 22px rgba(15,23,42,.05);cursor:pointer;transition:transform .18s,box-shadow .18s;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(15,23,42,.12)}
+.media{position:relative;aspect-ratio:4/3;overflow:hidden;background:#0a1f45}
+.media img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.card:hover .media img{transform:scale(1.05)}
+/* placeholder elegante sem foto */
+.ph{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(150deg,#0a2a5e 0%,#0b66ff 130%);overflow:hidden}
+.ph::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:26px 26px;mask-image:radial-gradient(circle at 60% 20%,#000,transparent 78%)}
+.ph .pic{position:relative;width:58px;height:58px;color:rgba(255,255,255,.92);filter:drop-shadow(0 6px 14px rgba(0,0,0,.25))}
+.ph .wm{position:absolute;right:12px;bottom:10px;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.badge-fin{position:absolute;left:12px;top:12px;z-index:2;font-size:11px;font-weight:800;padding:6px 11px;border-radius:999px;color:#fff;background:#0b66ff;box-shadow:0 6px 16px rgba(11,102,255,.35)}
+.badge-fin.locacao{background:#16a56f;box-shadow:0 6px 16px rgba(22,165,111,.35)}
+.badge-fin.temporada{background:#7257ff;box-shadow:0 6px 16px rgba(114,87,255,.35)}
+.fav{position:absolute;right:10px;top:10px;z-index:2;width:36px;height:36px;border:0;border-radius:50%;background:rgba(255,255,255,.9);display:grid;place-items:center;cursor:pointer;color:#334155;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:.15s}
+.fav:hover{transform:scale(1.08)}
+.fav svg{width:18px;height:18px}
+.fav.on{background:#e94242;color:#fff}
+.nph{position:absolute;left:10px;bottom:10px;z-index:2;font-size:10.5px;font-weight:700;color:#fff;background:rgba(3,10,25,.45);padding:4px 9px;border-radius:999px;backdrop-filter:blur(4px)}
+.info{padding:14px 15px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.price{font-size:20px;font-weight:900;letter-spacing:-.02em;color:#0f172a}
+.price small{font-size:12px;font-weight:600;color:#64748b}
+.ttl{font-size:14.5px;font-weight:700;line-height:1.3;color:#172554;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.loc{font-size:12.5px;color:#64748b;display:flex;align-items:center;gap:5px}
+.loc svg{width:14px;height:14px;flex:none;color:#94a3b8}
+.specs{display:flex;flex-wrap:wrap;gap:12px;margin-top:2px;padding-top:11px;border-top:1px solid #f0f4fa}
+.spec{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:#475569}
+.spec svg{width:16px;height:16px;color:#94a3b8}
+.by{font-size:11.5px;color:#94a3b8;margin-top:2px}
+.by b{color:#64748b;font-weight:700}
 /* estados */
-.state{position:fixed;inset:0;display:grid;place-items:center;text-align:center;padding:30px;z-index:5}
-.state .box{max-width:320px}
-.state h2{font-size:20px;font-weight:800;margin-bottom:8px}
-.state p{font-size:14px;color:#a8c2ee;line-height:1.6}
-.spin{width:34px;height:34px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite;margin:0 auto 14px}
-@keyframes sp{to{transform:rotate(360deg)}}
-.hint{position:fixed;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom));z-index:6;text-align:center;font-size:12px;color:#9fb8e6;pointer-events:none;opacity:.85;animation:fade 3s ease forwards;animation-delay:2.5s}
-@keyframes fade{to{opacity:0}}
-@media(min-width:760px){.body{padding-left:max(20px,calc(50vw - 300px));padding-right:max(78px,calc(50vw - 300px))}}
+.state{text-align:center;padding:80px 20px;color:#64748b}
+.state svg{width:48px;height:48px;color:#c3d2e8;margin-bottom:14px}
+.state h2{font-size:19px;font-weight:800;color:#334155;margin-bottom:6px}
+.state p{font-size:14px;line-height:1.6;max-width:360px;margin:0 auto}
+.sk{background:#fff;border:1px solid #eaf0f9;border-radius:18px;overflow:hidden}
+.sk .m{aspect-ratio:4/3;background:linear-gradient(100deg,#eef3fa 30%,#f6f9fd 50%,#eef3fa 70%);background-size:200% 100%;animation:sh 1.3s infinite}
+.sk .l{height:14px;margin:14px 15px;border-radius:6px;background:linear-gradient(100deg,#eef3fa 30%,#f6f9fd 50%,#eef3fa 70%);background-size:200% 100%;animation:sh 1.3s infinite}
+.sk .l.s{width:55%}
+@keyframes sh{to{background-position:-200% 0}}
+/* modal */
+.mbg{position:fixed;inset:0;z-index:60;background:rgba(6,25,54,.55);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
+.mbg.open{display:flex}
+.modal{background:#fff;border-radius:20px;width:760px;max-width:100%;max-height:92vh;overflow:auto;box-shadow:0 40px 90px rgba(6,25,54,.4)}
+.gal{position:relative;aspect-ratio:16/10;background:#0a1f45;overflow:hidden}
+.gal img{width:100%;height:100%;object-fit:cover}
+.gal .ph{position:absolute;inset:0}
+.gal .pic{width:76px;height:76px}
+.gnav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border:0;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;cursor:pointer;color:#0f172a;box-shadow:0 6px 16px rgba(0,0,0,.2)}
+.gnav.prev{left:12px}.gnav.next{right:12px}.gnav svg{width:20px;height:20px}
+.gdots{position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:6px}
+.gdots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.5)}.gdots i.on{background:#fff}
+.mclose{position:absolute;right:12px;top:12px;z-index:3;width:38px;height:38px;border:0;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;cursor:pointer;font-size:20px;color:#334155;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.mbody{padding:22px 24px 24px}
+.mbody .mtags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.mtag{font-size:11px;font-weight:800;padding:5px 11px;border-radius:999px;background:#eaf2ff;color:#0b66ff}
+.mbody h2{font-size:22px;font-weight:800;letter-spacing:-.02em;color:#0f172a;margin-bottom:4px}
+.mbody .mloc{font-size:14px;color:#64748b;margin-bottom:14px}
+.mbody .mprice{font-size:26px;font-weight:900;letter-spacing:-.02em;color:#0b66ff;margin-bottom:16px}
+.mspecs{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.mspec{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:#334155;background:#f6f9fd;border:1px solid #eaf0f9;padding:9px 13px;border-radius:12px}
+.mspec svg{width:17px;height:17px;color:#0b66ff}
+.mdesc{font-size:14px;line-height:1.65;color:#475569;margin-bottom:20px;white-space:pre-line}
+.mfoot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid #f0f4fa;padding-top:16px}
+.mfoot .mby{font-size:13px;color:#64748b}.mfoot .mby b{color:#0f172a}
+.cta{margin-left:auto;height:46px;padding:0 22px;border:0;border-radius:13px;background:linear-gradient(135deg,#0b66ff,#074cd1);color:#fff;font:inherit;font-weight:800;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 12px 26px rgba(11,102,255,.3)}
+.cta svg{width:18px;height:18px}
+@media(max-width:560px){.brand span{display:none}.search input{width:150px}.mbody{padding:18px}.mfoot .cta{margin-left:0;width:100%;justify-content:center}}
 </style>
 </head>
 <body>
-<div class="top">
-  <div class="mk"><img src="/assets/logo-mark.png" alt="AiLogic Hub"></div>
-  <div><div class="tt-name">AiLogic Hub</div><div class="tt-sub">Vitrine de Imóveis</div></div>
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="brand" href="/vitrine"><span class="mk"><img src="/assets/logo-mark.png" alt="AiLogic Hub"></span><span><strong>AiLogic Hub</strong><span>Vitrine de Imóveis</span></span></a>
+    <div class="tools">
+      <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="q" type="search" placeholder="Buscar por título, bairro ou cidade"></label>
+      <select class="sel" id="fFin"><option value="">Todas as finalidades</option><option value="venda">Venda</option><option value="locacao">Locação</option><option value="temporada">Temporada</option></select>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="chips" id="chips"></div>
+  <div class="count" id="count"></div>
+  <div class="grid" id="grid"></div>
 </div>
-<div class="chips" id="chips"></div>
 
-<div class="feed" id="feed"><div class="strip" id="strip"></div></div>
-
-<div class="state" id="state"><div class="box"><div class="spin"></div><p>Carregando imóveis...</p></div></div>
-<div class="hint" id="hint">Deslize para cima para ver mais</div>
+<!-- modal detalhe -->
+<div class="mbg" id="mbg"><div class="modal" id="modal"></div></div>
 
 <script>
 (function(){
-  var strip=document.getElementById('strip'),feed=document.getElementById('feed'),
-      chipsEl=document.getElementById('chips'),stateEl=document.getElementById('state'),hintEl=document.getElementById('hint');
-  var all=[],list=[],idx=0,bairro='',photoTimers=[];
-  var liked={},saved={};
-  try{liked=JSON.parse(localStorage.getItem('vitrine_liked')||'{}');saved=JSON.parse(localStorage.getItem('vitrine_saved')||'{}');}catch(_){}
+  var grid=document.getElementById('grid'),chipsEl=document.getElementById('chips'),
+      countEl=document.getElementById('count'),mbg=document.getElementById('mbg'),modal=document.getElementById('modal');
+  var all=[],list=[],bairro='',fin='',q='',fav={},gIdx=0,gCur=null;
+  try{fav=JSON.parse(localStorage.getItem('vitrine_fav')||'{}');}catch(_){}
 
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function cap(s){s=String(s||'');return s?s.charAt(0).toUpperCase()+s.slice(1):'';}
   function brl(v){return v==null?'Sob consulta':'R$ '+Math.round(v).toLocaleString('pt-BR');}
   function finLabel(f){f=(f||'').toLowerCase();return f==='locacao'?'Locação':f==='temporada'?'Temporada':'Venda';}
+  function fotosOf(p){return (p.fotos&&p.fotos.length?p.fotos:(p.foto?[p.foto]:[])).filter(Boolean);}
 
   var IC={
+    pin:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z'/><circle cx='12' cy='10' r='2.5'/></svg>",
     dorm:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6M3 14h18M6 10V8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2M3 18v2M21 18v2'/></svg>",
     suite:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3l9 6v12H3V9l9-6Z'/><path d='M9 21v-6h6v6'/></svg>",
     banho:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M4 12h16v3a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-3Z'/><path d='M6 12V6a2 2 0 0 1 2-2 2 2 0 0 1 2 2'/><path d='M8 19l-1 2M17 19l1 2'/></svg>",
     vaga:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13v5h-3v-2H8v2H5v-5Z'/><circle cx='7.5' cy='15.5' r='.6'/><circle cx='16.5' cy='15.5' r='.6'/></svg>",
-    area:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M4 4h16v16H4z'/><path d='M9 4v3M4 9h3M15 20v-3M20 15h-3'/></svg>"
+    area:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M4 4h16v16H4z'/><path d='M9 4v3M4 9h3M15 20v-3M20 15h-3'/></svg>",
+    heart:"<svg viewBox='0 0 24 24' fill='FILL' stroke='currentColor' stroke-width='1.8'><path d='M12 21s-7-4.5-9.5-9A5.2 5.2 0 0 1 12 6a5.2 5.2 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9Z'/></svg>",
+    casa:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11l9-7 9 7'/><path d='M5 10v10h14V10'/><path d='M9 20v-6h6v6'/></svg>",
+    predio:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16'/><path d='M15 21V9h4a1 1 0 0 1 1 1v11'/><path d='M8 8h3M8 12h3M8 16h3'/></svg>",
+    terreno:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M3 20h18'/><path d='M5 20l3-9 4 4 3-7 4 12'/></svg>"
   };
-  function spec(ic,v,suf){if(!v)return '';return '<span class="spec">'+ic+(v+(suf||''))+'</span>';}
-
-  function slideHTML(p){
-    var fotos=(p.fotos&&p.fotos.length?p.fotos:(p.foto?[p.foto]:[]));
-    var phs=fotos.length?fotos.map(function(u,i){return '<div class="ph'+(i===0?' on':'')+'" style="background-image:url('+JSON.stringify(u)+')"></div>';}).join('')
-                        :'<div class="ph on noimg"></div>';
-    var dots=fotos.length>1?'<div class="dots">'+fotos.map(function(_,i){return '<i class="'+(i===0?'on':'')+'"></i>';}).join('')+'</div>':'';
-    var finCls=(p.finalidade||'').toLowerCase()==='temporada'?'temp':'fin';
-    var specs=spec(IC.dorm,p.quartos,' dorm')+spec(IC.suite,p.suites,' suíte')+spec(IC.banho,p.banheiros,' banh')+spec(IC.vaga,p.vagas,' vaga')+spec(IC.area,p.area,' m²');
-    var loc=[p.bairro,p.cidade].filter(Boolean).join(', ');
-    var k=p.id;
-    return '<section class="slide" data-id="'+esc(k)+'">'+phs+dots+'<div class="scrim"></div>'
-      +'<div class="rail">'
-        +'<button class="rbtn like'+(liked[k]?' on':'')+'" data-act="like"><span class="ic"><svg viewBox="0 0 24 24" fill="'+(liked[k]?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-4.5-9.5-9A5.2 5.2 0 0 1 12 6a5.2 5.2 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9Z"/></svg></span><small>Curtir</small></button>'
-        +'<button class="rbtn save'+(saved[k]?' on':'')+'" data-act="save"><span class="ic"><svg viewBox="0 0 24 24" fill="'+(saved[k]?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z"/></svg></span><small>Salvar</small></button>'
-        +'<button class="rbtn" data-act="share"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></span><small>Enviar</small></button>'
-      +'</div>'
-      +'<div class="body">'
-        +'<div class="tags"><span class="tag '+finCls+'">'+esc(finLabel(p.finalidade))+'</span>'+(p.tipo?'<span class="tag">'+esc(cap(p.tipo))+'</span>':'')+(p.codigo?'<span class="tag">'+esc(p.codigo)+'</span>':'')+'</div>'
-        +'<div class="title">'+esc(p.titulo||'Imóvel')+'</div>'
-        +(loc?'<div class="loc">'+esc(loc)+'</div>':'')
-        +'<div class="price"><b>'+esc(brl(p.preco))+'</b>'+((p.finalidade||'').toLowerCase()==='locacao'?'<small>/mês</small>':'')+'</div>'
-        +(specs?'<div class="specs">'+specs+'</div>':'')
-        +(p.descricao?'<div class="desc">'+esc(p.descricao)+'</div>':'')
-        +(p.imobiliaria?'<div class="by">por <b>'+esc(p.imobiliaria)+'</b></div>':'')
-      +'</div>'
-    +'</section>';
+  function typeIcon(t){t=(t||'').toLowerCase();if(/casa|sobrado/.test(t))return IC.casa;if(/terreno|lote/.test(t))return IC.terreno;return IC.predio;}
+  function spec(ic,v,suf){if(v==null||v===''||v===0)return '';return '<span class="spec">'+ic+'<span>'+(v+(suf||''))+'</span></span>';}
+  function media(p,big){
+    var fs=fotosOf(p);
+    if(fs.length)return '<img src="'+esc(fs[0])+'" alt="'+esc(p.titulo||'Imóvel')+'" loading="lazy">'+(!big&&fs.length>1?'<span class="nph">'+fs.length+' fotos</span>':'');
+    return '<div class="ph"><span class="pic">'+typeIcon(p.tipo)+'</span><span class="wm">AiLogic Hub</span></div>';
   }
 
-  function clearTimers(){photoTimers.forEach(clearInterval);photoTimers=[];}
-  function startPhotos(slide){
-    var phs=slide.querySelectorAll('.ph');if(phs.length<2)return;
-    var dots=slide.querySelectorAll('.dots i');var i=0;
-    var t=setInterval(function(){
-      phs[i].classList.remove('on');if(dots[i])dots[i].classList.remove('on');
-      i=(i+1)%phs.length;
-      phs[i].classList.add('on');if(dots[i])dots[i].classList.add('on');
-    },2600);
-    photoTimers.push(t);
+  function cardHTML(p,i){
+    var loc=[p.bairro,p.cidade].filter(Boolean).join(', ');
+    var finc=(p.finalidade||'').toLowerCase();
+    var specs=spec(IC.dorm,p.quartos,' dorm')+spec(IC.banho,p.banheiros,' banh')+spec(IC.vaga,p.vagas,' vaga')+spec(IC.area,p.area,' m²');
+    var on=fav[p.id]?' on':'';
+    return '<article class="card" data-i="'+i+'">'
+      +'<div class="media"><span class="badge-fin '+finc+'">'+esc(finLabel(p.finalidade))+'</span>'
+        +'<button class="fav'+on+'" data-fav="'+esc(p.id)+'" title="Favoritar">'+IC.heart.replace('FILL',fav[p.id]?'currentColor':'none')+'</button>'
+        +media(p,false)+'</div>'
+      +'<div class="info">'
+        +'<div class="price">'+esc(brl(p.preco))+(finc==='locacao'?' <small>/mês</small>':'')+'</div>'
+        +'<div class="ttl">'+esc(p.titulo||cap(p.tipo)||'Imóvel')+'</div>'
+        +(loc?'<div class="loc">'+IC.pin+esc(loc)+'</div>':'')
+        +(specs?'<div class="specs">'+specs+'</div>':'')
+        +(p.imobiliaria?'<div class="by">por <b>'+esc(p.imobiliaria)+'</b></div>':'')
+      +'</div></article>';
   }
 
   function render(){
-    clearTimers();
+    countEl.textContent=list.length?(list.length+(list.length>1?' imóveis disponíveis':' imóvel disponível')):'';
     if(!list.length){
-      strip.innerHTML='';
-      stateEl.style.display='grid';
-      stateEl.innerHTML='<div class="box"><h2>Nenhum imóvel por aqui</h2><p>'+(all.length?'Nenhum imóvel neste bairro. Toque em Todos para ver a vitrine completa.':'Em breve novos imóveis disponíveis na vitrine.')+'</p></div>';
+      grid.style.display='block';
+      grid.innerHTML='<div class="state">'+IC.predio+'<h2>'+(all.length?'Nada por aqui':'Vitrine em preparação')+'</h2><p>'+(all.length?'Nenhum imóvel corresponde aos filtros. Ajuste a busca ou toque em Todos.':'Em breve novos imóveis disponíveis nesta vitrine.')+'</p></div>';
       return;
     }
-    stateEl.style.display='none';
-    strip.innerHTML=list.map(slideHTML).join('');
-    idx=Math.min(idx,list.length-1);
-    go(idx,true);
-    bindRail();
-  }
-
-  function go(i,instant){
-    idx=Math.max(0,Math.min(i,list.length-1));
-    if(instant)strip.style.transition='none';else strip.style.transition='';
-    strip.style.transform='translateY('+(-idx*100)+'%)';
-    if(instant){void strip.offsetHeight;strip.style.transition='';}
-    clearTimers();
-    var slide=strip.children[idx];
-    if(slide)startPhotos(slide);
-  }
-
-  function bindRail(){
-    Array.prototype.forEach.call(strip.querySelectorAll('.slide'),function(sl){
-      var id=sl.getAttribute('data-id');
-      sl.querySelectorAll('.rbtn').forEach(function(b){
-        b.addEventListener('click',function(e){
-          e.stopPropagation();
-          var act=b.getAttribute('data-act');
-          if(act==='like'){liked[id]=!liked[id];persist();b.classList.toggle('on',liked[id]);var p=b.querySelector('path');if(p)p.parentNode.setAttribute('fill',liked[id]?'currentColor':'none');}
-          else if(act==='save'){saved[id]=!saved[id];persist();b.classList.toggle('on',saved[id]);var s=b.querySelector('path');if(s)s.parentNode.setAttribute('fill',saved[id]?'currentColor':'none');}
-          else if(act==='share'){doShare(id);}
-        });
-      });
+    grid.style.display='grid';
+    grid.innerHTML=list.map(cardHTML).join('');
+    Array.prototype.forEach.call(grid.querySelectorAll('.card'),function(c){
+      c.addEventListener('click',function(){openModal(list[+c.getAttribute('data-i')]);});
+    });
+    Array.prototype.forEach.call(grid.querySelectorAll('.fav'),function(b){
+      b.addEventListener('click',function(e){e.stopPropagation();var id=b.getAttribute('data-fav');fav[id]=!fav[id];persist();b.classList.toggle('on',fav[id]);b.innerHTML=IC.heart.replace('FILL',fav[id]?'currentColor':'none');});
     });
   }
-  function persist(){try{localStorage.setItem('vitrine_liked',JSON.stringify(liked));localStorage.setItem('vitrine_saved',JSON.stringify(saved));}catch(_){}}
-  function doShare(id){
-    var p=list[idx]||{};
-    var txt=(p.titulo||'Imóvel')+(p.cidade?' - '+p.cidade:'')+' | '+brl(p.preco);
-    if(navigator.share){navigator.share({title:'AiLogic Hub',text:txt,url:location.href}).catch(function(){});}
-    else if(navigator.clipboard){navigator.clipboard.writeText(txt+' '+location.href).then(function(){toast('Link copiado');}).catch(function(){});}
-  }
-  function toast(m){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:9px 16px;border-radius:999px;font-size:12.5px;font-weight:700;z-index:30';document.body.appendChild(t);setTimeout(function(){t.remove();},1600);}
+  function persist(){try{localStorage.setItem('vitrine_fav',JSON.stringify(fav));}catch(_){}}
 
+  // ---- modal ----
+  function galHTML(p){
+    var fs=fotosOf(p);
+    if(!fs.length)return '<div class="gal"><div class="ph"><span class="pic">'+typeIcon(p.tipo)+'</span><span class="wm">AiLogic Hub</span></div><button class="mclose" id="mx">×</button></div>';
+    var dots=fs.length>1?'<div class="gdots">'+fs.map(function(_,i){return '<i class="'+(i===0?'on':'')+'"></i>';}).join('')+'</div>':'';
+    var nav=fs.length>1?'<button class="gnav prev" id="gp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><button class="gnav next" id="gn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>':'';
+    return '<div class="gal"><img id="gimg" src="'+esc(fs[0])+'" alt="'+esc(p.titulo||'')+'">'+nav+dots+'<button class="mclose" id="mx">×</button></div>';
+  }
+  function openModal(p){
+    gCur=p;gIdx=0;var fs=fotosOf(p);
+    var loc=[p.bairro,p.cidade].filter(Boolean).join(', ');
+    var finc=(p.finalidade||'').toLowerCase();
+    var specs=spec(IC.dorm,p.quartos,' dormitórios').replace('spec','mspec')
+      +spec(IC.suite,p.suites,' suítes').replace('spec','mspec')
+      +spec(IC.banho,p.banheiros,' banheiros').replace('spec','mspec')
+      +spec(IC.vaga,p.vagas,' vagas').replace('spec','mspec')
+      +spec(IC.area,p.area,' m²').replace('spec','mspec');
+    modal.innerHTML=galHTML(p)
+      +'<div class="mbody">'
+        +'<div class="mtags"><span class="mtag">'+esc(finLabel(p.finalidade))+'</span>'+(p.tipo?'<span class="mtag">'+esc(cap(p.tipo))+'</span>':'')+(p.codigo?'<span class="mtag">Cód. '+esc(p.codigo)+'</span>':'')+'</div>'
+        +'<h2>'+esc(p.titulo||cap(p.tipo)||'Imóvel')+'</h2>'
+        +(loc?'<div class="mloc">'+esc(loc)+'</div>':'')
+        +'<div class="mprice">'+esc(brl(p.preco))+(finc==='locacao'?' <span style="font-size:15px;color:#64748b;font-weight:600">/mês</span>':'')+'</div>'
+        +(specs?'<div class="mspecs">'+specs+'</div>':'')
+        +(p.descricao?'<div class="mdesc">'+esc(p.descricao)+'</div>':'')
+        +'<div class="mfoot">'+(p.imobiliaria?'<div class="mby">Anunciado por <b>'+esc(p.imobiliaria)+'</b></div>':'')
+          +'<button class="cta" id="cta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H5.2L4 17.2V4Z"/><path d="M8 9h8M8 12h5"/></svg>Tenho interesse</button>'
+        +'</div>'
+      +'</div>';
+    mbg.classList.add('open');document.body.style.overflow='hidden';
+    var x=document.getElementById('mx');if(x)x.onclick=closeModal;
+    var cta=document.getElementById('cta');if(cta)cta.onclick=function(){share(p);};
+    if(fs.length>1){
+      var img=document.getElementById('gimg'),dots=modal.querySelectorAll('.gdots i');
+      function show(i){gIdx=(i+fs.length)%fs.length;img.src=fs[gIdx];dots.forEach(function(d,k){d.classList.toggle('on',k===gIdx);});}
+      document.getElementById('gp').onclick=function(){show(gIdx-1);};
+      document.getElementById('gn').onclick=function(){show(gIdx+1);};
+    }
+  }
+  function closeModal(){mbg.classList.remove('open');document.body.style.overflow='';}
+  mbg.addEventListener('click',function(e){if(e.target===mbg)closeModal();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+  function share(p){
+    var txt=(p.titulo||'Imóvel')+(p.cidade?' - '+p.cidade:'')+' | '+brl(p.preco)+' | AiLogic Hub';
+    if(navigator.share){navigator.share({title:'AiLogic Hub',text:txt,url:location.href}).catch(function(){});}
+    else if(navigator.clipboard){navigator.clipboard.writeText(txt+' '+location.href).then(function(){toast('Link do imóvel copiado');}).catch(function(){});}
+    else toast('Fale com '+(p.imobiliaria||'a imobiliária'));
+  }
+  function toast(m){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:11px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:80;box-shadow:0 10px 30px rgba(0,0,0,.3)';document.body.appendChild(t);setTimeout(function(){t.remove();},1800);}
+
+  // ---- filtros ----
   function buildChips(){
-    var bs={};all.forEach(function(p){if(p.bairro)bs[p.bairro]=1;});
+    var bs={};all.forEach(function(p){if(p.bairro)bs[p.bairro]=(bs[p.bairro]||0)+1;});
     var items=['<button class="chip'+(bairro===''?' active':'')+'" data-b="">Todos</button>']
       .concat(Object.keys(bs).sort().map(function(b){return '<button class="chip'+(bairro===b?' active':'')+'" data-b="'+esc(b)+'">'+esc(b)+'</button>';}));
     chipsEl.innerHTML=items.join('');
-    chipsEl.querySelectorAll('.chip').forEach(function(c){
-      c.addEventListener('click',function(){bairro=c.getAttribute('data-b');idx=0;applyFilter();
-        chipsEl.querySelectorAll('.chip').forEach(function(x){x.classList.toggle('active',x===c);});});
-    });
+    chipsEl.querySelectorAll('.chip').forEach(function(c){c.addEventListener('click',function(){bairro=c.getAttribute('data-b');chipsEl.querySelectorAll('.chip').forEach(function(x){x.classList.toggle('active',x===c);});apply();});});
   }
-  function applyFilter(){list=bairro?all.filter(function(p){return p.bairro===bairro;}):all.slice();render();}
+  function apply(){
+    list=all.filter(function(p){
+      if(bairro&&p.bairro!==bairro)return false;
+      if(fin&&String(p.finalidade||'').toLowerCase()!==fin)return false;
+      if(q){var hay=((p.titulo||'')+' '+(p.bairro||'')+' '+(p.cidade||'')+' '+(p.codigo||'')).toLowerCase();if(hay.indexOf(q)<0)return false;}
+      return true;
+    });
+    render();
+  }
+  document.getElementById('q').addEventListener('input',function(){q=this.value.trim().toLowerCase();apply();});
+  document.getElementById('fFin').addEventListener('change',function(){fin=this.value;apply();});
 
-  // navegação
-  var wheelLock=false;
-  feed.addEventListener('wheel',function(e){
-    if(wheelLock||!list.length)return;wheelLock=true;setTimeout(function(){wheelLock=false;},520);
-    if(e.deltaY>0)go(idx+1);else if(e.deltaY<0)go(idx-1);
-  },{passive:true});
-  var ty=null;
-  feed.addEventListener('touchstart',function(e){ty=e.touches[0].clientY;},{passive:true});
-  feed.addEventListener('touchend',function(e){
-    if(ty==null||!list.length)return;var dy=e.changedTouches[0].clientY-ty;ty=null;
-    if(Math.abs(dy)<40)return;if(dy<0)go(idx+1);else go(idx-1);
-  },{passive:true});
-  document.addEventListener('keydown',function(e){
-    if(e.key==='ArrowDown'||e.key==='PageDown'){go(idx+1);}
-    else if(e.key==='ArrowUp'||e.key==='PageUp'){go(idx-1);}
-  });
-
-  // carregar dados
+  // ---- carregar ----
+  grid.innerHTML=Array.from({length:6}).map(function(){return '<div class="sk"><div class="m"></div><div class="l"></div><div class="l s"></div></div>';}).join('');
   fetch('/api/vitrine',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
-    all=(d&&d.rows)||[];
-    buildChips();applyFilter();
-    if(!all.length){hintEl.style.display='none';}
+    all=(d&&d.rows)||[];buildChips();apply();
   }).catch(function(){
-    stateEl.style.display='grid';
-    stateEl.innerHTML='<div class="box"><h2>Não foi possível carregar</h2><p>Tente novamente em instantes.</p></div>';
-    hintEl.style.display='none';
+    grid.style.display='block';
+    grid.innerHTML='<div class="state">'+IC.predio+'<h2>Não foi possível carregar</h2><p>Tente novamente em instantes.</p></div>';
   });
 })();
 </script>
