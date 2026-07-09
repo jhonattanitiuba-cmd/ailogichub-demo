@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AiLogic Hub · Vitrine de Imóveis</title>
+<title>AILogic Hub · Vitrine de Imóveis</title>
 <link rel="stylesheet" href="/tokens.css">
 <link rel="icon" href="/assets/favicon.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -108,7 +108,7 @@ img{max-width:100%;display:block}
 <body>
 <header class="hdr">
   <div class="hdr-in">
-    <a class="brand" href="/vitrine"><span class="mk"><img src="/assets/logo-mark.png" alt="AiLogic Hub"></span><span><strong>AiLogic Hub</strong><span>Vitrine de Imóveis</span></span></a>
+    <a class="brand" href="/vitrine"><span class="mk"><img src="/assets/logo-mark.png" alt="AILogic Hub"></span><span><strong>AILogic Hub</strong><span>Vitrine de Imóveis</span></span></a>
     <div class="tools">
       <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="q" type="search" placeholder="Buscar por título, bairro ou cidade"></label>
       <select class="sel" id="fFin"><option value="">Todas as finalidades</option><option value="venda">Venda</option><option value="locacao">Locação</option><option value="temporada">Temporada</option></select>
@@ -155,7 +155,7 @@ img{max-width:100%;display:block}
   function media(p,big){
     var fs=fotosOf(p);
     if(fs.length)return '<img src="'+esc(fs[0])+'" alt="'+esc(p.titulo||'Imóvel')+'" loading="lazy">'+(!big&&fs.length>1?'<span class="nph">'+fs.length+' fotos</span>':'');
-    return '<div class="ph"><span class="pic">'+typeIcon(p.tipo)+'</span><span class="wm">AiLogic Hub</span></div>';
+    return '<div class="ph"><span class="pic">'+typeIcon(p.tipo)+'</span><span class="wm">AILogic Hub</span></div>';
   }
 
   function cardHTML(p,i){
@@ -197,7 +197,7 @@ img{max-width:100%;display:block}
   // ---- modal ----
   function galHTML(p){
     var fs=fotosOf(p);
-    if(!fs.length)return '<div class="gal"><div class="ph"><span class="pic">'+typeIcon(p.tipo)+'</span><span class="wm">AiLogic Hub</span></div><button class="mclose" id="mx">×</button></div>';
+    if(!fs.length)return '<div class="gal"><div class="ph"><span class="pic">'+typeIcon(p.tipo)+'</span><span class="wm">AILogic Hub</span></div><button class="mclose" id="mx">×</button></div>';
     var dots=fs.length>1?'<div class="gdots">'+fs.map(function(_,i){return '<i class="'+(i===0?'on':'')+'"></i>';}).join('')+'</div>':'';
     var nav=fs.length>1?'<button class="gnav prev" id="gp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><button class="gnav next" id="gn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>':'';
     return '<div class="gal"><img id="gimg" src="'+esc(fs[0])+'" alt="'+esc(p.titulo||'')+'">'+nav+dots+'<button class="mclose" id="mx">×</button></div>';
@@ -237,8 +237,8 @@ img{max-width:100%;display:block}
   mbg.addEventListener('click',function(e){if(e.target===mbg)closeModal();});
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
   function share(p){
-    var txt=(p.titulo||'Imóvel')+(p.cidade?' - '+p.cidade:'')+' | '+brl(p.preco)+' | AiLogic Hub';
-    if(navigator.share){navigator.share({title:'AiLogic Hub',text:txt,url:location.href}).catch(function(){});}
+    var txt=(p.titulo||'Imóvel')+(p.cidade?' - '+p.cidade:'')+' | '+brl(p.preco)+' | AILogic Hub';
+    if(navigator.share){navigator.share({title:'AILogic Hub',text:txt,url:location.href}).catch(function(){});}
     else if(navigator.clipboard){navigator.clipboard.writeText(txt+' '+location.href).then(function(){toast('Link do imóvel copiado');}).catch(function(){});}
     else toast('Fale com '+(p.imobiliaria||'a imobiliária'));
   }

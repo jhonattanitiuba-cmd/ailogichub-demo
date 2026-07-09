@@ -1,4 +1,4 @@
-// AI LOGIC HUB — CRUD de imobiliárias e imóveis no Supabase (Serverless Vercel)
+// AILOGIC HUB — CRUD de imobiliárias e imóveis no Supabase (Serverless Vercel)
 // Colunas escalares populadas + coluna `extra jsonb` com os campos do formulário.
 // Segredo DB_URL em env var da Vercel.
 const { Client } = require('pg');

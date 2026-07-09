@@ -1,4 +1,4 @@
-// AI LOGIC HUB — Backend do canal WhatsApp (Serverless Vercel)
+// AILOGIC HUB — Backend do canal WhatsApp (Serverless Vercel)
 // Espelha o WhatsApp do Hub DENTRO da plataforma (sem Chatwoot).
 // Fala com o Evolution server-side e grava estado no Supabase.
 // Segredos via env vars da Vercel — nunca no repo.

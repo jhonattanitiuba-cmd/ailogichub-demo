@@ -1,4 +1,4 @@
-# AiLogic Hub — Documentação técnica
+# AILogic Hub — Documentação técnica
 
 Documentação para desenvolvedores. Descreve arquitetura, APIs, banco de dados,
 front-end, autenticação/RBAC, deploy e como estender a plataforma.
@@ -31,7 +31,7 @@ front-end, autenticação/RBAC, deploy e como estender a plataforma.
 
 ## 1. Visão geral
 
-O AiLogic Hub centraliza a operação de várias imobiliárias parceiras:
+O AILogic Hub centraliza a operação de várias imobiliárias parceiras:
 imobiliárias, corretores, leads, imóveis, funil de vendas, agenda, contratos,
 financeiro e atendimento por WhatsApp — tudo em uma plataforma única, com
 controle de acesso por perfil.

@@ -1,4 +1,4 @@
-// AI LOGIC HUB — Webhook do agente de IA no WhatsApp (Serverless Vercel)
+// AILOGIC HUB — Webhook do agente de IA no WhatsApp (Serverless Vercel)
 // Onboarding conversacional: lê o estado real do Supabase + histórico da conversa (multi-turno)
 // e responde com Claude (fallback básico sem chave). MODO TESTE: só responde a allowlist.
 // env: EVO_BASE, EVO_KEY, WA_INSTANCE, DB_URL, ANTHROPIC_API_KEY
@@ -11,7 +11,7 @@ const DB_URL   = process.env.DB_URL || '';
 const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
 const NUM_ALESSANDRO = '5511995568148';
 
-const PERSONA_PADRAO = 'Você é o assistente virtual do AI Logic Hub, plataforma imobiliária. ' +
+const PERSONA_PADRAO = 'Você é o assistente virtual do AILogic Hub, plataforma imobiliária. ' +
   'Atenda em português do Brasil, cordial e objetivo, respostas curtas (2 a 4 frases). ' +
   'Padrão de escrita obrigatório: não use travessão (— ou –); prefira vírgula, ponto ou frases separadas. ' +
   'Não use emojis (nem decorativos nem genéricos). Mantenha tom profissional e consistente.';
@@ -44,7 +44,7 @@ async function contextoBase() {
       '- Imobiliárias cadastradas: ' + imob.length + ', ' + lista + '\n' +
       '- Imóveis cadastrados: ' + nImov + '\n' +
       '- Canal WhatsApp do Hub: conectado e espelhado na plataforma.';
-  } catch (_) { return 'CONTEXTO: plataforma AI Logic Hub ativa.'; }
+  } catch (_) { return 'CONTEXTO: plataforma AILogic Hub ativa.'; }
 }
 
 // histórico da conversa (multi-turno) a partir do Evolution
@@ -83,7 +83,7 @@ function respostaBasica(t) {
   const s = (t || '').toLowerCase();
   if (/alug/.test(s)) return 'Perfeito! Para locação, me diga a região e a faixa de aluguel que procura.';
   if (/compr|venda/.test(s)) return 'Ótimo! Para compra, qual região e faixa de valor você tem em mente?';
-  return 'Olá! Sou o assistente do AI Logic Hub. Posso te ajudar com imóveis para comprar ou alugar. Me conta o que procura.';
+  return 'Olá! Sou o assistente do AILogic Hub. Posso te ajudar com imóveis para comprar ou alugar. Me conta o que procura.';
 }
 
 async function respostaIA(persona, contexto, messages) {

@@ -1,6 +1,6 @@
 {
-  "name": "AiLogic Hub",
-  "short_name": "AiLogic",
+  "name": "AILogic Hub",
+  "short_name": "AILogic",
   "description": "A operação imobiliária inteira, orquestrada por IA.",
   "lang": "pt-BR",
   "start_url": "/login",

@@ -1,4 +1,4 @@
-/* AiLogic Hub — service worker mínimo.
+/* AILogic Hub — service worker mínimo.
    Existe para habilitar a instalação do PWA (beforeinstallprompt no Android/Chrome).
    Não faz cache offline: apenas repassa as requisições para a rede. */
 self.addEventListener('install', function () {
