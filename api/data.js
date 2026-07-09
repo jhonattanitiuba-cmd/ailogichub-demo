@@ -131,6 +131,26 @@ module.exports = async (req, res) => {
       return;
     }
 
+    // ---- ASSIGN (leads: define responsável / rodízio de distribuição) ----
+    if (action === 'assign') {
+      if (ent !== 'leads') { res.status(400).json({ error: 'assign suportado apenas para leads' }); return; }
+      const id = body.id || (req.query && req.query.id);
+      const resp = body.responsavel_id || null;
+      if (!id) { res.status(400).json({ error: 'id obrigatorio' }); return; }
+      if (!user.isAdmin) {
+        if (!user.imobiliariaId) { res.status(403).json({ error: 'sem permissao' }); return; }
+        const chk = await db(`select 1 from leads where id=$1 and imobiliaria_id=$2 and deleted_at is null`, [id, user.imobiliariaId]);
+        if (!chk.rows[0]) { res.status(403).json({ error: 'sem permissao sobre este lead' }); return; }
+        if (resp) {
+          const chk2 = await db(`select 1 from usuarios where id=$1 and imobiliaria_id=$2 and deleted_at is null`, [resp, user.imobiliariaId]);
+          if (!chk2.rows[0]) { res.status(403).json({ error: 'corretor invalido para esta imobiliaria' }); return; }
+        }
+      }
+      const r = await db(`update leads set responsavel_id=$1, updated_at=now() where id=$2 returning *`, [resp, id]);
+      if (!r.rows[0]) { res.status(404).json({ error: 'lead nao encontrado' }); return; }
+      res.status(200).json({ row: leadOut(r.rows[0]) }); return;
+    }
+
     // ---- SAVE (insert/update) ----
     if (action === 'save') {
       if (READONLY.has(ent)) { res.status(400).json({ error: 'save nao suportado para ' + ent + ' (somente leitura)' }); return; }
