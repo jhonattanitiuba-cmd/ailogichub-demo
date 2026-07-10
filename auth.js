@@ -59,11 +59,21 @@
   };
 
   // ---- 2) cliente supabase-js (login/refresh) ----
+  // normaliza a URL do Supabase: sem espaços, com https://, sem barra final.
+  // Uma env var sem protocolo faria o supabase-js falhar com "Failed to fetch".
+  function normUrl(u) {
+    u = String(u || '').trim();
+    if (!u) return '';
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    return u.replace(/\/+$/, '');
+  }
+
   var sb = null;
   function client() {
     if (sb) return sb;
-    if (!window.supabase || !CFG.SUPABASE_URL || !CFG.SUPABASE_ANON_KEY) return null;
-    sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY, {
+    var url = normUrl(CFG.SUPABASE_URL), anon = String(CFG.SUPABASE_ANON_KEY || '').trim();
+    if (!window.supabase || !url || !anon) return null;
+    sb = window.supabase.createClient(url, anon, {
       auth: { storageKey: STORAGE_KEY, persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
     });
     // mantém a flag legada em sincronia com a sessão real
