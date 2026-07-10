@@ -144,6 +144,10 @@ body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-heigh
   </div>
 
 <script>
+/* falha de rede ao alcançar o Supabase (projeto pausado/fora do ar, sem internet) */
+function isNetErr(msg){ return /failed to fetch|networkerror|network ?error|load failed|net::|err_(internet|connection|name|network|timed)|timeout/i.test(String(msg||'')); }
+var NET_MSG='Não foi possível conectar ao servidor de login. Verifique sua internet e tente novamente em instantes. Se persistir, o serviço pode estar temporariamente indisponível.';
+
 document.getElementById('form').addEventListener('submit',async function(e){
   e.preventDefault();
   var email=document.getElementById('email').value.trim();
@@ -160,7 +164,8 @@ document.getElementById('form').addEventListener('submit',async function(e){
     location.href='/visaogeral';
   }catch(ex){
     var msg=(ex&&ex.message)||'Falha no login.';
-    if(/invalid login|credenciais|invalid/i.test(msg)) msg='E-mail ou senha incorretos.';
+    if(isNetErr(msg)) msg=NET_MSG;
+    else if(/invalid login|credenciais|invalid/i.test(msg)) msg='E-mail ou senha incorretos.';
     err.textContent=msg; btn.innerHTML=original; btn.disabled=false;
   }
 });
@@ -192,7 +197,8 @@ document.getElementById('signupLink').addEventListener('click',async function(e)
     note.textContent='Conta criada. Confirme pelo link enviado para '+email+' e depois entre.';
   }catch(ex){
     var msg=(ex&&ex.message)||'Não foi possível criar a conta.';
-    if(/not allowed|disabled|signup/i.test(msg)) msg='Auto-cadastro desativado no servidor. Peça a criação do usuário a quem administra o Supabase.';
+    if(isNetErr(msg)) msg=NET_MSG;
+    else if(/not allowed|disabled|signup/i.test(msg)) msg='Auto-cadastro desativado no servidor. Peça a criação do usuário a quem administra o Supabase.';
     else if(/already registered|already been registered|exists/i.test(msg)) msg='Esse e-mail já tem conta. Use "Entrar no Hub".';
     else if(/password/i.test(msg)) msg='Senha fraca demais para o servidor. Tente uma senha mais forte.';
     err.textContent=msg;
@@ -218,7 +224,8 @@ document.getElementById('forgotLink').addEventListener('click',async function(e)
     note.textContent='Se existir uma conta para '+email+', enviamos um link de redefinição. Verifique seu e-mail (e o spam).';
   }catch(ex){
     var msg=(ex&&ex.message)||'Não foi possível enviar o link.';
-    if(/rate|too many|seconds/i.test(msg)) msg='Aguarde um instante antes de pedir outro link.';
+    if(isNetErr(msg)) msg=NET_MSG;
+    else if(/rate|too many|seconds/i.test(msg)) msg='Aguarde um instante antes de pedir outro link.';
     err.textContent=msg;
   }finally{
     link.textContent=orig; link.style.pointerEvents='';
