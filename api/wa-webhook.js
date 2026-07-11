@@ -3,6 +3,7 @@
 // e responde com Claude (fallback básico sem chave). MODO TESTE: só responde a allowlist.
 // env: EVO_BASE, EVO_KEY, WA_INSTANCE, DB_URL, ANTHROPIC_API_KEY
 const { Client } = require('pg');
+const { PERSONA_SAM } = require('./persona');
 
 const EVO_BASE = (process.env.EVO_BASE || '').replace(/\/$/, '');
 const EVO_KEY  = process.env.EVO_KEY || '';
@@ -11,10 +12,8 @@ const DB_URL   = process.env.DB_URL || '';
 const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
 const NUM_ALESSANDRO = '5511995568148';
 
-const PERSONA_PADRAO = 'Você é o assistente virtual do AILogic Hub, plataforma imobiliária. ' +
-  'Atenda em português do Brasil, cordial e objetivo, respostas curtas (2 a 4 frases). ' +
-  'Padrão de escrita obrigatório: não use travessão (— ou –); prefira vírgula, ponto ou frases separadas. ' +
-  'Não use emojis (nem decorativos nem genéricos). Mantenha tom profissional e consistente.';
+// Persona padrao do agente (Sam), usada quando nao ha ia_persona no banco.
+const PERSONA_PADRAO = PERSONA_SAM;
 
 async function db(q, params) {
   const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
