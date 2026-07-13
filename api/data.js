@@ -219,6 +219,9 @@ module.exports = async (req, res) => {
         const ativo = o.status !== 'Inativo' && o.status !== 'Pausado';
         const perfil = o.perfil || 'corretor';
         const imob = o.imobiliaria_id || null;
+        // Garante que o valor de perfil exista no enum perfil_usuario (idempotente).
+        // Whitelist estrita: valor de enum nao aceita placeholder, entao validamos antes.
+        if (/^[a-z_]{2,40}$/.test(perfil)) { try { await db("alter type perfil_usuario add value if not exists '" + perfil + "'"); } catch (_) {} }
         // Usuarios de nivel Hub (admin/diretoria) nao tem imobiliaria: garante que
         // a coluna aceite NULL. Idempotente; ignora erro/permissao se ja for nullable.
         if (imob === null) { try { await db('alter table usuarios alter column imobiliaria_id drop not null'); } catch (_) {} }
