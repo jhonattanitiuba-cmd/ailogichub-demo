@@ -4,12 +4,40 @@
 const { Client } = require('pg');
 const { requireAuth } = require('./_auth');
 const DB_URL = process.env.DB_URL || '';
+const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
 
 async function db(q, params) {
   const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
   await c.connect();
   try { return await c.query(q, params); }
   finally { try { await c.end(); } catch (_) {} }
+}
+
+// gera uma senha temporaria legivel (>= 6 chars, com letra/numero/simbolo)
+function genSenha() {
+  return 'Hub' + Math.random().toString(36).slice(2, 8) + '#' + Math.floor(10 + Math.random() * 89);
+}
+// cria o login no Supabase Auth (GoTrue) via Admin API usando a service key.
+// Retorna {ok, id} ou {ok:false, motivo, jaExiste}.
+async function criarLoginSupabase(email, senha, meta) {
+  if (!SUPABASE_URL || !SERVICE_KEY) {
+    return { ok: false, motivo: 'Login automatico indisponivel: defina SUPABASE_SERVICE_ROLE_KEY na Vercel.' };
+  }
+  try {
+    const r = await fetch(SUPABASE_URL + '/auth/v1/admin/users', {
+      method: 'POST',
+      headers: { apikey: SERVICE_KEY, Authorization: 'Bearer ' + SERVICE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: senha, email_confirm: true, user_metadata: meta || {} })
+    });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j && j.id) return { ok: true, id: j.id };
+    const msg = (j && (j.msg || j.message || j.error_description || j.error)) || ('HTTP ' + r.status);
+    if (/already|exists|registered|duplicate/i.test(String(msg))) {
+      return { ok: false, jaExiste: true, motivo: 'Este e-mail ja possui login. A pessoa pode entrar ou usar Esqueci a senha.' };
+    }
+    return { ok: false, motivo: String(msg) };
+  } catch (_) { return { ok: false, motivo: 'Nao foi possivel criar o login agora.' }; }
 }
 
 function slugify(s) {
@@ -232,7 +260,20 @@ module.exports = async (req, res) => {
         }
         const r = await db(`insert into usuarios(imobiliaria_id,nome,email,telefone,creci,perfil,ativo,extra) values($1,$2,$3,$4,$5,$6,$7,$8) returning *`,
           [imob, o.nome, o.email||null, o.telefone||null, o.creci||null, perfil, ativo, JSON.stringify(extra)]);
-        res.status(200).json({ row: corOut(r.rows[0]) }); return;
+        const row = r.rows[0];
+        const resp = { row: corOut(row) };
+        // cria o login (Supabase Auth) com senha temporaria para o admin repassar
+        if (o.email) {
+          const senha = (o.senha && String(o.senha).length >= 6) ? String(o.senha) : genSenha();
+          const login = await criarLoginSupabase(String(o.email).toLowerCase(), senha, { nome: o.nome, perfil: perfil });
+          if (login.ok) {
+            try { await db('update usuarios set auth_user_id=$1 where id=$2', [login.id, row.id]); } catch (_) {}
+            resp.login_criado = true; resp.senha_temporaria = senha;
+          } else {
+            resp.login_criado = false; resp.login_motivo = login.motivo || ''; if (login.jaExiste) resp.login_ja_existe = true;
+          }
+        }
+        res.status(200).json(resp); return;
       }
 
       // imoveis
