@@ -101,7 +101,7 @@ td.strong{font-weight:700;color:var(--heading)}
     <article class="kpi"><h3>Imobiliárias</h3><div class="value" data-k="total">·</div><small>cadastradas</small></article>
     <article class="kpi"><h3>Ativas</h3><div class="value" data-k="ativas">·</div><small>em operação</small></article>
     <article class="kpi"><h3>Pausadas</h3><div class="value" data-k="pausadas">·</div><small>fora do ar</small></article>
-    <article class="kpi"><h3>Com CRECI</h3><div class="value" data-k="creci">·</div><small>registro informado</small></article>
+    <article class="kpi"><h3>Pendentes</h3><div class="value" data-k="pendentes">·</div><small>aguardando aprovação</small></article>
   </section>
 
   <section class="panel">
@@ -129,7 +129,7 @@ td.strong{font-weight:700;color:var(--heading)}
 <div class="modal-bg" id="detModal"><div class="modal">
   <div class="modal-h"><h3 id="dTit">·</h3><button class="modal-x" id="dClose">×</button></div>
   <div class="mgrid" id="dGrid"></div>
-  <div class="modal-f"><button class="btn" id="dEdit">Editar</button><button class="btn" id="dClose2">Fechar</button></div>
+  <div class="modal-f"><button class="btn primary" id="dApprove" style="display:none">Aprovar acesso</button><button class="btn" id="dEdit">Editar</button><button class="btn" id="dClose2">Fechar</button></div>
 </div></div>
 
 <script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script>
@@ -148,7 +148,7 @@ td.strong{font-weight:700;color:var(--heading)}
     var tb=$('rows');
     if(!list.length){tb.innerHTML='<tr><td colspan="6" class="empty">Nenhuma imobiliária encontrada.</td></tr>';return;}
     tb.innerHTML=list.map(function(m,ix){
-      return '<tr data-i="'+ix+'"><td class="strong open">'+esc(m.nome||'—')+'</td><td>'+esc(m.creci||'—')+'</td><td>'+esc(m.cidade||'—')+'</td><td>'+esc(m.telefone||'—')+'</td><td>'+stBadge(m.status)+'</td>'
+      return '<tr data-i="'+ix+'"><td class="strong open">'+esc(m.nome||'—')+'</td><td>'+esc(m.creci||'—')+'</td><td>'+esc(m.cidade||'—')+'</td><td>'+esc(m.telefone||'—')+'</td><td>'+(m.pendente?'<span class="badge" style="background:#efe9ff;color:#7257ff">Pendente</span>':stBadge(m.status))+'</td>'
         +'<td><div class="act"><button data-a="edit">Editar</button><button class="del" data-a="del">Excluir</button></div></td></tr>';
     }).join('');
     Array.prototype.forEach.call(tb.querySelectorAll('tr'),function(tr){
@@ -161,11 +161,36 @@ td.strong{font-weight:700;color:var(--heading)}
   $('q').addEventListener('input',function(){var q=$('q').value.trim().toLowerCase();renderRows(items.filter(function(m){return ((m.nome||'')+' '+(m.cidade||'')+' '+(m.creci||'')).toLowerCase().indexOf(q)>=0;}));});
 
   function openDetail(m){curDetail=m;$('dTit').textContent=m.nome||'Imobiliária';
-    $('dGrid').innerHTML=fld('CRECI',m.creci)+fld('Status',m.status)+fld('Telefone',m.telefone)+fld('E-mail',m.email)+fld('Cidade',m.cidade)+fld('Instagram',m.instagram)+fld('Site',m.site,true)+fld('Endereço',m.endereco,true);
+    var extra=m.pendente?(fld('Solicitação','Pendente de aprovação')+fld('Responsável',m.responsavel_nome)+fld('E-mail do responsável',m.responsavel_email)+fld('WhatsApp',m.responsavel_telefone)):'';
+    $('dGrid').innerHTML=fld('CRECI',m.creci)+fld('Status',m.pendente?'Pendente':m.status)+fld('Telefone',m.telefone)+fld('E-mail',m.email)+fld('Cidade',m.cidade)+fld('Instagram',m.instagram)+fld('Site',m.site,true)+fld('Endereço',m.endereco,true)+extra;
+    $('dApprove').style.display=m.pendente?'':'none';
     dm.classList.add('open');}
   $('dClose').addEventListener('click',function(){dm.classList.remove('open');});
   $('dClose2').addEventListener('click',function(){dm.classList.remove('open');});
   $('dEdit').addEventListener('click',function(){dm.classList.remove('open');openForm(curDetail);});
+  $('dApprove').addEventListener('click',function(){if(curDetail)approve(curDetail);});
+  function approve(m){
+    if(!confirm('Aprovar a imobiliária "'+(m.nome||'')+'" e criar o acesso do responsável?'))return;
+    var btn=$('dApprove');btn.disabled=true;btn.textContent='Aprovando…';
+    var imob={id:m.id,nome:m.nome,creci:m.creci||'',telefone:m.telefone||'',email:m.email||'',cidade:m.cidade||'',
+      instagram:m.instagram||'',site:m.site||'',endereco:m.endereco||'',status:'Implantando',
+      responsavel_nome:m.responsavel_nome||'',responsavel_email:m.responsavel_email||'',responsavel_telefone:m.responsavel_telefone||'',
+      pendente:false,origem:m.origem||'auto-cadastro'};
+    fetch(DATA+'?ent=imobiliarias&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(imob)})
+      .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+      .then(function(x){
+        if(!x.ok)throw new Error((x.j&&x.j.error)||'falha ao ativar a imobiliária');
+        var novoId=(x.j&&x.j.row&&x.j.row.id)||m.id;
+        var user={nome:m.responsavel_nome||m.nome,email:m.responsavel_email||'',telefone:m.responsavel_telefone||'',perfil:'gestor',imobiliaria_id:novoId,status:'Ativo'};
+        return fetch(DATA+'?ent=corretores&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(user)})
+          .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});});
+      })
+      .then(function(x){
+        btn.disabled=false;btn.textContent='Aprovar acesso';dm.classList.remove('open');load();
+        if(x&&!x.ok){alert('Imobiliária ativada, mas não consegui criar o usuário do responsável ('+((x.j&&x.j.error)||'')+'). Crie manualmente em Administrador.');}
+      })
+      .catch(function(e){btn.disabled=false;btn.textContent='Aprovar acesso';alert('Não foi possível aprovar: '+((e&&e.message)||e));});
+  }
   dm.addEventListener('click',function(e){if(e.target===dm)dm.classList.remove('open');});
 
   function openForm(m){m=m||{};$('fTit').textContent=m.id?'Editar imobiliária':'Nova imobiliária';$('fErr').textContent='';
@@ -202,8 +227,8 @@ td.strong{font-weight:700;color:var(--heading)}
   function load(){get().then(function(rows){items=rows;
     kset('total',items.length);
     kset('ativas',items.filter(function(m){return m.status!=='Pausado';}).length);
-    kset('pausadas',items.filter(function(m){return m.status==='Pausado';}).length);
-    kset('creci',items.filter(function(m){return m.creci;}).length);
+    kset('pausadas',items.filter(function(m){return m.status==='Pausado'&&!m.pendente;}).length);
+    kset('pendentes',items.filter(function(m){return m.pendente;}).length);
     renderRows(items);
   });}
   load();
