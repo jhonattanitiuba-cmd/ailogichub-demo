@@ -129,9 +129,9 @@ td.strong{font-weight:700;color:var(--heading)}
 
 <div class="modal-bg" id="formModal"><div class="modal">
   <div class="modal-h"><h3 id="fTit">Novo usuário</h3><button class="modal-x" id="fClose">×</button></div>
-  <div class="fbody">
+  <div class="fbody" id="fBody">
     <label>Nome*<input id="f_nome"></label>
-    <label>E-mail*<input id="f_email" type="email" placeholder="usuario@empresa.com"><div class="fhelp">É por este e-mail que o acesso é liberado no primeiro login.</div></label>
+    <label>E-mail*<input id="f_email" type="email" placeholder="usuario@empresa.com"><div class="fhelp">É por este e-mail que o acesso é liberado no login.</div></label>
     <div class="fg2">
       <label>Perfil<select id="f_perfil">
         <option value="diretoria">Diretoria (acesso total)</option>
@@ -143,8 +143,18 @@ td.strong{font-weight:700;color:var(--heading)}
       <label>Imobiliária<select id="f_imob"><option value="">Hub / sem imobiliária</option></select></label>
     </div>
     <div class="fg2"><label>Telefone<input id="f_telefone"></label><label>Status<select id="f_status"><option>Ativo</option><option>Inativo</option></select></label></div>
+    <label id="fSenhaWrap">Senha temporária<input id="f_senha" placeholder="Deixe em branco para gerar automaticamente"><div class="fhelp">Senha inicial do primeiro login. A pessoa pode trocar depois em Esqueci a senha.</div></label>
   </div>
-  <div class="modal-f"><span class="ferr" id="fErr"></span><button class="btn" id="fCancel">Cancelar</button><button class="btn primary" id="fSave">Salvar</button></div>
+  <div id="credBox" style="display:none;padding:4px 20px 10px">
+    <div style="font-weight:800;color:var(--heading);margin-bottom:6px">Acesso criado</div>
+    <div class="fhelp" style="margin-bottom:12px">Repasse estes dados ao usuário. Ele pode trocar a senha depois.</div>
+    <div style="background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:13px 15px;font-size:14px;line-height:1.8">
+      <div>E-mail: <strong id="credEmail"></strong></div>
+      <div>Senha temporária: <strong id="credSenha"></strong></div>
+    </div>
+  </div>
+  <div class="modal-f" id="fFoot"><span class="ferr" id="fErr"></span><button class="btn" id="fCancel">Cancelar</button><button class="btn primary" id="fSave">Salvar</button></div>
+  <div class="modal-f" id="credFoot" style="display:none"><button class="btn" id="credCopy">Copiar acesso</button><button class="btn primary" id="credDone">Concluir</button></div>
 </div></div>
 
 <div class="modal-bg" id="detModal"><div class="modal">
@@ -216,6 +226,8 @@ td.strong{font-weight:700;color:var(--heading)}
     $('f_imob').innerHTML='<option value="">Hub / sem imobiliária</option>'+imobs.map(function(i){return '<option value="'+esc(i.id)+'">'+esc(i.nome)+'</option>';}).join('');
     $('f_imob').value=m.imobiliaria_id||'';
     selVal($('f_perfil'),m.perfil||'corretor');$('f_status').value=(m.status==='Inativo')?'Inativo':'Ativo';
+    $('credBox').style.display='none';$('credFoot').style.display='none';$('fBody').style.display='';$('fFoot').style.display='flex';
+    $('fSenhaWrap').style.display=m.id?'none':'';$('f_senha').value='';
     fm.dataset.id=m.id||'';fm.classList.add('open');}
   function closeForm(){fm.classList.remove('open');}
   $('btnNew').addEventListener('click',function(){openForm(null);});
@@ -227,13 +239,30 @@ td.strong{font-weight:700;color:var(--heading)}
     var o={nome:$('f_nome').value.trim(),email:$('f_email').value.trim(),telefone:$('f_telefone').value.trim(),imobiliaria_id:$('f_imob').value||null,perfil:$('f_perfil').value,status:$('f_status').value};
     if(!o.nome){$('fErr').textContent='Informe o nome.';return;}
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.email)){$('fErr').textContent='Informe um e-mail válido (é ele que libera o acesso).';return;}
-    if(fm.dataset.id)o.id=fm.dataset.id;
+    if(fm.dataset.id){o.id=fm.dataset.id;}else{var sp=$('f_senha').value.trim();if(sp)o.senha=sp;}
     var btn=$('fSave');btn.disabled=true;btn.textContent='Salvando…';
     fetch(DATA+'?ent=corretores&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)})
       .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
-      .then(function(x){btn.disabled=false;btn.textContent='Salvar';if(x.ok){closeForm();load();}else{$('fErr').textContent='Erro: '+((x.j&&x.j.error)||'desconhecido');}})
+      .then(function(x){btn.disabled=false;btn.textContent='Salvar';
+        if(!x.ok){$('fErr').textContent='Erro: '+((x.j&&x.j.error)||'desconhecido');return;}
+        var j=x.j||{};
+        if(j.login_criado){
+          $('credEmail').textContent=o.email;$('credSenha').textContent=j.senha_temporaria||'';
+          $('fBody').style.display='none';$('fFoot').style.display='none';$('credBox').style.display='';$('credFoot').style.display='flex';
+          load();
+        }else{
+          closeForm();load();
+          if(!o.id){alert(j.login_ja_existe?'Usuário cadastrado. Este e-mail já possui login, a pessoa pode entrar normalmente.':('Usuário cadastrado. '+(j.login_motivo||'O login será criado quando a pessoa fizer o Primeiro acesso.')));}
+        }
+      })
       .catch(function(){btn.disabled=false;btn.textContent='Salvar';$('fErr').textContent='Falha na requisição.';});
   });
+  $('credCopy').addEventListener('click',function(){
+    var t='AILogic Hub\nAcesso: '+location.origin+'/login\nE-mail: '+$('credEmail').textContent+'\nSenha temporária: '+$('credSenha').textContent;
+    try{if(navigator.clipboard)navigator.clipboard.writeText(t);}catch(_){}
+    var b=$('credCopy'),o2=b.textContent;b.textContent='Copiado';setTimeout(function(){b.textContent=o2;},1500);
+  });
+  $('credDone').addEventListener('click',function(){closeForm();});
 
   function delItem(m){
     if(!confirm('Remover o acesso de "'+(m.nome||'')+'"? O usuário deixa de acessar o Hub.'))return;
