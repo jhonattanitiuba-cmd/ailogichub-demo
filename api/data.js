@@ -219,6 +219,9 @@ module.exports = async (req, res) => {
         const ativo = o.status !== 'Inativo' && o.status !== 'Pausado';
         const perfil = o.perfil || 'corretor';
         const imob = o.imobiliaria_id || null;
+        // Usuarios de nivel Hub (admin/diretoria) nao tem imobiliaria: garante que
+        // a coluna aceite NULL. Idempotente; ignora erro/permissao se ja for nullable.
+        if (imob === null) { try { await db('alter table usuarios alter column imobiliaria_id drop not null'); } catch (_) {} }
         if (o.id) {
           const r = await db(`update usuarios set imobiliaria_id=$1,nome=$2,email=$3,telefone=$4,creci=$5,perfil=$6,ativo=$7,extra=$8,updated_at=now() where id=$9 returning *`,
             [imob, o.nome, o.email||null, o.telefone||null, o.creci||null, perfil, ativo, JSON.stringify(extra), o.id]);
