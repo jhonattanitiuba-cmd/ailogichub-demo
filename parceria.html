@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AILogic Hub · Cadastre sua imobiliária</title>
+<link rel="stylesheet" href="/tokens.css">
+<link rel="icon" href="/assets/favicon.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#061936">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:#f6f9fd;color:#0f172a;min-height:100vh;display:grid;place-items:center;padding:24px}
+.card{width:100%;max-width:460px;background:#fff;border:1px solid #eaf0f9;border-radius:20px;box-shadow:0 18px 50px rgba(6,25,54,.1);padding:30px 28px}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.brand .mk{width:46px;height:46px;border-radius:13px;overflow:hidden;box-shadow:0 8px 20px rgba(6,25,54,.2)}
+.brand .mk img{width:100%;height:100%;object-fit:cover;display:block}
+.brand strong{display:block;font-size:16px;font-weight:800;letter-spacing:-.01em}
+.brand span{display:block;font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0b66ff}
+h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+.sub{color:#64748b;font-size:13.5px;line-height:1.55;margin-bottom:22px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px}
+.field input{width:100%;height:48px;border:1.5px solid #d9e2ef;border-radius:12px;padding:0 14px;font:inherit;font-size:14px;color:#0f172a;background:#fff;outline:none;transition:border .15s,box-shadow .15s}
+.field input:focus{border-color:#0b66ff;box-shadow:0 0 0 4px rgba(11,102,255,.13)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.btn{width:100%;height:52px;border:0;border-radius:14px;background:linear-gradient(135deg,#0b66ff,#074cd1);color:#fff;font:inherit;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 14px 30px rgba(11,102,255,.3);transition:transform .12s,box-shadow .15s;margin-top:4px}
+.btn:hover{transform:translateY(-2px)}.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.err{color:#e94242;font-size:12.5px;font-weight:600;margin-top:12px;min-height:16px;text-align:center}
+.link{display:block;text-align:center;margin-top:18px;font-size:13px;color:#0b66ff;font-weight:700;text-decoration:none}
+.link:hover{text-decoration:underline}
+.state{text-align:center;padding:8px 0}
+.state .ic{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;margin:0 auto 14px;background:#eafaf3;color:#16a56f}
+.state .ic svg{width:30px;height:30px}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand"><span class="mk"><img src="/assets/logo-mark.png" alt="AILogic Hub"></span><span><strong>AILogic Hub</strong><span>Cadastro de imobiliária</span></span></div>
+
+  <form id="form">
+    <h1>Cadastre sua imobiliária</h1>
+    <div class="sub">Preencha os dados abaixo. Nossa equipe revisa a solicitação e libera o acesso ao Hub, você recebe o retorno no e-mail e WhatsApp informados.</div>
+
+    <div class="field"><label for="imob">Nome da imobiliária *</label><input id="imob" autocomplete="organization" placeholder="Ex.: Brava Imóveis"></div>
+    <div class="row2">
+      <div class="field"><label for="creci">CRECI</label><input id="creci" placeholder="Opcional"></div>
+      <div class="field"><label for="cidade">Cidade *</label><input id="cidade" autocomplete="address-level2" placeholder="Cidade / UF"></div>
+    </div>
+    <div class="field"><label for="resp">Responsável *</label><input id="resp" autocomplete="name" placeholder="Nome de quem vai administrar"></div>
+    <div class="row2">
+      <div class="field"><label for="email">E-mail *</label><input id="email" type="email" autocomplete="email" placeholder="email@imobiliaria.com"></div>
+      <div class="field"><label for="tel">WhatsApp *</label><input id="tel" inputmode="tel" autocomplete="tel" placeholder="(DDD) 90000-0000"></div>
+    </div>
+    <div class="hp"><label>Não preencha<input id="website" tabindex="-1" autocomplete="off"></label></div>
+
+    <button class="btn" type="submit" id="send">Enviar cadastro</button>
+    <div class="err" id="err"></div>
+    <a class="link" href="/login">Já tenho acesso, entrar</a>
+  </form>
+
+  <div id="done" class="state hide">
+    <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <h1>Cadastro recebido</h1>
+    <div class="sub">Obrigado! Recebemos os dados da sua imobiliária. Assim que a equipe do AILogic Hub aprovar, você recebe o acesso pelo e-mail e WhatsApp informados.</div>
+    <a class="link" href="/login" style="font-weight:800">Ir para o login</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  var form=document.getElementById('form'), done=document.getElementById('done'), err=document.getElementById('err');
+  function val(id){ return (document.getElementById(id).value||'').trim(); }
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    err.textContent='';
+    if(val('website')){ done.classList.remove('hide'); form.classList.add('hide'); return; } // honeypot
+    var imob=val('imob'), cidade=val('cidade'), resp=val('resp'), email=val('email'), tel=val('tel');
+    if(!imob){ err.textContent='Informe o nome da imobiliária.'; return; }
+    if(!cidade){ err.textContent='Informe a cidade.'; return; }
+    if(!resp){ err.textContent='Informe o nome do responsável.'; return; }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent='Informe um e-mail válido.'; return; }
+    if(tel.replace(/\D/g,'').length<10){ err.textContent='Informe um WhatsApp válido com DDD.'; return; }
+    var b=document.getElementById('send'); b.disabled=true; b.textContent='Enviando...';
+    fetch('/api/parceria',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({nome:imob,creci:val('creci'),cidade:cidade,responsavel:resp,email:email,telefone:tel})})
+      .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
+      .then(function(x){
+        if(x.ok){ form.classList.add('hide'); done.classList.remove('hide'); }
+        else { b.disabled=false; b.textContent='Enviar cadastro'; err.textContent=(x.j&&x.j.error)||'Não foi possível enviar agora. Tente novamente em instantes.'; }
+      })
+      .catch(function(){ b.disabled=false; b.textContent='Enviar cadastro'; err.textContent='Não foi possível conectar agora. Tente novamente em instantes.'; });
+  });
+})();
+</script>
+</body>
+</html>
