@@ -142,6 +142,20 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 .tool-row.soon{color:var(--muted);font-weight:600}
 .tool-tag{margin-left:auto;font-size:10px;font-weight:800;padding:2px 9px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--muted)}
 .tool-tag.on{background:var(--green2);color:#4ade80}
+/* KPIs minimalistas (menos gigantes) */
+.kpis{gap:10px;margin-bottom:12px}
+.kpi{padding:11px 15px}
+.kpi h3{font-size:11px}
+.kpi .value{font-size:21px;margin:3px 0 1px}
+.kpi small{font-size:10px}
+.kpi-icon{width:34px;height:34px;font-size:15px;border-radius:10px}
+/* painel CRM fechável (desktop) */
+.wa-layout.crm-hidden{grid-template-columns:340px minmax(0,1fr)}
+.wa-layout.crm-hidden .crm-panel{display:none}
+.crm-head{position:relative}
+.crm-close{position:absolute;top:10px;right:10px;width:26px;height:26px;border:1px solid var(--border2);background:var(--panel);border-radius:8px;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;display:grid;place-items:center}
+.crm-close:hover{filter:brightness(1.3)}
+.wa-crm-btn{display:inline-flex !important;padding:0 11px;font-size:15px}
 .wa-back,.wa-crm-btn{display:none;padding:0 11px;font-size:16px}
 @media(max-width:1100px) and (min-width:901px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto;overflow:visible}.main{height:auto}.sidebar{height:auto;position:relative}.kpis{grid-template-columns:1fr}.wa-layout{grid-template-columns:1fr}.chat-stream{min-height:320px;padding:14px 4%}.crm-panel{max-height:420px}}
 /* ===== mobile: inbox single-pane (estilo WhatsApp) ===== */
@@ -199,6 +213,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   <header class="header">
     <div class="headline"><h1>WhatsApp · Atendimento</h1><p>A IA atende sozinha e transfere para você quando precisa. Assuma uma conversa e devolva à IA digitando ponto (.).</p></div>
     <div style="display:flex;gap:10px;align-items:center">
+      <button class="btn" id="btnAgendar" title="Agendar mensagens e follow-ups">🗓 Agendar</button>
       <button class="btn" id="btnTreinar">🤖 Treinar IA</button>
       <div class="pill" id="statusPill"><span class="dot" id="statusDot"></span><span id="statusText">Verificando canal…</span></div>
     </div>
@@ -242,7 +257,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     </div>
 
     <div class="panel crm-panel" id="crmPanel">
-      <div class="crm-head"><div class="crm-av" id="crmAv">·</div><strong id="crmNome">Contato</strong><div class="cmeta" id="crmFone">—</div></div>
+      <div class="crm-head"><button class="crm-close" id="crmClose" title="Fechar painel">×</button><div class="crm-av" id="crmAv">·</div><strong id="crmNome">Contato</strong><div class="cmeta" id="crmFone">—</div></div>
       <div class="crm-sec"><h4>Vínculo CRM</h4><div id="crmVinculo"><div style="color:var(--muted);font-size:12px">Selecione uma conversa.</div></div></div>
       <div class="crm-sec"><h4>Pipeline</h4><div class="stage" id="crmStage"><div style="color:var(--muted);font-size:12px">Vincule um lead para ver a etapa.</div></div></div>
       <div class="crm-sec"><h4>Informações</h4><div id="crmInfo"><div style="color:var(--muted);font-size:12px">—</div></div></div>
@@ -544,7 +559,11 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 
   // mobile: voltar pra lista + abrir/fechar painel CRM (sheet)
   var bb=$("btnBack"); if(bb)bb.addEventListener("click",showList);
-  var bc=$("btnCrm"); if(bc)bc.addEventListener("click",function(){var w=$("waLayout");if(w)w.classList.toggle("crm-open");});
+  // painel CRM: mobile = sheet (crm-open); desktop = recolhe/expande (crm-hidden)
+  var bc=$("btnCrm"); if(bc)bc.addEventListener("click",function(){var w=$("waLayout");if(!w)return;if(isMobile())w.classList.toggle("crm-open");else w.classList.toggle("crm-hidden");});
+  var cc=$("crmClose"); if(cc)cc.addEventListener("click",function(){var w=$("waLayout");if(!w)return;if(isMobile())w.classList.remove("crm-open");else w.classList.add("crm-hidden");});
+  // agendar mensagens / follow-ups (fase 2)
+  var ba=$("btnAgendar"); if(ba)ba.addEventListener("click",function(){alert("Agendamento de mensagens e follow-ups automáticos — em breve (fase 2).");});
 
   function appendMsg(txt){
     var st=$("chatStream");var em=st.querySelector(".stream-empty");if(em)st.innerHTML="";

@@ -18,6 +18,29 @@ const NAMES = { '91612610': 'Jhonattan (Brava)', '95568148': 'Alessandro Ferreir
 function num8(jid) { return String(jid || '').split('@')[0].replace(/\D/g, '').slice(-8); }
 function allowedJid(jid) { return ALLOW8.indexOf(num8(jid)) >= 0; }
 
+// cache de contatos (60s) — usado para unificar telefone + @lid da mesma pessoa
+let _contatos = { ts: 0, map: {}, all: [] };
+async function getContatos() {
+  if (Date.now() - _contatos.ts < 60000 && _contatos.all.length) return _contatos;
+  try {
+    const cr = await evo('/chat/findContacts/' + INSTANCE, 'POST', {});
+    const all = Array.isArray(cr.body) ? cr.body : [];
+    const map = {}; all.forEach(c => { if (c.remoteJid && c.pushName) map[c.remoteJid] = c.pushName; });
+    _contatos = { ts: Date.now(), map, all };
+  } catch (_) {}
+  return _contatos;
+}
+// jids "irmaos" da mesma pessoa (telefone + @lid) via pushName igual
+function jidsIrmaos(jid, ct) {
+  const out = [jid];
+  const myPush = ct.map[jid];
+  if (myPush) (ct.all || []).forEach(c => {
+    if (c.remoteJid && c.remoteJid !== jid && c.pushName === myPush &&
+        (String(c.remoteJid).endsWith('@lid') || String(c.remoteJid).endsWith('@s.whatsapp.net'))) out.push(c.remoteJid);
+  });
+  return out;
+}
+
 async function evo(path, method = 'GET', body) {
   const r = await fetch(EVO_BASE + path, {
     method,
@@ -150,11 +173,7 @@ module.exports = async (req, res) => {
       const arr = Array.isArray(r.body) ? r.body : [];
       // pushName por jid via contatos (o telefone real as vezes vem SEM pushName no findChats,
       // mas o contato tem — e o gemeo @lid tem o mesmo pushName -> permite unificar)
-      const pushByJid = {};
-      try {
-        const cr = await evo('/chat/findContacts/' + INSTANCE, 'POST', {});
-        (Array.isArray(cr.body) ? cr.body : []).forEach(ct => { if (ct.remoteJid && ct.pushName) pushByJid[ct.remoteJid] = ct.pushName; });
-      } catch (_) {}
+      const pushByJid = (await getContatos()).map;
       // estado de atendimento (handoff IA<->humano) numa consulta so
       const estado = {};
       try {
@@ -281,10 +300,20 @@ module.exports = async (req, res) => {
     if (action === 'messages') {
       const jid = req.query && req.query.jid;
       if (!jid) { res.status(400).json({ error: 'jid obrigatorio' }); return; }
-      // espelhamento liberado: sem filtro de numero
       const cutoff = await getCutoff();
-      const r = await evo('/chat/findMessages/' + INSTANCE, 'POST', { where: { key: { remoteJid: jid } }, limit: 60 });
-      const recs = (r.body && r.body.messages && r.body.messages.records) || [];
+      // MESCLA os dois lados: o WhatsApp guarda as RECEBIDAS sob @lid e as ENVIADAS sob o telefone
+      // (mesma pessoa) — junta as mensagens dos jids irmaos para o thread ficar espelhado.
+      const ct = await getContatos();
+      const irmaos = jidsIrmaos(jid, ct);
+      let recs = [];
+      for (const j of irmaos) {
+        try {
+          const rr = await evo('/chat/findMessages/' + INSTANCE, 'POST', { where: { key: { remoteJid: j } }, limit: 60 });
+          recs = recs.concat((rr.body && rr.body.messages && rr.body.messages.records) || []);
+        } catch (_) {}
+      }
+      const _seen = {};
+      recs = recs.filter(m => { const id = m.key && m.key.id; if (!id) return true; if (_seen[id]) return false; _seen[id] = 1; return true; });
       let msgs = recs.map(m => {
         const mi = mediaInfo(m);
         return {
