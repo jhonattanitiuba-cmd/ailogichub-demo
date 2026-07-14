@@ -22,7 +22,14 @@ const ESTILO = `
 - Responda CURTO e OBJETIVO. No maximo 2 a 3 frases por mensagem.
 - NAO explique o que e o AiLogic Hub, nao faca discurso institucional, nao "venda". Va direto ao ponto.
 - UMA pergunta por vez. Termine com no maximo 1 pergunta.
-- Na PRIMEIRA mensagem: apresente-se em 1 linha curta (ex.: "Oi! Aqui e o Sam, do AiLogic Hub.") e ofereca opcoes rapidas e curtas numeradas, tipo "1 Comprar  2 Alugar  3 Vender  4 Outro". Deixe explicito, em 1 linha, que a pessoa pode responder com o numero, escrever normalmente ou mandar um audio, como preferir. Nao explique o que e a empresa.
+- Na PRIMEIRA mensagem: apresente-se em 1 linha curta (ex.: "Oi! Aqui e o Sam, do AiLogic Hub.") e ofereca as rotas com emoji, cada uma em sua linha:
+  "1. 🏠 Comprar
+  2. 🔑 Alugar
+  3. 💰 Vender
+  4. 💬 Outro"
+  Depois, em 1 linha: "Responda pelo numero, escreva ou mande um audio, como preferir." Nao explique o que e a empresa.
+- FORMATACAO: use emojis RELEVANTES para guiar (rotas 🏠🔑💰💬 e, quando fizer sentido, 📍 regiao, 💵 valor, 🛏 quartos, 🚗 vaga, 📅 prazo), com moderacao. NUNCA emoji generico/aleatorio (nada de 😊✨🙌 sem proposito). Use *negrito* so em rotulos curtos. Deixe limpo, uma info por linha ao listar.
+- NAO escreva nenhum cabecalho tipo "SAM / Atendimento" na resposta: o sistema JA adiciona isso sozinho.
 - As rotas numeradas sao so um atalho, NAO engessam: aceite numero, texto livre OU audio de forma equivalente. Se a pessoa escreve direto o que quer, siga o assunto sem forcar o menu.
 - Nas mensagens seguintes NAO repita a apresentacao nem o menu completo; se precisar oferecer escolhas, use no maximo 3 opcoes curtas.
 - Fale como um humano agil e esperto: natural, direto, sem parecer robo ou folheto. Sem repetir o que a pessoa disse.
@@ -66,6 +73,7 @@ async function sendChunks(remoteJid, text) {
   const number = String(remoteJid).endsWith('@s.whatsapp.net') ? String(remoteJid).split('@')[0] : remoteJid;
   const chunks = splitMsg(text);
   if (!chunks.length) return;
+  chunks[0] = '*SAM / Atendimento:*\n' + chunks[0]; // cabecalho padrao na 1a bolha (humano usa a assinatura do proprio usuario, feito no envio manual)
   for (let i = 0; i < chunks.length; i++) {
     const c = chunks[i];
     const delay = Math.min(450 + c.length * 16, 1400); // tempo de digitacao proporcional (cap 1.4s)
@@ -134,12 +142,10 @@ async function historico(remoteJid, currentId, cutoff) {
 function limparBot(t) {
   if (!t) return t;
   return String(t)
-    .replace(/\s*[—–]\s*/g, ', ')   // travessão/en-dash -> vírgula
-    // emojis genéricos e pictogramas (mantém letras/acentos/pontuação normais)
-    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu, '')
-    .replace(/\s+,/g, ',')
-    .replace(/,\s*,/g, ',')
-    .replace(/\s{2,}/g, ' ')
+    .replace(/\s*[—–]\s*/g, ', ')   // travessão/en-dash -> vírgula (mantem emojis relevantes das rotas)
+    .replace(/[ \t]+,/g, ',')
+    .replace(/,[ \t]*,/g, ',')
+    .replace(/[ \t]{2,}/g, ' ')     // colapsa so espacos, preserva quebras de linha (split em bolhas)
     .trim();
 }
 function respostaBasica(t) {
