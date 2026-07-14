@@ -135,7 +135,23 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 .switch .track{width:40px;height:22px;border-radius:999px;background:var(--border2);position:relative;transition:background .15s}
 .switch .track::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s}
 .switch.on .track{background:var(--green)}.switch.on .track::after{left:20px}
-@media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto;overflow:visible}.main{height:auto}.sidebar{height:auto;position:relative}.kpis{grid-template-columns:1fr}.wa-layout{grid-template-columns:1fr}.chat-stream{min-height:320px;padding:14px 4%}.crm-panel{max-height:420px}}
+.wa-back,.wa-crm-btn{display:none;padding:0 11px;font-size:16px}
+@media(max-width:1100px) and (min-width:901px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto;overflow:visible}.main{height:auto}.sidebar{height:auto;position:relative}.kpis{grid-template-columns:1fr}.wa-layout{grid-template-columns:1fr}.chat-stream{min-height:320px;padding:14px 4%}.crm-panel{max-height:420px}}
+/* ===== mobile: inbox single-pane (estilo WhatsApp) ===== */
+@media(max-width:900px){
+  html,body{overflow:auto}
+  .app{grid-template-columns:1fr;height:auto;overflow:visible}
+  .main{height:auto;padding:12px 12px 14px}.sidebar{height:auto;position:relative}
+  .header{margin-bottom:10px}.headline h1{font-size:20px}.headline p{display:none}
+  .kpis{display:none}
+  .wa-layout{display:block;height:auto}
+  .wa-layout>.panel{display:none;height:74vh;border-radius:14px;margin-bottom:10px}
+  .wa-layout.m-list #listPanel{display:flex}
+  .wa-layout.m-thread .chat-box{display:flex}
+  .wa-layout.m-thread.crm-open .crm-panel{display:flex;position:fixed;inset:0;z-index:60;height:100vh;border-radius:0}
+  .wa-back,.wa-crm-btn{display:inline-flex}
+  .chat-stream{padding:14px 5%}
+}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -187,8 +203,8 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     <article class="kpi"><div><h3>Leads no banco</h3><div class="value" data-k="leads">·</div><small>cadastrados na plataforma</small></div><div class="kpi-icon ic-green">＋</div></article>
   </section>
 
-  <section class="wa-layout">
-    <div class="panel">
+  <section class="wa-layout m-list" id="waLayout" data-noswipe>
+    <div class="panel" id="listPanel">
       <div class="instance-card"><div class="wa-logo" style="overflow:hidden;padding:0"><img src="/assets/logo-mark.png" alt="Hub" style="width:100%;height:100%;object-fit:cover"></div><div><strong id="instName">Canal do Hub</strong><span id="instNum">·</span></div></div>
       <div class="searchbar"><input class="inp" id="convSearch" placeholder="Buscar conversa ou telefone..." /></div>
       <div class="wa-tabs" id="waTabs">
@@ -202,8 +218,9 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 
     <div class="panel chat-box">
       <div class="chat-header">
-        <div class="client"><div class="cli-av" id="clientAvatar">·</div><div><strong id="clientName">Selecione uma conversa</strong><span id="clientMeta">As mensagens reais aparecem aqui</span></div></div>
+        <div class="client"><button class="btn wa-back" id="btnBack" title="Voltar">←</button><div class="cli-av" id="clientAvatar">·</div><div><strong id="clientName">Selecione uma conversa</strong><span id="clientMeta">As mensagens reais aparecem aqui</span></div></div>
         <div class="chat-actions">
+          <button class="btn wa-crm-btn" id="btnCrm" title="Dados do contato">ⓘ</button>
           <span class="badge gray" id="iaBadge">·</span>
           <div class="dd"><button class="btn" id="btnTransferir" disabled>⇄ Transferir</button><div class="dd-menu" id="ddTransfer"></div></div>
           <button class="btn" id="btnAtender" disabled>Assumir</button>
@@ -260,6 +277,10 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   function foneFmt(jid){var n=String(jid||"").split("@")[0].replace(/\D/g,"");if(n.length>=12)return "+"+n.slice(0,2)+" "+n.slice(2,4)+" "+n.slice(4,9)+"-"+n.slice(9);return n||"—";}
   function hhmm(ts){if(!ts)return "";var d=new Date(ts*1000);return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);}
   function chatBy(jid){for(var i=0;i<allChats.length;i++){if(allChats[i].jid===jid)return allChats[i];}return null;}
+  // mobile: inbox single-pane (lista <-> thread, CRM como sheet)
+  function isMobile(){return window.innerWidth<=900;}
+  function showThread(){var w=$("waLayout");if(w){w.classList.add("m-thread");w.classList.remove("m-list");w.classList.remove("crm-open");}}
+  function showList(){var w=$("waLayout");if(w){w.classList.add("m-list");w.classList.remove("m-thread");w.classList.remove("crm-open");}}
 
   // ===== réplica WhatsApp: formatação, avatar, ticks, dia, mídia =====
   // formatação idêntica ao WhatsApp: *negrito* _itálico_ ~tachado~ ```mono``` + links + quebras
@@ -358,6 +379,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     $("clientName").textContent=nome;$("clientMeta").textContent=curFone+" · WhatsApp Hub";
     $("btnLead").disabled=false;$("waInput").disabled=false;$("waSend").disabled=false;$("btnTransferir").disabled=false;
     refreshAttendUI();markRead(jid);loadCrm(jid);
+    if(isMobile())showThread();
     var st=$("chatStream");st.innerHTML='<div class="stream-empty">Carregando mensagens…</div>';
     fetch(API+"?action=messages&jid="+encodeURIComponent(jid),{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
       if(curJid!==jid)return; var msgs=(d&&d.msgs)||[];
@@ -493,6 +515,10 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   var snd=$("sndToggle");snd.classList.toggle("on",sndOn);
   snd.addEventListener("click",function(){sndOn=!sndOn;localStorage.setItem("ailogic_wa_som",sndOn?"1":"0");snd.classList.toggle("on",sndOn);if(sndOn){unlockAudio();playTransferSound();}});
   document.addEventListener("click",unlockAudio,{once:true});
+
+  // mobile: voltar pra lista + abrir/fechar painel CRM (sheet)
+  var bb=$("btnBack"); if(bb)bb.addEventListener("click",showList);
+  var bc=$("btnCrm"); if(bc)bc.addEventListener("click",function(){var w=$("waLayout");if(w)w.classList.toggle("crm-open");});
 
   function appendMsg(txt){
     var st=$("chatStream");var em=st.querySelector(".stream-empty");if(em)st.innerHTML="";
