@@ -3,6 +3,7 @@
 // Segredo DB_URL em env var da Vercel.
 const { db } = require('./_db');
 const { requireAuth } = require('./_auth');
+const { cacheGet, cacheSet, cacheDel } = require('./_cache');
 const DB_URL = process.env.DB_URL || '';
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
@@ -116,8 +117,17 @@ module.exports = async (req, res) => {
     let body = req.body; if (typeof body === 'string') { try { body = JSON.parse(body); } catch (_) { body = {}; } }
     body = body || {};
 
+    // mutacao -> invalida o cache da lista desse ent + o resumo do dashboard (contagens mudam)
+    if (['save', 'delete', 'assign'].indexOf(action) >= 0) {
+      cacheDel('data:' + ent + ':all', 'data:' + ent + ':' + (user.imobiliariaId || 'none'), 'dash:resumo:all', 'dash:resumo:' + (user.imobiliariaId || ''));
+    }
+
     // ---- LIST (com escopo RBAC) ----
     if (action === 'list') {
+      const scope = user.isAdmin ? 'all' : (user.imobiliariaId || 'none');
+      const ckey = 'data:' + ent + ':' + scope;
+      const cached = await cacheGet(ckey);
+      if (cached) { res.status(200).json(cached); return; }   // hit Redis -> nav instantanea
       const conds = [], params = [];
       if (SOFT.has(TABLE[ent])) conds.push('deleted_at is null');
       if (!user.isAdmin) {
@@ -128,7 +138,9 @@ module.exports = async (req, res) => {
       }
       const where = conds.length ? 'where ' + conds.join(' and ') : '';
       const r = await db(`select * from ${TABLE[ent]} ${where} order by created_at`, params);
-      res.status(200).json({ rows: r.rows.map(OUT[ent]) });
+      const out = { rows: r.rows.map(OUT[ent]) };
+      cacheSet(ckey, out, 12);   // TTL curto; invalidado ao salvar (abaixo)
+      res.status(200).json(out);
       return;
     }
 

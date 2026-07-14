@@ -1,6 +1,7 @@
 // AILOGIC HUB — dados do dashboard (Central de Operações) + funil de negócios
 const { db } = require('./_db');
 const { requireAuth } = require('./_auth');
+const { cacheGet, cacheSet } = require('./_cache');
 const DB_URL = process.env.DB_URL || '';
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
@@ -34,6 +35,9 @@ module.exports = async (req, res) => {
     if (action === 'resumo') {
       const isAdmin = user.isAdmin;
       if (!isAdmin && !user.imobiliariaId) { res.status(200).json({ imobiliarias: [], leadsTotal: 0, leadsQualificados: 0, leadsPorFonte: [], leadsPorStatus: [], imoveisTotal: 0 }); return; }
+      const ckey = 'dash:resumo:' + (isAdmin ? 'all' : user.imobiliariaId);
+      const cached = await cacheGet(ckey);
+      if (cached) { res.status(200).json(cached); return; }   // hit no Redis -> instantaneo
       const scoped = !isAdmin;
       const p = scoped ? [user.imobiliariaId] : [];
       const fI = scoped ? 'and i.id=$1' : '';          // imobiliarias (alias i)
@@ -56,11 +60,13 @@ module.exports = async (req, res) => {
            select coalesce(status::text,'sem status') status, count(*)::int c
            from leads where deleted_at is null ${fL} group by 1 order by 2 desc) z) as por_status`;
       const row = (await db(sql, p)).rows[0] || {};
-      res.status(200).json({
+      const out = {
         imobiliarias: (row.imobiliarias || []).map(x => ({ id: x.id, nome: x.nome, cidade: x.cidade, status: x.status, imoveis: Number(x.imoveis), leads: Number(x.leads) })),
         leadsTotal: row.leads_total || 0, leadsQualificados: row.leads_qualif || 0,
         leadsPorFonte: row.por_fonte || [], leadsPorStatus: row.por_status || [], imoveisTotal: row.imoveis_total || 0
-      });
+      };
+      cacheSet(ckey, out, 25);
+      res.status(200).json(out);
       return;
     }
 
