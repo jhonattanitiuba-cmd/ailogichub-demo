@@ -14,7 +14,7 @@
 <script src="/auth.js"></script>
 <script>
   // se já houver sessão válida, entra direto
-  if (window.hubAuth && window.hubAuth.token && window.hubAuth.token()) { location.replace('/visaogeral'); }
+  if (window.hubAuth && window.hubAuth.token && window.hubAuth.token()) { location.replace('/entrando'); }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <style>
@@ -162,7 +162,7 @@ document.getElementById('form').addEventListener('submit',async function(e){
     if(!window.hubAuth) throw new Error('Config de autenticação não carregou.');
     await window.hubAuth.signIn(email,pass);
     try{ localStorage.setItem('ailogic_user',email); }catch(_){}
-    location.href='/visaogeral';
+    location.href='/entrando';
   }catch(ex){
     var msg=(ex&&ex.message)||'Falha no login.';
     if(isNetErr(msg)) msg=NET_MSG;
@@ -192,7 +192,7 @@ document.getElementById('signupLink').addEventListener('click',async function(e)
     if(data && data.session){
       // confirmação de e-mail desligada → já autenticado
       try{ localStorage.setItem('ailogic_user',email); }catch(_){}
-      location.href='/visaogeral'; return;
+      location.href='/entrando'; return;
     }
     // sem sessão → Supabase exige confirmação por e-mail
     note.textContent='Conta criada. Confirme pelo link enviado para '+email+' e depois entre.';

@@ -148,12 +148,15 @@ tr:last-child td{border-bottom:0}td.strong{font-weight:700;color:var(--heading)}
   function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
   function get(ent){return fetch(DATA+'?ent='+ent+'&action=list',{cache:'no-store'}).then(function(r){return r.ok?r.json():{rows:[]};}).then(function(d){return d.rows||[];}).catch(function(){return [];});}
 
-  Promise.all([
+  // usa o preload feito na splash (/entrando) se estiver fresco -> Visao Geral instantanea, sem refazer os fetches
+  function fromPreload(){ try{ var raw=sessionStorage.getItem('hub_preload'); if(raw){ var p=JSON.parse(raw); if(p&&p.ts&&(Date.now()-p.ts)<60000) return [p.resumo||{}, p.dash||{}, p.funil||{cards:[]}, p.chats||{chats:[]}]; } }catch(_){} return null; }
+  var _pre=fromPreload();
+  (_pre ? Promise.resolve(_pre) : Promise.all([
     fetch(DASH+'?action=resumo',{cache:'no-store'}).then(function(r){return r.ok?r.json():{};}).catch(function(){return {};}),
     fetch(DASH,{cache:'no-store'}).then(function(r){return r.json();}).catch(function(){return {};}),
     fetch(DASH+'?action=funil',{cache:'no-store'}).then(function(r){return r.json();}).catch(function(){return {cards:[]};}),
     fetch(WA+'?action=chats',{cache:'no-store'}).then(function(r){return r.json();}).catch(function(){return {chats:[]};})
-  ]).then(function(a){
+  ])).then(function(a){
     var R=a[0]||{};
     var imobs=R.imobiliarias||[];
     var etapas=(a[1]&&a[1].funil&&a[1].funil.etapas)||[];

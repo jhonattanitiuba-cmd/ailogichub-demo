@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>AILogic Hub</title>
+<link rel="icon" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#061936">
+<script src="/api/config"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth.js"></script>
+<style>
+:root{--bg:#061936;--blue:#0b66ff;--blue2:#10b5ff;--text:#e7eefb;--muted:#7f9cc9;--font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(1100px 700px at 50% 42%,#0f2b57 0%,var(--bg) 60%);color:var(--text);font-family:var(--font);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;padding:24px;overflow:hidden}
+.wrap{display:flex;flex-direction:column;align-items:center;gap:26px;text-align:center;animation:fadeIn .6s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.halo{position:relative;width:132px;height:132px;display:grid;place-items:center}
+.halo::before{content:"";position:absolute;inset:-40px;border-radius:50%;background:radial-gradient(circle,rgba(59,150,255,.55),rgba(59,150,255,0) 65%);filter:blur(6px);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.55;transform:scale(.92)}50%{opacity:1;transform:scale(1.06)}}
+.logo{width:118px;height:118px;border-radius:30px;overflow:hidden;box-shadow:0 22px 60px rgba(11,102,255,.5);position:relative;z-index:1}
+.logo img{width:100%;height:100%;object-fit:cover;display:block}
+.brand strong{display:block;font-size:23px;letter-spacing:-.02em;color:#fff}
+.brand span{display:block;font-size:12.5px;color:#8fb0e6;margin-top:4px;letter-spacing:.02em}
+.bar{width:220px;max-width:70vw;height:5px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:2px}
+.bar i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--blue2));box-shadow:0 0 12px rgba(16,181,255,.7);animation:fill 10s linear forwards}
+@keyframes fill{from{width:0}to{width:100%}}
+.tip{font-size:12.5px;color:var(--muted);min-height:16px}
+@media(prefers-reduced-motion:reduce){.halo::before,.bar i{animation-duration:.01s}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="halo"><div class="logo"><img src="/assets/logo-mark.png" alt="AILogic Hub"></div></div>
+    <div class="brand"><strong>AILogic Hub</strong><span>Inteligência Imobiliária</span></div>
+    <div class="bar"><i></i></div>
+    <div class="tip" id="tip">Preparando sua operação…</div>
+  </div>
+<script>
+(function(){
+  // gate: sem sessão -> login (não mostra a splash)
+  try{ if(!(window.hubAuth && window.hubAuth.token && window.hubAuth.token())){ location.replace('/login'); return; } }catch(_){ location.replace('/login'); return; }
+
+  var DASH='/api/dash', WA='/api/wa', DATA='/api/data';
+  function gj(url){ return fetch(url,{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}); }
+
+  // pré-carrega TODOS os dados da Visão Geral durante os 10s
+  var pre={ ts:Date.now() };
+  Promise.all([
+    gj(DASH+'?action=resumo').then(function(d){pre.resumo=d;}),
+    gj(DASH).then(function(d){pre.dash=d;}),
+    gj(DASH+'?action=funil').then(function(d){pre.funil=d;}),
+    gj(WA+'?action=chats').then(function(d){pre.chats=d;}),
+    gj(DATA+'?ent=leads&action=list').then(function(d){pre.leads=d;}),
+    gj(DATA+'?ent=imobiliarias&action=list').then(function(d){pre.imobs=d;})
+  ]).then(function(){
+    try{ sessionStorage.setItem('hub_preload', JSON.stringify(pre)); }catch(_){}
+    var t=document.getElementById('tip'); if(t)t.textContent='Tudo pronto ✓';
+  }).catch(function(){});
+
+  // tempo FIXO de 10s -> entra na Visão Geral (dados já em cache)
+  setTimeout(function(){ location.replace('/visaogeral'); }, 10000);
+})();
+</script>
+</body>
+</html>
