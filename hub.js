@@ -349,8 +349,10 @@
     // rodava no reveal porque os KPIs ainda eram "·".
     function check(){ _loadChk=null; if(!_hasPH()){ _loadStop(); try{ animateCounters(0, document.querySelector('.main')); }catch(_){} } }
     try{
-      _loadObs=new MutationObserver(function(){ if(_loadChk) return; _loadChk=setTimeout(check,60); });
-      _loadObs.observe(document.body,{childList:true,subtree:true,characterData:true});
+      // observa SO a .main e SO childList/subtree (sem characterData/body-wide) -> evita jank/trava
+      var mroot=document.querySelector('.main')||document.body;
+      _loadObs=new MutationObserver(function(){ if(_loadChk) return; _loadChk=setTimeout(check,80); });
+      _loadObs.observe(mroot,{childList:true,subtree:true});
     }catch(_){}
     _loadTimer=setTimeout(_loadStop, 9000);   // cap de seguranca: nunca fica carregando pra sempre
   }

@@ -22,11 +22,12 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;overflow:hidden}
 /* painel esquerdo (marca) */
-.brandside{position:relative;background:linear-gradient(150deg,#0a2a5e 0%,#071b3a 55%,#030d20 100%);color:#eaf2ff;padding:56px 60px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
-.glow{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5}
-.g1{width:420px;height:420px;background:#0b66ff;top:-120px;right:-120px;opacity:.32;animation:float1 9s ease-in-out infinite}
-.g2{width:360px;height:360px;background:#10b5ff;bottom:-140px;left:-100px;opacity:.22;animation:float2 11s ease-in-out infinite}
-.grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(circle at 30% 20%,#000,transparent 75%)}
+.brandside{position:relative;background:linear-gradient(162deg,#0a1c3f 0%,#08142a 52%,#040b1a 100%);color:#e8eefb;padding:58px 62px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.brandside::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 160px rgba(0,0,0,.45);pointer-events:none}
+.glow{position:absolute;border-radius:50%;filter:blur(85px)}
+.g1{width:400px;height:400px;background:#1a5fc4;top:-130px;right:-130px;opacity:.18;animation:float1 14s ease-in-out infinite}
+.g2{width:320px;height:320px;background:#0e6fbf;bottom:-150px;left:-110px;opacity:.12;animation:float2 16s ease-in-out infinite}
+.grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:52px 52px;mask-image:radial-gradient(circle at 28% 22%,#000,transparent 72%)}
 .bs-top,.bs-mid,.bs-bot{position:relative;z-index:2}
 .logo{display:flex;align-items:center;gap:14px}
 .logo .mk{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);font-weight:900;font-size:20px;color:#fff;box-shadow:0 12px 30px rgba(11,102,255,.45)}
@@ -98,12 +99,12 @@ body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-heigh
     <div class="glow g1"></div><div class="glow g2"></div><div class="grid-bg"></div>
     <div class="bs-top logo"><div class="mk"><img src="/assets/logo-mark.png" alt="AILogic Hub" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block"></div><div><strong>AILogic Hub</strong><span>Inteligência Imobiliária</span></div></div>
     <div class="bs-mid hero">
-      <h1>A operação imobiliária inteira, orquestrada por IA.</h1>
-      <p>Leads, qualificação, funil, imóveis, WhatsApp e repasses de todas as imobiliárias parceiras, em um só Hub.</p>
+      <h1>Toda a operação imobiliária,<br>orquestrada por IA.</h1>
+      <p>Do primeiro contato no WhatsApp ao repasse: qualificação por IA, funil unificado, imóveis e CRM de todas as imobiliárias parceiras — num painel só.</p>
       <div class="feats">
-        <div class="feat"><span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z"/></svg></span>Atendimento e auditoria de WhatsApp centralizados</div>
-        <div class="feat"><span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M3 5h18l-7 8v6l-4-2v-4z"/></svg></span>Funil unificado com qualificação por IA</div>
-        <div class="feat"><span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M5 21V10M12 21V4M19 21v-7M3 21h18"/></svg></span>Performance e repasses por imobiliária, em tempo real</div>
+        <div class="feat"><span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.6a7.5 7.5 0 1 1 3.5 6.3L4 19l1.1-3.4a7.4 7.4 0 0 1-1.1-4Z"/><path d="M9.2 9.4c.2 1.3.9 2.5 1.8 3.4s2.1 1.6 3.4 1.8c.4.1.8-.1 1-.5l.3-.8c.1-.3 0-.6-.3-.8l-1.3-.8c-.3-.2-.6-.1-.8.1l-.4.4a5 5 0 0 1-1.6-1.6l.4-.4c.2-.2.3-.5.1-.8l-.8-1.3c-.2-.3-.5-.4-.8-.3l-.8.3c-.4.2-.6.6-.5 1.6Z"/></svg></span>IA atende no WhatsApp, qualifica o lead e transfere pro corretor certo</div>
+        <div class="feat"><span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6 7v5.5l-4 2V12z"/></svg></span>Funil unificado multi-imobiliária, com pipeline em tempo real</div>
+        <div class="feat"><span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v15"/><path d="M14 10h5a1 1 0 0 1 1 1v10"/><path d="M7.5 9h3M7.5 13h3M17 14h0M3 21h18"/></svg></span>Imóveis, CRM e repasses por imobiliária, em um só lugar</div>
       </div>
     </div>
     <div class="bs-bot">© 2026 AILogic Hub · Plataforma white-label de inteligência imobiliária</div>
