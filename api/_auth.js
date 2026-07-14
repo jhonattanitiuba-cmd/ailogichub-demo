@@ -50,19 +50,22 @@ async function resolveScope(user) {
   const email = (user && user.email) || null;
   let perfil = meta.perfil || null;
   let imobiliariaId = meta.imobiliaria_id || null;
+  let usuarioId = null, nome = meta.nome || null;
   try {
     if (DB_URL && user && user.id) {
       // 1) fonte de verdade: linha ligada ao login (auth_user_id)
-      let r = await db('select id, perfil, imobiliaria_id from usuarios where auth_user_id=$1 and deleted_at is null limit 1', [user.id]);
+      let r = await db('select id, nome, perfil, imobiliaria_id from usuarios where auth_user_id=$1 and deleted_at is null limit 1', [user.id]);
       // 2) fallback por e-mail (verificado pelo GoTrue): liga o perfil sem depender de auth_user_id
       if (!r.rows[0] && email) {
-        r = await db('select id, perfil, imobiliaria_id from usuarios where lower(email)=lower($1) and deleted_at is null order by created_at limit 1', [email]);
+        r = await db('select id, nome, perfil, imobiliaria_id from usuarios where lower(email)=lower($1) and deleted_at is null order by created_at limit 1', [email]);
         if (r.rows[0]) {
           // backfill: torna o vínculo permanente para os próximos acessos
           try { await db('update usuarios set auth_user_id=$1 where id=$2 and auth_user_id is null', [user.id, r.rows[0].id]); } catch (_) {}
         }
       }
       if (r.rows[0]) {
+        usuarioId = r.rows[0].id || null;
+        nome = r.rows[0].nome || nome;
         perfil = r.rows[0].perfil || perfil;
         if (r.rows[0].imobiliaria_id) imobiliariaId = r.rows[0].imobiliaria_id;
       }
@@ -72,8 +75,8 @@ async function resolveScope(user) {
   let isAdmin = isAdminRole(perfil);
   if (!isAdmin && isFounder(email)) { perfil = perfil || 'admin'; isAdmin = true; }
   return {
-    user: user, authId: user && user.id, email: email,
-    perfil: perfil, imobiliariaId: imobiliariaId, isAdmin: isAdmin
+    user: user, authId: user && user.id, email: email, nome: nome,
+    usuarioId: usuarioId, perfil: perfil, imobiliariaId: imobiliariaId, isAdmin: isAdmin
   };
 }
 

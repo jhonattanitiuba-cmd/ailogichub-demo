@@ -75,6 +75,21 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 .modal label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 6px}
 .modal select.inp{height:42px}
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+/* handoff IA<->humano */
+.wa-tabs{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.wa-tab{border:1px solid var(--border2);background:var(--panel2);color:var(--muted);border-radius:999px;padding:6px 11px;font-size:11.5px;font-weight:750;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.wa-tab:hover{filter:brightness(1.2)}
+.wa-tab.active{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-color:#1d4ed8;color:#fff}
+.wa-tab .cnt{background:rgba(255,255,255,.14);border-radius:999px;padding:1px 6px;font-size:10px;font-weight:800}
+.wa-tab.active .cnt{background:rgba(255,255,255,.28)}
+.unread-badge{min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--green);color:#04140c;font-size:10.5px;font-weight:900;display:inline-flex;align-items:center;justify-content:center}
+.conv-assign{font-size:10px;font-weight:800;color:#7ab0ff;margin-top:2px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-assign.ia{color:#4ade80}
+.attend-banner{display:none;padding:9px 14px;background:var(--orange2);border-bottom:1px solid #4a3a12;color:#fbbf5a;font-size:12px;font-weight:700;align-items:center;gap:8px}
+.attend-banner.on{display:flex}
+.badge.orange{background:var(--orange2);color:#fbbf5a}
+.snd-toggle{width:34px;height:34px;border:1px solid var(--border2);background:var(--panel2);border-radius:10px;cursor:pointer;color:var(--muted);font-size:15px;display:inline-flex;align-items:center;justify-content:center}
+.snd-toggle.on{color:#4ade80}
 @media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto;overflow:visible}.main{height:auto}.sidebar{height:auto;position:relative}.kpis{grid-template-columns:1fr}.wa-layout{grid-template-columns:1fr}.chat-stream{min-height:320px}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -114,7 +129,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 
 <main class="main">
   <header class="header">
-    <div class="headline"><h1>WhatsApp · Auditoria</h1><p>Conversas reais espelhadas do canal do Hub. A IA não responde automaticamente, só você.</p></div>
+    <div class="headline"><h1>WhatsApp · Atendimento</h1><p>A IA atende sozinha e transfere para você quando precisa. Assuma uma conversa e devolva à IA digitando ponto (.).</p></div>
     <div class="pill" id="statusPill"><span class="dot" id="statusDot"></span><span id="statusText">Verificando canal…</span></div>
   </header>
 
@@ -128,14 +143,26 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     <div class="panel">
       <div class="instance-card"><div class="wa-logo">◌</div><div><strong id="instName">Canal do Hub</strong><span id="instNum">·</span></div></div>
       <div class="searchbar"><input class="inp" id="convSearch" placeholder="Buscar conversa ou telefone..." /></div>
+      <div class="wa-tabs" id="waTabs">
+        <button class="wa-tab active" data-f="minhas">Minhas <span class="cnt" id="cMinhas">0</span></button>
+        <button class="wa-tab" data-f="ia">IA <span class="cnt" id="cIa">0</span></button>
+        <button class="wa-tab" data-f="nao_lidas">Não lidas <span class="cnt" id="cNao">0</span></button>
+        <button class="wa-tab" data-f="todas">Todas</button>
+      </div>
       <div class="conversation-list" id="convList"><div class="empty">Carregando conversas…</div></div>
     </div>
 
     <div class="panel chat-box">
       <div class="chat-header">
         <div class="client"><div class="conv-avatar" id="clientAvatar">·</div><div><strong id="clientName">Selecione uma conversa</strong><span id="clientMeta">As mensagens reais aparecem aqui</span></div></div>
-        <div class="chat-actions"><span class="badge gray" id="statusBadge">·</span><button class="btn primary" id="btnLead" disabled>＋ Criar lead</button></div>
+        <div class="chat-actions">
+          <span class="badge gray" id="iaBadge">·</span>
+          <button class="btn" id="btnAtender" disabled>Assumir</button>
+          <button class="snd-toggle on" id="sndToggle" title="Som ao receber transferência">♪</button>
+          <button class="btn primary" id="btnLead" disabled>＋ Criar lead</button>
+        </div>
       </div>
+      <div class="attend-banner" id="attendBanner"><span>🙋 Você está atendendo. Para devolver à IA, digite ponto (.) e envie.</span></div>
       <div class="chat-stream" id="chatStream"><div class="stream-empty">Escolha uma conversa à esquerda para ver o histórico real de mensagens.</div></div>
       <div class="composer"><input class="inp" id="waInput" placeholder="Escreva uma mensagem para o cliente (WhatsApp)..." disabled /><button class="btn primary" id="waSend" disabled>Enviar</button></div>
     </div>
@@ -158,18 +185,49 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 <script>/*wa-real*/(function(){
   var API="/api/wa", DATA="/api/data";
   var curJid=null, curNome="", curFone="", imobs=[], leadsCount=0, allChats=[];
+  var meuId=null, filtro="minhas", mineBefore={}, sndOn=(localStorage.getItem("ailogic_wa_som")!=="0"), audioCtx=null;
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
   function inits(n){var p=String(n||"?").replace(/[^A-Za-zÀ-ÿ ]/g,"").trim().split(/\s+/).filter(Boolean);return ((p[0]||"#")[0]+((p[1]||"")[0]||"")).toUpperCase();}
   function $(id){return document.getElementById(id);}
   function setK(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
   function foneFmt(jid){var n=String(jid||"").split("@")[0].replace(/\D/g,"");if(n.length>=12)return "+"+n.slice(0,2)+" "+n.slice(2,4)+" "+n.slice(4,9)+"-"+n.slice(9);return n||"—";}
   function hhmm(ts){if(!ts)return "";var d=new Date(ts*1000);return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);}
+  function chatBy(jid){for(var i=0;i<allChats.length;i++){if(allChats[i].jid===jid)return allChats[i];}return null;}
+
+  // toquinho sintetico (Web Audio, sem arquivo) — dois beeps estilo Chatwoot
+  function unlockAudio(){try{if(!audioCtx){var AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();}catch(_){}}
+  function playTransferSound(){if(!sndOn)return;try{unlockAudio();if(!audioCtx)return;var t=audioCtx.currentTime;[ [659,0],[784,0.13] ].forEach(function(p){var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type="sine";o.frequency.value=p[0];o.connect(g);g.connect(audioCtx.destination);var s=t+p[1];g.gain.setValueAtTime(0.0001,s);g.gain.exponentialRampToValueAtTime(0.16,s+0.02);g.gain.exponentialRampToValueAtTime(0.0001,s+0.16);o.start(s);o.stop(s+0.18);});}catch(_){}}
+
+  function atendeInfo(c){
+    // retorna {label, cls} do estado da IA/atendente para esta conversa
+    if(c.atendenteId&&meuId&&c.atendenteId===meuId) return {label:"Você atende", cls:"badge orange"};
+    if(c.atendenteId) return {label:"Atende: "+(c.atendenteNome||"humano"), cls:"badge orange"};
+    if(c.iaPausada) return {label:"IA pausada", cls:"badge orange"};
+    return {label:"IA ativa", cls:"badge green"};
+  }
+
+  function markRead(jid){
+    var c=chatBy(jid);if(c)c.naoLidas=0;
+    fetch(API+"?action=read",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jid:jid})}).catch(function(){});
+    renderCounts();paintList();
+  }
+
+  function refreshAttendUI(){
+    var c=curJid?chatBy(curJid):null;
+    var badge=$("iaBadge"), btn=$("btnAtender"), banner=$("attendBanner");
+    if(!c){badge.textContent="·";badge.className="badge gray";btn.disabled=true;btn.textContent="Assumir";banner.classList.remove("on");return;}
+    var info=atendeInfo(c);badge.textContent=info.label;badge.className=info.cls;
+    btn.disabled=false;
+    var mine=(c.atendenteId&&meuId&&c.atendenteId===meuId);
+    if(mine){btn.textContent="Devolver à IA";banner.classList.add("on");}
+    else{btn.textContent="Assumir";banner.classList.remove("on");}
+  }
 
   function openChat(jid,nome){
     curJid=jid;curNome=nome;curFone=foneFmt(jid);
     $("clientAvatar").textContent=inits(nome);$("clientName").textContent=nome;$("clientMeta").textContent=curFone+" · WhatsApp Hub";
-    var b=$("statusBadge");b.textContent="Conversa espelhada";b.className="badge blue";
     $("btnLead").disabled=false;$("waInput").disabled=false;$("waSend").disabled=false;
+    refreshAttendUI();markRead(jid);
     var st=$("chatStream");st.innerHTML='<div class="stream-empty">Carregando mensagens…</div>';
     fetch(API+"?action=messages&jid="+encodeURIComponent(jid),{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
       var msgs=(d&&d.msgs)||[];
@@ -178,27 +236,74 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     }).catch(function(){st.innerHTML='<div class="stream-empty" style="color:var(--red)">Falha ao carregar as mensagens.</div>';});
   }
 
-  function renderList(chats){
-    var list=$("convList");
-    if(!chats.length){list.innerHTML='<div class="empty">Nenhuma conversa espelhada ainda.</div>';return;}
-    list.innerHTML=chats.map(function(c){
-      return '<div class="conversation" data-jid="'+esc(c.jid)+'" data-nome="'+esc(c.nome)+'"><div class="conv-avatar">'+esc(inits(c.nome))+'</div><div style="min-width:0"><div class="conv-title"><strong>'+esc(c.nome)+'</strong></div><p>'+(c.fromMe?"Você: ":"")+esc(c.ultima||"")+'</p></div><div class="conv-meta">'+(!c.fromMe?'<span class="unread" title="aguardando retorno"></span>':'')+'</div></div>';
-    }).join("");
-    Array.prototype.forEach.call(list.querySelectorAll(".conversation"),function(it){it.addEventListener("click",function(){Array.prototype.forEach.call(list.querySelectorAll(".conversation"),function(x){x.classList.remove("selected");});it.classList.add("selected");openChat(it.getAttribute("data-jid"),it.getAttribute("data-nome"));});});
+  function matchFiltro(c){
+    if(filtro==="minhas") return !!(meuId&&c.atendenteId===meuId);
+    if(filtro==="ia") return !c.iaPausada;
+    if(filtro==="nao_lidas") return (c.naoLidas||0)>0;
+    return true; // todas
   }
 
-  function loadChats(){
-    fetch(API+"?action=chats",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
-      allChats=(d&&d.chats)||[];setK("conversas",allChats.length);setK("aguardando",allChats.filter(function(c){return !c.fromMe;}).length);renderList(allChats);
-    }).catch(function(){$("convList").innerHTML='<div class="empty" style="color:var(--red)">Falha ao carregar conversas.</div>';});
+  function paintList(){
+    var q=(($("convSearch")||{}).value||"").trim().toLowerCase();
+    var list=$("convList");
+    var arr=allChats.filter(matchFiltro).filter(function(c){return !q||(c.nome||"").toLowerCase().indexOf(q)>=0||String(c.jid).indexOf(q)>=0;});
+    if(!arr.length){list.innerHTML='<div class="empty">Nenhuma conversa neste filtro.</div>';return;}
+    list.innerHTML=arr.map(function(c){
+      var info=atendeInfo(c);
+      var assignCls=(info.cls.indexOf("green")>=0)?"conv-assign ia":"conv-assign";
+      var meta=(c.naoLidas>0)?'<span class="unread-badge">'+c.naoLidas+'</span>':(!c.fromMe?'<span class="unread" title="aguardando retorno"></span>':'');
+      return '<div class="conversation'+(c.jid===curJid?' selected':'')+'" data-jid="'+esc(c.jid)+'" data-nome="'+esc(c.nome)+'"><div class="conv-avatar">'+esc(inits(c.nome))+'</div><div style="min-width:0"><div class="conv-title"><strong>'+esc(c.nome)+'</strong></div><p>'+(c.fromMe?"Você: ":"")+esc(c.ultima||"")+'</p><span class="'+assignCls+'">'+esc(info.label)+'</span></div><div class="conv-meta">'+meta+'</div></div>';
+    }).join("");
+    Array.prototype.forEach.call(list.querySelectorAll(".conversation"),function(it){it.addEventListener("click",function(){openChat(it.getAttribute("data-jid"),it.getAttribute("data-nome"));paintList();});});
+  }
+
+  function renderCounts(){
+    var m=0,ia=0,nao=0;
+    allChats.forEach(function(c){if(meuId&&c.atendenteId===meuId)m++;if(!c.iaPausada)ia++;if((c.naoLidas||0)>0)nao++;});
+    $("cMinhas").textContent=m;$("cIa").textContent=ia;$("cNao").textContent=nao;
+    setK("conversas",allChats.length);setK("aguardando",nao);
+  }
+
+  function loadChats(silent){
+    return fetch(API+"?action=chats",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
+      if(d&&d.meuId!==undefined&&d.meuId!==null)meuId=d.meuId;
+      allChats=(d&&d.chats)||[];
+      // detecta transferencia NOVA para mim -> toca o som
+      var novas=false;var mineNow={};
+      allChats.forEach(function(c){var mine=(meuId&&c.atendenteId===meuId);if(mine){mineNow[c.jid]=true;if(!mineBefore[c.jid])novas=true;}});
+      mineBefore=mineNow;
+      if(novas&&silent)playTransferSound();
+      renderCounts();paintList();refreshAttendUI();
+    }).catch(function(){if(!silent)$("convList").innerHTML='<div class="empty" style="color:var(--red)">Falha ao carregar conversas.</div>';});
   }
   function loadAux(){
     fetch(DATA+"?ent=leads&action=list",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){leadsCount=((d&&d.rows)||[]).length;setK("leads",leadsCount);}).catch(function(){});
     fetch(DATA+"?ent=imobiliarias&action=list",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){imobs=(d&&d.rows)||[];}).catch(function(){});
   }
 
+  // tabs de filtro
+  Array.prototype.forEach.call(document.querySelectorAll("#waTabs .wa-tab"),function(tab){tab.addEventListener("click",function(){filtro=tab.getAttribute("data-f");Array.prototype.forEach.call(document.querySelectorAll("#waTabs .wa-tab"),function(t){t.classList.toggle("active",t===tab);});paintList();});});
+
   var search=$("convSearch");
-  if(search)search.addEventListener("input",function(){var q=search.value.trim().toLowerCase();renderList(!q?allChats:allChats.filter(function(c){return (c.nome||"").toLowerCase().indexOf(q)>=0||String(c.jid).indexOf(q)>=0;}));});
+  if(search)search.addEventListener("input",paintList);
+
+  // assumir / devolver a IA
+  $("btnAtender").addEventListener("click",function(){
+    if(!curJid)return;var c=chatBy(curJid);if(!c)return;unlockAudio();
+    var mine=(c.atendenteId&&meuId&&c.atendenteId===meuId);
+    if(mine){ // devolver a IA
+      c.iaPausada=false;c.atendenteId=null;refreshAttendUI();renderCounts();paintList();
+      fetch(API+"?action=ia",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jid:curJid,pausada:false})}).then(function(){loadChats(true);}).catch(function(){});
+    }else{ // assumir
+      c.iaPausada=true;c.atendenteId=meuId;refreshAttendUI();renderCounts();paintList();
+      fetch(API+"?action=assign",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jid:curJid})}).then(function(){loadChats(true);}).catch(function(){});
+    }
+  });
+
+  // toggle do som
+  var snd=$("sndToggle");snd.classList.toggle("on",sndOn);
+  snd.addEventListener("click",function(){sndOn=!sndOn;localStorage.setItem("ailogic_wa_som",sndOn?"1":"0");snd.classList.toggle("on",sndOn);if(sndOn){unlockAudio();playTransferSound();}});
+  document.addEventListener("click",unlockAudio,{once:true});
 
   function appendMsg(txt){
     var st=$("chatStream");var em=st.querySelector(".stream-empty");if(em)st.innerHTML="";
@@ -207,11 +312,14 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     el.innerHTML='<strong>Hub · '+hh+'</strong>'+esc(txt);
     st.appendChild(el);st.scrollTop=st.scrollHeight;return el;
   }
-  function send(){var inp=$("waInput");var t=inp.value.trim();if(!t||!curJid)return;inp.value="";
-    var jid=curJid, bubble=appendMsg(t);   // otimista: aparece na hora
+  function send(){var inp=$("waInput");var t=inp.value.trim();if(!t||!curJid)return;inp.value="";unlockAudio();
+    var jid=curJid;
+    var comando=(t==="."||["assumir","vamos la","vamosla","/assumir","/vamos"].indexOf(t.toLowerCase())>=0);
+    var bubble=comando?null:appendMsg(t);   // comando nao vira bolha
     fetch(API+"?action=send",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jid:jid,text:t})})
-      .then(function(r){if(!r.ok)throw 0;})
-      .catch(function(){bubble.style.opacity=".55";bubble.innerHTML+='<div style="font-size:9.5px;color:var(--red);margin-top:3px">falha ao enviar · toque para tentar de novo</div>';bubble.style.cursor="pointer";bubble.onclick=function(){bubble.remove();inp.value=t;send();};});}
+      .then(function(r){if(!r.ok)throw 0;return r.json().catch(function(){return {};});})
+      .then(function(){loadChats(true);})
+      .catch(function(){if(bubble){bubble.style.opacity=".55";bubble.innerHTML+='<div style="font-size:9.5px;color:var(--red);margin-top:3px">falha ao enviar · toque para tentar de novo</div>';bubble.style.cursor="pointer";bubble.onclick=function(){bubble.remove();inp.value=t;send();};}});}
   $("waSend").addEventListener("click",send);
   $("waInput").addEventListener("keydown",function(e){if(e.key==="Enter")send();});
 
@@ -247,6 +355,21 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   }).catch(function(){var t=$("statusText");if(t)t.textContent="Status indisponível";});
 
   loadChats();loadAux();
+  // polling (~10s): o Hub ainda nao tem realtime; revalida conversas (toca som em transferencia nova)
+  // e, se ha conversa aberta, atualiza as mensagens dela.
+  setInterval(function(){
+    if(document.hidden)return;
+    loadChats(true).then(function(){
+      if(!curJid)return;
+      var cc=chatBy(curJid);if(cc&&(cc.naoLidas||0)>0)markRead(curJid); // mantem a conversa aberta como lida
+      fetch(API+"?action=messages&jid="+encodeURIComponent(curJid),{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
+        var st=$("chatStream");if(!st)return;var msgs=(d&&d.msgs)||[];
+        var perto=(st.scrollHeight-st.scrollTop-st.clientHeight)<60;
+        st.innerHTML=msgs.length?msgs.map(function(m){return '<div class="msg '+(m.fromMe?"out":"in")+'"><strong>'+(m.fromMe?"Hub":esc(m.autor||curNome))+' · '+hhmm(m.ts)+'</strong>'+esc(m.texto)+'</div>';}).join(""):'<div class="stream-empty">Sem mensagens no período espelhado.</div>';
+        if(perto)st.scrollTop=st.scrollHeight;
+      }).catch(function(){});
+    });
+  },10000);
 })();</script>
 </body>
 </html>

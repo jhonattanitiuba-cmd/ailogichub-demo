@@ -11,6 +11,11 @@ const INSTANCE = process.env.WA_INSTANCE || 'ailogic-hub-principal';
 const DB_URL   = process.env.DB_URL || '';
 const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
 const NUM_ALESSANDRO = '5511995568148';
+// atendente humano padrao para onde a IA transfere quando nao sabe (hoje o Alessandro;
+// resolvido por email, nao cravar UUID). Qualquer usuario do Hub pode reassumir no inbox.
+const FALLBACK_ATENDENTE_EMAIL = 'diretoria@ailogichub.app';
+// gatilho: lead pedindo atendimento humano
+const PEDE_HUMANO = /(atendente|humano|pessoa (de verdade|real)|ser humano|falar com (algu|uma pessoa|um corretor|atend|voce|vc)|quero falar com|me transfere|chama.* (corretor|atendente|gerente))/i;
 
 // Persona padrao do agente (Sam), usada quando nao ha ia_persona no banco.
 const PERSONA_PADRAO = PERSONA_SAM;
@@ -33,7 +38,8 @@ const ESTILO = `
 - As rotas numeradas sao so um atalho, NAO engessam: aceite numero, texto livre OU audio de forma equivalente. Se a pessoa escreve direto o que quer, siga o assunto sem forcar o menu.
 - Nas mensagens seguintes NAO repita a apresentacao nem o menu completo; se precisar oferecer escolhas, use no maximo 3 opcoes curtas.
 - Fale como um humano agil e esperto: natural, direto, sem parecer robo ou folheto. Sem repetir o que a pessoa disse.
-- Quando precisar dizer mais de uma coisa, SEPARE em mensagens curtas com uma linha em branco entre elas (o sistema envia como bolhas separadas). Prefira 1 ou 2 bolhas.`;
+- Quando precisar dizer mais de uma coisa, SEPARE em mensagens curtas com uma linha em branco entre elas (o sistema envia como bolhas separadas). Prefira 1 ou 2 bolhas.
+- TRANSFERENCIA PARA HUMANO: se voce nao souber responder com seguranca, se a pessoa pedir para falar com um atendente/humano/corretor, ou se o assunto exigir decisao humana (negociacao, reclamacao, juridico, algo fora do seu escopo), escreva UMA frase curta avisando que vai chamar um atendente humano e coloque o marcador [TRANSFERIR] no FINAL da mensagem. Ex.: "Vou te passar para um atendente humano, só um instante. [TRANSFERIR]". Use o marcador SO nesses casos; nunca o explique.`;
 
 async function db(q, params) {
   const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
@@ -146,6 +152,33 @@ async function salvarTurno(remoteJid, role, conteudo) {
   } catch (_) {}
 }
 
+// ===== ATENDIMENTO (handoff IA <-> humano) =====
+async function getAtendimento(remoteJid) {
+  try {
+    const r = await db('select atendente_id, ia_pausada, nao_lidas from ia_atendimento where remote_jid=$1', [remoteJid]);
+    return r.rows[0] || null;
+  } catch (_) { return null; }
+}
+// registra mensagem de entrada: garante a linha e incrementa nao-lidas (badge no inbox)
+async function marcarEntrada(remoteJid) {
+  try {
+    await db(`insert into ia_atendimento (remote_jid, nao_lidas, atualizado_em) values ($1, 1, now())
+      on conflict (remote_jid) do update set nao_lidas = ia_atendimento.nao_lidas + 1, atualizado_em = now()`, [remoteJid]);
+  } catch (_) {}
+}
+// transfere a conversa para um humano: pausa a IA e atribui ao atendente padrao (por email)
+async function transferirParaHumano(remoteJid) {
+  try {
+    await db(`insert into ia_atendimento (remote_jid, atendente_id, ia_pausada, atualizado_em)
+      values ($1, (select id from usuarios where email=$2 and deleted_at is null limit 1), true, now())
+      on conflict (remote_jid) do update set
+        ia_pausada = true,
+        atendente_id = coalesce(ia_atendimento.atendente_id, (select id from usuarios where email=$2 and deleted_at is null limit 1)),
+        atualizado_em = now()`, [remoteJid, FALLBACK_ATENDENTE_EMAIL]);
+    return true;
+  } catch (_) { return false; }
+}
+
 // remove travessão e emojis (cara de bot) e normaliza
 function limparBot(t) {
   if (!t) return t;
@@ -216,6 +249,28 @@ module.exports = async (req, res) => {
     if (!msgUser.trim() && isAudio) { msgUser = await transcreverAudio(key); }
     if (!msgUser.trim()) { await sendChunks(remoteJid, 'Nao consegui ouvir seu audio, pode escrever ou mandar de novo?'); res.status(200).json({ ignored: 'audio vazio' }); return; }
 
+    // toda mensagem de entrada conta como nao-lida no inbox
+    await marcarEntrada(remoteJid);
+
+    // se um humano assumiu esta conversa (IA pausada), a IA NAO responde: so registra
+    const atend = await getAtendimento(remoteJid);
+    if (atend && atend.ia_pausada) {
+      await salvarTurno(remoteJid, 'user', msgUser);
+      res.status(200).json({ ok: true, respondido: false, motivo: 'ia_pausada_atendimento_humano' });
+      return;
+    }
+
+    // gatilho de transferencia direto pelo lead ("quero falar com um atendente")
+    if (PEDE_HUMANO.test(msgUser)) {
+      await salvarTurno(remoteJid, 'user', msgUser);
+      await transferirParaHumano(remoteJid);
+      const ponte = 'Certo! Vou te passar para um atendente humano, só um instante. 🙋';
+      await salvarTurno(remoteJid, 'assistant', ponte);
+      await sendChunks(remoteJid, ponte);
+      res.status(200).json({ ok: true, respondido: true, transferido: true, motivo: 'pedido_do_lead' });
+      return;
+    }
+
     let contexto = await contextoBase();
     if (senderNum === NUM_ALESSANDRO) contexto += '\n\nVocê está falando com ALESSANDRO FERREIRA, o dono/cliente do Hub. É a conversa de ONBOARDING/personalização do agente.';
     // le o historico ANTES de gravar o turno atual, depois grava a mensagem do usuario
@@ -225,10 +280,17 @@ module.exports = async (req, res) => {
     // garante alternância terminando em user
     while (messages.length > 1 && messages[messages.length - 2].role === 'user') messages.splice(messages.length - 2, 1);
 
-    const resposta = await respostaIA(cfg.ia_persona, contexto, messages);
+    let resposta = await respostaIA(cfg.ia_persona, contexto, messages);
+    // a IA sinalizou que precisa de humano: transfere e remove o marcador do texto enviado
+    const querTransferir = /\[TRANSFERIR\]/i.test(resposta || '');
+    if (querTransferir) {
+      resposta = String(resposta).replace(/\[TRANSFERIR\]/ig, '').trim();
+      if (!resposta) resposta = 'Vou te passar para um atendente humano, só um instante. 🙋';
+      await transferirParaHumano(remoteJid);
+    }
     await salvarTurno(remoteJid, 'assistant', resposta);
     await sendChunks(remoteJid, resposta);
-    res.status(200).json({ ok: true, respondido: true, motor: OPENAI_KEY ? 'openai' : 'basico', turns: messages.length });
+    res.status(200).json({ ok: true, respondido: true, transferido: querTransferir, motor: OPENAI_KEY ? 'openai' : 'basico', turns: messages.length });
   } catch (e) {
     res.status(200).json({ ok: false, erro: String((e && e.message) || e) });
   }

@@ -118,19 +118,75 @@ module.exports = async (req, res) => {
       const cutoff = await getCutoff();
       const r = await evo('/chat/findChats/' + INSTANCE, 'POST', {});
       const arr = Array.isArray(r.body) ? r.body : [];
-      let chats = arr.map(c => ({
-        jid: c.remoteJid,
-        nome: NAMES[num8(c.remoteJid)] || c.pushName || (c.remoteJid ? String(c.remoteJid).split('@')[0] : 'Contato'),
-        foto: c.profilePicUrl || null,
-        atualizado: c.updatedAt || null,
-        janelaAtiva: !!c.windowActive,
-        grupo: String(c.remoteJid || '').endsWith('@g.us'),
-        ultima: c.lastMessage ? msgText(c.lastMessage) : '',
-        fromMe: !!(c.lastMessage && c.lastMessage.key && c.lastMessage.key.fromMe)
-      })).filter(c => c.jid && !c.grupo)   // espelhamento liberado (exclui grupos)
+      // estado de atendimento (handoff IA<->humano) numa consulta so
+      const estado = {};
+      try {
+        const er = await db(`select a.remote_jid, a.atendente_id, a.ia_pausada, a.nao_lidas, u.nome atendente_nome
+          from ia_atendimento a left join usuarios u on u.id = a.atendente_id`);
+        (er.rows || []).forEach(x => { estado[x.remote_jid] = x; });
+      } catch (_) {}
+      let chats = arr.map(c => {
+        const st = estado[c.remoteJid] || {};
+        return {
+          jid: c.remoteJid,
+          nome: NAMES[num8(c.remoteJid)] || c.pushName || (c.remoteJid ? String(c.remoteJid).split('@')[0] : 'Contato'),
+          foto: c.profilePicUrl || null,
+          atualizado: c.updatedAt || null,
+          janelaAtiva: !!c.windowActive,
+          grupo: String(c.remoteJid || '').endsWith('@g.us'),
+          ultima: c.lastMessage ? msgText(c.lastMessage) : '',
+          fromMe: !!(c.lastMessage && c.lastMessage.key && c.lastMessage.key.fromMe),
+          atendenteId: st.atendente_id || null,
+          atendenteNome: st.atendente_nome || null,
+          iaPausada: !!st.ia_pausada,
+          naoLidas: st.nao_lidas || 0
+        };
+      }).filter(c => c.jid && !c.grupo)   // espelhamento liberado (exclui grupos)
         .sort((a, b) => new Date(b.atualizado || 0) - new Date(a.atualizado || 0));
       if (cutoff) chats = chats.filter(c => c.atualizado && new Date(c.atualizado) >= cutoff);
-      res.status(200).json({ chats });
+      res.status(200).json({ chats, meuId: user.usuarioId || null, meuNome: user.nome || null });
+      return;
+    }
+
+    // ---- ATENDIMENTO: assumir (pausa IA + atribui) ----
+    if (action === 'assign') {
+      let b = req.body; if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
+      b = b || {}; const jid = b.jid; const alvo = b.atendenteId || user.usuarioId;
+      if (!jid) { res.status(400).json({ error: 'jid obrigatorio' }); return; }
+      await db(`insert into ia_atendimento (remote_jid, atendente_id, ia_pausada, atualizado_em) values ($1,$2,true,now())
+        on conflict (remote_jid) do update set atendente_id=$2, ia_pausada=true, atualizado_em=now()`, [jid, alvo]);
+      res.status(200).json({ ok: true, atendenteId: alvo, iaPausada: true });
+      return;
+    }
+    // ---- ATENDIMENTO: pausar/retomar IA por conversa ----
+    if (action === 'ia') {
+      let b = req.body; if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
+      b = b || {}; const jid = b.jid; const pausada = !!b.pausada;
+      if (!jid) { res.status(400).json({ error: 'jid obrigatorio' }); return; }
+      if (pausada) {
+        await db(`insert into ia_atendimento (remote_jid, ia_pausada, atendente_id, atualizado_em) values ($1,true,$2,now())
+          on conflict (remote_jid) do update set ia_pausada=true, atendente_id=coalesce(ia_atendimento.atendente_id,$2), atualizado_em=now()`, [jid, user.usuarioId]);
+      } else {
+        // retomar IA: limpa atendente e devolve a conversa para o robo
+        await db(`insert into ia_atendimento (remote_jid, ia_pausada, atendente_id, atualizado_em) values ($1,false,null,now())
+          on conflict (remote_jid) do update set ia_pausada=false, atendente_id=null, atualizado_em=now()`, [jid]);
+      }
+      res.status(200).json({ ok: true, iaPausada: pausada });
+      return;
+    }
+    // ---- ATENDIMENTO: marcar conversa como lida ----
+    if (action === 'read') {
+      let b = req.body; if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
+      b = b || {}; const jid = b.jid;
+      if (!jid) { res.status(400).json({ error: 'jid obrigatorio' }); return; }
+      await db(`insert into ia_atendimento (remote_jid, nao_lidas, ultimo_lido_em, atualizado_em) values ($1,0,now(),now())
+        on conflict (remote_jid) do update set nao_lidas=0, ultimo_lido_em=now()`, [jid]);
+      res.status(200).json({ ok: true });
+      return;
+    }
+    // ---- quem sou eu (para o filtro "Minhas") ----
+    if (action === 'me') {
+      res.status(200).json({ id: user.usuarioId || null, nome: user.nome || null, email: user.email || null, perfil: user.perfil || null, isAdmin: !!user.isAdmin });
       return;
     }
 
@@ -161,10 +217,27 @@ module.exports = async (req, res) => {
       if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
       const jid = b && b.jid, text = b && b.text;
       if (!jid || !text) { res.status(400).json({ error: 'jid e text obrigatorios' }); return; }
-      // espelhamento liberado: sem filtro de numero
+      const cmd = String(text).trim().toLowerCase();
+      // COMANDO "." -> devolve a conversa para a IA (nao envia ao cliente)
+      if (String(text).trim() === '.') {
+        await db(`insert into ia_atendimento (remote_jid, ia_pausada, atendente_id, atualizado_em) values ($1,false,null,now())
+          on conflict (remote_jid) do update set ia_pausada=false, atendente_id=null, atualizado_em=now()`, [jid]);
+        res.status(200).json({ ok: true, comando: 'ia_retomada' });
+        return;
+      }
+      // COMANDO "assumir"/"vamos la" -> pausa IA + atribui ao logado (nao envia ao cliente)
+      if (['assumir', 'vamos la', 'vamosla', '/assumir', '/vamos'].indexOf(cmd) >= 0) {
+        await db(`insert into ia_atendimento (remote_jid, ia_pausada, atendente_id, atualizado_em) values ($1,true,$2,now())
+          on conflict (remote_jid) do update set ia_pausada=true, atendente_id=$2, atualizado_em=now()`, [jid, user.usuarioId]);
+        res.status(200).json({ ok: true, comando: 'assumido' });
+        return;
+      }
+      // envio manual do humano: assume a conversa (pausa a IA e atribui, se ainda nao)
+      await db(`insert into ia_atendimento (remote_jid, ia_pausada, atendente_id, nao_lidas, ultimo_lido_em, atualizado_em) values ($1,true,$2,0,now(),now())
+        on conflict (remote_jid) do update set ia_pausada=true, atendente_id=coalesce(ia_atendimento.atendente_id,$2), nao_lidas=0, ultimo_lido_em=now(), atualizado_em=now()`, [jid, user.usuarioId]);
       const number = String(jid).endsWith('@s.whatsapp.net') ? String(jid).split('@')[0] : jid;
       const r = await evo('/message/sendText/' + INSTANCE, 'POST', { number, text });
-      res.status(r.ok ? 200 : 500).json({ ok: r.ok, resp: r.body });
+      res.status(r.ok ? 200 : 500).json({ ok: r.ok, resp: r.body, assumido: true });
       return;
     }
 
