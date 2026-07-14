@@ -118,24 +118,32 @@ async function contextoBase() {
   } catch (_) { return 'CONTEXTO: plataforma AILogic Hub ativa.'; }
 }
 
-// histórico da conversa (multi-turno) a partir do Evolution
-async function historico(remoteJid, currentId, cutoff) {
+// histórico da conversa (multi-turno) a partir do NOSSO banco (ia_historico).
+// O Evolution nao persiste mensagens de ENTRADA de forma confiavel (findMessages
+// devolve so as do bot), o que fazia o modelo achar que era sempre a 1a mensagem e
+// re-apresentar em loop. Agora gravamos cada turno (user/assistant) e lemos daqui.
+async function historico(remoteJid) {
   try {
-    const j = await evoFetch('/chat/findMessages/' + INSTANCE, { where: { key: { remoteJid } }, limit: 16 });
-    const recs = (j && j.messages && j.messages.records) || [];
-    let arr = recs
-      .map(m => ({ role: (m.key && m.key.fromMe) ? 'assistant' : 'user', content: textoDe(m.message), ts: m.messageTimestamp ? Number(m.messageTimestamp) : 0, id: m.key && m.key.id }))
-      .filter(m => m.content && m.content.trim() && m.id !== currentId)
-      .filter(m => !cutoff || m.ts * 1000 >= cutoff)
-      .sort((a, b) => a.ts - b.ts)
-      .slice(-10)
-      .map(({ role, content }) => ({ role, content }));
+    const r = await db(
+      'select role, conteudo from ia_historico where remote_jid=$1 order by criado_em desc, id desc limit 12',
+      [remoteJid]
+    );
+    let arr = (r.rows || [])
+      .reverse()
+      .filter(m => m.conteudo && m.conteudo.trim())
+      .map(m => ({ role: m.role, content: m.conteudo }));
     // colapsa papéis consecutivos iguais (exigência da API)
     const out = [];
     for (const m of arr) { const last = out[out.length - 1]; if (last && last.role === m.role) last.content += '\n' + m.content; else out.push({ ...m }); }
     while (out.length && out[0].role !== 'user') out.shift();
     return out;
   } catch (_) { return []; }
+}
+async function salvarTurno(remoteJid, role, conteudo) {
+  try {
+    if (!conteudo || !conteudo.trim()) return;
+    await db('insert into ia_historico (remote_jid, role, conteudo) values ($1,$2,$3)', [remoteJid, role, conteudo.trim()]);
+  } catch (_) {}
 }
 
 // remove travessão e emojis (cara de bot) e normaliza
@@ -208,15 +216,17 @@ module.exports = async (req, res) => {
     if (!msgUser.trim() && isAudio) { msgUser = await transcreverAudio(key); }
     if (!msgUser.trim()) { await sendChunks(remoteJid, 'Nao consegui ouvir seu audio, pode escrever ou mandar de novo?'); res.status(200).json({ ignored: 'audio vazio' }); return; }
 
-    const cutoff = cfg.espelho_desde ? new Date(cfg.espelho_desde).getTime() : null;
     let contexto = await contextoBase();
     if (senderNum === NUM_ALESSANDRO) contexto += '\n\nVocê está falando com ALESSANDRO FERREIRA, o dono/cliente do Hub. É a conversa de ONBOARDING/personalização do agente.';
-    const hist = await historico(remoteJid, key.id, cutoff);
+    // le o historico ANTES de gravar o turno atual, depois grava a mensagem do usuario
+    const hist = await historico(remoteJid);
+    await salvarTurno(remoteJid, 'user', msgUser);
     const messages = [...hist, { role: 'user', content: msgUser }];
     // garante alternância terminando em user
     while (messages.length > 1 && messages[messages.length - 2].role === 'user') messages.splice(messages.length - 2, 1);
 
     const resposta = await respostaIA(cfg.ia_persona, contexto, messages);
+    await salvarTurno(remoteJid, 'assistant', resposta);
     await sendChunks(remoteJid, resposta);
     res.status(200).json({ ok: true, respondido: true, motor: OPENAI_KEY ? 'openai' : 'basico', turns: messages.length });
   } catch (e) {
