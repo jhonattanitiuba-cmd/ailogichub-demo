@@ -4,7 +4,7 @@
 // Segredos via env vars da Vercel — nunca no repo.
 //   EVO_BASE, EVO_KEY, WA_INSTANCE, DB_URL
 const { db } = require('./_db');
-const { requireAuth } = require('./_auth');
+const { requireAuth, departamentoDe: deptDe } = require('./_auth');
 
 const EVO_BASE = (process.env.EVO_BASE || '').replace(/\/$/, '');
 const EVO_KEY  = process.env.EVO_KEY || '';
@@ -49,6 +49,32 @@ function msgText(rec) {
   if (M.locationMessage) return '[localização]';
   if (M.contactMessage) return '[contato]';
   return '[mensagem]';
+}
+
+// status de entrega/leitura (ticks) — o Evolution guarda os acks em MessageUpdate (array).
+// retorna: -1 erro, 0 relogio(pendente), 1 enviado(1 tick), 2 entregue(2 ticks), 3 lido(2 azuis).
+function ackDe(m) {
+  const ORD = { PENDING: 0, SERVER_ACK: 1, DELIVERY_ACK: 2, READ: 3, PLAYED: 3 };
+  const ups = (m && m.MessageUpdate) || [];
+  if (Array.isArray(ups) && ups.some(u => String(u && u.status).toUpperCase() === 'ERROR')) return -1;
+  let best = 1;
+  if (Array.isArray(ups) && ups.length) {
+    best = 0;
+    ups.forEach(u => { const v = ORD[String(u && u.status).toUpperCase()]; if (typeof v === 'number' && v > best) best = v; });
+  } else if (m && m.status) {
+    const v = ORD[String(m.status).toUpperCase()]; if (typeof v === 'number') best = v;
+  }
+  return best;
+}
+// info de midia (imagem/audio/video/documento/figurinha) para renderizar no thread
+function mediaInfo(rec) {
+  const M = (rec && rec.message) || {};
+  if (M.imageMessage) return { media: 'image', mime: M.imageMessage.mimetype || 'image/jpeg', caption: M.imageMessage.caption || '' };
+  if (M.stickerMessage) return { media: 'sticker', mime: M.stickerMessage.mimetype || 'image/webp' };
+  if (M.audioMessage) return { media: 'audio', mime: M.audioMessage.mimetype || 'audio/ogg', ptt: !!M.audioMessage.ptt };
+  if (M.videoMessage) return { media: 'video', mime: M.videoMessage.mimetype || 'video/mp4', caption: M.videoMessage.caption || '' };
+  if (M.documentMessage) return { media: 'document', mime: M.documentMessage.mimetype || '', fileName: M.documentMessage.fileName || 'arquivo' };
+  return null;
 }
 
 module.exports = async (req, res) => {
@@ -177,9 +203,51 @@ module.exports = async (req, res) => {
       res.status(200).json({ ok: true });
       return;
     }
-    // ---- quem sou eu (para o filtro "Minhas") ----
+    // ---- quem sou eu (para o filtro "Minhas") + lista de usuarios (transferencia) ----
     if (action === 'me') {
-      res.status(200).json({ id: user.usuarioId || null, nome: user.nome || null, email: user.email || null, perfil: user.perfil || null, isAdmin: !!user.isAdmin });
+      let equipe = [];
+      try {
+        const eq = await db(`select id, nome, perfil, extra from usuarios where deleted_at is null and ativo is not false order by nome`);
+        equipe = (eq.rows || []).map(u => ({ id: u.id, nome: u.nome, perfil: u.perfil, departamento: deptDe(u.perfil, u.extra) }));
+      } catch (_) {}
+      res.status(200).json({ id: user.usuarioId || null, nome: user.nome || null, email: user.email || null, perfil: user.perfil || null, departamento: user.departamento || null, isAdmin: !!user.isAdmin, equipe });
+      return;
+    }
+
+    // ---- CRM: lead vinculado + sugestao por telefone (ultimos 8 digitos) ----
+    if (action === 'crm') {
+      const jid = req.query && req.query.jid;
+      if (!jid) { res.status(400).json({ error: 'jid obrigatorio' }); return; }
+      const fone8 = num8(jid);
+      let lead = null, sugestao = null;
+      const at = (await db('select lead_id from ia_atendimento where remote_jid=$1', [jid])).rows[0];
+      if (at && at.lead_id) {
+        lead = (await db('select id,nome,telefone,email,status,interesse,ultimo_contato from leads where id=$1 and deleted_at is null', [at.lead_id])).rows[0] || null;
+      }
+      if (!lead && fone8) {
+        sugestao = (await db(`select id,nome,telefone,status from leads where deleted_at is null and right(regexp_replace(coalesce(telefone,''),'\\D','','g'),8)=$1 order by created_at limit 1`, [fone8])).rows[0] || null;
+      }
+      res.status(200).json({ lead, sugestao, stages: ['NOVO','QUALIFICADO','EM_ATENDIMENTO','GANHO','PERDIDO','DESCARTADO'] });
+      return;
+    }
+    // ---- CRM: vincular conversa a um lead (ou desvincular com leadId null) ----
+    if (action === 'vincular') {
+      let b = req.body; if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
+      b = b || {}; const jid = b.jid, leadId = b.leadId || null;
+      if (!jid) { res.status(400).json({ error: 'jid obrigatorio' }); return; }
+      await db(`insert into ia_atendimento (remote_jid, lead_id, atualizado_em) values ($1,$2,now())
+        on conflict (remote_jid) do update set lead_id=$2, atualizado_em=now()`, [jid, leadId]);
+      res.status(200).json({ ok: true, leadId });
+      return;
+    }
+    // ---- CRM: mudar etapa/status do lead (pipeline clicavel) ----
+    if (action === 'stage') {
+      let b = req.body; if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
+      b = b || {}; const leadId = b.leadId, status = b.status;
+      if (!leadId || !status) { res.status(400).json({ error: 'leadId e status obrigatorios' }); return; }
+      try { await db('update leads set status=$1::lead_status, ultimo_contato=now(), updated_at=now() where id=$2', [status, leadId]); }
+      catch (e) { res.status(400).json({ error: 'status invalido' }); return; }
+      res.status(200).json({ ok: true, status });
       return;
     }
 
@@ -191,16 +259,38 @@ module.exports = async (req, res) => {
       const cutoff = await getCutoff();
       const r = await evo('/chat/findMessages/' + INSTANCE, 'POST', { where: { key: { remoteJid: jid } }, limit: 60 });
       const recs = (r.body && r.body.messages && r.body.messages.records) || [];
-      let msgs = recs.map(m => ({
-        id: m.key && m.key.id,
-        fromMe: !!(m.key && m.key.fromMe),
-        texto: msgText(m),
-        tipo: m.messageType,
-        ts: m.messageTimestamp ? Number(m.messageTimestamp) : null,
-        autor: m.pushName || null
-      })).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+      let msgs = recs.map(m => {
+        const mi = mediaInfo(m);
+        return {
+          id: m.key && m.key.id,
+          fromMe: !!(m.key && m.key.fromMe),
+          texto: msgText(m),
+          tipo: m.messageType,
+          ack: ackDe(m),                          // ticks reais (ver ackDe)
+          media: mi ? mi.media : null,            // image|audio|video|document|sticker|null
+          mime: mi ? mi.mime : null,
+          fileName: mi ? (mi.fileName || null) : null,
+          ptt: mi ? !!mi.ptt : false,
+          ts: m.messageTimestamp ? Number(m.messageTimestamp) : null,
+          autor: m.pushName || null
+        };
+      }).sort((a, b) => (a.ts || 0) - (b.ts || 0));
       if (cutoff) { const c = cutoff.getTime(); msgs = msgs.filter(m => m.ts && m.ts * 1000 >= c); }
       res.status(200).json({ jid, msgs });
+      return;
+    }
+
+    // ---- MIDIA de uma mensagem (base64 -> data URL) para espelhar imagem/audio/etc ----
+    if (action === 'media') {
+      const jid = req.query && req.query.jid;
+      const id = req.query && req.query.id;
+      const fromMe = String((req.query && req.query.fromMe) || '') === '1';
+      if (!jid || !id) { res.status(400).json({ error: 'jid e id obrigatorios' }); return; }
+      const mr = await evo('/chat/getBase64FromMediaMessage/' + INSTANCE, 'POST', { message: { key: { id, remoteJid: jid, fromMe } } });
+      const b64 = mr.body && (mr.body.base64 || mr.body.media || mr.body.buffer);
+      const mime = (mr.body && (mr.body.mimetype || mr.body.mime)) || 'application/octet-stream';
+      if (!b64) { res.status(404).json({ error: 'sem midia' }); return; }
+      res.status(200).json({ dataUrl: 'data:' + mime + ';base64,' + b64, mime });
       return;
     }
 
@@ -229,8 +319,10 @@ module.exports = async (req, res) => {
       await db(`insert into ia_atendimento (remote_jid, ia_pausada, atendente_id, nao_lidas, ultimo_lido_em, atualizado_em) values ($1,true,$2,0,now(),now())
         on conflict (remote_jid) do update set ia_pausada=true, atendente_id=coalesce(ia_atendimento.atendente_id,$2), nao_lidas=0, ultimo_lido_em=now(), atualizado_em=now()`, [jid, user.usuarioId]);
       const number = String(jid).endsWith('@s.whatsapp.net') ? String(jid).split('@')[0] : jid;
-      const r = await evo('/message/sendText/' + INSTANCE, 'POST', { number, text });
-      res.status(r.ok ? 200 : 500).json({ ok: r.ok, resp: r.body, assumido: true });
+      // assinatura por departamento: *Nome / Departamento:* (o agente assina *SAM / Atendimento:*)
+      const assinatura = '*' + (user.nome || 'Atendente') + ' / ' + (user.departamento || 'Atendimento') + ':*\n';
+      const r = await evo('/message/sendText/' + INSTANCE, 'POST', { number, text: assinatura + text });
+      res.status(r.ok ? 200 : 500).json({ ok: r.ok, resp: r.body, assumido: true, assinatura: assinatura.trim() });
       return;
     }
 

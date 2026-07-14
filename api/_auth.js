@@ -11,6 +11,20 @@ const DB_URL = process.env.DB_URL || '';
 const ADMIN_ROLES = ['admin', 'administrador', 'diretor', 'diretoria', 'dono', 'owner', 'super'];
 function isAdminRole(p) { return ADMIN_ROLES.indexOf(String(p || '').toLowerCase()) >= 0; }
 
+// departamento amigável para a assinatura das mensagens (Nome / Departamento).
+// Deriva do perfil; sobrescrevível por usuarios.extra.departamento.
+const DEPT_MAP = {
+  diretoria: 'Diretoria', diretor: 'Diretoria', dono: 'Diretoria', owner: 'Diretoria',
+  admin: 'Diretoria', administrador: 'Diretoria', super: 'Diretoria',
+  gestor: 'Gestão', corretor: 'Comercial', comercial: 'Comercial',
+  advogado: 'Jurídico', juridico: 'Jurídico', 'jurídico': 'Jurídico',
+  marketing: 'Marketing', financeiro: 'Financeiro', parceiro: 'Parceria', suporte: 'Suporte'
+};
+function departamentoDe(perfil, extra) {
+  try { if (extra && extra.departamento) return String(extra.departamento); } catch (_) {}
+  return DEPT_MAP[String(perfil || '').toLowerCase()] || 'Atendimento';
+}
+
 // e-mails "fundadores" que entram como admin do Hub mesmo sem linha em usuarios
 // (bootstrap do primeiro acesso). Pode ser sobrescrito por env FOUNDER_EMAILS.
 const FOUNDER_EMAILS = (process.env.FOUNDER_EMAILS || 'tecnologia@ailogichub.app')
@@ -44,14 +58,14 @@ async function resolveScope(user) {
   const email = (user && user.email) || null;
   let perfil = meta.perfil || null;
   let imobiliariaId = meta.imobiliaria_id || null;
-  let usuarioId = null, nome = meta.nome || null;
+  let usuarioId = null, nome = meta.nome || null, extra = null;
   try {
     if (DB_URL && user && user.id) {
       // 1) fonte de verdade: linha ligada ao login (auth_user_id)
-      let r = await db('select id, nome, perfil, imobiliaria_id from usuarios where auth_user_id=$1 and deleted_at is null limit 1', [user.id]);
+      let r = await db('select id, nome, perfil, imobiliaria_id, extra from usuarios where auth_user_id=$1 and deleted_at is null limit 1', [user.id]);
       // 2) fallback por e-mail (verificado pelo GoTrue): liga o perfil sem depender de auth_user_id
       if (!r.rows[0] && email) {
-        r = await db('select id, nome, perfil, imobiliaria_id from usuarios where lower(email)=lower($1) and deleted_at is null order by created_at limit 1', [email]);
+        r = await db('select id, nome, perfil, imobiliaria_id, extra from usuarios where lower(email)=lower($1) and deleted_at is null order by created_at limit 1', [email]);
         if (r.rows[0]) {
           // backfill: torna o vínculo permanente para os próximos acessos
           try { await db('update usuarios set auth_user_id=$1 where id=$2 and auth_user_id is null', [user.id, r.rows[0].id]); } catch (_) {}
@@ -61,6 +75,7 @@ async function resolveScope(user) {
         usuarioId = r.rows[0].id || null;
         nome = r.rows[0].nome || nome;
         perfil = r.rows[0].perfil || perfil;
+        extra = r.rows[0].extra || null;
         if (r.rows[0].imobiliaria_id) imobiliariaId = r.rows[0].imobiliaria_id;
       }
     }
@@ -70,7 +85,8 @@ async function resolveScope(user) {
   if (!isAdmin && isFounder(email)) { perfil = perfil || 'admin'; isAdmin = true; }
   return {
     user: user, authId: user && user.id, email: email, nome: nome,
-    usuarioId: usuarioId, perfil: perfil, imobiliariaId: imobiliariaId, isAdmin: isAdmin
+    usuarioId: usuarioId, perfil: perfil, departamento: departamentoDe(perfil, extra),
+    imobiliariaId: imobiliariaId, isAdmin: isAdmin
   };
 }
 
@@ -86,4 +102,4 @@ async function requireAuth(req, res) {
   return await resolveScope(user);
 }
 
-module.exports = { getUser, requireAuth, isAdminRole };
+module.exports = { getUser, requireAuth, isAdminRole, departamentoDe };
