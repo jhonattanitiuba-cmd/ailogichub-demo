@@ -1,7 +1,7 @@
 // AILOGIC HUB — Disparo inicial (mensagem validada) às 07:00. Idempotente via flag no banco.
 // Enviado pelo número do Hub (ailogic-hub-principal) para Jhonattan e Alessandro.
 // Acionado por: Vercel Cron (10:00 UTC = 07:00 BRT) e/ou Task Scheduler local (reforço).
-const { Client } = require('pg');
+const { db } = require('./_db');
 const EVO_BASE = (process.env.EVO_BASE || '').replace(/\/$/, '');
 const EVO_KEY  = process.env.EVO_KEY || '';
 const INSTANCE = process.env.WA_INSTANCE || 'ailogic-hub-principal';
@@ -30,12 +30,6 @@ Responda aqui mesmo com um "oi". O agente já conhece a sua base e vai conversar
 • Ata da Reunião 2/4
 
 *Brava Company*`;
-
-async function db(q, p) {
-  const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
-  await c.connect();
-  try { return await c.query(q, p); } finally { try { await c.end(); } catch (_) {} }
-}
 
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');

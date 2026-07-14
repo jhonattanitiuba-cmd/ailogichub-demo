@@ -3,7 +3,7 @@
 // Fala com o Evolution server-side e grava estado no Supabase.
 // Segredos via env vars da Vercel — nunca no repo.
 //   EVO_BASE, EVO_KEY, WA_INSTANCE, DB_URL
-const { Client } = require('pg');
+const { db } = require('./_db');
 const { requireAuth } = require('./_auth');
 
 const EVO_BASE = (process.env.EVO_BASE || '').replace(/\/$/, '');
@@ -17,13 +17,6 @@ const ALLOW8 = ['5511991612610', '5511995568148'].map(n => n.slice(-8));
 const NAMES = { '91612610': 'Jhonattan (Brava)', '95568148': 'Alessandro Ferreira' };
 function num8(jid) { return String(jid || '').split('@')[0].replace(/\D/g, '').slice(-8); }
 function allowedJid(jid) { return ALLOW8.indexOf(num8(jid)) >= 0; }
-
-async function db(q, params) {
-  const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
-  await c.connect();
-  try { return await c.query(q, params); }
-  finally { try { await c.end(); } catch (_) {} }
-}
 
 async function evo(path, method = 'GET', body) {
   const r = await fetch(EVO_BASE + path, {

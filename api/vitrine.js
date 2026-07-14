@@ -2,15 +2,8 @@
 // Alimenta a página /vitrine (feed estilo TikTok) para clientes finais.
 // Retorna apenas imóveis disponíveis e campos seguros de exibição (sem endereço exato,
 // sem dados internos). Segredo DB_URL em env var da Vercel.
-const { Client } = require('pg');
+const { db } = require('./_db');
 const DB_URL = process.env.DB_URL || '';
-
-async function db(q, params) {
-  const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
-  await c.connect();
-  try { return await c.query(q, params); }
-  finally { try { await c.end(); } catch (_) {} }
-}
 
 // só campos públicos; endereço exato e ids internos ficam de fora
 function pubOut(r) {

@@ -2,7 +2,7 @@
 // Verifica o access_token do usuário e resolve perfil + imobiliária para
 // permitir que cada API filtre os dados por permissão.
 // Config via env vars: SUPABASE_URL, SUPABASE_ANON_KEY, DB_URL.
-const { Client } = require('pg');
+const { db } = require('./_db');
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const DB_URL = process.env.DB_URL || '';
@@ -21,12 +21,6 @@ function bearer(req) {
   const h = (req.headers && (req.headers.authorization || req.headers.Authorization)) || '';
   const m = /^Bearer\s+(.+)$/i.exec(h);
   return m ? m[1].trim() : null;
-}
-
-async function db(q, p) {
-  const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
-  await c.connect();
-  try { return await c.query(q, p); } finally { try { await c.end(); } catch (_) {} }
 }
 
 // valida o token no GoTrue e retorna o usuário do Supabase (ou null)

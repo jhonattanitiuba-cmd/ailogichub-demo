@@ -2,7 +2,7 @@
 // Onboarding conversacional: lê o estado real do Supabase + histórico da conversa (multi-turno)
 // e responde com Claude (fallback básico sem chave). MODO TESTE: só responde a allowlist.
 // env: EVO_BASE, EVO_KEY, WA_INSTANCE, DB_URL, ANTHROPIC_API_KEY
-const { Client } = require('pg');
+const { db } = require('./_db');
 const { PERSONA_SAM } = require('./persona');
 
 const EVO_BASE = (process.env.EVO_BASE || '').replace(/\/$/, '');
@@ -41,11 +41,6 @@ const ESTILO = `
 - Quando precisar dizer mais de uma coisa, SEPARE em mensagens curtas com uma linha em branco entre elas (o sistema envia como bolhas separadas). Prefira 1 ou 2 bolhas.
 - TRANSFERENCIA PARA HUMANO: se voce nao souber responder com seguranca, se a pessoa pedir para falar com um atendente/humano/corretor, ou se o assunto exigir decisao humana (negociacao, reclamacao, juridico, algo fora do seu escopo), escreva UMA frase curta avisando que vai chamar um atendente humano e coloque o marcador [TRANSFERIR] no FINAL da mensagem. Ex.: "Vou te passar para um atendente humano, só um instante. [TRANSFERIR]". Use o marcador SO nesses casos; nunca o explique.`;
 
-async function db(q, params) {
-  const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
-  await c.connect();
-  try { return await c.query(q, params); } finally { try { await c.end(); } catch (_) {} }
-}
 async function evoFetch(path, body) {
   const r = await fetch(EVO_BASE + path, { method: 'POST', headers: { apikey: EVO_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
   return r.json().catch(() => ({}));

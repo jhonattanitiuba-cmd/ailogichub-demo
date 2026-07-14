@@ -1,18 +1,11 @@
 // AILOGIC HUB — CRUD de imobiliárias e imóveis no Supabase (Serverless Vercel)
 // Colunas escalares populadas + coluna `extra jsonb` com os campos do formulário.
 // Segredo DB_URL em env var da Vercel.
-const { Client } = require('pg');
+const { db } = require('./_db');
 const { requireAuth } = require('./_auth');
 const DB_URL = process.env.DB_URL || '';
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
-
-async function db(q, params) {
-  const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
-  await c.connect();
-  try { return await c.query(q, params); }
-  finally { try { await c.end(); } catch (_) {} }
-}
 
 // gera uma senha temporaria legivel (>= 6 chars, com letra/numero/simbolo)
 function genSenha() {

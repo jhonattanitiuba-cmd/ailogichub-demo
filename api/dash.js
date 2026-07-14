@@ -1,11 +1,7 @@
 // AILOGIC HUB — dados do dashboard (Central de Operações) + funil de negócios
-const { Client } = require('pg');
+const { db } = require('./_db');
 const { requireAuth } = require('./_auth');
 const DB_URL = process.env.DB_URL || '';
-async function db(q, p) {
-  const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
-  await c.connect(); try { return await c.query(q, p); } finally { try { await c.end(); } catch (_) {} }
-}
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   try {
@@ -34,40 +30,37 @@ module.exports = async (req, res) => {
       res.status(200).json({ cards: r.rows.map(x => ({ ...x, valor: x.valor != null ? Number(x.valor) : null })) });
       return;
     }
-    // RESUMO do dashboard: todos os agregados numa UNICA conexao (evita 4 pulls de tabela cheia no cliente)
+    // RESUMO do dashboard: TODOS os agregados numa UNICA consulta (1 round-trip em vez de 5)
     if (action === 'resumo') {
       const isAdmin = user.isAdmin;
       if (!isAdmin && !user.imobiliariaId) { res.status(200).json({ imobiliarias: [], leadsTotal: 0, leadsQualificados: 0, leadsPorFonte: [], leadsPorStatus: [], imoveisTotal: 0 }); return; }
-      const p = isAdmin ? [] : [user.imobiliariaId];
-      const fLead = isAdmin ? '' : ' and imobiliaria_id=$1';      // leads/imoveis
-      const fLeadL = isAdmin ? '' : ' and l.imobiliaria_id=$1';   // leads com alias l
-      const imobWhere = isAdmin ? 'deleted_at is null' : 'deleted_at is null and id=$1';
-      const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
-      await c.connect();
-      try {
-        const imobs = (await c.query(
-          `select i.id, i.nome, i.cidade, case when i.ativo then 'Ativo' else 'Pausado' end as status,
-             (select count(*) from imoveis m where m.imobiliaria_id=i.id and m.deleted_at is null) as imoveis,
-             (select count(*) from leads l where l.imobiliaria_id=i.id and l.deleted_at is null) as leads
-           from imobiliarias i where ${imobWhere} order by i.created_at`, p)).rows;
-        const la = (await c.query(
-          `select count(*)::int total, count(*) filter (where status::text ilike '%qualif%')::int qualificados
-           from leads where deleted_at is null${fLead}`, p)).rows[0] || { total: 0, qualificados: 0 };
-        const porFonte = (await c.query(
-          `select coalesce(f.nome, f.canal, 'Sem origem') nome, count(*)::int c
+      const scoped = !isAdmin;
+      const p = scoped ? [user.imobiliariaId] : [];
+      const fI = scoped ? 'and i.id=$1' : '';          // imobiliarias (alias i)
+      const fL = scoped ? 'and imobiliaria_id=$1' : ''; // leads/imoveis (sem alias)
+      const fLl = scoped ? 'and l.imobiliaria_id=$1' : ''; // leads (alias l)
+      const sql = `select
+        (select coalesce(json_agg(x),'[]'::json) from (
+           select i.id, i.nome, i.cidade, case when i.ativo then 'Ativo' else 'Pausado' end status,
+             (select count(*) from imoveis m where m.imobiliaria_id=i.id and m.deleted_at is null) imoveis,
+             (select count(*) from leads l where l.imobiliaria_id=i.id and l.deleted_at is null) leads
+           from imobiliarias i where i.deleted_at is null ${fI} order by i.created_at) x) as imobiliarias,
+        (select count(*)::int from leads where deleted_at is null ${fL}) as leads_total,
+        (select count(*)::int from leads where deleted_at is null and status::text ilike '%qualif%' ${fL}) as leads_qualif,
+        (select count(*)::int from imoveis where deleted_at is null ${fL}) as imoveis_total,
+        (select coalesce(json_agg(y),'[]'::json) from (
+           select coalesce(f.nome, f.canal, 'Sem origem') nome, count(*)::int c
            from leads l left join fontes_lead f on f.id=l.fonte_id
-           where l.deleted_at is null${fLeadL} group by 1 order by 2 desc`, p)).rows;
-        const porStatus = (await c.query(
-          `select coalesce(status::text,'sem status') status, count(*)::int c
-           from leads where deleted_at is null${fLead} group by 1 order by 2 desc`, p)).rows;
-        const imoveisTotal = (await c.query(
-          `select count(*)::int c from imoveis where deleted_at is null${fLead}`, p)).rows[0].c;
-        res.status(200).json({
-          imobiliarias: imobs.map(x => ({ id: x.id, nome: x.nome, cidade: x.cidade, status: x.status, imoveis: Number(x.imoveis), leads: Number(x.leads) })),
-          leadsTotal: la.total, leadsQualificados: la.qualificados,
-          leadsPorFonte: porFonte, leadsPorStatus: porStatus, imoveisTotal
-        });
-      } finally { try { await c.end(); } catch (_) {} }
+           where l.deleted_at is null ${fLl} group by 1 order by 2 desc) y) as por_fonte,
+        (select coalesce(json_agg(z),'[]'::json) from (
+           select coalesce(status::text,'sem status') status, count(*)::int c
+           from leads where deleted_at is null ${fL} group by 1 order by 2 desc) z) as por_status`;
+      const row = (await db(sql, p)).rows[0] || {};
+      res.status(200).json({
+        imobiliarias: (row.imobiliarias || []).map(x => ({ id: x.id, nome: x.nome, cidade: x.cidade, status: x.status, imoveis: Number(x.imoveis), leads: Number(x.leads) })),
+        leadsTotal: row.leads_total || 0, leadsQualificados: row.leads_qualif || 0,
+        leadsPorFonte: row.por_fonte || [], leadsPorStatus: row.por_status || [], imoveisTotal: row.imoveis_total || 0
+      });
       return;
     }
 
