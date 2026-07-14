@@ -201,11 +201,15 @@
       [].slice.call(a.childNodes).forEach(function(nd){
         if(nd.nodeType===3 && nd.nodeValue.trim()){ var sp=document.createElement('span'); sp.className='nav-label'; sp.textContent=nd.nodeValue.trim(); a.replaceChild(sp,nd); }
       });
+      // tooltip com o nome do item -> aparece ao passar o mouse no modo so-icone
+      var lbl=a.querySelector('.nav-label'); if(lbl && !a.getAttribute('title')) a.setAttribute('title', lbl.textContent);
     });
-    // botão discreto "<" no rodapé da sidebar
+    // botão de recolher "<" no topo da sidebar (logo após a marca, mais visível)
     var btn=document.createElement('button'); btn.className='sb-toggle'; btn.type='button'; btn.title='Recolher menu';
     btn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
-    side.appendChild(btn);
+    var brand=side.querySelector('.brand');
+    if(brand && brand.nextSibling) side.insertBefore(btn, brand.nextSibling);
+    else if(brand) side.appendChild(btn); else side.insertBefore(btn, side.firstChild);
     if(localStorage.getItem('ailogic_sb')==='1') app.classList.add('sb-collapsed');
     btn.addEventListener('click',function(){ var c=app.classList.toggle('sb-collapsed'); btn.title=c?'Expandir menu':'Recolher menu'; try{localStorage.setItem('ailogic_sb',c?'1':'0');}catch(_){} });
   }
@@ -238,7 +242,7 @@
       swapStyles(doc);
       var cur=document.querySelector('.main'); if(cur) cur.parentNode.replaceChild(newMain, cur);
       if(doc.title) document.title=doc.title;
-      try{ replaceIconHosts(); cleanText(); active(); runPageScripts(doc); revealContent(newMain, true, dir); markWidgets(newMain); }catch(e){}
+      try{ replaceIconHosts(); cleanText(); active(); runPageScripts(doc); revealContent(newMain, true, dir); markWidgets(newMain); loadBegin(); }catch(e){}
       window.scrollTo(0,0); navving=false;
     }).catch(function(){ location.href=slug; });
   }
@@ -321,10 +325,38 @@
     document.body.appendChild(d);
     setTimeout(function(){ try{ d.remove(); localStorage.setItem('ailogic_swipehint','1'); }catch(_){} }, 3600);
   }
+  /* ---------- loading global: barrinha no topo + skeleton shimmer (REV0c) ---------- */
+  var _bar=null,_loadObs=null,_loadTimer=null,_loadChk=null;
+  function _barEl(){ if(!_bar){ _bar=document.createElement('div'); _bar.className='hub-topbar'; (document.body||document.documentElement).appendChild(_bar); } return _bar; }
+  function loadBar(){ _barEl().classList.remove('done'); }
+  function loadBarDone(){ if(_bar){ var b=_bar; b.classList.add('done'); setTimeout(function(){ if(b&&b.parentNode) b.parentNode.removeChild(b); if(_bar===b) _bar=null; },380); } }
+  // placeholders "ainda carregando": KPIs com "·" e caixas .empty/.stream-empty com "Carregando"
+  function _loadTargets(){
+    var kpis=[].slice.call(document.querySelectorAll('.main [data-k]')).filter(function(e){ return (e.textContent||'').trim()==='·'; });
+    var emp=[].slice.call(document.querySelectorAll('.main .empty, .main .stream-empty')).filter(function(e){ return /carregando/i.test(e.textContent||''); });
+    return kpis.concat(emp);
+  }
+  function _hasPH(){ return _loadTargets().length>0; }
+  function _skelOn(){ _loadTargets().forEach(function(e){ e.classList.add(e.hasAttribute('data-k')?'hub-skel-num':'hub-skel'); }); }
+  function _skelOff(){ [].slice.call(document.querySelectorAll('.hub-skel-num,.hub-skel')).forEach(function(e){ e.classList.remove('hub-skel-num'); e.classList.remove('hub-skel'); }); }
+  function _loadStop(){ if(_loadTimer){clearTimeout(_loadTimer);_loadTimer=null;} if(_loadChk){clearTimeout(_loadChk);_loadChk=null;} if(_loadObs){ try{_loadObs.disconnect();}catch(_){} _loadObs=null; } _skelOff(); loadBarDone(); }
+  function loadBegin(){
+    _loadStop();                 // reseta qualquer loading anterior
+    if(!_hasPH()) return;        // nada carregando -> nem mostra
+    loadBar(); _skelOn();
+    function check(){ _loadChk=null; if(!_hasPH()) _loadStop(); }
+    try{
+      _loadObs=new MutationObserver(function(){ if(_loadChk) return; _loadChk=setTimeout(check,60); });
+      _loadObs.observe(document.body,{childList:true,subtree:true,characterData:true});
+    }catch(_){}
+    _loadTimer=setTimeout(_loadStop, 9000);   // cap de seguranca: nunca fica carregando pra sempre
+  }
+  window.hubLoad={ begin:loadBegin, bar:loadBar, done:loadBarDone };
+
   // garante que os refinos visuais do hub.css (hover, slide SPA, hint de swipe)
   // carreguem em TODAS as telas (hoje so config-ia.html linka o hub.css).
-  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev0'; document.head.appendChild(l); }catch(_){}
+  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev0c'; document.head.appendChild(l); }catch(_){}
   }
-  function run(){ try{ ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); cascadeSidebar(); revealContent(document.querySelector('.main'), true); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
+  function run(){ try{ ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); cascadeSidebar(); revealContent(document.querySelector('.main'), true); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); loadBegin(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();

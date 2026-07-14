@@ -63,9 +63,10 @@ p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 
 /* ===== recolher sidebar (mini rail) ===== */
 .app{ transition:grid-template-columns .25s ease; }
-.sb-toggle{ display:flex; align-items:center; justify-content:center; width:34px; height:34px; margin:16px auto 2px; padding:0; background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.10); border-radius:9px; color:#8aa6d2; cursor:pointer; transition:background .15s,color .15s,transform .2s; }
+.sb-toggle{ display:flex; align-items:center; justify-content:center; width:30px; height:30px; margin:0 0 10px auto; padding:0; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); border-radius:8px; color:#a9c0e4; cursor:pointer; transition:background .15s,color .15s,transform .2s; }
+.app.sb-collapsed .sb-toggle{ margin:0 auto 10px; }
 .sb-toggle:hover{ background:rgba(255,255,255,.10); color:#dce8ff; }
-.app.sb-collapsed{ grid-template-columns:74px 1fr !important; }
+.app.sb-collapsed{ grid-template-columns:62px 1fr !important; }
 .app.sb-collapsed .sidebar{ padding:22px 11px; }
 .app.sb-collapsed .nav-item{ justify-content:center; padding:11px 0; }
 .app.sb-collapsed .nav-label{ display:none; }
@@ -82,8 +83,11 @@ p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 /* ícones SVG inline (substituem emojis) herdam a cor do contexto */
 .hub-ic{ display:inline-flex; align-items:center; justify-content:center; line-height:0; }
 .hub-ic svg{ width:1em; height:1em; }
-.kpi-icon .hub-ic,.card-icon .hub-ic,.r-ico .hub-ic,.ai .hub-ic,.logo .hub-ic{ font-size:20px; }
-.nav-item .ico .hub-ic{ font-size:18px; }
+.kpi-icon .hub-ic,.card-icon .hub-ic,.r-ico .hub-ic,.ai .hub-ic,.logo .hub-ic{ font-size:17px; }
+/* icones do menu menores/clean (REV0c) */
+.sidebar .nav-item .ico{ width:20px !important; font-size:15px; display:inline-flex; align-items:center; justify-content:center; }
+.sidebar .nav-item .ico .hub-ic{ font-size:15px; }
+.sidebar .nav-item .ico .hub-ic svg{ width:16px; height:16px; }
 .ph-ico .hub-ic{ font-size:34px; }
 
 /* animações: entrada da tela + cascata */
@@ -128,6 +132,17 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
 .kpi,.card,.panel{ transition:transform .18s ease, box-shadow .18s ease; }
 .kpi:hover,.card:hover{ transform:translateY(-2px); box-shadow:0 18px 40px rgba(15,23,42,.12); }
 
+/* ===== REV0c: loading (barrinha no topo + skeleton shimmer) ===== */
+@keyframes hubTopbar{ 0%{left:-45%;width:45%} 60%{width:55%} 100%{left:100%;width:45%} }
+.hub-topbar{ position:fixed; top:0; left:0; right:0; height:3px; z-index:9999; pointer-events:none; overflow:hidden; }
+.hub-topbar::before{ content:""; position:absolute; top:0; height:100%; left:-45%; width:45%; background:linear-gradient(90deg,transparent,var(--blue,#0b66ff),transparent); animation:hubTopbar 1.05s ease-in-out infinite; }
+.hub-topbar.done::before{ animation:none; left:0; width:100%; opacity:0; transition:opacity .35s ease; }
+@keyframes hubShimmer{ 0%{background-position:-200px 0} 100%{background-position:200px 0} }
+.hub-skel,.hub-skel-num{ color:transparent !important; border-radius:8px; background-image:linear-gradient(90deg, rgba(120,140,170,.13) 25%, rgba(120,140,170,.28) 50%, rgba(120,140,170,.13) 75%) !important; background-size:400px 100% !important; animation:hubShimmer 1.05s linear infinite; }
+.hub-skel-num{ display:inline-block; min-width:54px; height:.86em; vertical-align:middle; }
+.hub-skel{ min-height:15px; }
+
 @media (prefers-reduced-motion: reduce){
   .main,.sidebar,.hub-rise,.hub-side-item{ animation:none !important; opacity:1 !important; transform:none !important; }
+  .hub-topbar::before,.hub-skel,.hub-skel-num{ animation:none !important; }
 }

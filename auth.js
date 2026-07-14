@@ -38,24 +38,78 @@
     try { on ? localStorage.setItem(FLAG, '1') : localStorage.removeItem(FLAG); } catch (_) {}
   }
 
-  // ---- 1) interceptor de fetch para /api/ ----
+  // ---- 1) interceptor de fetch para /api/ (resiliente: fim do F5) ----
+  // Problema que corrige: no 1º load o token guardado pode estar EXPIRADO e o
+  // refresh do supabase-js é assíncrono -> a chamada saía sem Bearer -> 401 ->
+  // /login (o usuário dava F5 e funcionava). Agora: garante token fresco antes de
+  // enviar; em 401 tenta refresh + repete 1x; timeout + 1 retry de rede em GET.
   var _fetch = window.fetch.bind(window);
+
+  // tenta obter um token válido; se o do storage expirou, aguarda o refresh do supabase-js
+  function freshToken() {
+    var tok = readToken();
+    if (tok) return Promise.resolve(tok);
+    try {
+      var c = client();
+      if (c && c.auth && c.auth.getSession) {
+        // getSession() dispara o autoRefresh quando necessário
+        return c.auth.getSession().then(function (r) {
+          var s = r && r.data && r.data.session;
+          return (s && s.access_token) || readToken() || null;
+        }).catch(function () { return readToken(); });
+      }
+    } catch (_) {}
+    return Promise.resolve(readToken());
+  }
+  function refreshToken() {
+    try {
+      var c = client();
+      if (c && c.auth && c.auth.refreshSession) {
+        return c.auth.refreshSession().then(function (r) {
+          var s = r && r.data && r.data.session;
+          return (s && s.access_token) || readToken() || null;
+        }).catch(function () { return null; });
+      }
+    } catch (_) {}
+    return Promise.resolve(null);
+  }
+  // fetch com timeout (AbortController) — dispara a requisição UMA vez
+  function fetchTimeout(input, init, ms) {
+    var ctrl; try { ctrl = new AbortController(); } catch (_) { ctrl = null; }
+    if (ctrl) init = Object.assign({}, init, { signal: ctrl.signal });
+    var t = ctrl ? setTimeout(function () { try { ctrl.abort(); } catch (_) {} }, ms || 9000) : null;
+    function clear() { if (t) { clearTimeout(t); t = null; } }
+    return _fetch(input, init).then(function (r) { clear(); return r; }, function (e) { clear(); throw e; });
+  }
+
   window.fetch = function (input, init) {
     var url = typeof input === 'string' ? input : (input && input.url) || '';
-    var isApi = /^\/api\//.test(url) || /\/api\//.test(url);
+    var isApi = /\/api\//.test(url);
     if (!isApi) return _fetch(input, init);
     init = init || {};
-    var headers = new Headers(init.headers || (typeof input !== 'string' && input.headers) || {});
-    var tok = readToken();
-    if (tok && !headers.has('Authorization')) headers.set('Authorization', 'Bearer ' + tok);
-    init.headers = headers;
-    return _fetch(input, init).then(function (res) {
-      if (res.status === 401 && !/\/login/.test(location.pathname)) {
-        setFlag(false);
-        location.replace('/login');
-      }
-      return res;
-    });
+    var method = String((init.method || (typeof input !== 'string' && input.method) || 'GET')).toUpperCase();
+    var isGet = method === 'GET';
+
+    function doSend(tok, isRetry) {
+      var headers = new Headers(init.headers || (typeof input !== 'string' && input.headers) || {});
+      if (tok && !headers.has('Authorization')) headers.set('Authorization', 'Bearer ' + tok);
+      var cfg = Object.assign({}, init, { headers: headers });
+      return fetchTimeout(input, cfg, 9000).then(function (res) {
+        // 401: 1 tentativa de refresh + repetição antes de mandar pro /login
+        if (res.status === 401 && !isRetry && !/\/login/.test(location.pathname)) {
+          return refreshToken().then(function (nt) {
+            if (nt) return doSend(nt, true);
+            setFlag(false); location.replace('/login'); return res;
+          });
+        }
+        return res;
+      }, function (err) {
+        // erro de rede/timeout: 1 retry só para GET (idempotente)
+        if (isGet && !isRetry) return doSend(tok, true);
+        throw err;
+      });
+    }
+    return freshToken().then(function (tok) { return doSend(tok, false); });
   };
 
   // ---- 2) cliente supabase-js (login/refresh) ----
@@ -81,10 +135,22 @@
     return sb;
   }
 
+  // existe sessão no storage? (mesmo com access_token expirado, se há refresh_token
+  // a sessão é renovável — não deve mandar pro /login, senão vira o "preciso dar F5")
+  function hasSession() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY); if (!raw) return false;
+      var s = JSON.parse(raw);
+      var sess = s && (s.currentSession || s);
+      return !!(sess && (sess.refresh_token || sess.access_token || sess.user));
+    } catch (_) { return false; }
+  }
+
   // ---- 3) gate de página ----
   function guard() {
     if (/\/login/.test(location.pathname)) return;
-    if (!readToken()) { setFlag(false); location.replace('/login'); }
+    // tolerante: token expirado mas renovável NÃO redireciona (o fetch resiliente renova)
+    if (!readToken() && !hasSession()) { setFlag(false); location.replace('/login'); }
   }
 
   // API pública
