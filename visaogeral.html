@@ -149,24 +149,25 @@ tr:last-child td{border-bottom:0}td.strong{font-weight:700;color:var(--heading)}
   function get(ent){return fetch(DATA+'?ent='+ent+'&action=list',{cache:'no-store'}).then(function(r){return r.ok?r.json():{rows:[]};}).then(function(d){return d.rows||[];}).catch(function(){return [];});}
 
   Promise.all([
-    get('imobiliarias'), get('leads'), get('imoveis'), get('fontes'),
+    fetch(DASH+'?action=resumo',{cache:'no-store'}).then(function(r){return r.ok?r.json():{};}).catch(function(){return {};}),
     fetch(DASH,{cache:'no-store'}).then(function(r){return r.json();}).catch(function(){return {};}),
     fetch(DASH+'?action=funil',{cache:'no-store'}).then(function(r){return r.json();}).catch(function(){return {cards:[]};}),
     fetch(WA+'?action=chats',{cache:'no-store'}).then(function(r){return r.json();}).catch(function(){return {chats:[]};})
   ]).then(function(a){
-    var imobs=a[0],leads=a[1],imoveis=a[2],fontes=a[3];
-    var etapas=(a[4]&&a[4].funil&&a[4].funil.etapas)||[];
-    var cards=(a[5]&&a[5].cards)||[];
-    var chats=(a[6]&&a[6].chats)||[];
+    var R=a[0]||{};
+    var imobs=R.imobiliarias||[];
+    var etapas=(a[1]&&a[1].funil&&a[1].funil.etapas)||[];
+    var cards=(a[2]&&a[2].cards)||[];
+    var chats=(a[3]&&a[3].chats)||[];
+    var leadsTotal=R.leadsTotal||0;
 
     kset('imob',imobs.length);
     var ativas=imobs.filter(function(i){return (i.status||'')!=='Pausado';}).length;
     document.getElementById('imobBreak').textContent=ativas+' ativas · '+(imobs.length-ativas)+' pausadas';
     document.getElementById('imobPill').textContent=imobs.length+' imobiliárias';
-    kset('leads',leads.length);
-    var qual=leads.filter(function(l){return /qualif/i.test(l.status||'');}).length;
-    document.getElementById('leadsBreak').textContent=qual+' qualificados';
-    kset('imoveis',imoveis.length);
+    kset('leads',leadsTotal);
+    document.getElementById('leadsBreak').textContent=(R.leadsQualificados||0)+' qualificados';
+    kset('imoveis',R.imoveisTotal||0);
     kset('negocios',cards.length);
     kset('pipeline',brl(cards.reduce(function(s,c){return s+(Number(c.valor)||0);},0)));
     kset('conversas',chats.length);
@@ -181,27 +182,21 @@ tr:last-child td{border-bottom:0}td.strong{font-weight:700;color:var(--heading)}
       }).join('');
     } else fn.innerHTML='<div class="empty">Sem dados de funil.</div>';
 
-    var fmap={}; fontes.forEach(function(f){fmap[f.id]=f.nome||f.canal;});
-    var byF={}; leads.forEach(function(l){var k=fmap[l.fonte_id]||'Sem origem';byF[k]=(byF[k]||0)+1;});
-    var ord=Object.keys(byF).map(function(k){return {n:k,c:byF[k]};}).sort(function(x,y){return y.c-x.c;});
-    document.getElementById('origem').innerHTML=ord.length?ord.map(function(o,i){var pct=leads.length?Math.round(o.c/leads.length*100):0;return '<div class="orow"><span class="odot" style="background:'+CORES[i%CORES.length]+'"></span><span class="on">'+esc(o.n)+'</span><span class="oc">'+o.c+'</span><span class="op">'+pct+'%</span></div>';}).join(''):'<div class="empty">Sem leads ainda.</div>';
+    var ord=(R.leadsPorFonte||[]).map(function(o){return {n:o.nome,c:o.c};});
+    document.getElementById('origem').innerHTML=ord.length?ord.map(function(o,i){var pct=leadsTotal?Math.round(o.c/leadsTotal*100):0;return '<div class="orow"><span class="odot" style="background:'+CORES[i%CORES.length]+'"></span><span class="on">'+esc(o.n)+'</span><span class="oc">'+o.c+'</span><span class="op">'+pct+'%</span></div>';}).join(''):'<div class="empty">Sem leads ainda.</div>';
 
     var byImob={}; cards.forEach(function(c){var k=c.imob_nome||'—';(byImob[k]=byImob[k]||{n:0,v:0}).n++;byImob[k].v+=(Number(c.valor)||0);});
     var rank=Object.keys(byImob).map(function(k){return {nome:k,n:byImob[k].n,v:byImob[k].v};}).sort(function(x,y){return y.n-x.n;}).slice(0,5);
     document.getElementById('ranking').innerHTML=rank.length?rank.map(function(r,i){return '<div class="rank"><div class="pos">'+(i+1)+'</div><div><strong>'+esc(r.nome)+'</strong><span>'+r.n+' negócios'+(r.v?' · '+brl(r.v):'')+'</span></div></div>';}).join(''):'<div class="empty">Sem negócios ainda.</div>';
 
-    var byS={}; leads.forEach(function(l){var k=l.status||'sem status';byS[k]=(byS[k]||0)+1;});
-    var so=Object.keys(byS).map(function(k){return {n:k,c:byS[k]};}).sort(function(x,y){return y.c-x.c;});
-    document.getElementById('statusLeads').innerHTML=so.length?so.map(function(o,i){var pct=leads.length?Math.round(o.c/leads.length*100):0;return '<div class="orow"><span class="odot" style="background:'+CORES[i%CORES.length]+'"></span><span class="on">'+esc(o.n)+'</span><span class="oc">'+o.c+'</span><span class="op">'+pct+'%</span></div>';}).join(''):'<div class="empty">Sem leads ainda.</div>';
+    var so=(R.leadsPorStatus||[]).map(function(o){return {n:o.status,c:o.c};});
+    document.getElementById('statusLeads').innerHTML=so.length?so.map(function(o,i){var pct=leadsTotal?Math.round(o.c/leadsTotal*100):0;return '<div class="orow"><span class="odot" style="background:'+CORES[i%CORES.length]+'"></span><span class="on">'+esc(o.n)+'</span><span class="oc">'+o.c+'</span><span class="op">'+pct+'%</span></div>';}).join(''):'<div class="empty">Sem leads ainda.</div>';
 
-    var imovByImob={},leadByImob={};
-    imoveis.forEach(function(m){imovByImob[m.imobiliaria_id]=(imovByImob[m.imobiliaria_id]||0)+1;});
-    leads.forEach(function(l){leadByImob[l.imobiliaria_id]=(leadByImob[l.imobiliaria_id]||0)+1;});
     document.getElementById('imobCount').textContent=imobs.length+' no total';
     var tb=document.getElementById('imobRows');
     tb.innerHTML=imobs.length?imobs.map(function(i){
       var st=(i.status||'')==='Pausado'?'<span class="badge orange">Pausado</span>':'<span class="badge green">Ativo</span>';
-      return '<tr><td class="strong">'+esc(i.nome)+'</td><td>'+esc(i.cidade||'—')+'</td><td>'+(imovByImob[i.id]||0)+'</td><td>'+(leadByImob[i.id]||0)+'</td><td>'+st+'</td></tr>';
+      return '<tr><td class="strong">'+esc(i.nome)+'</td><td>'+esc(i.cidade||'—')+'</td><td>'+(i.imoveis||0)+'</td><td>'+(i.leads||0)+'</td><td>'+st+'</td></tr>';
     }).join(''):'<tr><td colspan="5" class="empty">Nenhuma imobiliária cadastrada.</td></tr>';
   });
 

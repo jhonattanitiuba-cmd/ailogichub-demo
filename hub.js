@@ -321,6 +321,10 @@
     document.body.appendChild(d);
     setTimeout(function(){ try{ d.remove(); localStorage.setItem('ailogic_swipehint','1'); }catch(_){} }, 3600);
   }
-  function run(){ try{ replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); cascadeSidebar(); revealContent(document.querySelector('.main'), true); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
+  // garante que os refinos visuais do hub.css (hover, slide SPA, hint de swipe)
+  // carreguem em TODAS as telas (hoje so config-ia.html linka o hub.css).
+  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev0'; document.head.appendChild(l); }catch(_){}
+  }
+  function run(){ try{ ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); cascadeSidebar(); revealContent(document.querySelector('.main'), true); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
