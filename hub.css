@@ -94,6 +94,13 @@ p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 html.hub-pre .main{ opacity:0; }
 html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, html.hub-pre .alert-cell, html.hub-pre .fstage, html.hub-pre .kcol, html.hub-pre .ph-card{ opacity:0; }
 @keyframes hubSideItem{ from{opacity:0; transform:translateX(-16px)} to{opacity:1; transform:none} }
+/* mobile "catraca": slide entre telas ao arrastar pro lado */
+@keyframes hubSlideInR{ from{opacity:.3; transform:translateX(28px)} to{opacity:1; transform:none} }
+@keyframes hubSlideInL{ from{opacity:.3; transform:translateX(-28px)} to{opacity:1; transform:none} }
+/* dica de swipe (aparece 1x no mobile, some sozinha) */
+@keyframes hubSwipeHint{ 0%,100%{opacity:0} 12%,88%{opacity:.55} 50%{transform:translateX(-10px)} }
+.hub-swipe-hint{ position:fixed; bottom:96px; left:50%; transform:translateX(-50%); z-index:60; display:none; align-items:center; gap:8px; padding:7px 13px; border-radius:999px; background:rgba(6,22,41,.9); color:#dce8ff; font-size:12px; font-weight:600; pointer-events:none; }
+@media (max-width:900px){ .hub-swipe-hint{ display:flex; animation:hubSwipeHint 3.4s ease 1 both; } }
 .hub-side-item{ opacity:0; animation:hubSideItem .5s cubic-bezier(.22,.61,.36,1) both; }
 .hub-rise{ opacity:0; animation:hubRise .55s cubic-bezier(.22,.61,.36,1) forwards; }
 /* navegação fluida: sem pulinho; só uma leve escala no item, suave */

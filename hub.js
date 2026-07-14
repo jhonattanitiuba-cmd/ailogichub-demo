@@ -163,10 +163,10 @@
   function reduce(){ return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
 
   /* ---------- 5) entrada do conteúdo: tela > boxes > números ---------- */
-  function revealContent(main, initial){
+  function revealContent(main, initial, dir){
     if(!main) return;
     if(reduce()||!initial){ main.style.opacity='1'; return; }   // SPA: troca instantânea, sem re-animar (evita flip)
-    main.style.animation='hubFade .4s ease both';
+    main.style.animation = dir==='next' ? 'hubSlideInR .32s cubic-bezier(.22,.61,.36,1) both' : dir==='prev' ? 'hubSlideInL .32s cubic-bezier(.22,.61,.36,1) both' : 'hubFade .4s ease both';
     var blocks=[];
     [].slice.call(main.children).forEach(function(b){
       if(b.tagName==='HEADER') return;                 // header surge junto com a tela
@@ -228,7 +228,7 @@
     });
   }
   var navving=false;
-  function navigate(href, push){
+  function navigate(href, push, dir){
     if(navving) return; var slug=(href||'').split('/').pop().split('?')[0]||'visaogeral'; navving=true;
     fetch(slug,{cache:'no-store'}).then(function(r){ return r.text(); }).then(function(html){
       var doc=new DOMParser().parseFromString(html,'text/html');
@@ -238,7 +238,7 @@
       swapStyles(doc);
       var cur=document.querySelector('.main'); if(cur) cur.parentNode.replaceChild(newMain, cur);
       if(doc.title) document.title=doc.title;
-      try{ replaceIconHosts(); cleanText(); active(); runPageScripts(doc); revealContent(newMain, true); markWidgets(newMain); }catch(e){}
+      try{ replaceIconHosts(); cleanText(); active(); runPageScripts(doc); revealContent(newMain, true, dir); markWidgets(newMain); }catch(e){}
       window.scrollTo(0,0); navving=false;
     }).catch(function(){ location.href=slug; });
   }
@@ -288,6 +288,39 @@
   function markWidgets(root){ root=root||document; [].slice.call(root.querySelectorAll('.kpi')).forEach(function(el){ if(el.hasAttribute('data-kpinav')) return; var tg=widgetTarget(el); if(tg && tg!==_curSlug()){ el.setAttribute('data-kpinav',tg); el.style.cursor='pointer'; el.setAttribute('title','Abrir '+tg); } }); }
 
   try{ window.hubIcons=function(){ try{replaceIconHosts();cleanText();}catch(e){} }; }catch(e){}
-  function run(){ try{ replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); cascadeSidebar(); revealContent(document.querySelector('.main'), true); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
+  /* ---------- 12) catraca mobile: arrastar pro lado troca de tela ---------- */
+  function _navSlugs(){ var out=[],seen={}; [].slice.call(document.querySelectorAll('.sidebar .nav-item')).forEach(function(a){ var raw=a.getAttribute('href')||''; if(/^(https?:|#|mailto:|tel:)/.test(raw)) return; var h=raw.split('/').pop().split('?')[0].replace(/\.html$/,'')||''; if(!h||seen[h]) return; seen[h]=1; out.push(h); }); return out; }
+  function setupSwipe(){
+    if(reduce()) return;
+    var NO='input,textarea,select,button,a,.kanban,.kbody,.kcol,.fcol,.fcols,.board,.table-wrap,table,.leaflet-container,canvas,[contenteditable],[data-noswipe]';
+    var sx=0,sy=0,st=0,go=false;
+    document.addEventListener('touchstart',function(e){
+      go=false;
+      if(!e.touches||e.touches.length!==1) return;
+      if(window.innerWidth>900) return;
+      var t=e.target; if(t&&t.closest&&t.closest(NO)) return;
+      var T=e.touches[0]; sx=T.clientX; sy=T.clientY; st=Date.now(); go=true;
+    },{passive:true});
+    document.addEventListener('touchend',function(e){
+      if(!go) return; go=false;
+      var T=e.changedTouches&&e.changedTouches[0]; if(!T) return;
+      var dx=T.clientX-sx, dy=T.clientY-sy, dt=Date.now()-st;
+      if(dt>700 || Math.abs(dx)<64 || Math.abs(dx)<Math.abs(dy)*1.5) return;   // horizontal claro e rapido
+      var list=_navSlugs(); if(list.length<2) return;
+      var i=list.indexOf(_curSlug()); if(i<0) i=0;
+      var ni = dx<0 ? i+1 : i-1;                                              // esquerda=proxima, direita=anterior
+      if(ni<0 || ni>=list.length) return;
+      navigate(list[ni], true, dx<0?'next':'prev');
+    },{passive:true});
+  }
+  function swipeHint(){
+    if(reduce()||window.innerWidth>900) return;
+    try{ if(localStorage.getItem('ailogic_swipehint')==='1') return; }catch(_){}
+    var d=document.createElement('div'); d.className='hub-swipe-hint';
+    d.innerHTML='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg> arraste para trocar de tela <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+    document.body.appendChild(d);
+    setTimeout(function(){ try{ d.remove(); localStorage.setItem('ailogic_swipehint','1'); }catch(_){} }, 3600);
+  }
+  function run(){ try{ replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); cascadeSidebar(); revealContent(document.querySelector('.main'), true); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
