@@ -15,6 +15,17 @@ const NUM_ALESSANDRO = '5511995568148';
 // Persona padrao do agente (Sam), usada quando nao ha ia_persona no banco.
 const PERSONA_PADRAO = PERSONA_SAM;
 
+// Regras de estilo (prioridade maxima) para respostas curtas, humanas e ageis.
+const ESTILO = `
+
+# REGRAS DE ESTILO (PRIORIDADE MAXIMA, sobrepoem qualquer instrucao anterior)
+- Responda CURTO e OBJETIVO. No maximo 2 a 3 frases por mensagem.
+- NAO explique o que e o AiLogic Hub, nao faca discurso institucional, nao "venda". Va direto ao ponto.
+- UMA pergunta por vez. Termine com no maximo 1 pergunta.
+- Primeiro contato: cumprimente em 1 linha curta e ja pergunte o essencial (comprar, alugar ou vender). Nada de menu numerado gigante nem explicar a empresa.
+- Fale como um humano agil e esperto: natural, direto, sem parecer robo ou folheto. Sem repetir o que a pessoa disse.
+- Quando precisar dizer mais de uma coisa, SEPARE em mensagens curtas com uma linha em branco entre elas (o sistema envia como bolhas separadas). Prefira 1 ou 2 bolhas.`;
+
 async function db(q, params) {
   const c = new Client({ connectionString: DB_URL, ssl: false, connectionTimeoutMillis: 8000 });
   await c.connect();
@@ -27,6 +38,40 @@ async function evoFetch(path, body) {
 async function evoSend(remoteJid, text) {
   const number = String(remoteJid).endsWith('@s.whatsapp.net') ? String(remoteJid).split('@')[0] : remoteJid;
   await evoFetch('/message/sendText/' + INSTANCE, { number, text });
+}
+// mostra "digitando..." antes de mandar
+async function evoPresence(number, delay) {
+  try { await evoFetch('/chat/sendPresence/' + INSTANCE, { number, delay, presence: 'composing' }); } catch (_) {}
+}
+// quebra a resposta em bolhas curtas (linha em branco = nova bolha; frase longa = corta em ~220 chars)
+function splitMsg(t) {
+  t = String(t || '').trim(); if (!t) return [];
+  const parts = t.split(/\n{2,}/).map(s => s.trim()).filter(Boolean);
+  const out = [];
+  parts.forEach(p => {
+    if (p.length <= 220) { out.push(p); return; }
+    let buf = '';
+    p.split(/(?<=[.!?])\s+/).forEach(s => {
+      if ((buf + ' ' + s).trim().length > 220) { if (buf) out.push(buf.trim()); buf = s; }
+      else buf = (buf + ' ' + s).trim();
+    });
+    if (buf) out.push(buf.trim());
+  });
+  return out.slice(0, 3); // no maximo 3 bolhas (rapido, sem estourar timeout)
+}
+// envia como humano: digita, pausa, manda cada bolha
+async function sendChunks(remoteJid, text) {
+  const number = String(remoteJid).endsWith('@s.whatsapp.net') ? String(remoteJid).split('@')[0] : remoteJid;
+  const chunks = splitMsg(text);
+  if (!chunks.length) return;
+  for (let i = 0; i < chunks.length; i++) {
+    const c = chunks[i];
+    const delay = Math.min(450 + c.length * 16, 1400); // tempo de digitacao proporcional (cap 1.4s)
+    await evoPresence(number, delay);
+    await new Promise(r => setTimeout(r, delay));
+    await evoFetch('/message/sendText/' + INSTANCE, { number, text: c });
+    if (i < chunks.length - 1) await new Promise(r => setTimeout(r, 260));
+  }
 }
 function textoDe(msg) {
   const M = msg || {};
@@ -89,11 +134,11 @@ async function respostaIA(persona, contexto, messages) {
   const ultimaUser = (messages[messages.length - 1] || {}).content || '';
   if (!OPENAI_KEY) return respostaBasica(ultimaUser);
   try {
-    const sys = { role: 'system', content: (persona || PERSONA_PADRAO) + '\n\n' + contexto };
+    const sys = { role: 'system', content: (persona || PERSONA_PADRAO) + '\n\n' + contexto + ESTILO };
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + OPENAI_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'gpt-4o-mini', max_tokens: 400, messages: [sys, ...messages] })
+      body: JSON.stringify({ model: 'gpt-4o-mini', max_tokens: 240, temperature: 0.6, messages: [sys, ...messages] })
     });
     const j = await r.json();
     let txt = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
@@ -141,7 +186,7 @@ module.exports = async (req, res) => {
     while (messages.length > 1 && messages[messages.length - 2].role === 'user') messages.splice(messages.length - 2, 1);
 
     const resposta = await respostaIA(cfg.ia_persona, contexto, messages);
-    await evoSend(remoteJid, resposta);
+    await sendChunks(remoteJid, resposta);
     res.status(200).json({ ok: true, respondido: true, motor: OPENAI_KEY ? 'openai' : 'basico', turns: messages.length });
   } catch (e) {
     res.status(200).json({ ok: false, erro: String((e && e.message) || e) });
