@@ -344,7 +344,10 @@
     _loadStop();                 // reseta qualquer loading anterior
     if(!_hasPH()) return;        // nada carregando -> nem mostra
     loadBar(); _skelOn();
-    function check(){ _loadChk=null; if(!_hasPH()) _loadStop(); }
+    // quando os placeholders somem (dados chegaram), encerra o loading E dispara a
+    // contagem em cascata dos numeros reais (0->valor, stagger de 45ms) — que nao
+    // rodava no reveal porque os KPIs ainda eram "·".
+    function check(){ _loadChk=null; if(!_hasPH()){ _loadStop(); try{ animateCounters(0, document.querySelector('.main')); }catch(_){} } }
     try{
       _loadObs=new MutationObserver(function(){ if(_loadChk) return; _loadChk=setTimeout(check,60); });
       _loadObs.observe(document.body,{childList:true,subtree:true,characterData:true});
