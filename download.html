@@ -78,11 +78,11 @@ h1{margin:0 0 8px;font-size:24px;letter-spacing:-.03em}
 
   <div class="foot">AILogic Hub · ailogichub.app<br>Atualiza sozinho ao abrir — sempre a versão mais recente.</div>
 
-  <div class="sheet" id="iosSheet">
+  <div class="sheet" id="instSheet">
     <div class="sheet-box">
-      <h3>Instalar no iPhone</h3>
-      <ol><li>Toque em <b>Compartilhar</b> (quadrado com seta ↑) na barra do Safari.</li><li>Role e toque em <b>Adicionar à Tela de Início</b>.</li><li>Confirme em <b>Adicionar</b>.</li></ol>
-      <button class="btn sec" id="iosClose" style="margin-top:16px">Entendi</button>
+      <h3 id="sheetTitle">Instalar o app</h3>
+      <ol id="sheetSteps"></ol>
+      <button class="btn sec" id="sheetClose" style="margin-top:16px">Entendi</button>
     </div>
   </div>
 
@@ -90,20 +90,37 @@ h1{margin:0 0 8px;font-size:24px;letter-spacing:-.03em}
 (function(){
   if('serviceWorker' in navigator){ window.addEventListener('load',function(){ navigator.serviceWorker.register('/sw.js').catch(function(){}); }); }
   var btn=document.getElementById('btnInstall'), hint=document.getElementById('hint');
-  var sheet=document.getElementById('iosSheet'), iosClose=document.getElementById('iosClose');
+  var sheet=document.getElementById('instSheet'), sheetClose=document.getElementById('sheetClose');
+  var sheetTitle=document.getElementById('sheetTitle'), sheetSteps=document.getElementById('sheetSteps');
   var ua=navigator.userAgent||'';
   var isIOS=/iP(hone|ad|od)/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  var isAndroid=/Android/i.test(ua);
   var isStandalone=(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone===true;
   var deferredPrompt=null;
-  if(isStandalone){ btn.textContent='✓ App já instalado'; btn.disabled=true; btn.style.opacity=.7; }
-  window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); deferredPrompt=e; hint.textContent='Toque em “Instalar o app” para adicionar à sua tela.'; });
+
+  // passo a passo por plataforma (fallback quando o Chrome não abre o instalador automático)
+  var STEPS={
+    android:{t:'Instalar no Android (Chrome)',s:['Toque no menu <b>⋮</b> no canto superior direito do Chrome.','Toque em <b>Adicionar à tela inicial</b> (ou <b>Instalar aplicativo</b>).','Confirme em <b>Instalar</b> — o ícone aparece na sua tela.']},
+    ios:{t:'Instalar no iPhone / iPad',s:['Abra este site no <b>Safari</b>.','Toque em <b>Compartilhar</b> (o quadrado com a seta ↑).','Role e toque em <b>Adicionar à Tela de Início</b> → <b>Adicionar</b>.']},
+    desktop:{t:'Instalar no computador',s:['Clique no ícone de <b>instalar</b> (⊕) na barra de endereço, à direita.','Ou menu <b>⋮</b> → <b>Instalar AILogic Hub</b>.','Confirme em <b>Instalar</b>.']}
+  };
+  function showSheet(){ var k=isIOS?'ios':(isAndroid?'android':'desktop'); var d=STEPS[k]; sheetTitle.innerHTML=d.t; sheetSteps.innerHTML=d.s.map(function(x){return '<li>'+x+'</li>';}).join(''); sheet.classList.add('show'); }
+
+  if(isStandalone){ btn.textContent='✓ App já instalado'; btn.disabled=true; btn.style.opacity=.7; hint.textContent='Você já está com o app instalado.'; return; }
+
+  // Android/Chrome/desktop: quando o navegador libera o instalador nativo
+  window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); deferredPrompt=e; btn.textContent='⬇️ Instalar agora'; hint.textContent='Toque em "Instalar agora" e confirme na janela do Chrome.'; });
+
+  if(isIOS){ hint.textContent='No iPhone é pelo Safari: toque em "Instalar o app" que eu mostro o passo a passo.'; }
+  else if(isAndroid){ hint.textContent='Toque em "Instalar o app". Se o Chrome não abrir o instalador, eu mostro o passo a passo do Android.'; }
+
   btn.addEventListener('click',async function(){
     if(deferredPrompt){ deferredPrompt.prompt(); try{ await deferredPrompt.userChoice; }catch(_){} deferredPrompt=null; return; }
-    sheet.classList.add('show');   // iOS ou navegador sem prompt automático
+    showSheet();   // sem instalador automático -> instruções da plataforma CERTA
   });
-  if(iosClose)iosClose.addEventListener('click',function(){ sheet.classList.remove('show'); });
+  sheetClose.addEventListener('click',function(){ sheet.classList.remove('show'); });
   sheet.addEventListener('click',function(e){ if(e.target===sheet) sheet.classList.remove('show'); });
-  window.addEventListener('appinstalled',function(){ btn.textContent='✓ Instalado'; btn.disabled=true; btn.style.opacity=.7; });
+  window.addEventListener('appinstalled',function(){ btn.textContent='✓ Instalado'; btn.disabled=true; btn.style.opacity=.7; sheet.classList.remove('show'); });
 })();
 </script>
 </body>
