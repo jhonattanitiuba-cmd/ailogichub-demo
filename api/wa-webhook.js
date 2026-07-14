@@ -118,11 +118,11 @@ module.exports = async (req, res) => {
     if (String(remoteJid).endsWith('@g.us')) { res.status(200).json({ ignored: 'grupo' }); return; }
     if (!texto.trim()) { res.status(200).json({ ignored: 'sem texto' }); return; }
 
-    // ===== TRAVA GLOBAL: IA NÃO RESPONDE NINGUÉM (apenas auditoria/espelhamento) =====
-    // Enquanto isto estiver true, o webhook nunca envia resposta automática,
-    // independentemente de ia_ativa/allowlist no banco. Trocar para false quando
-    // a resposta automática for liberada de forma controlada.
-    const IA_RESPOSTA_DESLIGADA = true;
+    // ===== TRAVA GLOBAL DA RESPOSTA AUTOMÁTICA =====
+    // false = liberado, MAS ainda restrito pela allowlist do banco (modo teste:
+    // só responde os números em canais_whatsapp.ia_allowlist, hoje Jhonattan+Alessandro).
+    // Para desligar tudo de novo, volte para true. Para liberar geral, use '*' na allowlist.
+    const IA_RESPOSTA_DESLIGADA = false;
     if (IA_RESPOSTA_DESLIGADA) { res.status(200).json({ ignored: 'ia_global_off' }); return; }
 
     const cfg = (await db('select ia_ativa, ia_allowlist, ia_persona, espelho_desde from canais_whatsapp where instancia=$1', [INSTANCE])).rows[0] || {};
