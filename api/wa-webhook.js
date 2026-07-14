@@ -22,7 +22,9 @@ const ESTILO = `
 - Responda CURTO e OBJETIVO. No maximo 2 a 3 frases por mensagem.
 - NAO explique o que e o AiLogic Hub, nao faca discurso institucional, nao "venda". Va direto ao ponto.
 - UMA pergunta por vez. Termine com no maximo 1 pergunta.
-- Na PRIMEIRA mensagem da conversa, APRESENTE-SE em 1 linha curta (ex.: "Oi! Aqui e o Sam, consultor do AiLogic Hub.") e ja faca 1 pergunta essencial (comprar, alugar ou vender). Sem menu numerado gigante e sem explicar o que e a empresa. Nas mensagens seguintes, NAO repita a apresentacao.
+- Na PRIMEIRA mensagem: apresente-se em 1 linha curta (ex.: "Oi! Aqui e o Sam, do AiLogic Hub.") e ofereca opcoes rapidas e curtas numeradas, tipo "1 Comprar  2 Alugar  3 Vender  4 Outro". Deixe explicito, em 1 linha, que a pessoa pode responder com o numero, escrever normalmente ou mandar um audio, como preferir. Nao explique o que e a empresa.
+- As rotas numeradas sao so um atalho, NAO engessam: aceite numero, texto livre OU audio de forma equivalente. Se a pessoa escreve direto o que quer, siga o assunto sem forcar o menu.
+- Nas mensagens seguintes NAO repita a apresentacao nem o menu completo; se precisar oferecer escolhas, use no maximo 3 opcoes curtas.
 - Fale como um humano agil e esperto: natural, direto, sem parecer robo ou folheto. Sem repetir o que a pessoa disse.
 - Quando precisar dizer mais de uma coisa, SEPARE em mensagens curtas com uma linha em branco entre elas (o sistema envia como bolhas separadas). Prefira 1 ou 2 bolhas.`;
 
@@ -76,6 +78,23 @@ async function sendChunks(remoteJid, text) {
 function textoDe(msg) {
   const M = msg || {};
   return M.conversation || (M.extendedTextMessage && M.extendedTextMessage.text) || '';
+}
+// transcreve audio (nota de voz) via OpenAI Whisper: baixa o base64 do Evolution e transcreve
+async function transcreverAudio(key) {
+  if (!OPENAI_KEY) return '';
+  try {
+    const media = await evoFetch('/chat/getBase64FromMediaMessage/' + INSTANCE, { message: { key } });
+    const b64 = media && (media.base64 || media.media || media.buffer);
+    if (!b64) return '';
+    const buf = Buffer.from(b64, 'base64');
+    const form = new FormData();
+    form.append('file', new Blob([buf], { type: 'audio/ogg' }), 'audio.ogg');
+    form.append('model', 'whisper-1');
+    form.append('language', 'pt');
+    const r = await fetch('https://api.openai.com/v1/audio/transcriptions', { method: 'POST', headers: { Authorization: 'Bearer ' + OPENAI_KEY }, body: form });
+    const j = await r.json();
+    return (j && j.text) ? String(j.text).trim() : '';
+  } catch (_) { return ''; }
 }
 
 // contexto REAL lido do banco (o agente "já conhece" a plataforma)
@@ -157,11 +176,12 @@ module.exports = async (req, res) => {
     const remoteJid = key.remoteJid || '';
     const fromMe = !!key.fromMe;
     const texto = textoDe(data.message);
+    const isAudio = !!(data.message && data.message.audioMessage);
 
     if (!/messages?\.?upsert/i.test(event)) { res.status(200).json({ ignored: 'event' }); return; }
     if (fromMe) { res.status(200).json({ ignored: 'fromMe' }); return; }
     if (String(remoteJid).endsWith('@g.us')) { res.status(200).json({ ignored: 'grupo' }); return; }
-    if (!texto.trim()) { res.status(200).json({ ignored: 'sem texto' }); return; }
+    if (!texto.trim() && !isAudio) { res.status(200).json({ ignored: 'sem texto' }); return; }
 
     // ===== TRAVA GLOBAL DA RESPOSTA AUTOMÁTICA =====
     // false = liberado, MAS ainda restrito pela allowlist do banco (modo teste:
@@ -177,11 +197,16 @@ module.exports = async (req, res) => {
     const liberado = allow.includes('*') || allow.map(x => String(x).replace(/\D/g, '')).includes(senderNum);
     if (!liberado) { res.status(200).json({ ignored: 'fora da allowlist', senderNum }); return; }
 
+    // audio (nota de voz): transcreve com Whisper e usa como texto do usuario
+    let msgUser = texto;
+    if (!msgUser.trim() && isAudio) { msgUser = await transcreverAudio(key); }
+    if (!msgUser.trim()) { await sendChunks(remoteJid, 'Nao consegui ouvir seu audio, pode escrever ou mandar de novo?'); res.status(200).json({ ignored: 'audio vazio' }); return; }
+
     const cutoff = cfg.espelho_desde ? new Date(cfg.espelho_desde).getTime() : null;
     let contexto = await contextoBase();
     if (senderNum === NUM_ALESSANDRO) contexto += '\n\nVocê está falando com ALESSANDRO FERREIRA, o dono/cliente do Hub. É a conversa de ONBOARDING/personalização do agente.';
     const hist = await historico(remoteJid, key.id, cutoff);
-    const messages = [...hist, { role: 'user', content: texto }];
+    const messages = [...hist, { role: 'user', content: msgUser }];
     // garante alternância terminando em user
     while (messages.length > 1 && messages[messages.length - 2].role === 'user') messages.splice(messages.length - 2, 1);
 
