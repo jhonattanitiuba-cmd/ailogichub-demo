@@ -145,7 +145,7 @@
     }).filter(Boolean);
     els.sort(function(a,b){ return (a.y-b.y)||(a.x-b.x); });
     els.forEach(function(o,idx){
-      var el=o.el, info=o.info, start=null, dur=4000, delay=Math.min(idx*55,1400);
+      var el=o.el, info=o.info, start=null, dur=1400, delay=Math.min(idx*45,760);
       var done=false;
       el.textContent=fmt(0,info);
       setTimeout(function(){
@@ -189,7 +189,7 @@
     if(reduce()) return;
     var side=document.querySelector('.sidebar'); if(!side) return;
     var items=[].slice.call(side.children); var n=items.length; if(n<2) return;
-    var span=5500;
+    var span=2000;
     items.forEach(function(el,i){ el.classList.add('hub-side-item'); el.style.animationDelay=Math.round(i*(span/(n-1)))+'ms'; });
   }
 
@@ -238,13 +238,17 @@
       swapStyles(doc);
       var cur=document.querySelector('.main'); if(cur) cur.parentNode.replaceChild(newMain, cur);
       if(doc.title) document.title=doc.title;
-      try{ replaceIconHosts(); cleanText(); active(); runPageScripts(doc); revealContent(newMain, true); }catch(e){}
+      try{ replaceIconHosts(); cleanText(); active(); runPageScripts(doc); revealContent(newMain, true); markWidgets(newMain); }catch(e){}
       window.scrollTo(0,0); navving=false;
     }).catch(function(){ location.href=slug; });
   }
   function setupNav(){
     document.addEventListener('click', function(e){
-      var a=e.target&&e.target.closest?e.target.closest('.nav-item'):null; if(!a) return;
+      if(!e.target||!e.target.closest) return;
+      // widget clicável: KPI leva à sua página (ignora se clicou num link/botão dentro)
+      var k=e.target.closest('.kpi[data-kpinav]');
+      if(k && !e.target.closest('a,button,input,select')){ e.preventDefault(); navigate(k.getAttribute('data-kpinav'), true); return; }
+      var a=e.target.closest('.nav-item'); if(!a) return;
       var href=a.getAttribute('href'); if(!href||/^(https?:|mailto:|tel:|#)/.test(href)) return;
       e.preventDefault();
       if(a.classList.contains('active')) return;
@@ -277,7 +281,13 @@
     prof.appendChild(b);
   }
 
+  /* ---------- 11) widgets clicáveis: cada KPI leva à sua página ---------- */
+  var KPINAV={imobili:'imobiliarias',lead:'leads','imóve':'imoveis',imove:'imoveis','negóci':'funil',negoci:'funil',funil:'funil',pipeline:'funil',corretor:'corretores',equipe:'corretores',pesso:'pessoas',contato:'pessoas',agenda:'agenda',visita:'agenda',whatsapp:'whatsapp',convers:'whatsapp',mensag:'whatsapp','e-mail':'emails',email:'emails','captaç':'captacao',captac:'captacao',assinatura:'assinaturas',documento:'assinaturas','crédito':'credito',credito:'credito',financiamento:'credito','locaç':'locacao',locac:'locacao',financ:'financeiro',repass:'financeiro','anúnci':'anuncios',anunci:'anuncios','rodízio':'anuncios',mapa:'mapa',relat:'relatorios',insight:'insights',suporte:'suporte'};
+  function _curSlug(){ return (location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral'; }
+  function widgetTarget(el){ var h=el.querySelector('h3'); var t=((h&&h.textContent)||el.textContent||'').toLowerCase(); for(var k in KPINAV){ if(t.indexOf(k)>=0) return KPINAV[k]; } return null; }
+  function markWidgets(root){ root=root||document; [].slice.call(root.querySelectorAll('.kpi')).forEach(function(el){ if(el.hasAttribute('data-kpinav')) return; var tg=widgetTarget(el); if(tg && tg!==_curSlug()){ el.setAttribute('data-kpinav',tg); el.style.cursor='pointer'; el.setAttribute('title','Abrir '+tg); } }); }
+
   try{ window.hubIcons=function(){ try{replaceIconHosts();cleanText();}catch(e){} }; }catch(e){}
-  function run(){ try{ replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); cascadeSidebar(); revealContent(document.querySelector('.main'), true); document.documentElement.classList.remove('hub-pre'); setupNav(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
+  function run(){ try{ replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); cascadeSidebar(); revealContent(document.querySelector('.main'), true); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
