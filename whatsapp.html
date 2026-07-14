@@ -135,6 +135,13 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 .switch .track{width:40px;height:22px;border-radius:999px;background:var(--border2);position:relative;transition:background .15s}
 .switch .track::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s}
 .switch.on .track{background:var(--green)}.switch.on .track::after{left:20px}
+.agent-ic{font-size:18px;margin-right:4px}
+.tools-sec{margin-top:18px;border-top:1px solid var(--border);padding-top:14px}
+.tools-title{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.tool-row{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--text);padding:7px 0}
+.tool-row.soon{color:var(--muted);font-weight:600}
+.tool-tag{margin-left:auto;font-size:10px;font-weight:800;padding:2px 9px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--muted)}
+.tool-tag.on{background:var(--green2);color:#4ade80}
 .wa-back,.wa-crm-btn{display:none;padding:0 11px;font-size:16px}
 @media(max-width:1100px) and (min-width:901px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto;overflow:visible}.main{height:auto}.sidebar{height:auto;position:relative}.kpis{grid-template-columns:1fr}.wa-layout{grid-template-columns:1fr}.chat-stream{min-height:320px;padding:14px 4%}.crm-panel{max-height:420px}}
 /* ===== mobile: inbox single-pane (estilo WhatsApp) ===== */
@@ -192,7 +199,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   <header class="header">
     <div class="headline"><h1>WhatsApp · Atendimento</h1><p>A IA atende sozinha e transfere para você quando precisa. Assuma uma conversa e devolva à IA digitando ponto (.).</p></div>
     <div style="display:flex;gap:10px;align-items:center">
-      <button class="btn" id="btnTreinar">⚙ Treinar IA</button>
+      <button class="btn" id="btnTreinar">🤖 Treinar IA</button>
       <div class="pill" id="statusPill"><span class="dot" id="statusDot"></span><span id="statusText">Verificando canal…</span></div>
     </div>
   </header>
@@ -224,6 +231,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
           <span class="badge gray" id="iaBadge">·</span>
           <div class="dd"><button class="btn" id="btnTransferir" disabled>⇄ Transferir</button><div class="dd-menu" id="ddTransfer"></div></div>
           <button class="btn" id="btnAtender" disabled>Assumir</button>
+          <button class="btn" id="btnLimpar" disabled title="Limpar contexto da IA (o agente esquece esta conversa)">🧹</button>
           <button class="snd-toggle on" id="sndToggle" title="Som ao receber transferência">♪</button>
           <button class="btn primary" id="btnLead" disabled>＋ Criar lead</button>
         </div>
@@ -255,11 +263,17 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 
 <div class="drawer" id="drawerTreino">
   <div class="drawer-panel">
-    <h3>Treinar o agente (Sam)</h3>
+    <h3><span class="agent-ic">🤖</span> Treinar o agente (Sam)</h3>
     <p>Edite a persona/base de conhecimento. Vale para as próximas conversas.</p>
     <div style="margin-bottom:14px"><span class="switch" id="iaGlobalSwitch"><span class="track"></span> IA ativa no canal</span></div>
     <textarea id="treinoPersona" placeholder="Persona / instruções do agente..."></textarea>
-    <div style="margin-top:12px;color:var(--muted);font-size:11.5px">🛠️ Ferramentas do agente (buscar imóvel, agendar visita, mover pipeline) — em breve.</div>
+    <div class="tools-sec">
+      <div class="tools-title">🛠️ Ferramentas do agente</div>
+      <label class="switch tool-row" id="toolImoveis"><span class="track"></span> 🏠 Oferecer imóveis <span class="tool-tag on">conectado</span></label>
+      <div class="tool-row soon">📅 Agendar visita <span class="tool-tag">em breve</span></div>
+      <div class="tool-row soon">🎯 Qualificar lead <span class="tool-tag">em breve</span></div>
+      <div class="tool-row soon">📄 Enviar documento <span class="tool-tag">em breve</span></div>
+    </div>
     <div class="modal-actions"><button class="btn" id="treinoCancel">Fechar</button><button class="btn primary" id="treinoSave">Salvar</button></div>
   </div>
 </div>
@@ -287,6 +301,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   function renderWaText(t){
     var s=esc(t||"");
     s=s.replace(/```([\s\S]+?)```/g,'<code class="wa-mono">$1</code>');
+    s=s.replace(/\*\*(?!\s)([^\n]+?)(?!\s)\*\*/g,'<b>$1</b>');   // tolera markdown **negrito** (edge/agente antigo)
     s=s.replace(/(^|[\s(>])\*(?!\s)([^\*\n]+?)(?!\s)\*(?=[\s).,!?:;]|<|$)/g,'$1<b>$2</b>');
     s=s.replace(/(^|[\s(>])_(?!\s)([^_\n]+?)(?!\s)_(?=[\s).,!?:;]|<|$)/g,'$1<i>$2</i>');
     s=s.replace(/(^|[\s(>])~(?!\s)([^~\n]+?)(?!\s)~(?=[\s).,!?:;]|<|$)/g,'$1<s>$2</s>');
@@ -377,7 +392,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     var c=chatBy(jid);
     var av=$("clientAvatar"); if(av){ av.innerHTML=""; if(c&&c.foto){av.innerHTML='<img src="'+esc(c.foto)+'" onerror="this.parentNode.textContent=\''+esc(inits(nome)).replace(/'/g,"")+'\'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">';}else{av.textContent=inits(nome);} }
     $("clientName").textContent=nome;$("clientMeta").textContent=curFone+" · WhatsApp Hub";
-    $("btnLead").disabled=false;$("waInput").disabled=false;$("waSend").disabled=false;$("btnTransferir").disabled=false;
+    $("btnLead").disabled=false;$("waInput").disabled=false;$("waSend").disabled=false;$("btnTransferir").disabled=false;var _bl=$("btnLimpar");if(_bl)_bl.disabled=false;
     refreshAttendUI();markRead(jid);loadCrm(jid);
     if(isMobile())showThread();
     var st=$("chatStream");st.innerHTML='<div class="stream-empty">Carregando mensagens…</div>';
@@ -483,14 +498,25 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   document.addEventListener("click",function(){if(ddT)ddT.classList.remove("open");});
 
   // ===== treinar o agente (drawer) =====
-  var drawer=$("drawerTreino"),iaGlobalOn=true;
-  function openTreino(){ drawer.classList.add("open"); fetch(API+"?action=config",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){$("treinoPersona").value=(d&&d.ia_persona)||"";iaGlobalOn=!(d&&d.ia_ativa===false);$("iaGlobalSwitch").classList.toggle("on",iaGlobalOn);}).catch(function(){}); }
+  var drawer=$("drawerTreino"),iaGlobalOn=true,toolImoveisOn=true;
+  function openTreino(){ drawer.classList.add("open"); fetch(API+"?action=config",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
+    $("treinoPersona").value=(d&&d.ia_persona)||"";
+    iaGlobalOn=!(d&&d.ia_ativa===false);$("iaGlobalSwitch").classList.toggle("on",iaGlobalOn);
+    var tools=(d&&d.ia_tools)||{};toolImoveisOn=(tools.oferecer_imoveis!==false);$("toolImoveis").classList.toggle("on",toolImoveisOn);
+  }).catch(function(){}); }
   function closeTreino(){drawer.classList.remove("open");}
   $("btnTreinar").addEventListener("click",openTreino);
   $("treinoCancel").addEventListener("click",closeTreino);
   drawer.addEventListener("click",function(e){if(e.target===drawer)closeTreino();});
   $("iaGlobalSwitch").addEventListener("click",function(){iaGlobalOn=!iaGlobalOn;this.classList.toggle("on",iaGlobalOn);});
-  $("treinoSave").addEventListener("click",function(){var btn=$("treinoSave");btn.disabled=true;btn.textContent="Salvando…";fetch(API+"?action=config-save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ia_persona:$("treinoPersona").value,ia_ativa:iaGlobalOn})}).then(function(){btn.disabled=false;btn.textContent="Salvar";closeTreino();}).catch(function(){btn.disabled=false;btn.textContent="Salvar";});});
+  $("toolImoveis").addEventListener("click",function(){toolImoveisOn=!toolImoveisOn;this.classList.toggle("on",toolImoveisOn);});
+  $("treinoSave").addEventListener("click",function(){var btn=$("treinoSave");btn.disabled=true;btn.textContent="Salvando…";fetch(API+"?action=config-save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ia_persona:$("treinoPersona").value,ia_ativa:iaGlobalOn,ia_tools:{oferecer_imoveis:toolImoveisOn}})}).then(function(){btn.disabled=false;btn.textContent="Salvar";closeTreino();}).catch(function(){btn.disabled=false;btn.textContent="Salvar";});});
+
+  // limpar contexto da IA (o agente esquece esta conversa)
+  var bl=$("btnLimpar"); if(bl)bl.addEventListener("click",function(){
+    if(!curJid)return; if(!confirm("Limpar o contexto da IA nesta conversa? O agente vai esquecer o histórico e recomeçar."))return;
+    bl.disabled=true; fetch(API+"?action=limpar-contexto",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jid:curJid})}).then(function(){bl.disabled=false;}).catch(function(){bl.disabled=false;});
+  });
 
   // tabs de filtro
   Array.prototype.forEach.call(document.querySelectorAll("#waTabs .wa-tab"),function(tab){tab.addEventListener("click",function(){filtro=tab.getAttribute("data-f");Array.prototype.forEach.call(document.querySelectorAll("#waTabs .wa-tab"),function(t){t.classList.toggle("active",t===tab);});paintList();});});

@@ -33,7 +33,8 @@ const ESTILO = `
   3. 💰 Vender
   4. 💬 Outro"
   Depois, em 1 linha: "Responda pelo numero, escreva ou mande um audio, como preferir." Nao explique o que e a empresa.
-- FORMATACAO: use emojis RELEVANTES para guiar (rotas 🏠🔑💰💬 e, quando fizer sentido, 📍 regiao, 💵 valor, 🛏 quartos, 🚗 vaga, 📅 prazo), com moderacao. NUNCA emoji generico/aleatorio (nada de 😊✨🙌 sem proposito). Use *negrito* so em rotulos curtos. Deixe limpo, uma info por linha ao listar.
+- FORMATACAO: use emojis RELEVANTES para guiar (rotas 🏠🔑💰💬 e, quando fizer sentido, 📍 regiao, 💵 valor, 🛏 quartos, 🚗 vaga, 📅 prazo), com moderacao. NUNCA emoji generico/aleatorio (nada de 😊✨🙌 sem proposito). Deixe limpo, uma info por linha ao listar.
+- NEGRITO no WhatsApp e com UM asterisco: *texto*. NUNCA use dois asteriscos (**texto**) nem markdown, senao aparece o asterisco cru pro cliente. Itálico e _texto_, tachado ~texto~.
 - NAO escreva nenhum cabecalho tipo "SAM / Atendimento" na resposta: o sistema JA adiciona isso sozinho.
 - As rotas numeradas sao so um atalho, NAO engessam: aceite numero, texto livre OU audio de forma equivalente. Se a pessoa escreve direto o que quer, siga o assunto sem forcar o menu.
 - Nas mensagens seguintes NAO repita a apresentacao nem o menu completo; se precisar oferecer escolhas, use no maximo 3 opcoes curtas.
@@ -117,6 +118,23 @@ async function contextoBase() {
       '- Imóveis cadastrados: ' + nImov + '\n' +
       '- Canal WhatsApp do Hub: conectado e espelhado na plataforma.';
   } catch (_) { return 'CONTEXTO: plataforma AILogic Hub ativa.'; }
+}
+
+// TOOL "oferecer imoveis": injeta os imoveis REAIS do estoque para a IA oferecer (nada inventado)
+async function imoveisDisponiveis(limite) {
+  try {
+    const r = (await db(`select codigo, tipo, finalidade, cidade, bairro, quartos, vagas, area_util, preco
+      from imoveis where deleted_at is null and (status is null or lower(status::text) in ('disponivel','disponível','ativo','publicado'))
+      order by created_at desc limit $1`, [limite || 12])).rows;
+    if (!r.length) return '';
+    const linhas = r.map(i => {
+      const preco = i.preco != null ? ('R$ ' + Number(i.preco).toLocaleString('pt-BR')) : 's/ valor';
+      const loc = [i.bairro, i.cidade].filter(Boolean).join(', ');
+      const carac = [i.quartos ? i.quartos + ' quartos' : '', i.vagas ? i.vagas + ' vagas' : '', i.area_util ? i.area_util + 'm2' : ''].filter(Boolean).join(', ');
+      return '- [' + i.codigo + '] ' + (i.tipo || 'imóvel') + (i.finalidade ? '/' + i.finalidade : '') + ' em ' + (loc || '—') + (carac ? ' (' + carac + ')' : '') + ' — ' + preco;
+    }).join('\n');
+    return '\n\nIMÓVEIS REAIS DISPONÍVEIS NO ESTOQUE (ofereça SOMENTE estes, nunca invente imóvel/valor; cite o código entre colchetes; filtre pelo que a pessoa procura):\n' + linhas;
+  } catch (_) { return ''; }
 }
 
 // histórico da conversa (multi-turno) a partir do NOSSO banco (ia_historico).
@@ -232,7 +250,7 @@ module.exports = async (req, res) => {
     const IA_RESPOSTA_DESLIGADA = false;
     if (IA_RESPOSTA_DESLIGADA) { res.status(200).json({ ignored: 'ia_global_off' }); return; }
 
-    const cfg = (await db('select ia_ativa, ia_allowlist, ia_persona, espelho_desde from canais_whatsapp where instancia=$1', [INSTANCE])).rows[0] || {};
+    const cfg = (await db('select ia_ativa, ia_allowlist, ia_persona, espelho_desde, ia_tools from canais_whatsapp where instancia=$1', [INSTANCE])).rows[0] || {};
     if (!cfg.ia_ativa) { res.status(200).json({ ignored: 'ia off' }); return; }
     const allow = Array.isArray(cfg.ia_allowlist) ? cfg.ia_allowlist : [];
     const senderNum = String(remoteJid).split('@')[0].replace(/\D/g, '');
@@ -267,6 +285,8 @@ module.exports = async (req, res) => {
     }
 
     let contexto = await contextoBase();
+    const tools = (cfg.ia_tools && typeof cfg.ia_tools === 'object') ? cfg.ia_tools : {};
+    if (tools.oferecer_imoveis) contexto += await imoveisDisponiveis(12);   // tool plug-and-play
     if (senderNum === NUM_ALESSANDRO) contexto += '\n\nVocê está falando com ALESSANDRO FERREIRA, o dono/cliente do Hub. É a conversa de ONBOARDING/personalização do agente.';
     // le o historico ANTES de gravar o turno atual, depois grava a mensagem do usuario
     const hist = await historico(remoteJid);

@@ -114,21 +114,32 @@ module.exports = async (req, res) => {
 
     // ---- CONFIG DA IA: ler ----
     if (action === 'config') {
-      const r = await db('select ia_ativa, ia_persona, ia_allowlist from canais_whatsapp where instancia=$1', [INSTANCE]);
+      const r = await db('select ia_ativa, ia_persona, ia_allowlist, ia_tools from canais_whatsapp where instancia=$1', [INSTANCE]);
       res.status(200).json(r.rows[0] || {});
       return;
     }
-    // ---- CONFIG DA IA: salvar (persona/ativa) ----
+    // ---- CONFIG DA IA: salvar (persona/ativa/tools) ----
     if (action === 'config-save') {
       let b = req.body; if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
       b = b || {};
       await db(`update canais_whatsapp set
           ia_ativa = coalesce($1, ia_ativa),
           ia_persona = coalesce($2, ia_persona),
+          ia_tools = coalesce($3::jsonb, ia_tools),
           updated_at = now()
-        where instancia=$3`,
-        [typeof b.ia_ativa === 'boolean' ? b.ia_ativa : null, (b.ia_persona != null ? String(b.ia_persona) : null), INSTANCE]);
+        where instancia=$4`,
+        [typeof b.ia_ativa === 'boolean' ? b.ia_ativa : null, (b.ia_persona != null ? String(b.ia_persona) : null), (b.ia_tools != null ? JSON.stringify(b.ia_tools) : null), INSTANCE]);
       res.status(200).json({ ok: true });
+      return;
+    }
+    // ---- LIMPAR CONTEXTO da IA numa conversa (o agente esquece e recomeca) ----
+    if (action === 'limpar-contexto') {
+      let b = req.body; if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
+      b = b || {}; const jid = b.jid;
+      if (!jid) { res.status(400).json({ error: 'jid obrigatorio' }); return; }
+      let n = 0;
+      try { const dr = await db('delete from ia_historico where remote_jid=$1', [jid]); n = dr.rowCount || 0; } catch (_) {}
+      res.status(200).json({ ok: true, apagadas: n });
       return;
     }
 
@@ -137,6 +148,13 @@ module.exports = async (req, res) => {
       const cutoff = await getCutoff();
       const r = await evo('/chat/findChats/' + INSTANCE, 'POST', {});
       const arr = Array.isArray(r.body) ? r.body : [];
+      // pushName por jid via contatos (o telefone real as vezes vem SEM pushName no findChats,
+      // mas o contato tem — e o gemeo @lid tem o mesmo pushName -> permite unificar)
+      const pushByJid = {};
+      try {
+        const cr = await evo('/chat/findContacts/' + INSTANCE, 'POST', {});
+        (Array.isArray(cr.body) ? cr.body : []).forEach(ct => { if (ct.remoteJid && ct.pushName) pushByJid[ct.remoteJid] = ct.pushName; });
+      } catch (_) {}
       // estado de atendimento (handoff IA<->humano) numa consulta so
       const estado = {};
       try {
@@ -146,13 +164,16 @@ module.exports = async (req, res) => {
       } catch (_) {}
       let chats = arr.map(c => {
         const st = estado[c.remoteJid] || {};
+        const push = pushByJid[c.remoteJid] || c.pushName || '';
         return {
           jid: c.remoteJid,
-          nome: NAMES[num8(c.remoteJid)] || c.pushName || (c.remoteJid ? String(c.remoteJid).split('@')[0] : 'Contato'),
+          nome: NAMES[num8(c.remoteJid)] || push || (c.remoteJid ? String(c.remoteJid).split('@')[0] : 'Contato'),
+          pkey: (push ? push.trim().toLowerCase() : num8(c.remoteJid)),   // chave de dedupe (pessoa)
           foto: c.profilePicUrl || null,
           atualizado: c.updatedAt || null,
           janelaAtiva: !!c.windowActive,
           grupo: String(c.remoteJid || '').endsWith('@g.us'),
+          lid: String(c.remoteJid || '').endsWith('@lid'),
           ultima: c.lastMessage ? msgText(c.lastMessage) : '',
           fromMe: !!(c.lastMessage && c.lastMessage.key && c.lastMessage.key.fromMe),
           atendenteId: st.atendente_id || null,
@@ -160,8 +181,13 @@ module.exports = async (req, res) => {
           iaPausada: !!st.ia_pausada,
           naoLidas: st.nao_lidas || 0
         };
-      }).filter(c => c.jid && !c.grupo)   // espelhamento liberado (exclui grupos)
+      }).filter(c => c.jid && !c.grupo && num8(c.jid) !== '' && !/^0+@/.test(c.jid))   // sem grupos/invalidos
         .sort((a, b) => new Date(b.atualizado || 0) - new Date(a.atualizado || 0));
+      // UNIFICA: o WhatsApp cria um jid @lid alem do telefone real (@s.whatsapp.net) para a mesma
+      // pessoa. Mantem o telefone real; descarta o gemeo @lid (mesmo pkey de um chat de telefone).
+      const phoneKeys = {};
+      chats.forEach(c => { if (!c.lid && c.pkey) phoneKeys[c.pkey] = true; });
+      chats = chats.filter(c => !(c.lid && c.pkey && phoneKeys[c.pkey]));
       if (cutoff) chats = chats.filter(c => c.atualizado && new Date(c.atualizado) >= cutoff);
       res.status(200).json({ chats, meuId: user.usuarioId || null, meuNome: user.nome || null });
       return;
