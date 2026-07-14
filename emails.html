@@ -11,6 +11,7 @@
 *{box-sizing:border-box}html,body{height:100%;overflow:hidden;background:var(--bg)}
 body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text)}a{text-decoration:none;color:inherit}
 .app{display:grid;grid-template-columns:262px 1fr;height:100vh;overflow:hidden}
+@media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto;overflow:auto}.sidebar{height:auto}}
 .sidebar{background:linear-gradient(180deg,#0a1a38,#050c1c);color:#cddcf5;padding:24px 18px;height:100vh;overflow:auto;border-right:1px solid var(--border)}
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:30px}.logo{width:44px;height:44px;border-radius:13px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,#0b66ff,#10b5ff);color:#fff;font-weight:900}
 .brand strong{display:block;color:#fff;font-size:18px}.brand span{display:block;color:#8fb0e6;font-size:12px;margin-top:3px}
