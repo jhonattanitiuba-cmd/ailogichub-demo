@@ -15,7 +15,7 @@ const NUM_ALESSANDRO = '5511995568148';
 // resolvido por email, nao cravar UUID). Qualquer usuario do Hub pode reassumir no inbox.
 const FALLBACK_ATENDENTE_EMAIL = 'diretoria@ailogichub.app';
 // gatilho: lead pedindo atendimento humano
-const PEDE_HUMANO = /(atendente|humano|pessoa (de verdade|real)|ser humano|falar com (algu|uma pessoa|um corretor|atend|voce|vc)|quero falar com|me transfere|chama.* (corretor|atendente|gerente))/i;
+const PEDE_HUMANO = /(atendente|humano|pessoa (de verdade|real)|ser humano|falar com (algu[eé]m|uma pessoa|um corretor|um atendente|o corretor)|me transfere|transferir para|chama[r]? (o |um )?(corretor|atendente|gerente))/i;
 
 // Persona padrao do agente (Sam), usada quando nao ha ia_persona no banco.
 const PERSONA_PADRAO = PERSONA_SAM;
