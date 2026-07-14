@@ -134,38 +134,46 @@
     else if(i.th) s=Math.round(v).toLocaleString('pt-BR'); else s=String(Math.round(v));
     return i.pre+s+i.suf;
   }
-  function animateCounters(base, root){
-    base=base||0; root=root||document;
+  function animateCounters(startDelay, root, opts){
+    startDelay=startDelay||0; root=root||document; opts=opts||{};
     if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var step=opts.step||45, dur=opts.dur||1400;
     var sel='.kpi .value, .value, .count, .num, .metric strong';
     var els=[].slice.call(root.querySelectorAll(sel)).map(function(el){
       var info=parseNum(el.textContent); if(!info||info.val===0) return null;
       var r=el.getBoundingClientRect();
-      return {el:el,info:info,y:r.top+(window.scrollY||0),x:r.left};
+      return {el:el,info:info,y:Math.round(r.top+(window.scrollY||0)),x:Math.round(r.left),w:r.width};
     }).filter(Boolean);
-    els.sort(function(a,b){ return (a.y-b.y)||(a.x-b.x); });
+    // ordem: cima->baixo, esquerda->direita (tolera pequenas diferenças de linha)
+    els.sort(function(a,b){ var dy=a.y-b.y; return Math.abs(dy)>6 ? dy : (a.x-b.x); });
     els.forEach(function(o,idx){
-      var el=o.el, info=o.info, start=null, dur=1400, delay=Math.min(idx*45,760);
-      var done=false;
+      var el=o.el, info=o.info, done=false;
+      // TRAVA a largura: mede o valor FINAL e fixa min-width -> contar nao empurra o box
+      try{ if(o.w){ el.style.display='inline-block'; el.style.minWidth=Math.ceil(o.w)+'px'; } }catch(_){}
       el.textContent=fmt(0,info);
+      var delay=startDelay+idx*step;
       setTimeout(function(){
         var t0=Date.now();
-        function step(){ if(done) return; var p=Math.min((Date.now()-t0)/dur,1);
+        function stepf(){ if(done) return; var p=Math.min((Date.now()-t0)/dur,1);
           var e=1-Math.pow(1-p,3); el.textContent=fmt(info.val*e,info);
-          if(p<1) requestAnimationFrame(step); else { done=true; el.textContent=fmt(info.val,info); } }
-        requestAnimationFrame(step);
+          if(p<1) requestAnimationFrame(stepf); else { done=true; el.textContent=fmt(info.val,info); } }
+        requestAnimationFrame(stepf);
       },delay);
       // rede de segurança: garante valor final mesmo se rAF for estrangulado
-      setTimeout(function(){ if(!done){ done=true; el.textContent=fmt(info.val,info); } },delay+dur+120);
+      setTimeout(function(){ if(!done){ done=true; el.textContent=fmt(info.val,info); } },delay+dur+140);
     });
   }
 
   function reduce(){ return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
 
   /* ---------- 5) entrada do conteúdo: tela > boxes > números ---------- */
-  function revealContent(main, initial, dir){
+  // choreografia padrão de TODAS as telas.
+  // mode='entry' (login/F5): sequência de ~3s, esquerda->direita/cima->baixo.
+  // mode='spa' (troca de aba): mesma direção, porém rápida (~0,6s).
+  function revealContent(main, mode, dir){
     if(!main) return;
-    if(reduce()||!initial){ main.style.opacity='1'; return; }   // SPA: troca instantânea, sem re-animar (evita flip)
+    if(reduce()){ main.style.opacity='1'; [].slice.call(main.querySelectorAll('.hub-rise')).forEach(function(el){el.style.opacity='1';el.style.animation='none';}); return; }
+    var entry = (mode===true || mode==='entry');
     main.style.animation = dir==='next' ? 'hubSlideInR .32s cubic-bezier(.22,.61,.36,1) both' : dir==='prev' ? 'hubSlideInL .32s cubic-bezier(.22,.61,.36,1) both' : 'hubFade .4s ease both';
     var blocks=[];
     [].slice.call(main.children).forEach(function(b){
@@ -173,11 +181,17 @@
       if(b.classList&&b.classList.contains('kpis')) blocks=blocks.concat([].slice.call(b.children));
       else blocks.push(b);
     });
-    blocks.forEach(function(el,i){ el.classList.add('hub-rise'); el.style.animationDelay=(200+i*42)+'ms'; });
-    var cb=200+Math.min(blocks.length*42,760)+120;     // contadores só depois dos boxes
-    animateCounters(cb, main);
+    // ordena pela posição REAL na grade: cima->baixo, esquerda->direita
+    blocks.sort(function(a,b){ var ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(); var dy=Math.round(ra.top)-Math.round(rb.top); return Math.abs(dy)>8 ? dy : (ra.left-rb.left); });
+    var n=blocks.length||1;
+    var start = entry ? 360 : 30;                                   // na entrada a sidebar lidera
+    var stepB = entry ? Math.max(150, Math.min(300, Math.round(2200/n))) : Math.max(22, Math.min(55, Math.round(300/n)));
+    blocks.forEach(function(el,i){ el.classList.add('hub-rise'); el.style.animationDelay=(start+i*stepB)+'ms'; });
+    var lastB = start + (n-1)*stepB;
+    // contadores entram na sequência dos boxes e terminam ~3s (entrada) / rápido (spa)
+    animateCounters(entry ? start+240 : 110, main, { step: entry ? stepB : 26, dur: entry ? 1150 : 650 });
     // rede de segurança: garante conteúdo visível mesmo se a animação CSS não disparar
-    setTimeout(function(){ main.style.animation='none'; main.style.opacity='1'; blocks.forEach(function(el){ el.style.animation='none'; el.style.opacity='1'; }); }, 200+blocks.length*42+900);
+    setTimeout(function(){ main.style.animation='none'; main.style.opacity='1'; blocks.forEach(function(el){ el.style.animation='none'; el.style.opacity='1'; }); }, lastB + (entry?1500:900));
   }
 
   /* ---------- 6) active state do menu ---------- */
@@ -189,7 +203,7 @@
     if(reduce()) return;
     var side=document.querySelector('.sidebar'); if(!side) return;
     var items=[].slice.call(side.children); var n=items.length; if(n<2) return;
-    var span=2000;
+    var span=1100;   // sidebar carrega de cima->baixo e LIDERA a entrada (antes dos widgets)
     items.forEach(function(el,i){ el.classList.add('hub-side-item'); el.style.animationDelay=Math.round(i*(span/(n-1)))+'ms'; });
   }
 
@@ -242,7 +256,7 @@
       swapStyles(doc);
       var cur=document.querySelector('.main'); if(cur) cur.parentNode.replaceChild(newMain, cur);
       if(doc.title) document.title=doc.title;
-      try{ replaceIconHosts(); cleanText(); active(); runPageScripts(doc); revealContent(newMain, true, dir); markWidgets(newMain); loadBegin(); }catch(e){}
+      try{ replaceIconHosts(); cleanText(); active(); runPageScripts(doc); revealContent(newMain, 'spa', dir); markWidgets(newMain); loadBegin(); }catch(e){}
       window.scrollTo(0,0); navving=false;
     }).catch(function(){ location.href=slug; });
   }
@@ -362,6 +376,6 @@
   // carreguem em TODAS as telas (hoje so config-ia.html linka o hub.css).
   function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev0c'; document.head.appendChild(l); }catch(_){}
   }
-  function run(){ try{ ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); cascadeSidebar(); revealContent(document.querySelector('.main'), true); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); loadBegin(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
+  function run(){ try{ ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); cascadeSidebar(); revealContent(document.querySelector('.main'), 'entry'); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); loadBegin(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();

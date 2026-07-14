@@ -11,3 +11,19 @@
   --soft:0 8px 22px rgba(15,23,42,.055);--radius:18px;
   --font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
 }
+
+/* ===== choreografia de entrada (padrão de TODAS as telas) =====
+   Pré-esconde os blocos animáveis ANTES do paint (evita a "piscada"/tela-dupla).
+   O hub.js revela via .hub-rise (cascata esquerda→direita, cima→baixo). Failsafe
+   em 3.6s garante que nada fica invisível se o JS não rodar. */
+.main>*:not(header):not(.kpis),.kpis>*{
+  opacity:0; animation:hubBlockSafe 0s linear 3.6s forwards;
+}
+@keyframes hubBlockSafe{ to{ opacity:1 } }
+/* números TRAVADOS: dígitos de largura fixa -> a contagem não empurra o box */
+.value,.num,.count,.metric strong,.kpi strong,.kpi .value,.donut .num{
+  font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1;
+}
+@media (prefers-reduced-motion:reduce){
+  .main>*:not(header):not(.kpis),.kpis>*{ opacity:1 !important; animation:none !important; }
+}
