@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baixar o app · AILogic Hub</title>
+<meta name="description" content="Instale o AILogic Hub no seu celular ou computador.">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a1020">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a1020;--panel:#111a2e;--panel2:#0d1526;--border:#1f2c48;--border2:#26344f;--text:#e7eefb;--muted:#8b9bb9;--blue:#0b66ff;--blue2:#10b5ff;--green:#16a56f;--font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(1200px 600px at 50% -10%,#13234a 0%,var(--bg) 55%);color:var(--text);font-family:var(--font);display:flex;flex-direction:column;align-items:center;padding:40px 18px 60px}
+a{color:inherit;text-decoration:none}
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:34px}
+.logo{width:56px;height:56px;border-radius:16px;overflow:hidden;box-shadow:0 12px 30px rgba(11,102,255,.35)}
+.logo img{width:100%;height:100%;object-fit:cover;display:block}
+.brand strong{display:block;font-size:22px;letter-spacing:-.02em}
+.brand span{display:block;font-size:12.5px;color:#8fb0e6;margin-top:2px}
+.card{width:100%;max-width:440px;background:linear-gradient(180deg,rgba(17,26,46,.9),rgba(13,21,38,.9));border:1px solid var(--border);border-radius:22px;padding:30px 26px;text-align:center;box-shadow:0 30px 70px rgba(0,0,0,.4)}
+.hero{width:96px;height:96px;border-radius:24px;margin:0 auto 18px;overflow:hidden;box-shadow:0 16px 40px rgba(11,102,255,.4)}
+.hero img{width:100%;height:100%;object-fit:cover;display:block}
+h1{margin:0 0 8px;font-size:24px;letter-spacing:-.03em}
+.sub{margin:0 0 24px;color:var(--muted);font-size:14px;line-height:1.5}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:54px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;font:inherit;font-size:16px;font-weight:800;cursor:pointer;transition:filter .15s,transform .06s;box-shadow:0 14px 30px rgba(11,102,255,.4)}
+.btn:hover{filter:brightness(1.08)}.btn:active{transform:translateY(1px)}
+.btn.sec{background:transparent;border:1px solid var(--border2);color:var(--text);box-shadow:none;height:48px;font-size:14.5px;font-weight:700;margin-top:12px}
+.hint{margin-top:16px;font-size:12px;color:var(--muted)}
+.steps{width:100%;max-width:440px;margin-top:26px;display:grid;gap:12px}
+.step{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px 18px;text-align:left}
+.step h3{margin:0 0 8px;font-size:13.5px;display:flex;align-items:center;gap:9px}
+.step h3 .ic{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:rgba(59,130,246,.16);color:#7ab0ff;font-size:14px;flex:none}
+.step ol{margin:0;padding-left:18px;color:var(--muted);font-size:12.5px;line-height:1.7}
+.step b{color:var(--text)}
+.foot{margin-top:30px;color:#5f7194;font-size:11.5px;text-align:center}
+/* modal instruções iOS */
+.sheet{position:fixed;inset:0;background:rgba(3,8,18,.72);backdrop-filter:blur(3px);display:none;place-items:center;z-index:50;padding:20px}
+.sheet.show{display:grid}
+.sheet-box{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--border2);border-radius:20px;padding:24px}
+.sheet-box h3{margin:0 0 12px;font-size:17px}
+.sheet-box ol{margin:0 0 8px;padding-left:20px;color:var(--muted);font-size:13.5px;line-height:1.9}
+</style>
+</head>
+<body>
+  <div class="brand">
+    <div class="logo"><img src="/assets/logo-mark.png" alt="AILogic Hub"></div>
+    <div><strong>AILogic Hub</strong><span>Inteligência Imobiliária</span></div>
+  </div>
+
+  <div class="card">
+    <div class="hero"><img src="/assets/icon-512.png" alt="App" onerror="this.src='/assets/logo-mark.png'"></div>
+    <h1>Baixar o aplicativo</h1>
+    <p class="sub">Instale o AILogic Hub no seu celular ou computador para abrir com um toque, em tela cheia, como um app nativo.</p>
+    <button class="btn" id="btnInstall">⬇️ Instalar o app</button>
+    <a class="btn sec" href="/login">Abrir no navegador</a>
+    <div class="hint" id="hint">Já instalado? Abra pelo ícone do AILogic Hub na sua tela inicial.</div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <h3><span class="ic">🤖</span> Android (Chrome)</h3>
+      <ol><li>Toque em <b>Instalar o app</b> acima e confirme.</li><li>Ou no menu <b>⋮</b> do Chrome → <b>Instalar aplicativo</b>.</li><li>O ícone aparece na tela inicial.</li></ol>
+    </div>
+    <div class="step">
+      <h3><span class="ic"></span> iPhone / iPad (Safari)</h3>
+      <ol><li>Abra este site no <b>Safari</b>.</li><li>Toque em <b>Compartilhar</b> (o quadrado com a seta ↑).</li><li>Escolha <b>Adicionar à Tela de Início</b>.</li></ol>
+    </div>
+    <div class="step">
+      <h3><span class="ic">💻</span> Computador (Chrome / Edge)</h3>
+      <ol><li>Clique no ícone de <b>instalar</b> (⊕) na barra de endereço.</li><li>Ou menu <b>⋮</b> → <b>Instalar AILogic Hub</b>.</li><li>Abre numa janela própria, como um programa.</li></ol>
+    </div>
+  </div>
+
+  <div class="foot">AILogic Hub · ailogichub.app<br>Atualiza sozinho ao abrir — sempre a versão mais recente.</div>
+
+  <div class="sheet" id="iosSheet">
+    <div class="sheet-box">
+      <h3>Instalar no iPhone</h3>
+      <ol><li>Toque em <b>Compartilhar</b> (quadrado com seta ↑) na barra do Safari.</li><li>Role e toque em <b>Adicionar à Tela de Início</b>.</li><li>Confirme em <b>Adicionar</b>.</li></ol>
+      <button class="btn sec" id="iosClose" style="margin-top:16px">Entendi</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  if('serviceWorker' in navigator){ window.addEventListener('load',function(){ navigator.serviceWorker.register('/sw.js').catch(function(){}); }); }
+  var btn=document.getElementById('btnInstall'), hint=document.getElementById('hint');
+  var sheet=document.getElementById('iosSheet'), iosClose=document.getElementById('iosClose');
+  var ua=navigator.userAgent||'';
+  var isIOS=/iP(hone|ad|od)/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  var isStandalone=(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone===true;
+  var deferredPrompt=null;
+  if(isStandalone){ btn.textContent='✓ App já instalado'; btn.disabled=true; btn.style.opacity=.7; }
+  window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); deferredPrompt=e; hint.textContent='Toque em “Instalar o app” para adicionar à sua tela.'; });
+  btn.addEventListener('click',async function(){
+    if(deferredPrompt){ deferredPrompt.prompt(); try{ await deferredPrompt.userChoice; }catch(_){} deferredPrompt=null; return; }
+    sheet.classList.add('show');   // iOS ou navegador sem prompt automático
+  });
+  if(iosClose)iosClose.addEventListener('click',function(){ sheet.classList.remove('show'); });
+  sheet.addEventListener('click',function(e){ if(e.target===sheet) sheet.classList.remove('show'); });
+  window.addEventListener('appinstalled',function(){ btn.textContent='✓ Instalado'; btn.disabled=true; btn.style.opacity=.7; });
+})();
+</script>
+</body>
+</html>
