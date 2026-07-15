@@ -266,7 +266,7 @@ td.strong{font-weight:700;color:var(--heading)}
     $('f_imob').value=m.imobiliaria_id||'';
     selVal($('f_perfil'),m.perfil||'corretor');$('f_status').value=(m.status==='Inativo')?'Inativo':'Ativo';
     $('credBox').style.display='none';$('credFoot').style.display='none';$('fBody').style.display='';$('fFoot').style.display='flex';
-    $('fSenhaWrap').style.display=m.id?'none':'';$('f_senha').value='';
+    $('fSenhaWrap').style.display='';$('f_senha').value='';$('f_senha').placeholder=m.id?'Nova senha (deixe em branco para não alterar)':'Deixe em branco para gerar automaticamente';
     fm.dataset.id=m.id||'';fFoto=m.foto||'';fIcone=m.icone||'';setFFotoPrev();fm.classList.add('open');}
   function closeForm(){fm.classList.remove('open');}
   $('btnNew').addEventListener('click',function(){openForm(null);});
@@ -283,7 +283,7 @@ td.strong{font-weight:700;color:var(--heading)}
     var o={nome:$('f_nome').value.trim(),email:$('f_email').value.trim(),telefone:$('f_telefone').value.trim(),imobiliaria_id:$('f_imob').value||null,perfil:$('f_perfil').value,status:$('f_status').value,foto:fFoto||'',icone:fIcone||''};
     if(!o.nome){$('fErr').textContent='Informe o nome.';return;}
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.email)){$('fErr').textContent='Informe um e-mail válido (é ele que libera o acesso).';return;}
-    if(fm.dataset.id){o.id=fm.dataset.id;}else{var sp=$('f_senha').value.trim();if(sp)o.senha=sp;}
+    if(fm.dataset.id){o.id=fm.dataset.id;}var sp=$('f_senha').value.trim();if(sp)o.senha=sp;
     var btn=$('fSave');btn.disabled=true;btn.textContent='Salvando…';
     fetch(DATA+'?ent=corretores&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)})
       .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})

@@ -12,26 +12,40 @@ const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABAS
 function genSenha() {
   return 'Hub' + Math.random().toString(36).slice(2, 8) + '#' + Math.floor(10 + Math.random() * 89);
 }
-// cria o login no Supabase Auth (GoTrue) via Admin API usando a service key.
-// Retorna {ok, id} ou {ok:false, motivo, jaExiste}.
+// GARANTE o login no Supabase Auth (GoTrue): cria com a senha OU, se o e-mail ja
+// existe, REDEFINE a senha desse login. email_confirm:true -> loga na hora.
+// Assim a senha cadastrada no Administrador SEMPRE funciona para entrar no app.
 async function criarLoginSupabase(email, senha, meta) {
   if (!SUPABASE_URL || !SERVICE_KEY) {
     return { ok: false, motivo: 'Login automatico indisponivel: defina SUPABASE_SERVICE_ROLE_KEY na Vercel.' };
   }
+  const H = { apikey: SERVICE_KEY, Authorization: 'Bearer ' + SERVICE_KEY, 'Content-Type': 'application/json' };
   try {
+    // 1) tenta CRIAR o login (ja confirmado)
     const r = await fetch(SUPABASE_URL + '/auth/v1/admin/users', {
-      method: 'POST',
-      headers: { apikey: SERVICE_KEY, Authorization: 'Bearer ' + SERVICE_KEY, 'Content-Type': 'application/json' },
+      method: 'POST', headers: H,
       body: JSON.stringify({ email: email, password: senha, email_confirm: true, user_metadata: meta || {} })
     });
     const j = await r.json().catch(() => ({}));
-    if (r.ok && j && j.id) return { ok: true, id: j.id };
+    if (r.ok && j && j.id) return { ok: true, id: j.id, criado: true };
     const msg = (j && (j.msg || j.message || j.error_description || j.error)) || ('HTTP ' + r.status);
-    if (/already|exists|registered|duplicate/i.test(String(msg))) {
-      return { ok: false, jaExiste: true, motivo: 'Este e-mail ja possui login. A pessoa pode entrar ou usar Esqueci a senha.' };
-    }
-    return { ok: false, motivo: String(msg) };
-  } catch (_) { return { ok: false, motivo: 'Nao foi possivel criar o login agora.' }; }
+    if (!/already|exists|registered|duplicate/i.test(String(msg))) return { ok: false, motivo: String(msg) };
+    // 2) ja existe -> acha o login por e-mail e REDEFINE a senha
+    let found = null;
+    try {
+      const lu = await fetch(SUPABASE_URL + '/auth/v1/admin/users?email=' + encodeURIComponent(email), { headers: H });
+      const lj = await lu.json().catch(() => ({}));
+      const arr = (lj && (lj.users || (Array.isArray(lj) ? lj : []))) || [];
+      found = arr.find(u => String(u.email || '').toLowerCase() === String(email).toLowerCase()) || null;
+    } catch (_) {}
+    if (!found || !found.id) return { ok: false, jaExiste: true, motivo: 'Login ja existe; nao consegui redefinir a senha (verifique a service key).' };
+    const up = await fetch(SUPABASE_URL + '/auth/v1/admin/users/' + found.id, {
+      method: 'PUT', headers: H, body: JSON.stringify({ password: senha, email_confirm: true })
+    });
+    if (up.ok) return { ok: true, id: found.id, resetado: true };
+    const uj = await up.json().catch(() => ({}));
+    return { ok: false, jaExiste: true, motivo: (uj && (uj.msg || uj.message)) || ('HTTP ' + up.status) };
+  } catch (_) { return { ok: false, motivo: 'Nao foi possivel criar/atualizar o login agora.' }; }
 }
 
 function slugify(s) {
@@ -263,7 +277,14 @@ module.exports = async (req, res) => {
         if (o.id) {
           const r = await db(`update usuarios set imobiliaria_id=$1,nome=$2,email=$3,telefone=$4,creci=$5,perfil=$6,ativo=$7,extra=$8,updated_at=now() where id=$9 returning *`,
             [imob, o.nome, o.email||null, o.telefone||null, o.creci||null, perfil, ativo, JSON.stringify(extra), o.id]);
-          res.status(200).json({ row: corOut(r.rows[0]) }); return;
+          const respU = { row: corOut(r.rows[0]) };
+          // senha informada na edição -> cria/redefine o login (garante que funcione no app)
+          if (o.email && o.senha && String(o.senha).length >= 6) {
+            const login = await criarLoginSupabase(String(o.email).toLowerCase(), String(o.senha), { nome: o.nome, perfil: perfil });
+            if (login.ok) { try { await db('update usuarios set auth_user_id=$1 where id=$2 and auth_user_id is null', [login.id, o.id]); } catch (_) {} respU.senha_atualizada = true; }
+            else { respU.senha_atualizada = false; respU.login_motivo = login.motivo || ''; }
+          }
+          res.status(200).json(respU); return;
         }
         const r = await db(`insert into usuarios(imobiliaria_id,nome,email,telefone,creci,perfil,ativo,extra) values($1,$2,$3,$4,$5,$6,$7,$8) returning *`,
           [imob, o.nome, o.email||null, o.telefone||null, o.creci||null, perfil, ativo, JSON.stringify(extra)]);
