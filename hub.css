@@ -176,10 +176,10 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
   .hub-dock-item.active{ color:#fff; transform:scale(1.12); }   /* só escala leve, sem subir */
   /* luz VIVA no selecionado: mesmo azul do sabre de carregamento (--blue #0b66ff) */
   .hub-dock-ic::before{ content:""; position:absolute; inset:-11px; border-radius:50%;
-    background:radial-gradient(circle, rgba(11,102,255,.85) 0%, rgba(11,102,255,.35) 45%, transparent 70%);
+    background:radial-gradient(circle, rgba(11,102,255,.34) 0%, rgba(11,102,255,.14) 45%, transparent 70%);
     opacity:0; transform:scale(.6); transition:opacity .28s ease, transform .28s ease; pointer-events:none; z-index:0; }
   .hub-dock-item.active .hub-dock-ic::before{ opacity:1; transform:scale(1); }
-  .hub-dock-item.active .hub-dock-ic{ filter:drop-shadow(0 0 10px rgba(11,102,255,.9)) drop-shadow(0 3px 8px rgba(11,102,255,.55)); }
+  .hub-dock-item.active .hub-dock-ic{ filter:drop-shadow(0 0 10px rgba(11,102,255,.36)) drop-shadow(0 3px 8px rgba(11,102,255,.22)); }
   .hub-dock-item:active{ transform:scale(.92); }
   /* dica de swipe fica acima do dock */
   .hub-swipe-hint{ bottom:calc(96px + env(safe-area-inset-bottom)); }

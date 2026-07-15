@@ -262,7 +262,7 @@
       swapStyles(doc);
       var cur=document.querySelector('.main'); if(cur) cur.parentNode.replaceChild(newMain, cur);
       if(doc.title) document.title=doc.title;
-      try{ markScr(); replaceIconHosts(); cleanText(); active(); dockSync(); runPageScripts(doc); revealContent(newMain, 'spa', dir); markWidgets(newMain); standardizeButtons(newMain); markStatusPills(); loadBegin(); }catch(e){}
+      try{ markScr(); replaceIconHosts(); cleanText(); active(); dockSync(); runPageScripts(doc); revealContent(newMain, 'spa', dir); markWidgets(newMain); standardizeButtons(newMain); markStatusPills(); setupPullRefresh(); loadBegin(); }catch(e){}
       window.scrollTo(0,0); navving=false;
     }).catch(function(){ location.href=slug; });
   }
@@ -475,7 +475,7 @@
 
   // garante que os refinos visuais do hub.css (hover, slide SPA, hint de swipe)
   // carreguem em TODAS as telas (hoje so config-ia.html linka o hub.css).
-  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev9c'; document.head.appendChild(l); }catch(_){}
+  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev9d'; document.head.appendChild(l); }catch(_){}
   }
   // viewport travado (app nativo): bloqueia zoom + safe-area. Idempotente.
   var VP='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
@@ -525,13 +525,14 @@
 
   /* ---------- pull-to-refresh (arrastar no topo = F5) ---------- */
   function setupPullRefresh(){
-    if(reduce()) return;
     var m=document.querySelector('.main'); if(!m||m.getAttribute('data-ptr')) return; m.setAttribute('data-ptr','1');
     var y0=0,pulling=false,dist=0,ind=null;
     function mkInd(){ if(ind) return ind; ind=document.createElement('div'); ind.className='hub-ptr'; ind.innerHTML='<span class="hub-ptr-spin"></span>'; document.body.appendChild(ind); return ind; }
+    function reset(){ pulling=false; if(ind){ ind.style.height='0'; ind.classList.remove('ready'); } }
     m.addEventListener('touchstart',function(e){ if(window.innerWidth>900||m.scrollTop>0||!e.touches||e.touches.length!==1) return; y0=e.touches[0].clientY; pulling=true; dist=0; },{passive:true});
-    m.addEventListener('touchmove',function(e){ if(!pulling) return; var dy=e.touches[0].clientY-y0; if(dy<=0){ pulling=false; if(ind){ind.style.height='0';ind.classList.remove('ready');} return; } dist=dy; mkInd().style.height=Math.min(dy*0.5,72)+'px'; ind.classList.toggle('ready',dy>70); },{passive:true});
-    m.addEventListener('touchend',function(){ if(!pulling) return; pulling=false; if(dist>70){ if(ind) ind.classList.add('go'); location.reload(); } else if(ind){ ind.style.height='0'; ind.classList.remove('ready'); } },{passive:true});
+    m.addEventListener('touchmove',function(e){ if(!pulling) return; var dy=e.touches[0].clientY-y0; if(dy<=0){ reset(); return; } dist=dy; mkInd().style.height=Math.min(dy*0.5,72)+'px'; ind.classList.toggle('ready',dy>62); },{passive:true});
+    m.addEventListener('touchend',function(){ if(!pulling) return; pulling=false; if(dist>62){ if(ind){ ind.classList.add('go'); ind.style.height='60px'; } location.reload(); } else reset(); },{passive:true});
+    m.addEventListener('touchcancel',reset,{passive:true});
   }
 
   /* ---------- FAB do agente (flutuante, canto inf. direito) — fase 3 ---------- */
