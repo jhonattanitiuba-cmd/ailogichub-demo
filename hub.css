@@ -160,10 +160,11 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
     background:rgba(6,22,41,.92); -webkit-backdrop-filter:saturate(1.4) blur(14px); backdrop-filter:saturate(1.4) blur(14px);
     border-top:1px solid rgba(255,255,255,.08); box-shadow:0 -8px 24px rgba(0,0,0,.28);
     padding-bottom:env(safe-area-inset-bottom); }
-  .hub-dock-track{ display:flex; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory;
-    -webkit-overflow-scrolling:touch; scrollbar-width:none; scroll-padding:0; }
+  /* snap por PROXIMIDADE (mais solto/sensível ao dedo, com momentum) em vez de mandatory */
+  .hub-dock-track{ display:flex; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x proximity;
+    -webkit-overflow-scrolling:touch; scrollbar-width:none; scroll-padding:0; touch-action:pan-x; scroll-behavior:auto; }
   .hub-dock-track::-webkit-scrollbar{ display:none; }
-  .hub-dock-item{ flex:0 0 20vw; scroll-snap-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  .hub-dock-item{ flex:0 0 20vw; scroll-snap-align:center; scroll-snap-stop:normal; display:flex; flex-direction:column; align-items:center; justify-content:center;
     gap:4px; height:70px; padding:8px 2px; background:none; border:0; color:#9db4d6; font:inherit; cursor:pointer;
     transition:transform .18s cubic-bezier(.22,.61,.36,1), color .18s ease; }
   .hub-dock-ic{ display:inline-flex; align-items:center; justify-content:center; font-size:23px; line-height:0; }

@@ -445,7 +445,7 @@
 
   // garante que os refinos visuais do hub.css (hover, slide SPA, hint de swipe)
   // carreguem em TODAS as telas (hoje so config-ia.html linka o hub.css).
-  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev7app'; document.head.appendChild(l); }catch(_){}
+  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev7b'; document.head.appendChild(l); }catch(_){}
   }
   // viewport travado (app nativo): bloqueia zoom + safe-area. Idempotente.
   var VP='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
