@@ -344,17 +344,20 @@
       if(!_dockAC) _dockAC=new AC();
       if(_dockAC.state==='suspended'){ try{_dockAC.resume();}catch(_){} }
       var t=_dockAC.currentTime, o=_dockAC.createOscillator(), g=_dockAC.createGain();
-      o.type='square'; o.frequency.setValueAtTime(1050,t);
+      o.type='sine'; o.frequency.setValueAtTime(880,t);    // toque mais suave
       g.gain.setValueAtTime(0.0001,t);
-      g.gain.exponentialRampToValueAtTime(0.06,t+0.002);   // clique curtíssimo (~11ms)
-      g.gain.exponentialRampToValueAtTime(0.0001,t+0.012);
-      o.connect(g); g.connect(_dockAC.destination); o.start(t); o.stop(t+0.014);
+      g.gain.exponentialRampToValueAtTime(0.022,t+0.002);  // clique curtíssimo e sutil
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.011);
+      o.connect(g); g.connect(_dockAC.destination); o.start(t); o.stop(t+0.013);
     }catch(_){}
   }
   function _dockSlugFor(a){ var raw=a.getAttribute('href')||''; return raw.split('/').pop().split('?')[0].replace(/\.html$/,'')||''; }
+  var _dockProg=false, _dockProgT=null;   // scroll programático (centralizar) não deve tocar catraca
   function _dockCenter(el, smooth){
     if(!el||!el.parentNode) return;
     var track=el.parentNode, x=el.offsetLeft-(track.clientWidth-el.clientWidth)/2;
+    _dockProg=true; if(_dockProgT) clearTimeout(_dockProgT);
+    _dockProgT=setTimeout(function(){ _dockProg=false; }, smooth?600:120);
     try{ track.scrollTo({left:x, behavior:smooth?'smooth':'auto'}); }catch(_){ track.scrollLeft=x; }
   }
   function dockSync(){
@@ -395,7 +398,7 @@
     track.addEventListener('scroll',function(){
       var first=track.querySelector('.hub-dock-item'); if(!first) return;
       var w=first.offsetWidth||1, idx=Math.round((track.scrollLeft)/w);
-      if(idx!==lastIdx){ if(lastIdx!==-1) _dockTick(); lastIdx=idx; }
+      if(idx!==lastIdx){ if(lastIdx!==-1 && !_dockProg) _dockTick(); lastIdx=idx; }
     },{passive:true});
     // destrava o áudio no primeiro toque (política de autoplay)
     track.addEventListener('touchstart',function(){ if(_dockAC&&_dockAC.state==='suspended'){ try{_dockAC.resume();}catch(_){} } },{passive:true, once:true});
@@ -445,7 +448,7 @@
 
   // garante que os refinos visuais do hub.css (hover, slide SPA, hint de swipe)
   // carreguem em TODAS as telas (hoje so config-ia.html linka o hub.css).
-  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev7b'; document.head.appendChild(l); }catch(_){}
+  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev7c'; document.head.appendChild(l); }catch(_){}
   }
   // viewport travado (app nativo): bloqueia zoom + safe-area. Idempotente.
   var VP='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
