@@ -549,9 +549,11 @@
   // reaplica quando o conteúdo é re-renderizado (tabelas assíncronas)
   var _btnObs=null,_btnT=null;
   function watchButtons(){
-    var m=document.querySelector('.main'); if(!m||_btnObs) return;
-    try{ _btnObs=new MutationObserver(function(){ if(_btnT)return; _btnT=setTimeout(function(){ _btnT=null; standardizeButtons(); }, 150); });
-      _btnObs.observe(m,{childList:true,subtree:true}); }catch(_){}
+    // observa um nó ESTÁVEL (.app) — o .main é trocado no SPA e orfanaria o observer,
+    // fazendo os botões de linha (Editar/Excluir) voltarem a texto após navegar.
+    var root=document.querySelector('.app')||document.body; if(!root||_btnObs) return;
+    try{ _btnObs=new MutationObserver(function(){ if(_btnT)return; _btnT=setTimeout(function(){ _btnT=null; standardizeButtons(); markStatusPills(); }, 150); });
+      _btnObs.observe(root,{childList:true,subtree:true}); }catch(_){}
   }
 
   /* ---------- status = bolinha viva (sem texto): indicadores de conexão ---------- */
