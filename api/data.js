@@ -119,7 +119,9 @@ module.exports = async (req, res) => {
 
     // mutacao -> invalida o cache da lista desse ent + o resumo do dashboard (contagens mudam)
     if (['save', 'delete', 'assign'].indexOf(action) >= 0) {
-      cacheDel('data:' + ent + ':all', 'data:' + ent + ':' + (user.imobiliariaId || 'none'), 'dash:resumo:all', 'dash:resumo:' + (user.imobiliariaId || ''));
+      cacheDel('data:' + ent + ':all', 'data:' + ent + ':' + (user.imobiliariaId || 'none'),
+        'dash:resumo:all', 'dash:resumo:' + (user.imobiliariaId || ''),
+        'dash:funil:all', 'dash:funil:' + (user.imobiliariaId || ''));
     }
 
     // ---- LIST (com escopo RBAC) ----
@@ -139,7 +141,7 @@ module.exports = async (req, res) => {
       const where = conds.length ? 'where ' + conds.join(' and ') : '';
       const r = await db(`select * from ${TABLE[ent]} ${where} order by created_at`, params);
       const out = { rows: r.rows.map(OUT[ent]) };
-      cacheSet(ckey, out, 12);   // TTL curto; invalidado ao salvar (abaixo)
+      cacheSet(ckey, out, 90);   // invalidado ao salvar/excluir (acima)
       res.status(200).json(out);
       return;
     }

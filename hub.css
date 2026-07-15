@@ -157,18 +157,19 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
   .main{ padding-bottom:calc(86px + env(safe-area-inset-bottom)) !important; }
   /* dock: barra de fundo cheia, mostra ~5, rola na horizontal com snap */
   .hub-dock{ position:fixed; left:0; right:0; bottom:0; z-index:80; display:block;
-    background:rgba(6,22,41,.92); -webkit-backdrop-filter:saturate(1.4) blur(14px); backdrop-filter:saturate(1.4) blur(14px);
+    background:#061629;   /* fundo navy sólido: sem backdrop-filter -> sem borrão/smear no GPU */
     border-top:1px solid rgba(255,255,255,.08); box-shadow:0 -8px 24px rgba(0,0,0,.28);
     padding-bottom:env(safe-area-inset-bottom); }
   /* scroll totalmente livre (sem snap = mais sensível) + momentum do sistema */
   .hub-dock-track{ display:flex; overflow-x:auto; overflow-y:hidden; scroll-snap-type:none;
     -webkit-overflow-scrolling:touch; scrollbar-width:none; scroll-padding:0; touch-action:pan-x; scroll-behavior:auto; }
   .hub-dock-track::-webkit-scrollbar{ display:none; }
-  /* transição elástica (overshoot) + slow-motion no assentamento do magnify */
+  /* magnify é escrito por frame (rAF) -> transform NÃO entra na transição (senão borra).
+     transição só p/ cor. A curva elástica fica na física do scroll/rAF. */
   .hub-dock-item{ flex:0 0 20vw; display:flex; flex-direction:column; align-items:center; justify-content:center;
     gap:4px; height:70px; padding:8px 2px; background:none; border:0; color:#9db4d6; font:inherit; cursor:pointer;
     will-change:transform; transform-origin:center bottom;
-    transition:transform .5s cubic-bezier(.34,1.56,.64,1), color .28s ease; }
+    transition:color .28s ease; }
   .hub-dock-ic{ position:relative; display:inline-flex; align-items:center; justify-content:center; font-size:23px; line-height:0; }
   .hub-dock-ic .hub-ic svg{ width:24px; height:24px; position:relative; z-index:1; }
   .hub-dock-lb{ font-size:10px; font-weight:600 !important; max-width:19vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }

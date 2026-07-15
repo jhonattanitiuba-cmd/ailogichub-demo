@@ -82,6 +82,18 @@
     return _fetch(input, init).then(function (r) { clear(); return r; }, function (e) { clear(); throw e; });
   }
 
+  // ---- micro-cache SWR de GET /api/* (sessionStorage) -> ir-e-voltar entre telas instantâneo.
+  // TTL curto; qualquer mutação limpa tudo. Não cacheia polling/status/media/config.
+  var MICRO_TTL = 25000;
+  function microSkip(url) { return /action=status|action=media|\/api\/config/.test(url); }
+  function microGet(url) {
+    try { var r = sessionStorage.getItem('apic:' + url); if (!r) return null; var o = JSON.parse(r);
+      if (o && (Date.now() - o.t) < MICRO_TTL) return o.b; sessionStorage.removeItem('apic:' + url); } catch (_) {}
+    return null;
+  }
+  function microSet(url, body) { try { sessionStorage.setItem('apic:' + url, JSON.stringify({ t: Date.now(), b: body })); } catch (_) {} }
+  function microClear() { try { for (var i = sessionStorage.length - 1; i >= 0; i--) { var k = sessionStorage.key(i); if (k && k.indexOf('apic:') === 0) sessionStorage.removeItem(k); } } catch (_) {} }
+
   window.fetch = function (input, init) {
     var url = typeof input === 'string' ? input : (input && input.url) || '';
     var isApi = /\/api\//.test(url);
@@ -89,6 +101,9 @@
     init = init || {};
     var method = String((init.method || (typeof input !== 'string' && input.method) || 'GET')).toUpperCase();
     var isGet = method === 'GET';
+    var canMicro = isGet && !microSkip(url);
+    if (!isGet) microClear();                          // mutação -> invalida o micro-cache
+    if (canMicro) { var hit = microGet(url); if (hit != null) { try { return Promise.resolve(new Response(hit, { status: 200, headers: { 'Content-Type': 'application/json' } })); } catch (_) {} } }
 
     function doSend(tok, isRetry) {
       var headers = new Headers(init.headers || (typeof input !== 'string' && input.headers) || {});
@@ -102,6 +117,7 @@
             setFlag(false); location.replace('/login'); return res;
           });
         }
+        if (canMicro && res.ok) { try { res.clone().text().then(function (txt) { microSet(url, txt); }).catch(function () {}); } catch (_) {} }
         return res;
       }, function (err) {
         // erro de rede/timeout: 1 retry só para GET (idempotente)

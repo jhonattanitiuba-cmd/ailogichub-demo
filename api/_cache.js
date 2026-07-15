@@ -10,27 +10,31 @@ function client() {
   try {
     const Redis = require('ioredis');
     _client = new Redis(REDIS_URL, {
+      lazyConnect: true,              // conecta em background; nunca bloqueia o request
       maxRetriesPerRequest: 1,
       enableOfflineQueue: false,
-      connectTimeout: 2500,
+      connectTimeout: 400,            // se o Redis estiver lento/frio, desiste rápido (era 2500)
       retryStrategy: function (times) { return times > 3 ? null : 400; }
     });
     _client.on('error', function () {});          // silencioso: cai no fallback do banco
     _client.on('end', function () { _client = null; });
+    try { _client.connect().catch(function () {}); } catch (_) {}   // dispara a conexão sem await
   } catch (_) { _off = true; _client = null; }     // pacote ausente -> desliga o cache
   return _client;
 }
+// só usa o Redis quando a conexão está PRONTA -> nunca espera handshake no caminho crítico
+function ready() { const c = client(); return (c && c.status === 'ready') ? c : null; }
 
 async function cacheGet(key) {
-  const c = client(); if (!c) return null;
+  const c = ready(); if (!c) return null;
   try { const v = await c.get(key); return v ? JSON.parse(v) : null; } catch (_) { return null; }
 }
 async function cacheSet(key, val, ttl) {
-  const c = client(); if (!c) return;
+  const c = ready(); if (!c) return;
   try { await c.set(key, JSON.stringify(val), 'EX', ttl || 25); } catch (_) {}
 }
 async function cacheDel() {   // apaga uma ou mais chaves (invalidacao apos mutacao)
-  const c = client(); if (!c) return;
+  const c = ready(); if (!c) return;
   const keys = [].slice.call(arguments).filter(Boolean);
   try { if (keys.length) await c.del(keys); } catch (_) {}
 }

@@ -5,6 +5,7 @@
 //   EVO_BASE, EVO_KEY, WA_INSTANCE, DB_URL
 const { db } = require('./_db');
 const { requireAuth, departamentoDe: deptDe } = require('./_auth');
+const { cacheGet, cacheSet } = require('./_cache');
 
 const EVO_BASE = (process.env.EVO_BASE || '').replace(/\/$/, '');
 const EVO_KEY  = process.env.EVO_KEY || '';
@@ -21,12 +22,17 @@ function allowedJid(jid) { return ALLOW8.indexOf(num8(jid)) >= 0; }
 // cache de contatos (60s) — usado para unificar telefone + @lid da mesma pessoa
 let _contatos = { ts: 0, map: {}, all: [] };
 async function getContatos() {
-  if (Date.now() - _contatos.ts < 60000 && _contatos.all.length) return _contatos;
+  if (Date.now() - _contatos.ts < 60000 && _contatos.all.length) return _contatos;   // 1) memória (instância quente)
   try {
-    const cr = await evo('/chat/findContacts/' + INSTANCE, 'POST', {});
+    const hit = await cacheGet('wa:contatos:' + INSTANCE);   // 2) Redis (compartilha entre instâncias frias)
+    if (hit && hit.all && hit.all.length) { _contatos = { ts: Date.now(), map: hit.map, all: hit.all }; return _contatos; }
+  } catch (_) {}
+  try {
+    const cr = await evo('/chat/findContacts/' + INSTANCE, 'POST', {});   // 3) Evolution (fonte)
     const all = Array.isArray(cr.body) ? cr.body : [];
     const map = {}; all.forEach(c => { if (c.remoteJid && c.pushName) map[c.remoteJid] = c.pushName; });
     _contatos = { ts: Date.now(), map, all };
+    try { cacheSet('wa:contatos:' + INSTANCE, { map, all }, 60); } catch (_) {}
   } catch (_) {}
   return _contatos;
 }
@@ -168,19 +174,18 @@ module.exports = async (req, res) => {
 
     // ---- LISTA DE CONVERSAS (espelho) ----
     if (action === 'chats') {
-      const cutoff = await getCutoff();
-      const r = await evo('/chat/findChats/' + INSTANCE, 'POST', {});
-      const arr = Array.isArray(r.body) ? r.body : [];
-      // pushName por jid via contatos (o telefone real as vezes vem SEM pushName no findChats,
-      // mas o contato tem — e o gemeo @lid tem o mesmo pushName -> permite unificar)
-      const pushByJid = (await getContatos()).map;
-      // estado de atendimento (handoff IA<->humano) numa consulta so
+      // as 4 operações são independentes -> em paralelo (era serial: cutoff->findChats->contatos->estado)
       const estado = {};
-      try {
-        const er = await db(`select a.remote_jid, a.atendente_id, a.ia_pausada, a.nao_lidas, u.nome atendente_nome
-          from ia_atendimento a left join usuarios u on u.id = a.atendente_id`);
-        (er.rows || []).forEach(x => { estado[x.remote_jid] = x; });
-      } catch (_) {}
+      const [cutoff, r, contatos, er] = await Promise.all([
+        getCutoff(),
+        evo('/chat/findChats/' + INSTANCE, 'POST', {}),
+        getContatos(),
+        db(`select a.remote_jid, a.atendente_id, a.ia_pausada, a.nao_lidas, u.nome atendente_nome
+            from ia_atendimento a left join usuarios u on u.id = a.atendente_id`).catch(function () { return { rows: [] }; })
+      ]);
+      const arr = Array.isArray(r.body) ? r.body : [];
+      const pushByJid = contatos.map;   // pushName por jid p/ unificar telefone + @lid
+      (er.rows || []).forEach(x => { estado[x.remote_jid] = x; });
       let chats = arr.map(c => {
         const st = estado[c.remoteJid] || {};
         const push = pushByJid[c.remoteJid] || c.pushName || '';
@@ -300,18 +305,18 @@ module.exports = async (req, res) => {
     if (action === 'messages') {
       const jid = req.query && req.query.jid;
       if (!jid) { res.status(400).json({ error: 'jid obrigatorio' }); return; }
-      const cutoff = await getCutoff();
+      // cutoff + contatos em paralelo (independentes)
+      const [cutoff, ct] = await Promise.all([getCutoff(), getContatos()]);
       // MESCLA os dois lados: o WhatsApp guarda as RECEBIDAS sob @lid e as ENVIADAS sob o telefone
       // (mesma pessoa) — junta as mensagens dos jids irmaos para o thread ficar espelhado.
-      const ct = await getContatos();
       const irmaos = jidsIrmaos(jid, ct);
-      let recs = [];
-      for (const j of irmaos) {
-        try {
-          const rr = await evo('/chat/findMessages/' + INSTANCE, 'POST', { where: { key: { remoteJid: j } }, limit: 60 });
-          recs = recs.concat((rr.body && rr.body.messages && rr.body.messages.records) || []);
-        } catch (_) {}
-      }
+      // busca as mensagens dos jids irmãos EM PARALELO (era loop serial)
+      const results = await Promise.all(irmaos.map(function (j) {
+        return evo('/chat/findMessages/' + INSTANCE, 'POST', { where: { key: { remoteJid: j } }, limit: 60 })
+          .then(function (rr) { return (rr.body && rr.body.messages && rr.body.messages.records) || []; })
+          .catch(function () { return []; });
+      }));
+      let recs = [].concat.apply([], results);
       const _seen = {};
       recs = recs.filter(m => { const id = m.key && m.key.id; if (!id) return true; if (_seen[id]) return false; _seen[id] = 1; return true; });
       let msgs = recs.map(m => {

@@ -46,15 +46,14 @@ body{margin:0;background:radial-gradient(1100px 700px at 50% 42%,#0f2b57 0%,var(
   var DASH='/api/dash', WA='/api/wa', DATA='/api/data';
   function gj(url){ return fetch(url,{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}); }
 
-  // pré-carrega TODOS os dados da Visão Geral durante os 10s
+  // pré-carrega SÓ o que a Visão Geral consome (resumo/dash/funil/chats) durante os 10s.
+  // (leads/imobiliarias eram baixados à toa — o fromPreload nem lê -> removidos.)
   var pre={ ts:Date.now() };
   Promise.all([
     gj(DASH+'?action=resumo').then(function(d){pre.resumo=d;}),
     gj(DASH).then(function(d){pre.dash=d;}),
     gj(DASH+'?action=funil').then(function(d){pre.funil=d;}),
-    gj(WA+'?action=chats').then(function(d){pre.chats=d;}),
-    gj(DATA+'?ent=leads&action=list').then(function(d){pre.leads=d;}),
-    gj(DATA+'?ent=imobiliarias&action=list').then(function(d){pre.imobs=d;})
+    gj(WA+'?action=chats').then(function(d){pre.chats=d;})
   ]).then(function(){
     try{ sessionStorage.setItem('hub_preload', JSON.stringify(pre)); }catch(_){}
     var t=document.getElementById('tip'); if(t)t.textContent='Tudo pronto ✓';

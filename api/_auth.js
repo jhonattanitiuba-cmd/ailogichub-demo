@@ -3,6 +3,10 @@
 // permitir que cada API filtre os dados por permissão.
 // Config via env vars: SUPABASE_URL, SUPABASE_ANON_KEY, DB_URL.
 const { db } = require('./_db');
+const { cacheGet, cacheSet } = require('./_cache');
+const crypto = require('crypto');
+// hash do token (nunca o token em claro em chave/log)
+function tokenHash(t) { try { return crypto.createHash('sha256').update(String(t)).digest('hex').slice(0, 32); } catch (_) { return null; } }
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const DB_URL = process.env.DB_URL || '';
@@ -93,13 +97,21 @@ async function resolveScope(user) {
 // Uso no handler:  const ctx = await requireAuth(req, res); if (!ctx) return;
 // ctx.isAdmin -> vê tudo;  ctx.imobiliariaId -> escopo do usuário.
 async function requireAuth(req, res) {
+  // cache do escopo por hash do token (warm hit pula GoTrue + queries de escopo).
+  // Se o Redis estiver off, ck=null e segue o fluxo normal (fallback intacto).
+  const tok = bearer(req);
+  const ck = tok ? ('auth:' + tokenHash(tok)) : null;
+  if (ck) { try { const hit = await cacheGet(ck); if (hit) return hit; } catch (_) {} }
+
   const user = await getUser(req);
   if (!user) {
     res.setHeader('Cache-Control', 'no-store');
     res.status(401).json({ error: 'nao autenticado' });
     return null;
   }
-  return await resolveScope(user);
+  const scope = await resolveScope(user);
+  if (ck && scope) { try { await cacheSet(ck, scope, 60); } catch (_) {} }   // TTL 60s
+  return scope;
 }
 
 module.exports = { getUser, requireAuth, isAdminRole, departamentoDe };

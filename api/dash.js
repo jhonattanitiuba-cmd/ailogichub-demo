@@ -25,10 +25,15 @@ module.exports = async (req, res) => {
     }
     if (action === 'funil') {
       if (!user.isAdmin && !user.imobiliariaId) { res.status(200).json({ cards: [] }); return; }
+      const fkey = 'dash:funil:' + (user.isAdmin ? 'all' : user.imobiliariaId);
+      const fcached = await cacheGet(fkey);
+      if (fcached) { res.status(200).json(fcached); return; }   // hit no Redis
       const scope = (!user.isAdmin) ? ' where imobiliaria_id=$1' : '';
       const params = (!user.isAdmin) ? [user.imobiliariaId] : [];
       const r = await db('select id, imob_nome, lead_nome, imovel_desc, imovel_codigo, corretor_nome, valor, etapa, origem, tentativas, sla, status_label, ultimo_contato, motivo_perda from funil_negocios' + scope + ' order by criado_em', params);
-      res.status(200).json({ cards: r.rows.map(x => ({ ...x, valor: x.valor != null ? Number(x.valor) : null })) });
+      const fout = { cards: r.rows.map(x => ({ ...x, valor: x.valor != null ? Number(x.valor) : null })) };
+      cacheSet(fkey, fout, 60);
+      res.status(200).json(fout);
       return;
     }
     // RESUMO do dashboard: TODOS os agregados numa UNICA consulta (1 round-trip em vez de 5)
@@ -65,7 +70,7 @@ module.exports = async (req, res) => {
         leadsTotal: row.leads_total || 0, leadsQualificados: row.leads_qualif || 0,
         leadsPorFonte: row.por_fonte || [], leadsPorStatus: row.por_status || [], imoveisTotal: row.imoveis_total || 0
       };
-      cacheSet(ckey, out, 25);
+      cacheSet(ckey, out, 60);
       res.status(200).json(out);
       return;
     }

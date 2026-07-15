@@ -12,9 +12,11 @@ function pool() {
       connectionString: DB_URL,
       ssl: false,
       keepAlive: true,
-      max: 2,                        // poucas conexões por função (evita estourar limite do banco)
+      max: 3,                        // poucas conexões por função (evita estourar limite do banco)
       idleTimeoutMillis: 20000,
-      connectionTimeoutMillis: 8000
+      connectionTimeoutMillis: 4000, // não pendura muito num connect frio (era 8000)
+      statement_timeout: 5000,       // query travada não segura o request pra sempre
+      query_timeout: 5000
     });
     // erro em conexão ociosa (ex.: banco fechou) não pode derrubar o processo
     _pool.on('error', function () {});

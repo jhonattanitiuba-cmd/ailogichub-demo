@@ -395,17 +395,20 @@
     nav.appendChild(track); document.body.appendChild(nav);
     // magnify dinâmico (estilo Apple dock): ícones crescem perto do centro
     var _rafM=null;
+    // geometria pré-medida (centros/largura) -> magnify não força reflow por frame.
+    var _geo=null;
+    function measureGeo(){ var kids=track.children, g=[]; for(var i=0;i<kids.length;i++){ g.push(kids[i].offsetLeft+kids[i].offsetWidth/2); } _geo=g; _geoW=(track.firstElementChild&&track.firstElementChild.offsetWidth)||1; }
+    var _geoW=1;
     function magnify(){
       _rafM=null;
-      if(reduce()){ for(var j=0;j<track.children.length;j++) track.children[j].style.transform=''; return; }
-      var kids=track.children, tc=track.scrollLeft+track.clientWidth/2;
-      var w=(track.firstElementChild&&track.firstElementChild.offsetWidth)||1, R=w*1.6;
+      var kids=track.children;
+      if(reduce()){ for(var j=0;j<kids.length;j++) kids[j].style.transform=''; return; }
+      if(!_geo||_geo.length!==kids.length) measureGeo();     // só mede quando muda
+      var tc=track.scrollLeft+track.clientWidth/2, R=_geoW*1.6;   // 1 leitura de scrollLeft, resto do cache
       for(var i=0;i<kids.length;i++){ var el=kids[i];
-        var c=el.offsetLeft+el.offsetWidth/2, d=Math.abs(c-tc);
-        var n=Math.max(0,1-d/R);           // 1 no centro -> 0 nas bordas
-        var s=1+0.42*n*n, ty=-12*n*n;      // curva suave (n^2) = mais orgânico
-        if(!el.classList.contains('active')) el.style.transform='translateY('+ty.toFixed(1)+'px) scale('+s.toFixed(3)+')';
-        else el.style.transform='';        // o ativo mantém o realce do CSS
+        var d=Math.abs(_geo[i]-tc), n=d<R?(1-d/R):0;         // 1 no centro -> 0 nas bordas
+        if(!el.classList.contains('active')){ var s=1+0.42*n*n, ty=-12*n*n; el.style.transform='translateY('+ty.toFixed(1)+'px) scale('+s.toFixed(3)+')'; }
+        else el.style.transform='';                          // ativo mantém o realce do CSS
       }
     }
     function onScroll(){
@@ -418,6 +421,7 @@
     // destrava o áudio no primeiro toque (política de autoplay)
     track.addEventListener('touchstart',function(){ if(_dockAC&&_dockAC.state==='suspended'){ try{_dockAC.resume();}catch(_){} } },{passive:true, once:true});
     track.addEventListener('touchend',function(){ requestAnimationFrame(magnify); },{passive:true});
+    window.addEventListener('resize',function(){ _geo=null; requestAnimationFrame(magnify); });
     dockSync(); requestAnimationFrame(magnify);
   }
 
@@ -464,7 +468,7 @@
 
   // garante que os refinos visuais do hub.css (hover, slide SPA, hint de swipe)
   // carreguem em TODAS as telas (hoje so config-ia.html linka o hub.css).
-  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev7d'; document.head.appendChild(l); }catch(_){}
+  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev8perf'; document.head.appendChild(l); }catch(_){}
   }
   // viewport travado (app nativo): bloqueia zoom + safe-area. Idempotente.
   var VP='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
