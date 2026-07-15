@@ -381,9 +381,10 @@
       var slug=_dockSlugFor(a); if(!slug||seen[slug]) return; seen[slug]=1;
       var ico=a.querySelector('.ico'); var lbl=a.querySelector('.nav-label');
       var name=(lbl&&lbl.textContent)||(a.getAttribute('title'))||slug;
+      var curto=String(name).trim().split(/\s+/)[0]||name;   // 1 palavra no mobile (cabe no dock)
       var b=document.createElement('button'); b.type='button'; b.className='hub-dock-item';
       b.setAttribute('data-slug',slug); b.setAttribute('data-href',raw); b.title=name;
-      b.innerHTML='<span class="hub-dock-ic">'+(ico?ico.innerHTML:'')+'</span><span class="hub-dock-lb">'+name+'</span>';
+      b.innerHTML='<span class="hub-dock-ic">'+(ico?ico.innerHTML:'')+'</span><span class="hub-dock-lb">'+curto+'</span>';
       b.addEventListener('click',function(){
         _dockTick();
         if(b.classList.contains('active')){ _dockCenter(b,true); return; }
@@ -468,7 +469,7 @@
 
   // garante que os refinos visuais do hub.css (hover, slide SPA, hint de swipe)
   // carreguem em TODAS as telas (hoje so config-ia.html linka o hub.css).
-  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev8perf'; document.head.appendChild(l); }catch(_){}
+  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev8b'; document.head.appendChild(l); }catch(_){}
   }
   // viewport travado (app nativo): bloqueia zoom + safe-area. Idempotente.
   var VP='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';

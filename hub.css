@@ -154,7 +154,7 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
   /* some com a sidebar vertical empilhada -> vira app nativo */
   .sidebar{ display:none !important; }
   .app{ grid-template-columns:1fr !important; }
-  .main{ padding-bottom:calc(86px + env(safe-area-inset-bottom)) !important; }
+  .main{ padding-bottom:calc(98px + env(safe-area-inset-bottom)) !important; }
   /* dock: barra de fundo cheia, mostra ~5, rola na horizontal com snap */
   .hub-dock{ position:fixed; left:0; right:0; bottom:0; z-index:80; display:block;
     background:#061629;   /* fundo navy sólido: sem backdrop-filter -> sem borrão/smear no GPU */
@@ -167,19 +167,19 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
   /* magnify é escrito por frame (rAF) -> transform NÃO entra na transição (senão borra).
      transição só p/ cor. A curva elástica fica na física do scroll/rAF. */
   .hub-dock-item{ flex:0 0 20vw; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:4px; height:70px; padding:8px 2px; background:none; border:0; color:#9db4d6; font:inherit; cursor:pointer;
+    gap:5px; height:84px; padding:10px 2px; background:none; border:0; color:#9db4d6; font:inherit; cursor:pointer;
     will-change:transform; transform-origin:center bottom;
     transition:color .28s ease; }
-  .hub-dock-ic{ position:relative; display:inline-flex; align-items:center; justify-content:center; font-size:23px; line-height:0; }
-  .hub-dock-ic .hub-ic svg{ width:24px; height:24px; position:relative; z-index:1; }
+  .hub-dock-ic{ position:relative; display:inline-flex; align-items:center; justify-content:center; font-size:26px; line-height:0; }
+  .hub-dock-ic .hub-ic svg{ width:27px; height:27px; position:relative; z-index:1; }
   .hub-dock-lb{ font-size:10px; font-weight:600 !important; max-width:19vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .hub-dock-item.active{ color:#fff; transform:translateY(-4px) scale(1.12); }   /* "magnify" do app atual */
-  /* efeitinho de luz: halo radial atrás do ícone selecionado */
-  .hub-dock-ic::before{ content:""; position:absolute; inset:-10px; border-radius:50%;
-    background:radial-gradient(circle, rgba(59,130,246,.55) 0%, rgba(59,130,246,.18) 45%, transparent 70%);
+  .hub-dock-item.active{ color:#fff; transform:translateY(-5px) scale(1.14); }   /* "magnify" do app atual */
+  /* luz VIVA no selecionado: mesmo azul do sabre de carregamento (--blue #0b66ff) */
+  .hub-dock-ic::before{ content:""; position:absolute; inset:-11px; border-radius:50%;
+    background:radial-gradient(circle, rgba(11,102,255,.85) 0%, rgba(11,102,255,.35) 45%, transparent 70%);
     opacity:0; transform:scale(.6); transition:opacity .28s ease, transform .28s ease; pointer-events:none; z-index:0; }
   .hub-dock-item.active .hub-dock-ic::before{ opacity:1; transform:scale(1); }
-  .hub-dock-item.active .hub-dock-ic{ filter:drop-shadow(0 3px 9px rgba(11,102,255,.6)); }
+  .hub-dock-item.active .hub-dock-ic{ filter:drop-shadow(0 0 10px rgba(11,102,255,.9)) drop-shadow(0 3px 8px rgba(11,102,255,.55)); }
   .hub-dock-item:active{ transform:scale(.92); }
   /* dica de swipe fica acima do dock */
   .hub-swipe-hint{ bottom:calc(96px + env(safe-area-inset-bottom)); }
@@ -198,7 +198,7 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
   html:not([data-scr="whatsapp"]) .main{
     height:100dvh !important; overflow-y:auto !important; overflow-x:hidden !important;
     -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
-    padding:14px 14px calc(88px + env(safe-area-inset-bottom)) !important;
+    padding:14px 14px calc(98px + env(safe-area-inset-bottom)) !important;
   }
   /* cabeçalho fixo no topo do miolo */
   html:not([data-scr="whatsapp"]) .main>.header{
