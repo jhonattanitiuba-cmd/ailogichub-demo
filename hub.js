@@ -414,7 +414,7 @@
       var tc=track.scrollLeft+track.clientWidth/2, R=_geoW*1.6;   // 1 leitura de scrollLeft, resto do cache
       for(var i=0;i<kids.length;i++){ var el=kids[i];
         var d=Math.abs(_geo[i]-tc), n=d<R?(1-d/R):0;         // 1 no centro -> 0 nas bordas
-        if(!el.classList.contains('active')){ var s=1+0.30*n*n, ty=-9*n*n; el.style.transform='translateY('+ty.toFixed(1)+'px) scale('+s.toFixed(3)+')'; }
+        if(!el.classList.contains('active')){ var s=1+0.26*n*n; el.style.transform='scale('+s.toFixed(3)+')'; }   /* só escala, sem subir -> ícones alinhados */
         else el.style.transform='';                          // ativo mantém o realce do CSS
       }
     }
@@ -475,7 +475,7 @@
 
   // garante que os refinos visuais do hub.css (hover, slide SPA, hint de swipe)
   // carreguem em TODAS as telas (hoje so config-ia.html linka o hub.css).
-  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev9b'; document.head.appendChild(l); }catch(_){}
+  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev9c'; document.head.appendChild(l); }catch(_){}
   }
   // viewport travado (app nativo): bloqueia zoom + safe-area. Idempotente.
   var VP='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
