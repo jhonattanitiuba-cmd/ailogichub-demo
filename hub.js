@@ -475,7 +475,7 @@
 
   // garante que os refinos visuais do hub.css (hover, slide SPA, hint de swipe)
   // carreguem em TODAS as telas (hoje so config-ia.html linka o hub.css).
-  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev9e'; document.head.appendChild(l); }catch(_){}
+  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev9f'; document.head.appendChild(l); }catch(_){}
   }
   // viewport travado (app nativo): bloqueia zoom + safe-area. Idempotente.
   var VP='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
@@ -540,7 +540,15 @@
     if(document.querySelector('.hub-fab')) return;
     var b=document.createElement('button'); b.type='button'; b.className='hub-fab'; b.setAttribute('data-noswipe',''); b.title='Assistente IA'; b.setAttribute('aria-label','Assistente IA');
     b.innerHTML=svg('bot');
-    b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); alert('Assistente IA — em breve (fase 3).'); });
+    // box do agente (abre ao clicar) — não é o alert genérico
+    var box=document.createElement('div'); box.className='hub-agent-box'; box.setAttribute('data-noswipe','');
+    box.innerHTML='<div class="hab-head"><span class="hab-ic">'+svg('bot')+'</span><strong>Assistente IA</strong><button class="hab-x" type="button" aria-label="Fechar">&times;</button></div>'
+      +'<div class="hab-body">Em breve você conversa com o agente aqui dentro — pergunta sobre leads, imóveis e funil sem sair da tela. <b>(fase 3)</b></div>';
+    document.body.appendChild(box);
+    function close(){ box.classList.remove('open'); }
+    b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); box.classList.toggle('open'); });
+    box.querySelector('.hab-x').addEventListener('click',function(e){ e.stopPropagation(); close(); });
+    document.addEventListener('click',function(e){ if(box.classList.contains('open') && !box.contains(e.target) && !b.contains(e.target)) close(); });
     document.body.appendChild(b);
   }
   function run(){ try{ ensureViewport(); markScr(); ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); setupDock(); cascadeSidebar(); revealContent(document.querySelector('.main'), 'entry'); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); standardizeButtons(); watchButtons(); markStatusPills(); setupPullRefresh(); setupFab(); loadBegin(); window.addEventListener('resize', onResize); window.addEventListener('orientationchange', onResize); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }

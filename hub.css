@@ -248,9 +248,33 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
 @keyframes hubSpin{ to{ transform:rotate(360deg) } }
 
 /* FAB do agente (flutuante) */
-.hub-fab{ position:fixed; right:16px; bottom:calc(20px + env(safe-area-inset-bottom)); z-index:90; width:52px; height:52px; border:0; border-radius:50%; background:#061629; color:#fff; display:grid; place-items:center; cursor:pointer; box-shadow:0 10px 26px rgba(6,22,41,.4); transition:transform .16s ease; }
+.hub-fab{ position:fixed; right:16px; bottom:calc(20px + env(safe-area-inset-bottom)); z-index:90; width:52px; height:52px; border:0; border-radius:50%; background:#061629; color:#fff; display:grid; place-items:center; cursor:pointer; box-shadow:0 10px 26px rgba(6,22,41,.4); transition:transform .16s ease; -webkit-tap-highlight-color:transparent; }
 .hub-fab:hover{ transform:translateY(-2px); } .hub-fab:active{ transform:scale(.94); }
-.hub-fab .hub-ic svg{ width:24px; height:24px; }
+.hub-fab .hub-ic svg{ width:24px; height:24px; position:relative; z-index:1; }
+/* luzinha circular fininha girando devagar, discreta */
+.hub-fab::before{ content:""; position:absolute; inset:-3px; border-radius:50%; pointer-events:none; z-index:0;
+  background:conic-gradient(from 0deg, transparent 0 62%, rgba(59,130,246,.15) 72%, rgba(59,130,246,.95) 84%, rgba(59,130,246,.15) 92%, transparent 100%);
+  -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  mask:radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  animation:hubFabSpin 3.4s linear infinite; }
+@keyframes hubFabSpin{ to{ transform:rotate(360deg) } }
+@media (prefers-reduced-motion:reduce){ .hub-fab::before{ animation:none; } }
+
+/* box do agente (abre ao clicar no FAB) */
+.hub-agent-box{ position:fixed; right:16px; bottom:calc(84px + env(safe-area-inset-bottom)); z-index:95;
+  width:min(300px, calc(100vw - 32px)); background:#0f1f3a; color:#e8eefb; border:1px solid rgba(255,255,255,.10);
+  border-radius:16px; box-shadow:0 20px 48px rgba(0,0,0,.42); overflow:hidden;
+  opacity:0; transform:translateY(10px) scale(.97); transform-origin:bottom right; pointer-events:none;
+  transition:opacity .2s ease, transform .2s cubic-bezier(.22,.61,.36,1); }
+.hub-agent-box.open{ opacity:1; transform:none; pointer-events:auto; }
+.hab-head{ display:flex; align-items:center; gap:9px; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.08); }
+.hab-head strong{ font-size:14px; flex:1; font-weight:700; }
+.hab-ic{ width:28px; height:28px; border-radius:8px; background:#0b66ff; display:grid; place-items:center; flex:none; }
+.hab-ic .hub-ic svg{ width:17px; height:17px; }
+.hab-x{ background:none; border:0; color:#9db4d6; font-size:20px; line-height:1; cursor:pointer; padding:0 2px; -webkit-tap-highlight-color:transparent; }
+.hab-x:hover{ color:#fff; }
+.hab-body{ padding:13px 14px; font-size:12.5px; color:#c3d0e6; line-height:1.55; }
+@media (max-width:900px){ .hub-agent-box{ bottom:calc(160px + env(safe-area-inset-bottom)); } }
 
 @media (prefers-reduced-motion:reduce){ .hub-statdot .dot,.hub-statdot .d,.hub-ptr-spin{ animation:none !important; } }
 
