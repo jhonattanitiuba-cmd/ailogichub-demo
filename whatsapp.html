@@ -348,11 +348,13 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   var BOT_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M5 9h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1ZM9 14v1M15 14v1M2 12v3M22 12v3"/></svg>';
   // quem enviou uma mensagem OUT: humano do sistema (tem assinatura "*Nome / Depto:*") ou o agente
   function outSender(m){ var t=(m&&m.texto)||""; var mm=/^\*([^*\/]+?)\s*\/\s*[^*]+:\*/.exec(t); return mm?{tipo:"humano",nome:mm[1].trim()}:{tipo:"agente",nome:"Sam"}; }
+  var UICONS={bot:'M12 3v3M5 9h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1ZM9 14v1M15 14v1M2 12v3M22 12v3',sparkle:'M12 3v5M12 16v5M3 12h5M16 12h5M12 8l1.6 2.4L16 12l-2.4 1.6L12 16l-1.6-2.4L8 12l2.4-1.6z',headset:'M4 18v-6a8 8 0 0 1 16 0v6M4 18a2 2 0 0 0 2 2h1v-6H6a2 2 0 0 0-2 2ZM20 18a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 2Z',rocket:'M5 15c-1 1-1.5 4-1.5 4s3-.5 4-1.5M9 13a8 8 0 0 1 8-8h2v2a8 8 0 0 1-8 8M9 13l2 2M14 7.5a1.2 1.2 0 1 0 0 .01',shield:'M12 21s7-3.2 7-9V6l-7-3-7 3v6c0 5.8 7 9 7 9ZM9.5 12l1.8 1.8L15 10'};
+  function uiSvg(name){var d=UICONS[name];if(!d)return"";return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+d.split("M").filter(Boolean).map(function(s){return '<path d="M'+s.trim()+'"/>';}).join("")+'</svg>';}
   function acharEquipe(nome){ nome=String(nome||"").trim().toLowerCase(); for(var i=0;i<equipe.length;i++){ if(String(equipe[i].nome||"").trim().toLowerCase()===nome) return equipe[i]; } return null; }
-  function avBubble(foto,nome){ return foto?'<div class="msg-av"><img src="'+esc(foto)+'" alt=""></div>':'<div class="msg-av" title="'+esc(nome||"")+'">'+esc(inits(nome))+'</div>'; }
+  function avBubble(foto,nome,icone){ if(foto)return '<div class="msg-av"><img src="'+esc(foto)+'" alt=""></div>'; if(icone&&UICONS[icone])return '<div class="msg-av av-bot">'+uiSvg(icone)+'</div>'; return '<div class="msg-av" title="'+esc(nome||"")+'">'+esc(inits(nome))+'</div>'; }
   function outAvatar(m){ var s=outSender(m);
     if(s.tipo==="agente"){ return agentFoto?'<div class="msg-av"><img src="'+esc(agentFoto)+'" alt=""></div>':'<div class="msg-av av-bot">'+BOT_SVG+'</div>'; }
-    var u=acharEquipe(s.nome); return avBubble(u&&u.foto,s.nome);   // usuário do sistema: foto cadastrada no Administrador
+    var u=acharEquipe(s.nome); return avBubble(u&&u.foto,s.nome,u&&u.icone);   // usuário do sistema: foto ou ícone do Administrador
   }
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
   function inits(n){var p=String(n||"?").replace(/[^A-Za-zÀ-ÿ ]/g,"").trim().split(/\s+/).filter(Boolean);return ((p[0]||"#")[0]+((p[1]||"")[0]||"")).toUpperCase();}
@@ -642,7 +644,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     var el=document.createElement("div");el.className="msg out";
     el.innerHTML=renderWaText(sig+txt)+'<span class="msg-time">'+hh+' '+ticksHTML(0)+'</span>';
     row.appendChild(el);
-    row.insertAdjacentHTML("beforeend",avBubble((acharEquipe(meuNome)||{}).foto,meuNome||"Você"));
+    var _me=acharEquipe(meuNome)||{};row.insertAdjacentHTML("beforeend",avBubble(_me.foto,meuNome||"Você",_me.icone));
     st.appendChild(row);st.scrollTop=st.scrollHeight;return el;
   }
   function send(){var inp=$("waInput");var t=inp.value.trim();if(!t||!curJid)return;inp.value="";unlockAudio();

@@ -60,6 +60,14 @@ td.strong{font-weight:700;color:var(--heading)}
 .f-foto-btns{display:flex;gap:8px;margin-top:6px}.f-foto-btns .btn{height:30px;padding:0 12px;font-size:11px}
 .u-av{width:28px;height:28px;border-radius:50%;overflow:hidden;display:inline-grid;place-items:center;background:var(--blueSoft);color:#7ab0ff;font-size:10px;font-weight:800;vertical-align:middle;margin-right:9px}
 .u-av img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.u-av.ic svg{width:16px;height:16px}
+.f-foto-prev.ic{color:#7ab0ff;font-size:0}.f-foto-prev.ic svg{width:26px;height:26px}
+.f-icone-lbl{font-size:10.5px;color:var(--muted);margin:10px 0 6px;text-transform:none;letter-spacing:0}
+.f-icone-pick{display:flex;gap:7px;flex-wrap:wrap}
+.f-icone-pick .ic-opt{width:38px;height:38px;border:1px solid var(--border2);background:var(--panel2);border-radius:10px;display:grid;place-items:center;cursor:pointer;color:var(--muted);transition:border-color .15s,color .15s,transform .12s}
+.f-icone-pick .ic-opt svg{width:19px;height:19px}
+.f-icone-pick .ic-opt:hover{color:var(--text);transform:translateY(-1px)}
+.f-icone-pick .ic-opt.on{border-color:var(--blue);color:var(--blue);background:var(--blueSoft)}
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .modal-f{padding:14px 20px;display:flex;justify-content:flex-end;align-items:center;gap:10px;border-top:1px solid var(--border)}
 .ferr{margin-right:auto;color:var(--red);font-size:12px;font-weight:600}
@@ -140,8 +148,10 @@ td.strong{font-weight:700;color:var(--heading)}
     <div class="f-foto-row">
       <div class="f-foto-prev" id="fFotoPrev">👤</div>
       <div class="f-foto-txt">
-        <strong>Foto do usuário</strong><span>Aparece no WhatsApp e onde o usuário for exibido no sistema.</span>
+        <strong>Foto ou ícone</strong><span>Foto (pessoa) ou ícone (agente de IA). Aparece no WhatsApp e no sistema.</span>
         <div class="f-foto-btns"><label class="btn" for="fFotoInput">Subir foto</label><button class="btn" type="button" id="fFotoClear">Remover</button></div>
+        <div class="f-icone-lbl">Ou escolha um ícone (agente de IA)</div>
+        <div class="f-icone-pick" id="fIconePick"></div>
         <input type="file" id="fFotoInput" accept="image/*" style="display:none">
       </div>
     </div>
@@ -193,9 +203,18 @@ td.strong{font-weight:700;color:var(--heading)}
   var items=[],imobs=[],imobMap={},curDetail=null,fm=document.getElementById('formModal'),dm=document.getElementById('detModal');
   function $(id){return document.getElementById(id);}
   function uInits(n){var p=String(n||"?").replace(/[^A-Za-zÀ-ÿ ]/g,"").trim().split(/\s+/).filter(Boolean);return ((p[0]||"#")[0]+((p[1]||"")[0]||"")).toUpperCase();}
-  function uAvatar(m){return m&&m.foto?'<span class="u-av"><img src="'+esc(m.foto)+'" alt=""></span>':'<span class="u-av">'+esc(uInits(m&&m.nome))+'</span>';}
-  var fFoto="";  // foto do usuário em edição (salva em usuarios.extra.foto — plug and play)
-  function setFFotoPrev(){var p=$("fFotoPrev");if(p)p.innerHTML=fFoto?'<img src="'+esc(fFoto)+'" alt="">':(fm&&fm.dataset.id?esc(uInits($("f_nome").value)):"👤");}
+  // 5 ícones variados p/ agentes de IA (funcionário de IA escolhe no lugar da foto)
+  var ICONS={
+    bot:'M12 3v3M5 9h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1ZM9 14v1M15 14v1M2 12v3M22 12v3',
+    sparkle:'M12 3v5M12 16v5M3 12h5M16 12h5M12 8l1.6 2.4L16 12l-2.4 1.6L12 16l-1.6-2.4L8 12l2.4-1.6z',
+    headset:'M4 18v-6a8 8 0 0 1 16 0v6M4 18a2 2 0 0 0 2 2h1v-6H6a2 2 0 0 0-2 2ZM20 18a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 2Z',
+    rocket:'M5 15c-1 1-1.5 4-1.5 4s3-.5 4-1.5M9 13a8 8 0 0 1 8-8h2v2a8 8 0 0 1-8 8M9 13l2 2M14 7.5a1.2 1.2 0 1 0 0 .01',
+    shield:'M12 21s7-3.2 7-9V6l-7-3-7 3v6c0 5.8 7 9 7 9ZM9.5 12l1.8 1.8L15 10'
+  };
+  function iconSvg(name){var d=ICONS[name];if(!d)return"";return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+d.split("M").filter(Boolean).map(function(s){return '<path d="M'+s.trim()+'"/>';}).join("")+'</svg>';}
+  function uAvatar(m){ if(m&&m.foto)return '<span class="u-av"><img src="'+esc(m.foto)+'" alt=""></span>'; if(m&&m.icone&&ICONS[m.icone])return '<span class="u-av ic">'+iconSvg(m.icone)+'</span>'; return '<span class="u-av">'+esc(uInits(m&&m.nome))+'</span>'; }
+  var fFoto="",fIcone="";  // foto OU ícone do usuário (salvos em usuarios.extra — plug and play)
+  function setFFotoPrev(){var p=$("fFotoPrev");if(!p)return; if(fFoto){p.className="f-foto-prev";p.innerHTML='<img src="'+esc(fFoto)+'" alt="">';} else if(fIcone&&ICONS[fIcone]){p.className="f-foto-prev ic";p.innerHTML=iconSvg(fIcone);} else {p.className="f-foto-prev";p.innerHTML=(fm&&fm.dataset.id?esc(uInits($("f_nome").value)):"👤");} var pk=$("fIconePick"); if(pk)Array.prototype.forEach.call(pk.children,function(b){b.classList.toggle("on",b.getAttribute("data-ic")===fIcone);}); }
   function fileToAvatar(file,cb){var img=new Image(),url=URL.createObjectURL(file);img.onload=function(){var s=Math.min(img.width,img.height),c=document.createElement("canvas");c.width=c.height=128;c.getContext("2d").drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,128,128);URL.revokeObjectURL(url);cb(c.toDataURL("image/jpeg",0.82));};img.onerror=function(){URL.revokeObjectURL(url);cb(null);};img.src=url;}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function cap(s){s=String(s||'');return s?s.charAt(0).toUpperCase()+s.slice(1):'—';}
@@ -248,17 +267,20 @@ td.strong{font-weight:700;color:var(--heading)}
     selVal($('f_perfil'),m.perfil||'corretor');$('f_status').value=(m.status==='Inativo')?'Inativo':'Ativo';
     $('credBox').style.display='none';$('credFoot').style.display='none';$('fBody').style.display='';$('fFoot').style.display='flex';
     $('fSenhaWrap').style.display=m.id?'none':'';$('f_senha').value='';
-    fm.dataset.id=m.id||'';fFoto=m.foto||'';setFFotoPrev();fm.classList.add('open');}
+    fm.dataset.id=m.id||'';fFoto=m.foto||'';fIcone=m.icone||'';setFFotoPrev();fm.classList.add('open');}
   function closeForm(){fm.classList.remove('open');}
   $('btnNew').addEventListener('click',function(){openForm(null);});
-  $('fFotoInput').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f)return;fileToAvatar(f,function(d){if(d){fFoto=d;setFFotoPrev();}});e.target.value='';});
-  $('fFotoClear').addEventListener('click',function(){fFoto='';setFFotoPrev();});
+  $('fFotoInput').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f)return;fileToAvatar(f,function(d){if(d){fFoto=d;fIcone='';setFFotoPrev();}});e.target.value='';});
+  $('fFotoClear').addEventListener('click',function(){fFoto='';fIcone='';setFFotoPrev();});
+  // monta as 5 opções de ícone (agente de IA)
+  (function(){var pk=$('fIconePick');if(!pk)return;pk.innerHTML=Object.keys(ICONS).map(function(k){return '<button type="button" class="ic-opt" data-ic="'+k+'" title="'+k+'">'+iconSvg(k)+'</button>';}).join('');
+    Array.prototype.forEach.call(pk.children,function(b){b.addEventListener('click',function(){var k=b.getAttribute('data-ic');fIcone=(fIcone===k?'':k);if(fIcone)fFoto='';setFFotoPrev();});});})();
   $('fClose').addEventListener('click',closeForm);$('fCancel').addEventListener('click',closeForm);
   fm.addEventListener('click',function(e){if(e.target===fm)closeForm();});
   document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeForm();dm.classList.remove('open');}});
 
   $('fSave').addEventListener('click',function(){
-    var o={nome:$('f_nome').value.trim(),email:$('f_email').value.trim(),telefone:$('f_telefone').value.trim(),imobiliaria_id:$('f_imob').value||null,perfil:$('f_perfil').value,status:$('f_status').value,foto:fFoto||''};
+    var o={nome:$('f_nome').value.trim(),email:$('f_email').value.trim(),telefone:$('f_telefone').value.trim(),imobiliaria_id:$('f_imob').value||null,perfil:$('f_perfil').value,status:$('f_status').value,foto:fFoto||'',icone:fIcone||''};
     if(!o.nome){$('fErr').textContent='Informe o nome.';return;}
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.email)){$('fErr').textContent='Informe um e-mail válido (é ele que libera o acesso).';return;}
     if(fm.dataset.id){o.id=fm.dataset.id;}else{var sp=$('f_senha').value.trim();if(sp)o.senha=sp;}

@@ -258,7 +258,7 @@ module.exports = async (req, res) => {
       let equipe = [];
       try {
         const eq = await db(`select id, nome, perfil, extra from usuarios where deleted_at is null and ativo is not false order by nome`);
-        equipe = (eq.rows || []).map(u => ({ id: u.id, nome: u.nome, perfil: u.perfil, departamento: deptDe(u.perfil, u.extra), foto: (u.extra && u.extra.foto) || null }));
+        equipe = (eq.rows || []).map(u => ({ id: u.id, nome: u.nome, perfil: u.perfil, departamento: deptDe(u.perfil, u.extra), foto: (u.extra && u.extra.foto) || null, icone: (u.extra && u.extra.icone) || null }));
       } catch (_) {}
       res.status(200).json({ id: user.usuarioId || null, nome: user.nome || null, email: user.email || null, perfil: user.perfil || null, departamento: user.departamento || null, isAdmin: !!user.isAdmin, equipe });
       return;
