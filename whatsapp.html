@@ -158,20 +158,30 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 .wa-crm-btn{display:inline-flex !important;padding:0 11px;font-size:15px}
 .wa-back,.wa-crm-btn{display:none;padding:0 11px;font-size:16px}
 @media(max-width:1100px) and (min-width:901px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto;overflow:visible}.main{height:auto}.sidebar{height:auto;position:relative}.kpis{grid-template-columns:1fr}.wa-layout{grid-template-columns:1fr}.chat-stream{min-height:320px;padding:14px 4%}.crm-panel{max-height:420px}}
-/* ===== mobile: inbox single-pane (estilo WhatsApp) ===== */
+/* ===== mobile: inbox NATIVO embutido (ocupa a tela, single-pane) ===== */
 @media(max-width:900px){
-  html,body{overflow:auto}
-  .app{grid-template-columns:1fr;height:auto;overflow:visible}
-  .main{height:auto;padding:12px 12px 14px}.sidebar{height:auto;position:relative}
-  .header{margin-bottom:10px}.headline h1{font-size:20px}.headline p{display:none}
-  .kpis{display:none}
-  .wa-layout{display:block;height:auto}
-  .wa-layout>.panel{display:none;height:74vh;border-radius:14px;margin-bottom:10px}
-  .wa-layout.m-list #listPanel{display:flex}
-  .wa-layout.m-thread .chat-box{display:flex}
-  .wa-layout.m-thread.crm-open .crm-panel{display:flex;position:fixed;inset:0;z-index:60;height:100vh;border-radius:0}
+  html,body{height:100%;overflow:hidden}
+  .app{grid-template-columns:1fr;height:100dvh;overflow:hidden}
+  /* o .main vira o container fixo do inbox (100dvh), sem padding do dock global */
+  .main{height:100dvh !important;padding:0 !important;overflow:hidden;display:flex;flex-direction:column}
+  .sidebar{display:none}
+  .header,.kpis{display:none}                      /* sem header de página nem KPIs no inbox mobile */
+  /* layout ocupa TODA a área util */
+  .wa-layout{display:block;height:100dvh;border:0;border-radius:0;background:var(--bg)}
+  .wa-layout>.panel{display:none;height:100dvh;border:0;border-radius:0;margin:0}
+  .wa-layout.m-list #listPanel{display:flex;flex-direction:column}
+  .wa-layout.m-thread .chat-box{display:flex;flex-direction:column;height:100dvh}
+  /* cabeçalhos fixos (lista: card+busca+abas; conversa: chat-header) */
+  #listPanel .instance-card, #listPanel .searchbar, #listPanel .wa-tabs, .chat-box .chat-header{flex:0 0 auto}
+  .chat-box .chat-header{position:sticky;top:0;z-index:5}
+  /* a lista de conversas e o stream são os únicos scrollers */
+  #listPanel .conversation-list{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(92px + env(safe-area-inset-bottom))}  /* espaço p/ o dock na lista */
+  .chat-box .chat-stream{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:14px 5%}
+  /* composer colado embaixo (o dock some no thread -> nada cobre o input) */
+  .chat-box .composer{position:sticky;bottom:0;z-index:5;padding-bottom:calc(13px + env(safe-area-inset-bottom))}
+  /* CRM vira sheet full-screen com dvh */
+  .wa-layout.m-thread.crm-open .crm-panel{display:flex;flex-direction:column;position:fixed;inset:0;z-index:60;height:100dvh;border-radius:0}
   .wa-back,.wa-crm-btn{display:inline-flex}
-  .chat-stream{padding:14px 5%}
 }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -220,9 +230,9 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   </header>
 
   <section class="kpis">
-    <article class="kpi"><div><h3>Conversas espelhadas</h3><div class="value" data-k="conversas">·</div><small>total no canal</small></div><div class="kpi-icon ic-blue">◌</div></article>
-    <article class="kpi"><div><h3>Aguardando retorno</h3><div class="value" data-k="aguardando">·</div><small>última mensagem foi do cliente</small></div><div class="kpi-icon ic-orange">!</div></article>
-    <article class="kpi"><div><h3>Leads no banco</h3><div class="value" data-k="leads">·</div><small>cadastrados na plataforma</small></div><div class="kpi-icon ic-green">＋</div></article>
+    <article class="kpi"><div><h3>Conversas espelhadas</h3><div class="value" data-k="conversas">·</div><small>total no canal</small></div><div class="kpi-icon ic-blue" data-ic="whatsapp">◌</div></article>
+    <article class="kpi"><div><h3>Aguardando retorno</h3><div class="value" data-k="aguardando">·</div><small>última mensagem foi do cliente</small></div><div class="kpi-icon ic-orange" data-ic="clock">!</div></article>
+    <article class="kpi"><div><h3>Leads no banco</h3><div class="value" data-k="leads">·</div><small>cadastrados na plataforma</small></div><div class="kpi-icon ic-green" data-ic="target">＋</div></article>
   </section>
 
   <section class="wa-layout m-list" id="waLayout" data-noswipe>
@@ -308,8 +318,8 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   function chatBy(jid){for(var i=0;i<allChats.length;i++){if(allChats[i].jid===jid)return allChats[i];}return null;}
   // mobile: inbox single-pane (lista <-> thread, CRM como sheet)
   function isMobile(){return window.innerWidth<=900;}
-  function showThread(){var w=$("waLayout");if(w){w.classList.add("m-thread");w.classList.remove("m-list");w.classList.remove("crm-open");}}
-  function showList(){var w=$("waLayout");if(w){w.classList.add("m-list");w.classList.remove("m-thread");w.classList.remove("crm-open");}}
+  function showThread(){var w=$("waLayout");if(w){w.classList.add("m-thread");w.classList.remove("m-list");w.classList.remove("crm-open");}try{document.body.classList.add("wa-thread");}catch(_){}}   // esconde o dock dentro da conversa
+  function showList(){var w=$("waLayout");if(w){w.classList.add("m-list");w.classList.remove("m-thread");w.classList.remove("crm-open");}try{document.body.classList.remove("wa-thread");}catch(_){}}
 
   // ===== réplica WhatsApp: formatação, avatar, ticks, dia, mídia =====
   // formatação idêntica ao WhatsApp: *negrito* _itálico_ ~tachado~ ```mono``` + links + quebras

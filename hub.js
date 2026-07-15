@@ -46,7 +46,10 @@
     camera:'M4 8h3l2-2h6l2 2h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1ZM12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z',
     arrow:'M5 12h14M13 6l6 6-6 6',
     rocket:'M5 15c-1 1-1.5 4-1.5 4s3-.5 4-1.5M9 13a8 8 0 0 1 8-8h2v2a8 8 0 0 1-8 8M9 13l2 2M14 7.5a1.2 1.2 0 1 0 0 .01',
-    apt:'M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17M3 21h18M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2M10 21v-3h4v3'
+    apt:'M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17M3 21h18M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2M10 21v-3h4v3',
+    trash:'M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10 11v6M14 11v6',
+    refresh:'M21 12a9 9 0 1 1-2.6-6.4M21 4v4h-4',
+    external:'M14 4h6v6M20 4l-9 9M18 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5'
   };
   function svg(name){ var d=P[name]; if(!d) return null;
     return '<span class="hub-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'
@@ -58,8 +61,8 @@
   /* ---------- 1) ícones do menu (por href) ---------- */
   var NAV={ 'visaogeral':'home','imobiliarias':'building','corretores':'users','pessoas':'idcard',
     'leads':'target','funil':'funnel','agenda':'calendar','whatsapp':'chat','emails':'mail',
-    'imoveis':'apt','mapa':'map','captacao':'download','assinaturas':'pen','anuncios':'megaphone',
-    'credito':'dollar','locacao':'swap','relatorios':'chart','insights':'sparkle',
+    'imoveis':'apt','mapa':'map','captacao':'inbox','assinaturas':'pen','anuncios':'megaphone',
+    'credito':'dollar','locacao':'key','relatorios':'chart','insights':'sparkle',
     'integracoes':'plug','site':'globe','financeiro':'wallet','suporte':'help',
     'administrador':'gear','config-ia':'sliders' };
 
@@ -86,8 +89,11 @@
     });
     // logo oficial do WhatsApp nos marcadores explícitos
     document.querySelectorAll('.wa-ico').forEach(function(el){ if(!el.querySelector('svg')) el.innerHTML=WA_SVG; });
-    // contêineres de ícone com 1 emoji
+    // contêineres de ícone com 1 emoji (ou data-ic explícito)
     document.querySelectorAll('.kpi-icon,.card-icon,.r-ico,.ai,.ph-ico,.support .ico,.metric strong,.fi,.fst-ic,.kpi-ic,.alc-ic,.ins-ic').forEach(function(el){
+      // 1) data-ic="<nome P>" -> injeta o SVG certo (coerência explícita, sem depender de emoji)
+      var di=el.getAttribute && el.getAttribute('data-ic');
+      if(di){ if(di==='whatsapp'){ el.innerHTML=WA_SVG; return; } var sd=svg(di); if(sd){ el.innerHTML=sd; return; } }
       var t=(el.textContent||'').trim();
       // WhatsApp: ícone de chat em contexto de WhatsApp -> logo oficial
       if((t==='💬'||EMO[t]==='chat') && /whatsapp/i.test((el.parentElement&&el.parentElement.textContent)||'')){ el.innerHTML=WA_SVG; return; }
@@ -256,7 +262,7 @@
       swapStyles(doc);
       var cur=document.querySelector('.main'); if(cur) cur.parentNode.replaceChild(newMain, cur);
       if(doc.title) document.title=doc.title;
-      try{ markScr(); replaceIconHosts(); cleanText(); active(); dockSync(); runPageScripts(doc); revealContent(newMain, 'spa', dir); markWidgets(newMain); loadBegin(); }catch(e){}
+      try{ markScr(); replaceIconHosts(); cleanText(); active(); dockSync(); runPageScripts(doc); revealContent(newMain, 'spa', dir); markWidgets(newMain); standardizeButtons(newMain); markStatusPills(); loadBegin(); }catch(e){}
       window.scrollTo(0,0); navving=false;
     }).catch(function(){ location.href=slug; });
   }
@@ -408,7 +414,7 @@
       var tc=track.scrollLeft+track.clientWidth/2, R=_geoW*1.6;   // 1 leitura de scrollLeft, resto do cache
       for(var i=0;i<kids.length;i++){ var el=kids[i];
         var d=Math.abs(_geo[i]-tc), n=d<R?(1-d/R):0;         // 1 no centro -> 0 nas bordas
-        if(!el.classList.contains('active')){ var s=1+0.42*n*n, ty=-12*n*n; el.style.transform='translateY('+ty.toFixed(1)+'px) scale('+s.toFixed(3)+')'; }
+        if(!el.classList.contains('active')){ var s=1+0.30*n*n, ty=-9*n*n; el.style.transform='translateY('+ty.toFixed(1)+'px) scale('+s.toFixed(3)+')'; }
         else el.style.transform='';                          // ativo mantém o realce do CSS
       }
     }
@@ -469,7 +475,7 @@
 
   // garante que os refinos visuais do hub.css (hover, slide SPA, hint de swipe)
   // carreguem em TODAS as telas (hoje so config-ia.html linka o hub.css).
-  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev8b'; document.head.appendChild(l); }catch(_){}
+  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev9vis'; document.head.appendChild(l); }catch(_){}
   }
   // viewport travado (app nativo): bloqueia zoom + safe-area. Idempotente.
   var VP='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
@@ -481,6 +487,61 @@
   // reage à rotação/resize: (re)constrói o dock ao cruzar 900px (setupDock é idempotente)
   var _rzT=null;
   function onResize(){ if(_rzT) return; _rzT=setTimeout(function(){ _rzT=null; try{ if(window.innerWidth<=900){ setupDock(); dockSync(); } }catch(_){} }, 200); }
-  function run(){ try{ ensureViewport(); markScr(); ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); setupDock(); cascadeSidebar(); revealContent(document.querySelector('.main'), 'entry'); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); loadBegin(); window.addEventListener('resize', onResize); window.addEventListener('orientationchange', onResize); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
+
+  /* ---------- padronização de botões (minimalista: "menos é mais") ---------- */
+  function standardizeButtons(root){
+    root=root||document;
+    // 1) header "＋ Novo X" -> só "＋" (o título da tela já diz o quê); mantém tooltip
+    [].slice.call(root.querySelectorAll('.head-actions .btn.primary')).forEach(function(b){
+      if(b.getAttribute('data-min')) return;
+      var t=(b.textContent||'').trim(), m=/^[＋+]\s*(.+)$/.exec(t);
+      if(m && /^(nov[oa]|criar|adicionar)\b/i.test(m[1])){
+        b.setAttribute('title', m[1]); b.setAttribute('aria-label', m[1]);
+        b.textContent='＋'; b.setAttribute('data-min','1'); b.classList.add('btn-plus');
+      }
+    });
+    // 2) ações de linha Editar/Excluir -> ícones (pen/trash) + tooltip
+    [].slice.call(root.querySelectorAll('.act button, .act .del, button.del')).forEach(function(b){
+      if(b.getAttribute('data-min')) return;
+      var t=(b.textContent||'').trim().toLowerCase(); var ic=null, tt=null;
+      if(t==='editar'){ ic='pen'; tt='Editar'; } else if(t==='excluir'||t==='remover'){ ic='trash'; tt='Excluir'; }
+      if(ic){ var s=svg(ic); if(s){ b.innerHTML=s; b.setAttribute('title',tt); b.setAttribute('aria-label',tt); b.setAttribute('data-min','1'); b.classList.add('btn-ic'); } }
+    });
+  }
+  // reaplica quando o conteúdo é re-renderizado (tabelas assíncronas)
+  var _btnObs=null,_btnT=null;
+  function watchButtons(){
+    var m=document.querySelector('.main'); if(!m||_btnObs) return;
+    try{ _btnObs=new MutationObserver(function(){ if(_btnT)return; _btnT=setTimeout(function(){ _btnT=null; standardizeButtons(); }, 150); });
+      _btnObs.observe(m,{childList:true,subtree:true}); }catch(_){}
+  }
+
+  /* ---------- status = bolinha viva (sem texto): indicadores de conexão ---------- */
+  function pillToDot(p){ if(!p) return; var txt=(p.textContent||'').trim(); if(txt) p.setAttribute('title',txt); p.classList.add('hub-statdot'); }
+  function markStatusPills(){
+    ['statusPill','cfg-statuspill'].forEach(function(id){ pillToDot(document.getElementById(id)); });
+    [].slice.call(document.querySelectorAll('#b-wa,#b-db,#b-ai,#b-site,#b-web')).forEach(pillToDot);
+  }
+
+  /* ---------- pull-to-refresh (arrastar no topo = F5) ---------- */
+  function setupPullRefresh(){
+    if(reduce()) return;
+    var m=document.querySelector('.main'); if(!m||m.getAttribute('data-ptr')) return; m.setAttribute('data-ptr','1');
+    var y0=0,pulling=false,dist=0,ind=null;
+    function mkInd(){ if(ind) return ind; ind=document.createElement('div'); ind.className='hub-ptr'; ind.innerHTML='<span class="hub-ptr-spin"></span>'; document.body.appendChild(ind); return ind; }
+    m.addEventListener('touchstart',function(e){ if(window.innerWidth>900||m.scrollTop>0||!e.touches||e.touches.length!==1) return; y0=e.touches[0].clientY; pulling=true; dist=0; },{passive:true});
+    m.addEventListener('touchmove',function(e){ if(!pulling) return; var dy=e.touches[0].clientY-y0; if(dy<=0){ pulling=false; if(ind){ind.style.height='0';ind.classList.remove('ready');} return; } dist=dy; mkInd().style.height=Math.min(dy*0.5,72)+'px'; ind.classList.toggle('ready',dy>70); },{passive:true});
+    m.addEventListener('touchend',function(){ if(!pulling) return; pulling=false; if(dist>70){ if(ind) ind.classList.add('go'); location.reload(); } else if(ind){ ind.style.height='0'; ind.classList.remove('ready'); } },{passive:true});
+  }
+
+  /* ---------- FAB do agente (flutuante, canto inf. direito) — fase 3 ---------- */
+  function setupFab(){
+    if(document.querySelector('.hub-fab')) return;
+    var b=document.createElement('button'); b.type='button'; b.className='hub-fab'; b.setAttribute('data-noswipe',''); b.title='Assistente IA'; b.setAttribute('aria-label','Assistente IA');
+    b.innerHTML=svg('bot');
+    b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); alert('Assistente IA — em breve (fase 3).'); });
+    document.body.appendChild(b);
+  }
+  function run(){ try{ ensureViewport(); markScr(); ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); setupDock(); cascadeSidebar(); revealContent(document.querySelector('.main'), 'entry'); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); standardizeButtons(); watchButtons(); markStatusPills(); setupPullRefresh(); setupFab(); loadBegin(); window.addEventListener('resize', onResize); window.addEventListener('orientationchange', onResize); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();

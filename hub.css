@@ -190,14 +190,14 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
 
 /* ===== MODO APP mobile: frame fixo, vertical travado, encaixe dos widgets ===== */
 @media (max-width:900px){
-  /* app travado: sem rubber-band, sem zoom por duplo-toque, altura colada no viewport real */
-  html,body{ height:100%; overflow:hidden !important; overscroll-behavior:none; }
+  /* app travado no zoom, mas ELÁSTICO ao arrastar (rubber-band + pull-to-refresh) */
+  html,body{ height:100%; overflow:hidden !important; overscroll-behavior:auto; }
   body{ touch-action:manipulation; }
   .app{ grid-template-columns:1fr !important; height:100dvh !important; overflow:hidden !important; }
   /* miolo = ÚNICO scroller vertical (entre header fixo e dock fixo). whatsapp tem layout próprio -> excluído */
   html:not([data-scr="whatsapp"]) .main{
     height:100dvh !important; overflow-y:auto !important; overflow-x:hidden !important;
-    -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch; overscroll-behavior:auto;
     padding:14px 14px calc(98px + env(safe-area-inset-bottom)) !important;
   }
   /* cabeçalho fixo no topo do miolo */
@@ -223,4 +223,41 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
   html:not([data-scr="whatsapp"]) .cards,
   html:not([data-scr="whatsapp"]) .res{ grid-template-columns:1fr !important; gap:12px !important; }
   html:not([data-scr="whatsapp"]) .headline h1{ font-size:21px !important; }
+}
+
+/* ===== padronização visual (status, botões, PTR, FAB, dock, whatsapp) ===== */
+/* status = bolinha viva piscando (texto some, tooltip fica) */
+.hub-statdot{ font-size:0 !important; gap:0 !important; }
+.hub-statdot .dot, .hub-statdot .d{ animation:hubPulse 1.8s ease-in-out infinite; }
+@keyframes hubPulse{ 0%,100%{ transform:scale(1); opacity:1 } 50%{ transform:scale(1.4); opacity:.5 } }
+
+/* botões minimalistas: "＋" e ícones de linha */
+.btn.btn-plus{ width:34px; padding:0 !important; justify-content:center; font-size:19px !important; line-height:1; }
+.btn-ic{ display:inline-grid !important; place-items:center; }
+.btn-ic .hub-ic svg{ width:16px; height:16px; }
+
+/* pull-to-refresh (indicador no topo) */
+.hub-ptr{ position:fixed; top:0; left:0; right:0; height:0; z-index:70; display:grid; place-items:center; overflow:hidden; pointer-events:none; }
+.hub-ptr-spin{ width:22px; height:22px; margin-top:10px; border-radius:50%; border:2.5px solid rgba(11,102,255,.25); border-top-color:var(--blue,#0b66ff); }
+.hub-ptr.ready .hub-ptr-spin, .hub-ptr.go .hub-ptr-spin{ animation:hubSpin .7s linear infinite; }
+@keyframes hubSpin{ to{ transform:rotate(360deg) } }
+
+/* FAB do agente (flutuante) */
+.hub-fab{ position:fixed; right:16px; bottom:calc(20px + env(safe-area-inset-bottom)); z-index:90; width:52px; height:52px; border:0; border-radius:50%; background:#061629; color:#fff; display:grid; place-items:center; cursor:pointer; box-shadow:0 10px 26px rgba(6,22,41,.4); transition:transform .16s ease; }
+.hub-fab:hover{ transform:translateY(-2px); } .hub-fab:active{ transform:scale(.94); }
+.hub-fab .hub-ic svg{ width:24px; height:24px; }
+
+@media (prefers-reduced-motion:reduce){ .hub-statdot .dot,.hub-statdot .d,.hub-ptr-spin{ animation:none !important; } }
+
+@media (max-width:900px){
+  /* dock: caixa de ícone uniforme -> proporção estável ao crescer no magnify */
+  .hub-dock-ic{ width:30px; height:30px; }
+  .hub-dock-ic .hub-ic{ width:100%; height:100%; }
+  .hub-dock-ic .hub-ic svg{ width:26px !important; height:26px !important; }
+  .hub-dock-item[data-slug="whatsapp"] .hub-ic svg{ width:23px !important; height:23px !important; }  /* WA é filled */
+  /* FAB acima do dock */
+  .hub-fab{ bottom:calc(104px + env(safe-area-inset-bottom)); width:48px; height:48px; }
+  /* dentro da conversa do WhatsApp o dock some (padrão de app de chat) */
+  body.wa-thread .hub-dock{ display:none !important; }
+  body.wa-thread .hub-fab{ display:none !important; }
 }
