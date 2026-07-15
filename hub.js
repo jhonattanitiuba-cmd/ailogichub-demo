@@ -251,6 +251,26 @@
       if(hub) document.head.insertBefore(n, hub); else document.head.appendChild(n); // antes do hub.css (não move o hub.css -> sem piscada)
     });
   }
+  // modais/overlays ficam FORA do .main -> precisam ser trocados junto (senão o script
+  // da página faz addEventListener em null, aborta, e os dados não carregam = "preciso dar F5")
+  var HUB_KEEP=/^(hub-dock|hub-fab|hub-agent-box|hub-ptr|hub-topbar|hub-swipe-hint)/;
+  function _extraNodes(root){
+    var out=[], main=root.querySelector('.main');
+    if(main){ var s=main.nextElementSibling; while(s){ if(s.nodeName!=='SCRIPT'&&s.nodeName!=='STYLE'&&s.nodeName!=='LINK') out.push(s); s=s.nextElementSibling; } }
+    var body=root.body||root.querySelector('body');
+    if(body){ [].forEach.call(body.children,function(c){ if(c.nodeName==='SCRIPT'||c.nodeName==='STYLE'||c.nodeName==='LINK') return; if(c.classList&&c.classList.contains('app')) return; out.push(c); }); }
+    return out;
+  }
+  function swapPageExtras(doc){
+    // remove os extras da tela atual (preserva sidebar/.app e os nós injetados pelo hub)
+    var kill=[], main=document.querySelector('.main');
+    if(main){ var s=main.nextElementSibling; while(s){ var nx=s.nextElementSibling; if(s.nodeName!=='SCRIPT'&&s.nodeName!=='STYLE'&&s.nodeName!=='LINK') kill.push(s); s=nx; } }
+    [].forEach.call(document.body.children,function(c){ if(c.nodeName==='SCRIPT'||c.nodeName==='STYLE'||c.nodeName==='LINK') return; if(c.classList&&c.classList.contains('app')) return; var cn=(typeof c.className==='string')?c.className:''; if(HUB_KEEP.test(cn)) return; kill.push(c); });
+    kill.forEach(function(n){ try{ n.remove(); }catch(_){} });
+    // insere os extras da nova página logo após o .main
+    var main2=document.querySelector('.main'); if(!main2||!main2.parentNode) return; var parent=main2.parentNode, ref=main2.nextSibling;
+    _extraNodes(doc).forEach(function(n){ try{ parent.insertBefore(document.importNode(n,true), ref); }catch(_){} });
+  }
   var navving=false;
   function navigate(href, push, dir){
     if(navving) return; var slug=(href||'').split('/').pop().split('?')[0]||'visaogeral'; navving=true;
@@ -261,6 +281,7 @@
       if(push){ try{ history.pushState({spa:1},'', '/'+slug); }catch(_){} }
       swapStyles(doc);
       var cur=document.querySelector('.main'); if(cur) cur.parentNode.replaceChild(newMain, cur);
+      swapPageExtras(doc);   // troca os modais/overlays junto (fim do "preciso dar F5")
       if(doc.title) document.title=doc.title;
       try{ markScr(); replaceIconHosts(); cleanText(); active(); dockSync(); runPageScripts(doc); revealContent(newMain, 'spa', dir); markWidgets(newMain); standardizeButtons(newMain); markStatusPills(); setupPullRefresh(); loadBegin(); }catch(e){}
       window.scrollTo(0,0); navving=false;
