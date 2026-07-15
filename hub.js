@@ -343,6 +343,9 @@
      - mesma ORDEM do menu (clona os .nav-item da sidebar)
      - "barulhinho de catraca" a cada ícone que passa; tap = navega (SPA) */
   var _dockAC=null;
+  // girar o dock arrasta a tela junto (app central = tela atual). Reversível:
+  // localStorage.setItem('ailogic_dock_nav','0') desliga; '1'/ausente liga.
+  var DOCK_SCROLL_NAV=true; try{ DOCK_SCROLL_NAV=(localStorage.getItem('ailogic_dock_nav')!=='0'); }catch(_){}
   function _dockTick(){
     if(reduce()) return;
     try{
@@ -422,8 +425,22 @@
       var first=track.querySelector('.hub-dock-item'); if(first){ var w=first.offsetWidth||1, idx=Math.round(track.scrollLeft/w);
         if(idx!==lastIdx){ if(lastIdx!==-1 && !_dockProg) _dockTick(); lastIdx=idx; } }
       if(!_rafM) _rafM=requestAnimationFrame(magnify);
+      // "arrastar a tela junto": ao parar de girar, o app CENTRALIZADO vira a tela atual.
+      // Reversível: localStorage ailogic_dock_nav='0' desliga.
+      if(DOCK_SCROLL_NAV && !_dockProg){
+        if(_navT) clearTimeout(_navT);
+        _navT=setTimeout(function(){
+          if(_dockProg) return;
+          var f=track.querySelector('.hub-dock-item'); if(!f) return; var w=f.offsetWidth||1;
+          var ci=Math.round((track.scrollLeft+track.clientWidth/2)/w - 0.5);   // índice do item no CENTRO
+          var kids=track.children; if(ci<0||ci>=kids.length) return;
+          var el=kids[ci], slug=el.getAttribute('data-slug');
+          var cur=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';
+          if(slug && slug!==cur) navigate(el.getAttribute('data-href'), true);
+        }, 280);
+      }
     }
-    var lastIdx=-1;
+    var lastIdx=-1, _navT=null;
     track.addEventListener('scroll',onScroll,{passive:true});
     // destrava o áudio no primeiro toque (política de autoplay)
     track.addEventListener('touchstart',function(){ if(_dockAC&&_dockAC.state==='suspended'){ try{_dockAC.resume();}catch(_){} } },{passive:true, once:true});
