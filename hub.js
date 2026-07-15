@@ -393,16 +393,32 @@
     });
     if(!track.children.length) return;
     nav.appendChild(track); document.body.appendChild(nav);
-    // catraca: toca "tick" a cada item que cruza o centro ao arrastar
+    // magnify dinâmico (estilo Apple dock): ícones crescem perto do centro
+    var _rafM=null;
+    function magnify(){
+      _rafM=null;
+      if(reduce()){ for(var j=0;j<track.children.length;j++) track.children[j].style.transform=''; return; }
+      var kids=track.children, tc=track.scrollLeft+track.clientWidth/2;
+      var w=(track.firstElementChild&&track.firstElementChild.offsetWidth)||1, R=w*1.6;
+      for(var i=0;i<kids.length;i++){ var el=kids[i];
+        var c=el.offsetLeft+el.offsetWidth/2, d=Math.abs(c-tc);
+        var n=Math.max(0,1-d/R);           // 1 no centro -> 0 nas bordas
+        var s=1+0.42*n*n, ty=-12*n*n;      // curva suave (n^2) = mais orgânico
+        if(!el.classList.contains('active')) el.style.transform='translateY('+ty.toFixed(1)+'px) scale('+s.toFixed(3)+')';
+        else el.style.transform='';        // o ativo mantém o realce do CSS
+      }
+    }
+    function onScroll(){
+      var first=track.querySelector('.hub-dock-item'); if(first){ var w=first.offsetWidth||1, idx=Math.round(track.scrollLeft/w);
+        if(idx!==lastIdx){ if(lastIdx!==-1 && !_dockProg) _dockTick(); lastIdx=idx; } }
+      if(!_rafM) _rafM=requestAnimationFrame(magnify);
+    }
     var lastIdx=-1;
-    track.addEventListener('scroll',function(){
-      var first=track.querySelector('.hub-dock-item'); if(!first) return;
-      var w=first.offsetWidth||1, idx=Math.round((track.scrollLeft)/w);
-      if(idx!==lastIdx){ if(lastIdx!==-1 && !_dockProg) _dockTick(); lastIdx=idx; }
-    },{passive:true});
+    track.addEventListener('scroll',onScroll,{passive:true});
     // destrava o áudio no primeiro toque (política de autoplay)
     track.addEventListener('touchstart',function(){ if(_dockAC&&_dockAC.state==='suspended'){ try{_dockAC.resume();}catch(_){} } },{passive:true, once:true});
-    dockSync();
+    track.addEventListener('touchend',function(){ requestAnimationFrame(magnify); },{passive:true});
+    dockSync(); requestAnimationFrame(magnify);
   }
 
   function swipeHint(){
@@ -448,7 +464,7 @@
 
   // garante que os refinos visuais do hub.css (hover, slide SPA, hint de swipe)
   // carreguem em TODAS as telas (hoje so config-ia.html linka o hub.css).
-  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev7c'; document.head.appendChild(l); }catch(_){}
+  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev7d'; document.head.appendChild(l); }catch(_){}
   }
   // viewport travado (app nativo): bloqueia zoom + safe-area. Idempotente.
   var VP='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
