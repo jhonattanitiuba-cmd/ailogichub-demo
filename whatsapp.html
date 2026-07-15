@@ -348,9 +348,11 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   var BOT_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M5 9h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1ZM9 14v1M15 14v1M2 12v3M22 12v3"/></svg>';
   // quem enviou uma mensagem OUT: humano do sistema (tem assinatura "*Nome / Depto:*") ou o agente
   function outSender(m){ var t=(m&&m.texto)||""; var mm=/^\*([^*\/]+?)\s*\/\s*[^*]+:\*/.exec(t); return mm?{tipo:"humano",nome:mm[1].trim()}:{tipo:"agente",nome:"Sam"}; }
+  function acharEquipe(nome){ nome=String(nome||"").trim().toLowerCase(); for(var i=0;i<equipe.length;i++){ if(String(equipe[i].nome||"").trim().toLowerCase()===nome) return equipe[i]; } return null; }
+  function avBubble(foto,nome){ return foto?'<div class="msg-av"><img src="'+esc(foto)+'" alt=""></div>':'<div class="msg-av" title="'+esc(nome||"")+'">'+esc(inits(nome))+'</div>'; }
   function outAvatar(m){ var s=outSender(m);
     if(s.tipo==="agente"){ return agentFoto?'<div class="msg-av"><img src="'+esc(agentFoto)+'" alt=""></div>':'<div class="msg-av av-bot">'+BOT_SVG+'</div>'; }
-    return '<div class="msg-av" title="'+esc(s.nome)+'">'+esc(inits(s.nome))+'</div>';   // usuário do sistema (foto: integração futura)
+    var u=acharEquipe(s.nome); return avBubble(u&&u.foto,s.nome);   // usuário do sistema: foto cadastrada no Administrador
   }
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
   function inits(n){var p=String(n||"?").replace(/[^A-Za-zÀ-ÿ ]/g,"").trim().split(/\s+/).filter(Boolean);return ((p[0]||"#")[0]+((p[1]||"")[0]||"")).toUpperCase();}
@@ -640,7 +642,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     var el=document.createElement("div");el.className="msg out";
     el.innerHTML=renderWaText(sig+txt)+'<span class="msg-time">'+hh+' '+ticksHTML(0)+'</span>';
     row.appendChild(el);
-    row.insertAdjacentHTML("beforeend",'<div class="msg-av" title="'+esc(meuNome||"Você")+'">'+esc(inits(meuNome||"Eu"))+'</div>');
+    row.insertAdjacentHTML("beforeend",avBubble((acharEquipe(meuNome)||{}).foto,meuNome||"Você"));
     st.appendChild(row);st.scrollTop=st.scrollHeight;return el;
   }
   function send(){var inp=$("waInput");var t=inp.value.trim();if(!t||!curJid)return;inp.value="";unlockAudio();

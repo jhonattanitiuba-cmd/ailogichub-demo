@@ -53,6 +53,13 @@ td.strong{font-weight:700;color:var(--heading)}
 .fbody label input,.fbody label select{display:block;width:100%;margin-top:6px;height:40px;border:1px solid var(--border2);border-radius:10px;padding:0 12px;font:inherit;font-size:13px;color:var(--text);background:var(--panel2);outline:none;text-transform:none;font-weight:500;letter-spacing:0}
 .fbody label input:focus,.fbody label select:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--blueSoft)}
 .fhelp{font-size:11px;color:var(--muted);margin-top:6px;text-transform:none;letter-spacing:0;font-weight:500}
+.f-foto-row{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}
+.f-foto-prev{width:56px;height:56px;border-radius:50%;flex:none;overflow:hidden;display:grid;place-items:center;background:var(--blueSoft);color:#7ab0ff;font-size:22px;font-weight:800}
+.f-foto-prev img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.f-foto-txt{display:flex;flex-direction:column;gap:2px}.f-foto-txt strong{font-size:13px}.f-foto-txt span{font-size:11px;color:var(--muted)}
+.f-foto-btns{display:flex;gap:8px;margin-top:6px}.f-foto-btns .btn{height:30px;padding:0 12px;font-size:11px}
+.u-av{width:28px;height:28px;border-radius:50%;overflow:hidden;display:inline-grid;place-items:center;background:var(--blueSoft);color:#7ab0ff;font-size:10px;font-weight:800;vertical-align:middle;margin-right:9px}
+.u-av img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .modal-f{padding:14px 20px;display:flex;justify-content:flex-end;align-items:center;gap:10px;border-top:1px solid var(--border)}
 .ferr{margin-right:auto;color:var(--red);font-size:12px;font-weight:600}
@@ -130,6 +137,14 @@ td.strong{font-weight:700;color:var(--heading)}
 <div class="modal-bg" id="formModal"><div class="modal">
   <div class="modal-h"><h3 id="fTit">Novo usuário</h3><button class="modal-x" id="fClose">×</button></div>
   <div class="fbody" id="fBody">
+    <div class="f-foto-row">
+      <div class="f-foto-prev" id="fFotoPrev">👤</div>
+      <div class="f-foto-txt">
+        <strong>Foto do usuário</strong><span>Aparece no WhatsApp e onde o usuário for exibido no sistema.</span>
+        <div class="f-foto-btns"><label class="btn" for="fFotoInput">Subir foto</label><button class="btn" type="button" id="fFotoClear">Remover</button></div>
+        <input type="file" id="fFotoInput" accept="image/*" style="display:none">
+      </div>
+    </div>
     <label>Nome*<input id="f_nome"></label>
     <label>E-mail*<input id="f_email" type="email" placeholder="usuario@empresa.com"><div class="fhelp">É por este e-mail que o acesso é liberado no login.</div></label>
     <div class="fg2">
@@ -177,6 +192,11 @@ td.strong{font-weight:700;color:var(--heading)}
   ];
   var items=[],imobs=[],imobMap={},curDetail=null,fm=document.getElementById('formModal'),dm=document.getElementById('detModal');
   function $(id){return document.getElementById(id);}
+  function uInits(n){var p=String(n||"?").replace(/[^A-Za-zÀ-ÿ ]/g,"").trim().split(/\s+/).filter(Boolean);return ((p[0]||"#")[0]+((p[1]||"")[0]||"")).toUpperCase();}
+  function uAvatar(m){return m&&m.foto?'<span class="u-av"><img src="'+esc(m.foto)+'" alt=""></span>':'<span class="u-av">'+esc(uInits(m&&m.nome))+'</span>';}
+  var fFoto="";  // foto do usuário em edição (salva em usuarios.extra.foto — plug and play)
+  function setFFotoPrev(){var p=$("fFotoPrev");if(p)p.innerHTML=fFoto?'<img src="'+esc(fFoto)+'" alt="">':(fm&&fm.dataset.id?esc(uInits($("f_nome").value)):"👤");}
+  function fileToAvatar(file,cb){var img=new Image(),url=URL.createObjectURL(file);img.onload=function(){var s=Math.min(img.width,img.height),c=document.createElement("canvas");c.width=c.height=128;c.getContext("2d").drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,128,128);URL.revokeObjectURL(url);cb(c.toDataURL("image/jpeg",0.82));};img.onerror=function(){URL.revokeObjectURL(url);cb(null);};img.src=url;}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function cap(s){s=String(s||'');return s?s.charAt(0).toUpperCase()+s.slice(1):'—';}
   function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
@@ -193,7 +213,7 @@ td.strong{font-weight:700;color:var(--heading)}
     if(!list.length){tb.innerHTML='<tr><td colspan="7" class="empty">Nenhum usuário encontrado.</td></tr>';return;}
     tb.innerHTML=list.map(function(m,ix){
       var pc=isAdminRole(m.perfil)?'blue':'purple';
-      return '<tr data-i="'+ix+'"><td class="strong open">'+esc(m.nome||'—')+'</td><td>'+esc(m.email||'—')+'</td><td>'+esc(m.imobiliaria_id?(imobMap[m.imobiliaria_id]||'—'):'Hub')+'</td>'
+      return '<tr data-i="'+ix+'"><td class="strong open">'+uAvatar(m)+esc(m.nome||'—')+'</td><td>'+esc(m.email||'—')+'</td><td>'+esc(m.imobiliaria_id?(imobMap[m.imobiliaria_id]||'—'):'Hub')+'</td>'
         +'<td><span class="badge '+pc+'">'+esc(perfilShort(m.perfil))+'</span></td><td>'+acessoBadge(m.perfil)+'</td><td>'+stBadge(m.status)+'</td>'
         +'<td><div class="act"><button data-a="edit">Editar</button><button class="del" data-a="del">Excluir</button></div></td></tr>';
     }).join('');
@@ -228,15 +248,17 @@ td.strong{font-weight:700;color:var(--heading)}
     selVal($('f_perfil'),m.perfil||'corretor');$('f_status').value=(m.status==='Inativo')?'Inativo':'Ativo';
     $('credBox').style.display='none';$('credFoot').style.display='none';$('fBody').style.display='';$('fFoot').style.display='flex';
     $('fSenhaWrap').style.display=m.id?'none':'';$('f_senha').value='';
-    fm.dataset.id=m.id||'';fm.classList.add('open');}
+    fm.dataset.id=m.id||'';fFoto=m.foto||'';setFFotoPrev();fm.classList.add('open');}
   function closeForm(){fm.classList.remove('open');}
   $('btnNew').addEventListener('click',function(){openForm(null);});
+  $('fFotoInput').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f)return;fileToAvatar(f,function(d){if(d){fFoto=d;setFFotoPrev();}});e.target.value='';});
+  $('fFotoClear').addEventListener('click',function(){fFoto='';setFFotoPrev();});
   $('fClose').addEventListener('click',closeForm);$('fCancel').addEventListener('click',closeForm);
   fm.addEventListener('click',function(e){if(e.target===fm)closeForm();});
   document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeForm();dm.classList.remove('open');}});
 
   $('fSave').addEventListener('click',function(){
-    var o={nome:$('f_nome').value.trim(),email:$('f_email').value.trim(),telefone:$('f_telefone').value.trim(),imobiliaria_id:$('f_imob').value||null,perfil:$('f_perfil').value,status:$('f_status').value};
+    var o={nome:$('f_nome').value.trim(),email:$('f_email').value.trim(),telefone:$('f_telefone').value.trim(),imobiliaria_id:$('f_imob').value||null,perfil:$('f_perfil').value,status:$('f_status').value,foto:fFoto||''};
     if(!o.nome){$('fErr').textContent='Informe o nome.';return;}
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.email)){$('fErr').textContent='Informe um e-mail válido (é ele que libera o acesso).';return;}
     if(fm.dataset.id){o.id=fm.dataset.id;}else{var sp=$('f_senha').value.trim();if(sp)o.senha=sp;}
