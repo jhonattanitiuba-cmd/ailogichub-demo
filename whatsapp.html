@@ -101,6 +101,22 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 .msg a{color:#53bdeb;text-decoration:underline;word-break:break-all}
 .msg-time{display:block;text-align:right;font-size:10px;color:rgba(233,237,239,.5);margin-top:2px;user-select:none}
 .msg-time .tick{vertical-align:-1px;color:rgba(233,237,239,.6)}.msg-time .tick.blue{color:#53bdeb}.msg-time .tick.err{color:#ff6b6b;font-weight:900}
+/* linha da mensagem enviada com avatar de quem mandou (agente ou usuário do sistema) */
+.msgrow{display:flex;align-items:flex-end;gap:6px;max-width:82%}
+.msgrow.out{align-self:flex-end}
+.msgrow.out .msg.out{align-self:auto;max-width:100%}
+.msg-av{width:24px;height:24px;border-radius:50%;flex:none;overflow:hidden;display:grid;place-items:center;background:#0b66ff;color:#fff;font-size:9px;font-weight:800;margin-bottom:14px}
+.msg-av img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.msg-av svg{width:15px;height:15px}
+.msg-av.av-bot{background:#061629}
+/* seção foto do agente no drawer */
+.agent-foto-sec{display:flex;gap:12px;align-items:center;margin:6px 0 14px;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}
+.agent-foto-prev{width:52px;height:52px;border-radius:50%;flex:none;overflow:hidden;display:grid;place-items:center;background:#061629;color:#fff;font-size:22px}
+.agent-foto-prev img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.agent-foto-txt{display:flex;flex-direction:column;gap:2px}
+.agent-foto-txt strong{font-size:13px}.agent-foto-txt span{font-size:11px;color:var(--muted)}
+.agent-foto-btns{display:flex;gap:8px;margin-top:6px}
+.agent-foto-btns .btn{height:30px !important;font-size:11px !important}
 .wa-day{align-self:center;margin:9px 0}.wa-day span{background:#182229;color:#8696a0;font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px}
 .wa-media{min-width:150px;border-radius:6px;overflow:hidden;display:block}
 .wa-img{max-width:280px;max-height:340px;width:100%;border-radius:6px;display:block}
@@ -299,6 +315,18 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     <p>Edite a persona/base de conhecimento. Vale para as próximas conversas.</p>
     <div style="margin-bottom:14px"><span class="switch" id="iaGlobalSwitch"><span class="track"></span> IA ativa no canal</span></div>
     <textarea id="treinoPersona" placeholder="Persona / instruções do agente..."></textarea>
+    <div class="agent-foto-sec">
+      <div class="agent-foto-prev" id="agentFotoPrev">🤖</div>
+      <div class="agent-foto-txt">
+        <strong>Foto do agente</strong>
+        <span>Aparece nas mensagens enviadas pela IA. Plug and play.</span>
+        <div class="agent-foto-btns">
+          <label class="btn ghost" for="agentFotoInput">Subir foto</label>
+          <button class="btn" type="button" id="agentFotoClear">Remover</button>
+        </div>
+        <input type="file" id="agentFotoInput" accept="image/*" style="display:none">
+      </div>
+    </div>
     <div class="tools-sec">
       <div class="tools-title">🛠️ Ferramentas do agente</div>
       <label class="switch tool-row" id="toolImoveis"><span class="track"></span> 🏠 Oferecer imóveis <span class="tool-tag on">conectado</span></label>
@@ -316,6 +344,14 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   var API="/api/wa", DATA="/api/data";
   var curJid=null, curNome="", curFone="", imobs=[], leadsCount=0, allChats=[];
   var meuId=null, meuNome="", meuDepto="", filtro="minhas", mineBefore={}, sndOn=(localStorage.getItem("ailogic_wa_som")!=="0"), audioCtx=null;
+  var agentFoto="";   // foto do agente (plug and play, salva em ia_tools.agente_foto)
+  var BOT_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M5 9h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1ZM9 14v1M15 14v1M2 12v3M22 12v3"/></svg>';
+  // quem enviou uma mensagem OUT: humano do sistema (tem assinatura "*Nome / Depto:*") ou o agente
+  function outSender(m){ var t=(m&&m.texto)||""; var mm=/^\*([^*\/]+?)\s*\/\s*[^*]+:\*/.exec(t); return mm?{tipo:"humano",nome:mm[1].trim()}:{tipo:"agente",nome:"Sam"}; }
+  function outAvatar(m){ var s=outSender(m);
+    if(s.tipo==="agente"){ return agentFoto?'<div class="msg-av"><img src="'+esc(agentFoto)+'" alt=""></div>':'<div class="msg-av av-bot">'+BOT_SVG+'</div>'; }
+    return '<div class="msg-av" title="'+esc(s.nome)+'">'+esc(inits(s.nome))+'</div>';   // usuário do sistema (foto: integração futura)
+  }
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
   function inits(n){var p=String(n||"?").replace(/[^A-Za-zÀ-ÿ ]/g,"").trim().split(/\s+/).filter(Boolean);return ((p[0]||"#")[0]+((p[1]||"")[0]||"")).toUpperCase();}
   function $(id){return document.getElementById(id);}
@@ -368,7 +404,10 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
       else if(m.media==="document"){ body='<div class="wa-file">📎 '+esc(m.fileName||"documento")+'</div>'; }
       else { body=renderWaText(m.texto); }
       var meta='<span class="msg-time">'+hhmm(m.ts)+(m.fromMe?' '+ticksHTML(m.ack):'')+'</span>';
-      return sep+'<div class="msg '+side+'">'+body+meta+'</div>';
+      var bubble='<div class="msg '+side+'">'+body+meta+'</div>';
+      // enviadas: mostra o avatar de quem mandou (agente ou usuário do sistema)
+      if(m.fromMe) return sep+'<div class="msgrow out">'+bubble+outAvatar(m)+'</div>';
+      return sep+bubble;
     }).join("");
   }
   // carrega mídia (imagem auto; áudio ao clicar) via base64 do backend
@@ -531,10 +570,17 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 
   // ===== treinar o agente (drawer) =====
   var drawer=$("drawerTreino"),iaGlobalOn=true,toolImoveisOn=true;
+  function setAgentFotoPreview(){ var p=$("agentFotoPrev"); if(p) p.innerHTML=agentFoto?'<img src="'+esc(agentFoto)+'" alt="">':"🤖"; }
+  // redimensiona/quadra a foto p/ ~128px (base64 pequeno) — plug and play
+  function fileToAvatar(file,cb){ var img=new Image(),url=URL.createObjectURL(file);
+    img.onload=function(){ var s=Math.min(img.width,img.height),c=document.createElement("canvas");c.width=c.height=128;
+      c.getContext("2d").drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,128,128);URL.revokeObjectURL(url);cb(c.toDataURL("image/jpeg",0.82)); };
+    img.onerror=function(){URL.revokeObjectURL(url);cb(null);};img.src=url; }
   function openTreino(){ drawer.classList.add("open"); fetch(API+"?action=config",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
     $("treinoPersona").value=(d&&d.ia_persona)||"";
     iaGlobalOn=!(d&&d.ia_ativa===false);$("iaGlobalSwitch").classList.toggle("on",iaGlobalOn);
     var tools=(d&&d.ia_tools)||{};toolImoveisOn=(tools.oferecer_imoveis!==false);$("toolImoveis").classList.toggle("on",toolImoveisOn);
+    agentFoto=tools.agente_foto||"";setAgentFotoPreview();
   }).catch(function(){}); }
   function closeTreino(){drawer.classList.remove("open");}
   $("btnTreinar").addEventListener("click",openTreino);
@@ -542,7 +588,11 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   drawer.addEventListener("click",function(e){if(e.target===drawer)closeTreino();});
   $("iaGlobalSwitch").addEventListener("click",function(){iaGlobalOn=!iaGlobalOn;this.classList.toggle("on",iaGlobalOn);});
   $("toolImoveis").addEventListener("click",function(){toolImoveisOn=!toolImoveisOn;this.classList.toggle("on",toolImoveisOn);});
-  $("treinoSave").addEventListener("click",function(){var btn=$("treinoSave");btn.disabled=true;btn.textContent="Salvando…";fetch(API+"?action=config-save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ia_persona:$("treinoPersona").value,ia_ativa:iaGlobalOn,ia_tools:{oferecer_imoveis:toolImoveisOn}})}).then(function(){btn.disabled=false;btn.textContent="Salvar";closeTreino();}).catch(function(){btn.disabled=false;btn.textContent="Salvar";});});
+  $("agentFotoInput").addEventListener("change",function(e){var f=e.target.files&&e.target.files[0];if(!f)return;fileToAvatar(f,function(d){if(d){agentFoto=d;setAgentFotoPreview();}});e.target.value="";});
+  $("agentFotoClear").addEventListener("click",function(){agentFoto="";setAgentFotoPreview();});
+  $("treinoSave").addEventListener("click",function(){var btn=$("treinoSave");btn.disabled=true;btn.textContent="Salvando…";fetch(API+"?action=config-save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ia_persona:$("treinoPersona").value,ia_ativa:iaGlobalOn,ia_tools:{oferecer_imoveis:toolImoveisOn,agente_foto:agentFoto||""}})}).then(function(){btn.disabled=false;btn.textContent="Salvar";closeTreino();try{if(curJid)openChat(curJid);}catch(_){}}).catch(function(){btn.disabled=false;btn.textContent="Salvar";});});
+  // carrega a foto do agente já no load (p/ os avatares das mensagens enviadas)
+  fetch(API+"?action=config",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){var t=(d&&d.ia_tools)||{};if(t.agente_foto){agentFoto=t.agente_foto;}}).catch(function(){});
 
   // limpar contexto da IA (o agente esquece esta conversa)
   var bl=$("btnLimpar"); if(bl)bl.addEventListener("click",function(){
@@ -586,9 +636,12 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     var st=$("chatStream");var em=st.querySelector(".stream-empty");if(em)st.innerHTML="";
     var d=new Date(),hh=("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);
     var sig=(meuNome?("*"+meuNome+" / "+(meuDepto||"Atendimento")+":*\n"):"");  // assinatura por departamento (preview)
+    var row=document.createElement("div");row.className="msgrow out";
     var el=document.createElement("div");el.className="msg out";
     el.innerHTML=renderWaText(sig+txt)+'<span class="msg-time">'+hh+' '+ticksHTML(0)+'</span>';
-    st.appendChild(el);st.scrollTop=st.scrollHeight;return el;
+    row.appendChild(el);
+    row.insertAdjacentHTML("beforeend",'<div class="msg-av" title="'+esc(meuNome||"Você")+'">'+esc(inits(meuNome||"Eu"))+'</div>');
+    st.appendChild(row);st.scrollTop=st.scrollHeight;return el;
   }
   function send(){var inp=$("waInput");var t=inp.value.trim();if(!t||!curJid)return;inp.value="";unlockAudio();
     var jid=curJid;

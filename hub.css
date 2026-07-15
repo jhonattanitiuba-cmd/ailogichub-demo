@@ -116,10 +116,17 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
 .nav-item.active{ transform:scale(1.03); }
 /* setas do funil em navy (estavam quase invisíveis) */
 .fconn{ color:#061629 !important; }
+/* ===== clique dinâmico em TODOS os botões: sem quadrado de toque, só a animação ===== */
+button, a, [role="button"], .btn, .pill, .icon-btn, .wa-tab, .chip, .chip2, .seg button,
+.act button, .nav-item, .sb-toggle, .hub-logout, .snd-toggle, .modal-x, .crm-close,
+.wa-back, .wa-crm-btn, .dd > button, .tool, .toggle{ -webkit-tap-highlight-color:transparent; }
+.icon-btn,.wa-tab,.chip,.chip2,.seg button,.act button,.snd-toggle,.modal-x,.crm-close,.wa-back,.wa-crm-btn{ transition:transform .12s ease, filter .12s ease; }
+.icon-btn:active,.wa-tab:active,.chip:active,.chip2:active,.seg button:active,.act button:active,.snd-toggle:active,.modal-x:active,.crm-close:active,.wa-back:active,.wa-crm-btn:active{ transform:scale(.9); }
+
 /* botões/pills do header: menores, minimalistas, com hover e clique */
 .pill,.btn{ height:34px !important; padding:0 13px !important; font-size:12px !important; border-radius:10px !important; transition:transform .14s ease, box-shadow .14s ease, background .14s ease; }
 .pill:hover,.btn:hover{ transform:translateY(-1px); box-shadow:0 8px 18px rgba(15,23,42,.12); }
-.pill:active,.btn:active{ transform:translateY(0) scale(.97); }
+.pill:active,.btn:active{ transform:translateY(0) scale(.94); }
 /* botões sólidos (cor de fundo predominante) padronizados em todo o sistema */
 .btn{ background:#061629 !important; color:#fff !important; border-color:#061629 !important; box-shadow:none !important; }
 .btn.primary{ background:#061629 !important; border-color:#061629 !important; }
