@@ -178,3 +178,40 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
 @media (max-width:900px) and (prefers-reduced-motion:reduce){
   .hub-dock-item.active{ transform:none; }
 }
+
+/* ===== MODO APP mobile: frame fixo, vertical travado, encaixe dos widgets ===== */
+@media (max-width:900px){
+  /* app travado: sem rubber-band, sem zoom por duplo-toque, altura colada no viewport real */
+  html,body{ height:100%; overflow:hidden !important; overscroll-behavior:none; }
+  body{ touch-action:manipulation; }
+  .app{ grid-template-columns:1fr !important; height:100dvh !important; overflow:hidden !important; }
+  /* miolo = ÚNICO scroller vertical (entre header fixo e dock fixo). whatsapp tem layout próprio -> excluído */
+  html:not([data-scr="whatsapp"]) .main{
+    height:100dvh !important; overflow-y:auto !important; overflow-x:hidden !important;
+    -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+    padding:14px 14px calc(88px + env(safe-area-inset-bottom)) !important;
+  }
+  /* cabeçalho fixo no topo do miolo */
+  html:not([data-scr="whatsapp"]) .main>.header{
+    position:sticky; top:0; z-index:6; background:var(--bg);
+    margin:-14px -14px 12px !important; padding:12px 14px !important;
+    box-shadow:0 1px 0 var(--border);
+  }
+  /* nada estoura a largura; tabelas/kanban/funil rolam DENTRO do widget (ilha de scroll) */
+  html:not([data-scr="whatsapp"]) .main img,
+  html:not([data-scr="whatsapp"]) .main table{ max-width:100%; }
+  html:not([data-scr="whatsapp"]) .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  html:not([data-scr="whatsapp"]) .panel{ max-width:100%; }
+  /* ===== encaixe dos widgets: 2 colunas de KPI + grades em 1 coluna ===== */
+  html:not([data-scr="whatsapp"]) .kpis{ grid-template-columns:repeat(2,1fr) !important; gap:10px !important; }
+  html:not([data-scr="whatsapp"]) .kpi{ padding:13px !important; }
+  html:not([data-scr="whatsapp"]) .kpi .value{ font-size:22px !important; }
+  html:not([data-scr="whatsapp"]) .kpi-ic{ width:34px !important; height:34px !important; }
+  html:not([data-scr="whatsapp"]) .grid2,
+  html:not([data-scr="whatsapp"]) .grid2b,
+  html:not([data-scr="whatsapp"]) .grid3,
+  html:not([data-scr="whatsapp"]) .layout,
+  html:not([data-scr="whatsapp"]) .cards,
+  html:not([data-scr="whatsapp"]) .res{ grid-template-columns:1fr !important; gap:12px !important; }
+  html:not([data-scr="whatsapp"]) .headline h1{ font-size:21px !important; }
+}

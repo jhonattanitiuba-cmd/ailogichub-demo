@@ -256,7 +256,7 @@
       swapStyles(doc);
       var cur=document.querySelector('.main'); if(cur) cur.parentNode.replaceChild(newMain, cur);
       if(doc.title) document.title=doc.title;
-      try{ replaceIconHosts(); cleanText(); active(); dockSync(); runPageScripts(doc); revealContent(newMain, 'spa', dir); markWidgets(newMain); loadBegin(); }catch(e){}
+      try{ markScr(); replaceIconHosts(); cleanText(); active(); dockSync(); runPageScripts(doc); revealContent(newMain, 'spa', dir); markWidgets(newMain); loadBegin(); }catch(e){}
       window.scrollTo(0,0); navving=false;
     }).catch(function(){ location.href=slug; });
   }
@@ -445,8 +445,18 @@
 
   // garante que os refinos visuais do hub.css (hover, slide SPA, hint de swipe)
   // carreguem em TODAS as telas (hoje so config-ia.html linka o hub.css).
-  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev6dock'; document.head.appendChild(l); }catch(_){}
+  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev7app'; document.head.appendChild(l); }catch(_){}
   }
-  function run(){ try{ ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); setupDock(); cascadeSidebar(); revealContent(document.querySelector('.main'), 'entry'); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); loadBegin(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
+  // viewport travado (app nativo): bloqueia zoom + safe-area. Idempotente.
+  var VP='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
+  function ensureViewport(){ try{ var m=document.querySelector('meta[name="viewport"]'); if(!m){ m=document.createElement('meta'); m.name='viewport'; document.head.appendChild(m); } if(m.getAttribute('content')!==VP) m.setAttribute('content',VP); }catch(_){}
+  }
+  // marca a tela atual em <html data-scr> p/ o CSS escopar exceções (ex.: whatsapp)
+  function markScr(){ try{ var s=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral'; document.documentElement.setAttribute('data-scr', s); }catch(_){}
+  }
+  // reage à rotação/resize: (re)constrói o dock ao cruzar 900px (setupDock é idempotente)
+  var _rzT=null;
+  function onResize(){ if(_rzT) return; _rzT=setTimeout(function(){ _rzT=null; try{ if(window.innerWidth<=900){ setupDock(); dockSync(); } }catch(_){} }, 200); }
+  function run(){ try{ ensureViewport(); markScr(); ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); setupDock(); cascadeSidebar(); revealContent(document.querySelector('.main'), 'entry'); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); loadBegin(); window.addEventListener('resize', onResize); window.addEventListener('orientationchange', onResize); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
