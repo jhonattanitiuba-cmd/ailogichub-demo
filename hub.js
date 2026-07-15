@@ -543,7 +543,7 @@
     // box do agente (abre ao clicar) — não é o alert genérico
     var box=document.createElement('div'); box.className='hub-agent-box'; box.setAttribute('data-noswipe','');
     box.innerHTML='<div class="hab-head"><span class="hab-ic">'+svg('bot')+'</span><strong>Assistente IA</strong><button class="hab-x" type="button" aria-label="Fechar">&times;</button></div>'
-      +'<div class="hab-body">Em breve você conversa com o agente aqui dentro — pergunta sobre leads, imóveis e funil sem sair da tela. <b>(fase 3)</b></div>';
+      +'<div class="hab-body">Em breve você conversa com o agente aqui dentro. Pergunte sobre leads, imóveis e funil sem sair da tela. <b>(fase 3)</b></div>';
     document.body.appendChild(box);
     function close(){ box.classList.remove('open'); }
     b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); box.classList.toggle('open'); });

@@ -131,7 +131,7 @@ async function imoveisDisponiveis(limite) {
       const preco = i.preco != null ? ('R$ ' + Number(i.preco).toLocaleString('pt-BR')) : 's/ valor';
       const loc = [i.bairro, i.cidade].filter(Boolean).join(', ');
       const carac = [i.quartos ? i.quartos + ' quartos' : '', i.vagas ? i.vagas + ' vagas' : '', i.area_util ? i.area_util + 'm2' : ''].filter(Boolean).join(', ');
-      return '- [' + i.codigo + '] ' + (i.tipo || 'imóvel') + (i.finalidade ? '/' + i.finalidade : '') + ' em ' + (loc || '—') + (carac ? ' (' + carac + ')' : '') + ' — ' + preco;
+      return '- [' + i.codigo + '] ' + (i.tipo || 'imóvel') + (i.finalidade ? '/' + i.finalidade : '') + ' em ' + (loc || 'local a confirmar') + (carac ? ' (' + carac + ')' : '') + ' · ' + preco;
     }).join('\n');
     return '\n\nIMÓVEIS REAIS DISPONÍVEIS NO ESTOQUE (ofereça SOMENTE estes, nunca invente imóvel/valor; cite o código entre colchetes; filtre pelo que a pessoa procura):\n' + linhas;
   } catch (_) { return ''; }
