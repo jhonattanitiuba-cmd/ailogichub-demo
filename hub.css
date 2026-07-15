@@ -145,4 +145,36 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
 @media (prefers-reduced-motion: reduce){
   .main,.sidebar,.hub-rise,.hub-side-item{ animation:none !important; opacity:1 !important; transform:none !important; }
   .hub-topbar::before,.hub-skel,.hub-skel-num{ animation:none !important; }
+  .hub-dock-item{ transition:none !important; }
+}
+
+/* ===== DOCK mobile (estilo Apple): navegação horizontal fixa embaixo ===== */
+.hub-dock{ display:none; }
+@media (max-width:900px){
+  /* some com a sidebar vertical empilhada -> vira app nativo */
+  .sidebar{ display:none !important; }
+  .app{ grid-template-columns:1fr !important; }
+  .main{ padding-bottom:calc(86px + env(safe-area-inset-bottom)) !important; }
+  /* dock: barra de fundo cheia, mostra ~5, rola na horizontal com snap */
+  .hub-dock{ position:fixed; left:0; right:0; bottom:0; z-index:80; display:block;
+    background:rgba(6,22,41,.92); -webkit-backdrop-filter:saturate(1.4) blur(14px); backdrop-filter:saturate(1.4) blur(14px);
+    border-top:1px solid rgba(255,255,255,.08); box-shadow:0 -8px 24px rgba(0,0,0,.28);
+    padding-bottom:env(safe-area-inset-bottom); }
+  .hub-dock-track{ display:flex; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch; scrollbar-width:none; scroll-padding:0; }
+  .hub-dock-track::-webkit-scrollbar{ display:none; }
+  .hub-dock-item{ flex:0 0 20vw; scroll-snap-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px; height:70px; padding:8px 2px; background:none; border:0; color:#9db4d6; font:inherit; cursor:pointer;
+    transition:transform .18s cubic-bezier(.22,.61,.36,1), color .18s ease; }
+  .hub-dock-ic{ display:inline-flex; align-items:center; justify-content:center; font-size:23px; line-height:0; }
+  .hub-dock-ic .hub-ic svg{ width:24px; height:24px; }
+  .hub-dock-lb{ font-size:10px; font-weight:600 !important; max-width:19vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .hub-dock-item.active{ color:#fff; transform:translateY(-4px) scale(1.12); }   /* "magnify" do app atual */
+  .hub-dock-item.active .hub-dock-ic{ filter:drop-shadow(0 4px 10px rgba(11,102,255,.55)); }
+  .hub-dock-item:active{ transform:scale(.92); }
+  /* dica de swipe fica acima do dock */
+  .hub-swipe-hint{ bottom:calc(96px + env(safe-area-inset-bottom)); }
+}
+@media (max-width:900px) and (prefers-reduced-motion:reduce){
+  .hub-dock-item.active{ transform:none; }
 }

@@ -256,7 +256,7 @@
       swapStyles(doc);
       var cur=document.querySelector('.main'); if(cur) cur.parentNode.replaceChild(newMain, cur);
       if(doc.title) document.title=doc.title;
-      try{ replaceIconHosts(); cleanText(); active(); runPageScripts(doc); revealContent(newMain, 'spa', dir); markWidgets(newMain); loadBegin(); }catch(e){}
+      try{ replaceIconHosts(); cleanText(); active(); dockSync(); runPageScripts(doc); revealContent(newMain, 'spa', dir); markWidgets(newMain); loadBegin(); }catch(e){}
       window.scrollTo(0,0); navving=false;
     }).catch(function(){ location.href=slug; });
   }
@@ -331,6 +331,77 @@
       navigate(list[ni], true, dx<0?'next':'prev');
     },{passive:true});
   }
+  /* ---------- 12b) DOCK mobile (estilo Apple): barra horizontal fixa embaixo ----------
+     - só no mobile (<=900px); esconde a sidebar vertical (CSS em hub.css)
+     - mostra ~5 ícones por vez, rola na horizontal com snap por item
+     - mesma ORDEM do menu (clona os .nav-item da sidebar)
+     - "barulhinho de catraca" a cada ícone que passa; tap = navega (SPA) */
+  var _dockAC=null;
+  function _dockTick(){
+    if(reduce()) return;
+    try{
+      var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+      if(!_dockAC) _dockAC=new AC();
+      if(_dockAC.state==='suspended'){ try{_dockAC.resume();}catch(_){} }
+      var t=_dockAC.currentTime, o=_dockAC.createOscillator(), g=_dockAC.createGain();
+      o.type='square'; o.frequency.setValueAtTime(1050,t);
+      g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(0.06,t+0.002);   // clique curtíssimo (~11ms)
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.012);
+      o.connect(g); g.connect(_dockAC.destination); o.start(t); o.stop(t+0.014);
+    }catch(_){}
+  }
+  function _dockSlugFor(a){ var raw=a.getAttribute('href')||''; return raw.split('/').pop().split('?')[0].replace(/\.html$/,'')||''; }
+  function _dockCenter(el, smooth){
+    if(!el||!el.parentNode) return;
+    var track=el.parentNode, x=el.offsetLeft-(track.clientWidth-el.clientWidth)/2;
+    try{ track.scrollTo({left:x, behavior:smooth?'smooth':'auto'}); }catch(_){ track.scrollLeft=x; }
+  }
+  function dockSync(){
+    var dock=document.querySelector('.hub-dock'); if(!dock) return;
+    var cur=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';
+    var act=null;
+    [].slice.call(dock.querySelectorAll('.hub-dock-item')).forEach(function(it){
+      var on=it.getAttribute('data-slug')===cur; it.classList.toggle('active',on); if(on) act=it;
+    });
+    if(act) _dockCenter(act, true);
+  }
+  function setupDock(){
+    if(document.querySelector('.hub-dock')) return;                 // 1x por carga real
+    var items=[].slice.call(document.querySelectorAll('.sidebar .nav-item'));
+    if(!items.length) return;
+    var nav=document.createElement('nav'); nav.className='hub-dock'; nav.setAttribute('aria-label','Navegação');
+    var track=document.createElement('div'); track.className='hub-dock-track';
+    var seen={};
+    items.forEach(function(a){
+      var raw=a.getAttribute('href')||''; if(/^(https?:|#|mailto:|tel:)/.test(raw)) return;
+      var slug=_dockSlugFor(a); if(!slug||seen[slug]) return; seen[slug]=1;
+      var ico=a.querySelector('.ico'); var lbl=a.querySelector('.nav-label');
+      var name=(lbl&&lbl.textContent)||(a.getAttribute('title'))||slug;
+      var b=document.createElement('button'); b.type='button'; b.className='hub-dock-item';
+      b.setAttribute('data-slug',slug); b.setAttribute('data-href',raw); b.title=name;
+      b.innerHTML='<span class="hub-dock-ic">'+(ico?ico.innerHTML:'')+'</span><span class="hub-dock-lb">'+name+'</span>';
+      b.addEventListener('click',function(){
+        _dockTick();
+        if(b.classList.contains('active')){ _dockCenter(b,true); return; }
+        navigate(raw, true); dockSync();
+      });
+      track.appendChild(b);
+    });
+    if(!track.children.length) return;
+    nav.appendChild(track); document.body.appendChild(nav);
+    // catraca: toca "tick" a cada item que cruza o centro ao arrastar
+    var lastIdx=-1;
+    track.addEventListener('scroll',function(){
+      var first=track.querySelector('.hub-dock-item'); if(!first) return;
+      var w=first.offsetWidth||1, idx=Math.round((track.scrollLeft)/w);
+      if(idx!==lastIdx){ if(lastIdx!==-1) _dockTick(); lastIdx=idx; }
+    },{passive:true});
+    // destrava o áudio no primeiro toque (política de autoplay)
+    track.addEventListener('touchstart',function(){ if(_dockAC&&_dockAC.state==='suspended'){ try{_dockAC.resume();}catch(_){} } },{passive:true, once:true});
+    dockSync();
+  }
+
   function swipeHint(){
     if(reduce()||window.innerWidth>900) return;
     try{ if(localStorage.getItem('ailogic_swipehint')==='1') return; }catch(_){}
@@ -374,8 +445,8 @@
 
   // garante que os refinos visuais do hub.css (hover, slide SPA, hint de swipe)
   // carreguem em TODAS as telas (hoje so config-ia.html linka o hub.css).
-  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev0c'; document.head.appendChild(l); }catch(_){}
+  function ensureCss(){ try{ if(document.querySelector('link[href*="hub.css"]')) return; var l=document.createElement('link'); l.rel='stylesheet'; l.href='/hub.css?v=rev6dock'; document.head.appendChild(l); }catch(_){}
   }
-  function run(){ try{ ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); cascadeSidebar(); revealContent(document.querySelector('.main'), 'entry'); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); loadBegin(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
+  function run(){ try{ ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); setupDock(); cascadeSidebar(); revealContent(document.querySelector('.main'), 'entry'); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); loadBegin(); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
