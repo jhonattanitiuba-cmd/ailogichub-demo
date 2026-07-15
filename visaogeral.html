@@ -43,11 +43,13 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
 .icon-btn{width:34px;height:34px;border:none;background:none;border-radius:10px;display:grid;place-items:center;cursor:pointer;font-size:16px;color:var(--muted)}
 .icon-btn:hover{color:var(--text);background:var(--panel2)}
 .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:13px;margin-bottom:18px}
-/* KPI minimalista: ícone pequeno azul-claro à ESQUERDA + texto ao lado, sem box no ícone */
-.kpi{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:14px 15px;box-shadow:var(--soft);display:flex;gap:11px;align-items:flex-start}
-.kpi h3{margin:0;color:var(--muted);font-size:11.5px;font-weight:700}.kpi .value{margin:6px 0 3px;font-size:24px;font-weight:900;letter-spacing:-.03em;color:var(--heading)}.kpi small{color:var(--muted);font-size:10.5px}
-.kpis .kpi>.kpi-ic{width:24px;height:24px;flex:none;margin-top:1px;background:none!important;color:#7ab0ff!important;border-radius:0!important;box-shadow:none!important;font-size:19px;display:grid;place-items:center}
-.kpis .kpi>.kpi-ic:hover{box-shadow:none!important;transform:none}
+/* KPI minimalista e ALINHADO: ícone minúsculo (altura da letra) colado ao lado do rótulo */
+.kpi{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:14px 15px;box-shadow:var(--soft)}
+.kpi h3{margin:0;color:var(--muted);font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:5px;line-height:1.2}
+.kpi .value{margin:7px 0 3px;font-size:24px;font-weight:900;letter-spacing:-.03em;color:var(--heading)}.kpi small{color:var(--muted);font-size:10.5px}
+.kpis .kpi h3>.kpi-ic{width:13px;height:13px;flex:none;background:none!important;color:#7ab0ff!important;border-radius:0!important;box-shadow:none!important;font-size:13px;display:inline-grid;place-items:center}
+.kpis .kpi h3>.kpi-ic .hub-ic svg{width:13px;height:13px}
+.kpis .kpi h3>.kpi-ic:hover{transform:none;box-shadow:none!important}
 .grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:16px}
 .grid2b{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--soft);overflow:hidden}
@@ -118,12 +120,12 @@ tr:last-child td{border-bottom:0}td.strong{font-weight:700;color:var(--heading)}
   </header>
 
   <section class="kpis">
-    <article class="kpi"><div class="kpi-ic" data-ic="building">▥</div><div><h3>Imobiliárias</h3><div class="value" data-k="imob">·</div><small id="imobBreak">ativas na plataforma</small></div></article>
-    <article class="kpi"><div class="kpi-ic" data-ic="target">◎</div><div><h3>Leads</h3><div class="value" data-k="leads">·</div><small id="leadsBreak">no banco</small></div></article>
-    <article class="kpi"><div class="kpi-ic" data-ic="apt">▤</div><div><h3>Imóveis</h3><div class="value" data-k="imoveis">·</div><small>cadastrados</small></div></article>
-    <article class="kpi"><div class="kpi-ic" data-ic="funnel">▽</div><div><h3>Negócios no funil</h3><div class="value" data-k="negocios">·</div><small>em andamento</small></div></article>
-    <article class="kpi"><div class="kpi-ic" data-ic="dollar">$</div><div><h3>Valor em pipeline</h3><div class="value" data-k="pipeline">·</div><small>soma dos negócios</small></div></article>
-    <article class="kpi"><div class="kpi-ic" data-ic="whatsapp">◌</div><div><h3>Conversas WhatsApp</h3><div class="value" data-k="conversas">·</div><small>espelhadas</small></div></article>
+    <article class="kpi"><h3><span class="kpi-ic" data-ic="building">▥</span>Imobiliárias</h3><div class="value" data-k="imob">·</div><small id="imobBreak">ativas na plataforma</small></article>
+    <article class="kpi"><h3><span class="kpi-ic" data-ic="target">◎</span>Leads</h3><div class="value" data-k="leads">·</div><small id="leadsBreak">no banco</small></article>
+    <article class="kpi"><h3><span class="kpi-ic" data-ic="apt">▤</span>Imóveis</h3><div class="value" data-k="imoveis">·</div><small>cadastrados</small></article>
+    <article class="kpi"><h3><span class="kpi-ic" data-ic="funnel">▽</span>Negócios no funil</h3><div class="value" data-k="negocios">·</div><small>em andamento</small></article>
+    <article class="kpi"><h3><span class="kpi-ic" data-ic="dollar">$</span>Valor em pipeline</h3><div class="value" data-k="pipeline">·</div><small>soma dos negócios</small></article>
+    <article class="kpi"><h3><span class="kpi-ic" data-ic="whatsapp">◌</span>Conversas WhatsApp</h3><div class="value" data-k="conversas">·</div><small>espelhadas</small></article>
   </section>
 
   <section class="grid2">
