@@ -226,9 +226,12 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
 }
 
 /* ===== padronização visual (status, botões, PTR, FAB, dock, whatsapp) ===== */
-/* status = bolinha viva piscando (texto some, tooltip fica) */
-.hub-statdot{ font-size:0 !important; gap:0 !important; }
-.hub-statdot .dot, .hub-statdot .d{ animation:hubPulse 1.8s ease-in-out infinite; }
+/* status = bolinha viva piscando (texto some, tooltip fica).
+   Mira por id também: o JS de integrações reescreve className/innerHTML e apagaria a classe. */
+.hub-statdot,
+#statusPill, #cfg-statuspill, #b-wa, #b-ai, #b-db, #b-web{ font-size:0 !important; gap:4px !important; }
+.hub-statdot .dot, .hub-statdot .d,
+#statusPill .dot, #cfg-statuspill .dot, #b-wa .d, #b-ai .d, #b-db .d, #b-web .d{ animation:hubPulse 1.8s ease-in-out infinite; }
 @keyframes hubPulse{ 0%,100%{ transform:scale(1); opacity:1 } 50%{ transform:scale(1.4); opacity:.5 } }
 
 /* botões minimalistas: "＋" e ícones de linha */
