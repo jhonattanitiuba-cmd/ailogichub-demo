@@ -129,6 +129,8 @@ a{text-decoration:none;color:inherit}
     </div>
   </header>
 
+  <section id="jurCasos" style="display:none"></section>
+
   <section class="kpis">
     <article class="kpi"><h3>Leads no funil</h3><div class="value" data-k="total">·</div><small>negócios no funil</small></article>
     <article class="kpi"><h3>Valor em pipeline</h3><div class="value" data-k="pipeline">·</div><small>soma dos negócios</small></article>
@@ -275,6 +277,42 @@ a{text-decoration:none;color:inherit}
   tt.addEventListener('click',function(){if(window.hubTheme){window.hubTheme.toggle();syncIcon();}});
 
   load();
+})();</script>
+<style>
+#jurCasos{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.jur-card{background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:14px;padding:14px 16px;box-shadow:var(--soft)}
+.jur-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.jur-cli{font-size:15px;font-weight:800;color:var(--heading)}
+.jur-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.jur-ganho{font-size:13px;font-weight:800;color:var(--green);white-space:nowrap}
+.jur-resumo{margin-top:10px;font-size:13px;line-height:1.55;color:var(--text);white-space:pre-wrap;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;max-height:260px;overflow:auto}
+.jur-badge{display:inline-block;font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--blueSoft);color:var(--blue)}
+.jur-actions{display:flex;gap:9px;margin-top:11px;flex-wrap:wrap}
+.jur-actions .btn{height:36px !important}
+.jur-empty{font-size:12.5px;color:var(--muted)}
+</style>
+<script>/* módulo jurídico: resumo IA do caso + dar andamento (só aparece p/ advogado) */(function(){
+  var JUR="/api/juris"; function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function brl(v){return v==null?"—":"R$ "+Math.round(v).toLocaleString("pt-BR");}
+  var box=document.getElementById("jurCasos"); if(!box) return;
+  function render(casos){
+    if(!casos||!casos.length){ box.style.display="none"; return; }
+    box.style.display="flex";
+    box.innerHTML='<div style="font-size:13px;font-weight:800;color:var(--heading);margin-bottom:2px">⚖️ Meus casos (jurídico)</div>'+casos.map(function(c){
+      var ass=c.assinado_em?'<span class="jur-badge">Proposta assinada</span>':'<span class="jur-badge" style="background:var(--orange2);color:#b8860b">Aguardando assinatura</span>';
+      var resumo=c.resumo?('<div class="jur-resumo">'+esc(c.resumo)+'</div>'):'<div class="jur-empty" style="margin-top:8px">O resumo da proposta será gerado pela IA quando o cliente assinar.</div>';
+      return '<div class="jur-card" data-neg="'+esc(c.negocio_id)+'">'
+        +'<div class="jur-top"><div><div class="jur-cli">'+esc(c.lead_nome||"Cliente")+'</div><div class="jur-sub">'+esc(c.imovel||"Imóvel")+' · etapa: '+esc(c.etapa||"—")+'  '+ass+'</div></div>'
+        +'<div class="jur-ganho">Seu ganho: '+brl(c.ganho)+(c.honorario_pct!=null?' ('+c.honorario_pct+'%)':'')+'</div></div>'
+        +resumo
+        +'<div class="jur-actions"><button class="btn primary jur-and" data-neg="'+esc(c.negocio_id)+'"'+(c.assinado_em?'':' disabled')+'>Dar andamento</button></div></div>';
+    }).join("");
+    Array.prototype.forEach.call(box.querySelectorAll(".jur-and"),function(b){b.addEventListener("click",function(){
+      var neg=b.getAttribute("data-neg"); b.disabled=true; b.textContent="Registrando…";
+      fetch(JUR+"?action=andamento",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({negocioId:neg,etapa:"DOCUMENTAÇÃO/CONTRATO"})}).then(function(r){return r.json();}).then(function(){ b.textContent="Andamento registrado ✓"; }).catch(function(){ b.disabled=false; b.textContent="Dar andamento"; });
+    });});
+  }
+  fetch(JUR+"?action=resumo",{cache:"no-store"}).then(function(r){return r.ok?r.json():{casos:[]};}).then(function(d){ render((d&&d.casos)||[]); }).catch(function(){});
 })();</script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 // AILOGIC HUB — dados do dashboard (Central de Operações) + funil de negócios
 const { db } = require('./_db');
-const { requireAuth } = require('./_auth');
+const { requireAuth, isLawyerRole } = require('./_auth');
 const { cacheGet, cacheSet } = require('./_cache');
 const DB_URL = process.env.DB_URL || '';
 module.exports = async (req, res) => {
@@ -15,21 +15,29 @@ module.exports = async (req, res) => {
       const id = body.id, etapa = body.etapa;
       if (!id || !etapa) { res.status(400).json({ error: 'id e etapa obrigatorios' }); return; }
       if (!user.isAdmin) {
-        if (!user.imobiliariaId) { res.status(403).json({ error: 'sem permissao' }); return; }
-        const chk = await db('select 1 from funil_negocios where id=$1 and imobiliaria_id=$2', [id, user.imobiliariaId]);
-        if (!chk.rows[0]) { res.status(403).json({ error: 'sem permissao sobre este registro' }); return; }
+        if (isLawyerRole(user.perfil)) {
+          const chkA = await db('select 1 from negocio_advogado where negocio_id=$1 and advogado_id=$2', [id, user.usuarioId]);
+          if (!chkA.rows[0]) { res.status(403).json({ error: 'sem permissao sobre este caso' }); return; }
+        } else {
+          if (!user.imobiliariaId) { res.status(403).json({ error: 'sem permissao' }); return; }
+          const chk = await db('select 1 from funil_negocios where id=$1 and imobiliaria_id=$2', [id, user.imobiliariaId]);
+          if (!chk.rows[0]) { res.status(403).json({ error: 'sem permissao sobre este registro' }); return; }
+        }
       }
       await db('update funil_negocios set etapa=$1 where id=$2', [etapa, id]);
       res.status(200).json({ ok: true });
       return;
     }
     if (action === 'funil') {
-      if (!user.isAdmin && !user.imobiliariaId) { res.status(200).json({ cards: [] }); return; }
-      const fkey = 'dash:funil:' + (user.isAdmin ? 'all' : user.imobiliariaId);
+      const lawyer = isLawyerRole(user.perfil) && !user.isAdmin;
+      if (!user.isAdmin && !lawyer && !user.imobiliariaId) { res.status(200).json({ cards: [] }); return; }
+      if (lawyer && !user.usuarioId) { res.status(200).json({ cards: [] }); return; }
+      const fkey = 'dash:funil:' + (user.isAdmin ? 'all' : (lawyer ? ('law:' + user.usuarioId) : user.imobiliariaId));
       const fcached = await cacheGet(fkey);
       if (fcached) { res.status(200).json(fcached); return; }   // hit no Redis
-      const scope = (!user.isAdmin) ? ' where imobiliaria_id=$1' : '';
-      const params = (!user.isAdmin) ? [user.imobiliariaId] : [];
+      // advogado: só os negócios atribuídos a ele; senão escopo por imobiliária
+      const scope = lawyer ? ' where id in (select negocio_id from negocio_advogado where advogado_id=$1)' : ((!user.isAdmin) ? ' where imobiliaria_id=$1' : '');
+      const params = (!user.isAdmin) ? [lawyer ? user.usuarioId : user.imobiliariaId] : [];
       const r = await db('select id, imob_nome, lead_nome, imovel_desc, imovel_codigo, corretor_nome, valor, etapa, origem, tentativas, sla, status_label, ultimo_contato, motivo_perda from funil_negocios' + scope + ' order by criado_em', params);
       const fout = { cards: r.rows.map(x => ({ ...x, valor: x.valor != null ? Number(x.valor) : null })) };
       cacheSet(fkey, fout, 60);
@@ -39,6 +47,25 @@ module.exports = async (req, res) => {
     // RESUMO do dashboard: TODOS os agregados numa UNICA consulta (1 round-trip em vez de 5)
     if (action === 'resumo') {
       const isAdmin = user.isAdmin;
+      // advogado: resumo restrito aos negócios atribuídos (não vê o geral)
+      if (isLawyerRole(user.perfil) && !isAdmin) {
+        const empty = { imobiliarias: [], leadsTotal: 0, leadsQualificados: 0, leadsPorFonte: [], leadsPorStatus: [], imoveisTotal: 0 };
+        if (!user.usuarioId) { res.status(200).json(empty); return; }
+        const lkey = 'dash:resumo:law:' + user.usuarioId;
+        const lc = await cacheGet(lkey); if (lc) { res.status(200).json(lc); return; }
+        const sub = '(select negocio_id from negocio_advogado where advogado_id=$1)';
+        var lrow = {};
+        try {
+          lrow = (await db(`select
+            (select coalesce(json_agg(x),'[]'::json) from (
+               select i.id, i.nome, i.cidade, case when i.ativo then 'Ativo' else 'Pausado' end status, 0 imoveis, 0 leads
+               from imobiliarias i where i.id in (select imobiliaria_id from negocios where id in ${sub})) x) imobiliarias,
+            (select count(distinct lead_id)::int from negocios where id in ${sub}) leads_total,
+            (select count(distinct imovel_id)::int from negocios where id in ${sub}) imoveis_total`, [user.usuarioId])).rows[0] || {};
+        } catch (_) {}
+        const lout = { imobiliarias: lrow.imobiliarias || [], leadsTotal: lrow.leads_total || 0, leadsQualificados: 0, leadsPorFonte: [], leadsPorStatus: [], imoveisTotal: lrow.imoveis_total || 0 };
+        cacheSet(lkey, lout, 60); res.status(200).json(lout); return;
+      }
       if (!isAdmin && !user.imobiliariaId) { res.status(200).json({ imobiliarias: [], leadsTotal: 0, leadsQualificados: 0, leadsPorFonte: [], leadsPorStatus: [], imoveisTotal: 0 }); return; }
       const ckey = 'dash:resumo:' + (isAdmin ? 'all' : user.imobiliariaId);
       const cached = await cacheGet(ckey);

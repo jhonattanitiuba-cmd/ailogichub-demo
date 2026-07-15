@@ -4,7 +4,21 @@
 // Segredos via env vars da Vercel — nunca no repo.
 //   EVO_BASE, EVO_KEY, WA_INSTANCE, DB_URL
 const { db } = require('./_db');
-const { requireAuth, departamentoDe: deptDe } = require('./_auth');
+const { requireAuth, departamentoDe: deptDe, isLawyerRole } = require('./_auth');
+// jids que um advogado pode ver = conversas dos clientes dos negócios atribuídos a ele
+async function jidsDoAdvogado(usuarioId) {
+  try {
+    const r = await db(`select distinct a.remote_jid, l.telefone from negocio_advogado na
+      join negocios n on n.id=na.negocio_id
+      join leads l on l.id=n.lead_id
+      left join ia_atendimento a on a.lead_id=l.id
+      where na.advogado_id=$1`, [usuarioId]);
+    const jids = {}, fones = {};
+    (r.rows || []).forEach(x => { if (x.remote_jid) jids[x.remote_jid] = 1; if (x.telefone) { const f = String(x.telefone).replace(/\D/g, '').slice(-8); if (f) fones[f] = 1; } });
+    return { jids, fones };
+  } catch (_) { return { jids: {}, fones: {} }; }
+}
+function jidPermitido(jid, allow) { if (allow.jids[jid]) return true; const f = String(jid || '').split('@')[0].replace(/\D/g, '').slice(-8); return !!(f && allow.fones[f]); }
 const { cacheGet, cacheSet } = require('./_cache');
 
 const EVO_BASE = (process.env.EVO_BASE || '').replace(/\/$/, '');
@@ -213,7 +227,12 @@ module.exports = async (req, res) => {
       chats.forEach(c => { if (!c.lid && c.pkey) phoneKeys[c.pkey] = true; });
       chats = chats.filter(c => !(c.lid && c.pkey && phoneKeys[c.pkey]));
       if (cutoff) chats = chats.filter(c => c.atualizado && new Date(c.atualizado) >= cutoff);
-      res.status(200).json({ chats, meuId: user.usuarioId || null, meuNome: user.nome || null });
+      // ADVOGADO: só vê a conversa do(s) cliente(s) dos casos dele, e com telefone confidencial
+      if (isLawyerRole(user.perfil) && !user.isAdmin) {
+        const allow = await jidsDoAdvogado(user.usuarioId);
+        chats = chats.filter(c => jidPermitido(c.jid, allow)).map(c => Object.assign({}, c, { fone: null, confidencial: true }));
+      }
+      res.status(200).json({ chats, meuId: user.usuarioId || null, meuNome: user.nome || null, confidencial: isLawyerRole(user.perfil) && !user.isAdmin });
       return;
     }
 
@@ -305,6 +324,11 @@ module.exports = async (req, res) => {
     if (action === 'messages') {
       const jid = req.query && req.query.jid;
       if (!jid) { res.status(400).json({ error: 'jid obrigatorio' }); return; }
+      // ADVOGADO só abre a conversa do próprio caso
+      if (isLawyerRole(user.perfil) && !user.isAdmin) {
+        const allow = await jidsDoAdvogado(user.usuarioId);
+        if (!jidPermitido(jid, allow)) { res.status(403).json({ error: 'conversa fora do seu escopo' }); return; }
+      }
       // cutoff + contatos em paralelo (independentes)
       const [cutoff, ct] = await Promise.all([getCutoff(), getContatos()]);
       // MESCLA os dois lados: o WhatsApp guarda as RECEBIDAS sob @lid e as ENVIADAS sob o telefone

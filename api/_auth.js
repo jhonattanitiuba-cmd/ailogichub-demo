@@ -14,6 +14,15 @@ const DB_URL = process.env.DB_URL || '';
 // perfis com acesso total (veem todas as imobiliárias)
 const ADMIN_ROLES = ['admin', 'administrador', 'diretor', 'diretoria', 'dono', 'owner', 'super'];
 function isAdminRole(p) { return ADMIN_ROLES.indexOf(String(p || '').toLowerCase()) >= 0; }
+// perfis de advogado/associado: NÃO veem o geral; só os negócios atribuídos a eles
+const LAWYER_ROLES = ['advogado', 'associado', 'juridico', 'jurídico'];
+function isLawyerRole(p) { return LAWYER_ROLES.indexOf(String(p || '').toLowerCase()) >= 0; }
+// ids dos negócios atribuídos a um advogado (join negocio_advogado)
+async function negociosDoAdvogado(usuarioId) {
+  if (!usuarioId) return [];
+  try { const r = await db('select negocio_id from negocio_advogado where advogado_id=$1', [usuarioId]); return (r.rows || []).map(x => x.negocio_id).filter(Boolean); }
+  catch (_) { return []; }
+}
 
 // departamento amigável para a assinatura das mensagens (Nome / Departamento).
 // Deriva do perfil; sobrescrevível por usuarios.extra.departamento.
@@ -114,4 +123,4 @@ async function requireAuth(req, res) {
   return scope;
 }
 
-module.exports = { getUser, requireAuth, isAdminRole, departamentoDe };
+module.exports = { getUser, requireAuth, isAdminRole, isLawyerRole, negociosDoAdvogado, departamentoDe };

@@ -2,7 +2,7 @@
 // Colunas escalares populadas + coluna `extra jsonb` com os campos do formulário.
 // Segredo DB_URL em env var da Vercel.
 const { db } = require('./_db');
-const { requireAuth } = require('./_auth');
+const { requireAuth, isLawyerRole } = require('./_auth');
 const { cacheGet, cacheSet, cacheDel } = require('./_cache');
 const DB_URL = process.env.DB_URL || '';
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
@@ -140,13 +140,21 @@ module.exports = async (req, res) => {
 
     // ---- LIST (com escopo RBAC) ----
     if (action === 'list') {
-      const scope = user.isAdmin ? 'all' : (user.imobiliariaId || 'none');
+      const lawyer = isLawyerRole(user.perfil) && !user.isAdmin;
+      const scope = user.isAdmin ? 'all' : (lawyer ? ('law:' + (user.usuarioId || 'none')) : (user.imobiliariaId || 'none'));
       const ckey = 'data:' + ent + ':' + scope;
       const cached = await cacheGet(ckey);
       if (cached) { res.status(200).json(cached); return; }   // hit Redis -> nav instantanea
       const conds = [], params = [];
       if (SOFT.has(TABLE[ent])) conds.push('deleted_at is null');
-      if (!user.isAdmin) {
+      if (lawyer) {
+        // advogado: só vê os NEGÓCIOS atribuídos a ele (+ contratos/agenda desses negócios). Nada do geral.
+        const LAW_COL = { negocios: 'id', contratos: 'negocio_id', agenda: 'negocio_id' };
+        const col = LAW_COL[ent];
+        if (!col || !user.usuarioId) { res.status(200).json({ rows: [] }); return; }
+        params.push(user.usuarioId);
+        conds.push(col + ' in (select negocio_id from negocio_advogado where advogado_id = $' + params.length + ')');
+      } else if (!user.isAdmin) {
         if (!user.imobiliariaId) { res.status(200).json({ rows: [] }); return; } // sem escopo definido -> nada
         const col = (ent === 'imobiliarias') ? 'id' : 'imobiliaria_id';
         params.push(user.imobiliariaId);

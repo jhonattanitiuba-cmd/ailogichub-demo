@@ -164,9 +164,12 @@ td.strong{font-weight:700;color:var(--heading)}
         <option value="gestor">Gestor da imobiliária</option>
         <option value="corretor">Corretor</option>
         <option value="corretor_autonomo">Corretor autônomo</option>
+        <option value="advogado">Advogado (Jurídico)</option>
+        <option value="associado">Associado</option>
       </select></label>
       <label>Imobiliária<select id="f_imob"><option value="">Hub / sem imobiliária</option></select></label>
     </div>
+    <label id="fHonorarioWrap" style="display:none">Honorário (% da comissão)<input id="f_honorario" type="number" min="0" max="100" step="1" placeholder="ex.: 20"><div class="fhelp">Ganho do associado por caso, calculado sobre a comissão do negócio.</div></label>
     <div class="fg2"><label>Telefone<input id="f_telefone"></label><label>Status<select id="f_status"><option>Ativo</option><option>Inativo</option></select></label></div>
     <label id="fSenhaWrap">Senha temporária<input id="f_senha" placeholder="Deixe em branco para gerar automaticamente"><div class="fhelp">Senha inicial do primeiro login. A pessoa pode trocar depois em Esqueci a senha.</div></label>
   </div>
@@ -265,10 +268,13 @@ td.strong{font-weight:700;color:var(--heading)}
     $('f_imob').innerHTML='<option value="">Hub / sem imobiliária</option>'+imobs.map(function(i){return '<option value="'+esc(i.id)+'">'+esc(i.nome)+'</option>';}).join('');
     $('f_imob').value=m.imobiliaria_id||'';
     selVal($('f_perfil'),m.perfil||'corretor');$('f_status').value=(m.status==='Inativo')?'Inativo':'Ativo';
+    $('f_honorario').value=(m.honorario_pct!=null?m.honorario_pct:'');togHonor();
     $('credBox').style.display='none';$('credFoot').style.display='none';$('fBody').style.display='';$('fFoot').style.display='flex';
     $('fSenhaWrap').style.display='';$('f_senha').value='';$('f_senha').placeholder=m.id?'Nova senha (deixe em branco para não alterar)':'Deixe em branco para gerar automaticamente';
     fm.dataset.id=m.id||'';fFoto=m.foto||'';fIcone=m.icone||'';setFFotoPrev();fm.classList.add('open');}
   function closeForm(){fm.classList.remove('open');}
+  function togHonor(){ var p=($('f_perfil').value||'').toLowerCase(); $('fHonorarioWrap').style.display=/advogad|associad|jurid/.test(p)?'':'none'; }
+  $('f_perfil').addEventListener('change',togHonor);
   $('btnNew').addEventListener('click',function(){openForm(null);});
   $('fFotoInput').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f)return;fileToAvatar(f,function(d){if(d){fFoto=d;fIcone='';setFFotoPrev();}});e.target.value='';});
   $('fFotoClear').addEventListener('click',function(){fFoto='';fIcone='';setFFotoPrev();});
@@ -280,7 +286,7 @@ td.strong{font-weight:700;color:var(--heading)}
   document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeForm();dm.classList.remove('open');}});
 
   $('fSave').addEventListener('click',function(){
-    var o={nome:$('f_nome').value.trim(),email:$('f_email').value.trim(),telefone:$('f_telefone').value.trim(),imobiliaria_id:$('f_imob').value||null,perfil:$('f_perfil').value,status:$('f_status').value,foto:fFoto||'',icone:fIcone||''};
+    var o={nome:$('f_nome').value.trim(),email:$('f_email').value.trim(),telefone:$('f_telefone').value.trim(),imobiliaria_id:$('f_imob').value||null,perfil:$('f_perfil').value,status:$('f_status').value,foto:fFoto||'',icone:fIcone||'',honorario_pct:($('f_honorario').value!==''?Number($('f_honorario').value):null)};
     if(!o.nome){$('fErr').textContent='Informe o nome.';return;}
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.email)){$('fErr').textContent='Informe um e-mail válido (é ele que libera o acesso).';return;}
     if(fm.dataset.id){o.id=fm.dataset.id;}var sp=$('f_senha').value.trim();if(sp)o.senha=sp;

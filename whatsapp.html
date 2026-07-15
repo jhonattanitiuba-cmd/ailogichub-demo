@@ -466,7 +466,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     curJid=jid;curNome=nome;curFone=foneFmt(jid);
     var c=chatBy(jid);
     var av=$("clientAvatar"); if(av){ av.innerHTML=""; if(c&&c.foto){av.innerHTML='<img src="'+esc(c.foto)+'" onerror="this.parentNode.textContent=\''+esc(inits(nome)).replace(/'/g,"")+'\'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">';}else{av.textContent=inits(nome);} }
-    $("clientName").textContent=nome;$("clientMeta").textContent=curFone+" · WhatsApp Hub";
+    $("clientName").textContent=nome;$("clientMeta").textContent=foneShow()+" · WhatsApp Hub";
     $("btnLead").disabled=false;$("waInput").disabled=false;$("waSend").disabled=false;$("btnTransferir").disabled=false;var _bl=$("btnLimpar");if(_bl)_bl.disabled=false;
     refreshAttendUI();markRead(jid);loadCrm(jid);
     if(isMobile())showThread();
@@ -525,14 +525,17 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 
   // ===== quem sou eu + equipe (para transferência) =====
   var equipe=[];
-  function loadMe(){ fetch(API+"?action=me",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){ if(d){ if(d.id)meuId=d.id; meuNome=d.nome||meuNome; meuDepto=d.departamento||meuDepto; equipe=d.equipe||[]; } }).catch(function(){}); }
+  var meuPerfil="";
+  function confidencial(){ return /advogad|associad|jurid/i.test(meuPerfil); }   // advogado: telefone privado
+  function foneShow(){ return confidencial()?"Confidencial":curFone; }
+  function loadMe(){ fetch(API+"?action=me",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){ if(d){ if(d.id)meuId=d.id; meuNome=d.nome||meuNome; meuDepto=d.departamento||meuDepto; meuPerfil=d.perfil||meuPerfil; equipe=d.equipe||[]; } }).catch(function(){}); }
 
   // ===== painel CRM (vínculo + pipeline + infos) =====
   var STAGE_INFO={NOVO:["Novo","#64748b"],QUALIFICADO:["Qualificado","#0ea5e9"],EM_ATENDIMENTO:["Em atendimento","#f59e0b"],GANHO:["Ganho","#16a56f"],PERDIDO:["Perdido","#e94242"],DESCARTADO:["Descartado","#6b7280"]};
   function loadCrm(jid){
     var c=chatBy(jid)||{};
     var av=$("crmAv"); if(av){av.innerHTML=""; if(c.foto){av.innerHTML='<img src="'+esc(c.foto)+'" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.textContent=\''+esc(inits(c.nome||curNome)).replace(/\x27/g,"")+'\'">';}else{av.textContent=inits(c.nome||curNome);}}
-    $("crmNome").textContent=c.nome||curNome||"Contato"; $("crmFone").textContent=curFone;
+    $("crmNome").textContent=c.nome||curNome||"Contato"; $("crmFone").textContent=foneShow();
     $("crmVinculo").innerHTML='<div style="color:var(--muted);font-size:12px">Carregando…</div>'; $("crmStage").innerHTML=""; $("crmInfo").innerHTML="";
     fetch(API+"?action=crm&jid="+encodeURIComponent(jid),{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){ if(curJid!==jid)return; renderCrm(jid,d||{}); }).catch(function(){$("crmVinculo").innerHTML='<div style="color:var(--red);font-size:12px">Falha ao carregar CRM.</div>';});
   }
@@ -553,7 +556,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
       stEl.innerHTML=stages.map(function(s){var info=STAGE_INFO[s]||[s,"#64748b"];var on=(lead.status===s);return '<div class="stage-opt'+(on?" on":"")+'" data-s="'+s+'" style="'+(on?"background:"+info[1]:"")+'"><span class="stage-dot" style="color:'+info[1]+'"></span>'+esc(info[0])+(on?" · atual":"")+'</div>';}).join("");
       Array.prototype.forEach.call(stEl.querySelectorAll(".stage-opt"),function(op){op.addEventListener("click",function(){var s=op.getAttribute("data-s");lead.status=s;renderCrm(jid,{lead:lead,stages:stages});fetch(API+"?action=stage",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({leadId:lead.id,status:s})}).catch(function(){});});});
     } else { stEl.innerHTML='<div style="color:var(--muted);font-size:12px">Vincule um lead para ver a etapa.</div>'; }
-    $("crmInfo").innerHTML='<div class="crm-row"><span class="k">Telefone</span><span>'+esc(curFone)+'</span></div>'+(lead&&lead.interesse?'<div class="crm-row"><span class="k">Interesse</span><span>'+esc(lead.interesse)+'</span></div>':'')+'<div class="crm-row"><span class="k">Atendimento</span><span>'+(c.iaPausada?esc(c.atendenteNome||"Humano"):"IA (Sam)")+'</span></div>';
+    $("crmInfo").innerHTML='<div class="crm-row"><span class="k">Telefone</span><span>'+esc(foneShow())+'</span></div>'+(lead&&lead.interesse?'<div class="crm-row"><span class="k">Interesse</span><span>'+esc(lead.interesse)+'</span></div>':'')+'<div class="crm-row"><span class="k">Atendimento</span><span>'+(c.iaPausada?esc(c.atendenteNome||"Humano"):"IA (Sam)")+'</span></div>';
   }
   function vincular(jid,leadId){ fetch(API+"?action=vincular",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jid:jid,leadId:leadId})}).then(function(){loadCrm(jid);}).catch(function(){}); }
 
