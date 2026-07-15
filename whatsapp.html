@@ -182,6 +182,13 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   /* CRM vira sheet full-screen com dvh */
   .wa-layout.m-thread.crm-open .crm-panel{display:flex;flex-direction:column;position:fixed;inset:0;z-index:60;height:100dvh;border-radius:0}
   .wa-back,.wa-crm-btn{display:inline-flex}
+  /* cabeçalho da conversa: nome fica; a fileira de ações rola na horizontal (7 botões não cabem em 390px) */
+  .chat-box .chat-header{flex-wrap:wrap;gap:8px;padding:10px 12px}
+  .chat-box .chat-header .client{flex:1 1 100%;min-width:0}
+  .chat-box .chat-header .client strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+  .chat-box .chat-actions{flex:1 1 100%;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+  .chat-box .chat-actions::-webkit-scrollbar{display:none}
+  .chat-box .chat-actions>*{flex:0 0 auto}
 }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
