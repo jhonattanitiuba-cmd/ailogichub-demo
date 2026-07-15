@@ -168,8 +168,10 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
      transição só p/ cor. A curva elástica fica na física do scroll/rAF. */
   .hub-dock-item{ flex:0 0 20vw; display:flex; flex-direction:column; align-items:center; justify-content:center;
     gap:5px; height:84px; padding:10px 2px; background:none; border:0; color:#9db4d6; font:inherit; cursor:pointer;
+    -webkit-tap-highlight-color:transparent; outline:none; -webkit-appearance:none; appearance:none;   /* sem quadrado de toque */
     will-change:transform; transform-origin:center center;   /* escala no lugar (não sobe) */
     transition:color .28s ease; }
+  .hub-dock-item:focus, .hub-dock-item:focus-visible{ outline:none; background:none; }
   .hub-dock-ic{ position:relative; display:inline-flex; align-items:center; justify-content:center; font-size:26px; line-height:0; }
   .hub-dock-ic .hub-ic svg{ width:27px; height:27px; position:relative; z-index:1; }
   .hub-dock-lb{ font-size:10px; font-weight:600 !important; max-width:19vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
