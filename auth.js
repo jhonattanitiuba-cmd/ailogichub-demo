@@ -208,7 +208,22 @@
   function boot() { if (window.supabase) client(); else setTimeout(boot, 60); }
   boot();
 
-  // ---- pinta o usuário logado no rodapé da sidebar (.profile) ----
+  // ---- pinta o usuário logado (nome, perfil e FOTO) + restringe menu por perfil ----
+  // Jurídico (advogado): só enxerga o escopo dele. Segurança real é server-side
+  // (api/_auth.js); esta é a camada de UX pedida pelo cliente (relatório 20/07).
+  function restrictMenu(perfil) {
+    try {
+      var pf = String(perfil || '').toLowerCase();
+      var isJur = pf === 'advogado' || pf === 'juridico' || pf === 'jurídico';
+      if (!isJur) return;
+      var ALLOW = { visaogeral: 1, pessoas: 1, leads: 1, funil: 1, assinaturas: 1, relatorios: 1, suporte: 1 };
+      var nav = document.querySelectorAll('.nav-item');
+      for (var i = 0; i < nav.length; i++) {
+        var h = (nav[i].getAttribute('href') || '').split('/').pop().replace(/\.html$/, '');
+        if (h && !ALLOW[h]) nav[i].style.display = 'none';
+      }
+    } catch (_) {}
+  }
   function paintUser() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY); if (!raw) return;
@@ -220,11 +235,25 @@
       var nome = meta.nome || (email ? email.split('@')[0] : 'Usuário');
       var perfil = meta.perfil || 'Usuário';
       var ini = (nome.trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('') || 'U').toUpperCase();
+      // foto do usuário: upload por e-mail (localStorage) ou metadata do Supabase
+      var foto = '';
+      try { foto = localStorage.getItem('ailh_avatar_' + email) || ''; } catch (_) {}
+      if (!foto) foto = meta.avatar_url || meta.foto || '';
+      function paintAv(av) {
+        if (!av) return;
+        if (foto) { av.textContent = ''; av.style.backgroundImage = 'url("' + foto + '")'; av.style.backgroundSize = 'cover'; av.style.backgroundPosition = 'center'; }
+        else { av.textContent = ini; av.style.backgroundImage = ''; }
+      }
       function apply() {
-        var p = document.querySelector('.profile'); if (!p) return;
-        var st = p.querySelector('strong'); if (st) st.textContent = nome;
-        var sp = p.querySelector('span'); if (sp) sp.textContent = perfil.charAt(0).toUpperCase() + perfil.slice(1);
-        var av = p.querySelector('.avatar'); if (av) av.textContent = ini;
+        var p = document.querySelector('.profile');
+        if (p) {
+          var st = p.querySelector('strong'); if (st) st.textContent = nome;
+          var sp = p.querySelector('span'); if (sp) sp.textContent = perfil.charAt(0).toUpperCase() + perfil.slice(1);
+          paintAv(p.querySelector('.avatar'));
+        }
+        // avatar do topo à direita (se a tela expõe .hub-user-av)
+        paintAv(document.querySelector('.hub-user-av'));
+        restrictMenu(perfil);
       }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
       else apply();
