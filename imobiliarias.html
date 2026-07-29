@@ -183,7 +183,15 @@ td.strong{font-weight:700;color:var(--heading)}
         var novoId=(x.j&&x.j.row&&x.j.row.id)||m.id;
         var user={nome:m.responsavel_nome||m.nome,email:m.responsavel_email||'',telefone:m.responsavel_telefone||'',perfil:'gestor',imobiliaria_id:novoId,status:'Ativo'};
         return fetch(DATA+'?ent=corretores&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(user)})
-          .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});});
+          .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j,novoId:novoId};});});
+      })
+      .then(function(x){
+        // vincula o gestor recém-criado à imobiliária (gestor_id) — REV2 item 01
+        if(x&&x.ok&&x.j&&x.j.row&&x.j.row.id&&x.novoId){
+          return fetch(DATA+'?ent=imobiliarias&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:x.novoId,gestor_id:x.j.row.id})})
+            .then(function(){return x;}).catch(function(){return x;});
+        }
+        return x;
       })
       .then(function(x){
         btn.disabled=false;btn.textContent='Aprovar acesso';dm.classList.remove('open');load();

@@ -59,6 +59,8 @@ const intOrNull = v => (v != null && v !== '') ? parseInt(v) : null;
 const MAP_TIPO = { 'Apartamento':'apartamento','Casa':'casa','Sala comercial':'sala_comercial','Loft':'loft','Cobertura':'cobertura','Terreno':'terreno','Galpão':'galpao','Outro':'outro' };
 const MAP_FIN  = { 'Venda':'venda','Locação':'locacao','Temporada':'temporada' };
 const MAP_ST   = { 'Disponível':'disponivel','Reservado':'reservado','Vendido':'vendido','Locado':'locado','Inativo':'inativo' };
+// Cota de corretores por plano (REV2 item 02): base inclui 2; a partir do 3o exige plano.
+const PLAN_QUOTAS = { _base: 2, '': 2, free: 2, gratis: 2, starter: 2, basico: 2, essencial: 2, pro: 5, plus: 5, avancado: 5, premium: Infinity, ilimitado: Infinity, enterprise: Infinity };
 
 function imobOut(r) {
   const e = r.extra || {};
@@ -67,7 +69,22 @@ function imobOut(r) {
     site: r.site, instagram: r.instagram, endereco: r.endereco, cidade: r.cidade,
     lat: r.lat != null ? Number(r.lat) : null, lng: r.lng != null ? Number(r.lng) : null,
     raio: r.raio_atuacao_m, status: (r.ativo ? 'Implantando' : 'Pausado')
-  }, e);
+  }, e, {
+    gestor_id: (r.gestor_id != null ? r.gestor_id : (e.gestor_id || null)),
+    plano: (r.plano != null ? r.plano : (e.plano || null))
+  });
+}
+// Grava gestor_id / plano na imobiliaria (coluna dedicada, idempotente). REV2 itens 01/02.
+async function applyImobVinculos(o, row) {
+  if (!row) return row;
+  if (o.gestor_id === undefined && o.plano === undefined) return row;
+  try { await db('alter table imobiliarias add column if not exists gestor_id uuid'); } catch (_) {}
+  try {
+    const rr = await db('update imobiliarias set gestor_id=coalesce($1,gestor_id), plano=coalesce($2,plano), updated_at=now() where id=$3 returning *',
+      [o.gestor_id || null, o.plano || null, row.id]);
+    if (rr.rows[0]) return rr.rows[0];
+  } catch (_) {}
+  return row;
 }
 function imovOut(r) {
   const e = r.extra || {};
@@ -263,12 +280,12 @@ module.exports = async (req, res) => {
         if (o.id) {
           const r = await db(`update imobiliarias set nome=$1,creci=$2,telefone=$3,email=$4,site=$5,instagram=$6,endereco=$7,cidade=$8,lat=$9,lng=$10,raio_atuacao_m=$11,ativo=$12,extra=$13,updated_at=now() where id=$14 returning *`,
             [o.nome, o.creci||null, o.telefone||null, o.email||null, o.site||null, o.instagram||null, o.endereco||null, o.cidade||null, lat, lng, raio, ativo, JSON.stringify(extra), o.id]);
-          res.status(200).json({ row: imobOut(r.rows[0]) }); return;
+          res.status(200).json({ row: imobOut(await applyImobVinculos(o, r.rows[0])) }); return;
         }
         const slug = slugify(o.nome) + '-' + rid();
         const r = await db(`insert into imobiliarias(nome,creci,slug,telefone,email,site,instagram,endereco,cidade,lat,lng,raio_atuacao_m,ativo,extra) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning *`,
           [o.nome, o.creci||null, slug, o.telefone||null, o.email||null, o.site||null, o.instagram||null, o.endereco||null, o.cidade||null, lat, lng, raio, ativo, JSON.stringify(extra)]);
-        res.status(200).json({ row: imobOut(r.rows[0]) }); return;
+        res.status(200).json({ row: imobOut(await applyImobVinculos(o, r.rows[0])) }); return;
       }
 
       if (ent === 'corretores') {
@@ -293,6 +310,19 @@ module.exports = async (req, res) => {
             else { respU.senha_atualizada = false; respU.login_motivo = login.motivo || ''; }
           }
           res.status(200).json(respU); return;
+        }
+        // Cota de corretores por plano (REV2 item 02): base inclui 2; 3o+ exige plano.
+        if (perfil === 'corretor' && imob) {
+          try {
+            const q = await db("select coalesce(plano,'') plano, (select count(*) from usuarios where imobiliaria_id=$1 and perfil='corretor' and deleted_at is null) c from imobiliarias where id=$1", [imob]);
+            const plano = String((q.rows[0] && q.rows[0].plano) || '').toLowerCase().trim();
+            const usados = Number((q.rows[0] && q.rows[0].c) || 0);
+            const cota = (PLAN_QUOTAS[plano] != null) ? PLAN_QUOTAS[plano] : PLAN_QUOTAS._base;
+            if (cota !== Infinity && usados >= cota) {
+              res.status(400).json({ error: 'limite_corretores', cota: cota, usados: usados, plano: plano || 'base', message: 'O plano atual inclui ' + cota + ' corretores (ja usados ' + usados + '). Habilite o plano mensal para incluir mais.' });
+              return;
+            }
+          } catch (_) {}
         }
         const r = await db(`insert into usuarios(imobiliaria_id,nome,email,telefone,creci,perfil,ativo,extra) values($1,$2,$3,$4,$5,$6,$7,$8) returning *`,
           [imob, o.nome, o.email||null, o.telefone||null, o.creci||null, perfil, ativo, JSON.stringify(extra)]);

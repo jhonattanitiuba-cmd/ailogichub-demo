@@ -294,7 +294,7 @@ td.strong{font-weight:700;color:var(--heading)}
     fetch(DATA+'?ent=corretores&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)})
       .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
       .then(function(x){btn.disabled=false;btn.textContent='Salvar';
-        if(!x.ok){$('fErr').textContent='Erro: '+((x.j&&x.j.error)||'desconhecido');return;}
+        if(!x.ok){$('fErr').textContent=(x.j&&x.j.message)?x.j.message:('Erro: '+((x.j&&x.j.error)||'desconhecido'));return;}
         var j=x.j||{};
         if(j.login_criado){
           $('credEmail').textContent=o.email;$('credSenha').textContent=j.senha_temporaria||'';
