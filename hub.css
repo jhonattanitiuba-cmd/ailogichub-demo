@@ -344,13 +344,15 @@ button, a, [role="button"], .btn, .pill, .icon-btn, .wa-tab, .chip, .chip2, .seg
 .sidebar > .profile{ margin-top:2px; padding:0 4px 16px; border-top:0; border-bottom:1px solid rgba(255,255,255,.08); }
 /* rodapé da sidebar: recolher (<) + sair */
 /* rodape destacado (visual XORA): grupo inferior em painel translucido suave */
-.hub-sb-footer{ margin-top:auto; display:flex; align-items:center; gap:8px; padding:10px; border-top:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.05); border-radius:12px; }
-.hub-sb-footer .sb-toggle{ margin:0 !important; }
+.hub-sb-footer{ margin-top:auto; display:flex; flex-direction:column; gap:8px; padding:10px; border-top:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.05); border-radius:12px; }
+.hub-sb-footer > .profile{ display:flex; align-items:center; gap:10px; width:100%; margin:0; padding:0; border:0; }
+.hub-sb-footer .sb-toggle{ margin:0 !important; align-self:flex-start; }
 .hub-sb-footer .hub-logout{ margin:0 0 0 auto !important; }
-.app.sb-collapsed .hub-sb-footer{ flex-direction:column; gap:10px; align-items:center; }
+.app.sb-collapsed .hub-sb-footer{ align-items:center; gap:10px; }
+.app.sb-collapsed .hub-sb-footer > .profile{ justify-content:center; }
+.app.sb-collapsed .hub-sb-footer .sb-toggle{ align-self:center; }
 .app.sb-collapsed .hub-sb-footer .sb-toggle,
 .app.sb-collapsed .hub-sb-footer .hub-logout{ margin:0 !important; }
-.app.sb-collapsed .sidebar > .profile{ padding:0 0 14px; }
 
 /* ===== olho de privacidade (borra/abre todos os valores) ===== */
 .hub-eye{ flex:none; width:32px; height:32px; margin-left:auto; padding:0; border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.06); color:#cddcf5; border-radius:9px; display:grid; place-items:center; cursor:pointer; transition:background .15s, color .15s, border-color .15s, transform .12s; -webkit-tap-highlight-color:transparent; }

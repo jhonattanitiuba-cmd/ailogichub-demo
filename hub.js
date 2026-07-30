@@ -740,20 +740,18 @@
     var u=readUser();
     if(side && !side.getAttribute('data-chrome')){
       side.setAttribute('data-chrome','1');
-      var brand=side.querySelector('.brand');
       var prof=side.querySelector('.profile');
-      if(prof){
-        prof.style.display='';                                    // gavetas escondia o perfil
-        if(brand && brand.nextSibling) side.insertBefore(prof, brand.nextSibling);   // topo, logo após a marca
-        else if(brand) side.appendChild(prof);
-        fillProfile(prof,u);
-        if(!prof.querySelector('.hub-eye')) prof.appendChild(makeEye('hub-eye-side'));
-      }
-      // rodapé: recolher (<) + sair, colados embaixo (margin-top:auto no CSS)
+      // rodapé: usuário (foto+nome+cargo+olho) + recolher (<) + sair, colados embaixo (margin-top:auto no CSS)
       var foot=side.querySelector('.hub-sb-footer');
       if(!foot){ foot=document.createElement('div'); foot.className='hub-sb-footer'; side.appendChild(foot); }
+      if(prof){
+        prof.style.display='';                                    // gavetas escondia o perfil
+        fillProfile(prof,u);
+        if(!prof.querySelector('.hub-eye')) prof.appendChild(makeEye('hub-eye-side'));
+        foot.appendChild(prof);                                   // usuário no RODAPÉ (padrão Hiper Play)
+      }
       var tog=side.querySelector('.sb-toggle'); if(tog) foot.appendChild(tog);
-      var lo=side.querySelector('.hub-logout'); if(lo) foot.appendChild(lo);
+      var lo=side.querySelector('.hub-logout'); if(lo && prof) prof.appendChild(lo); else if(lo) foot.appendChild(lo);
     }
     // barra mobile fixa (avatar + olho): fora do .main -> sobrevive à troca de tela SPA
     if(!document.querySelector('.hub-mtop')){
