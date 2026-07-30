@@ -651,7 +651,15 @@
       present.forEach(function(sl,i){ var a=map[sl]; used[sl]=1; a.classList.add('hub-leaf');
         if(!a.querySelector('.hs-num')){ var n=document.createElement('span'); n.className='hs-num'; n.textContent=(i+1); a.insertBefore(n,a.firstChild); }
         lv.appendChild(a); });
-      h.addEventListener('click',function(){ sec.classList.toggle('op'); });
+      h.addEventListener('click',function(){
+        var app=document.querySelector('.app');
+        if(app && app.classList.contains('sb-collapsed')){
+          app.classList.remove('sb-collapsed'); try{localStorage.setItem('ailogic_sb','0');}catch(_){}
+          [].slice.call(document.querySelectorAll('.hub-sec.op')).forEach(function(o){ if(o!==sec) o.classList.remove('op'); });
+          sec.classList.add('op'); return;
+        }
+        sec.classList.toggle('op');
+      });
       sec.appendChild(h); sec.appendChild(lv); wrap.appendChild(sec);
     });
     if(!wrap.children.length){ side.removeAttribute('data-gav'); return; }
