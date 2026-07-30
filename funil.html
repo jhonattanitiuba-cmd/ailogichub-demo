@@ -55,6 +55,11 @@ a{text-decoration:none;color:inherit}
 .kcard .desc{font-size:10.5px;color:var(--muted);margin-top:2px}
 .kcard .row{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:8px}
 .kcard .val{font-weight:800;font-size:12.5px;color:var(--text)}
+.kcard .kc-links{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.kc-lnk{font-size:10px;font-weight:800;text-decoration:none;border-radius:999px;padding:2px 9px;border:1px solid var(--border2);display:inline-flex;align-items:center;gap:4px}
+.kc-lnk:hover{filter:brightness(1.15)}
+.kc-lnk.wa{color:#16a56f;border-color:#16a56f66}
+.kc-lnk.cod{color:#0b66ff;border-color:#0b66ff66}
 .badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:800;white-space:nowrap}
 .badge.blue{background:var(--blueSoft);color:var(--blue)}.badge.green{background:var(--greenSoft);color:var(--green)}.badge.orange{background:var(--orangeSoft);color:#b8860b}.badge.red{background:var(--redSoft);color:var(--red)}
 .chip-o{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 7px;border-radius:999px;background:var(--blueSoft);color:var(--blue)}
@@ -168,7 +173,9 @@ a{text-decoration:none;color:inherit}
   function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
   var dragId=null, dealsById={}, justDragged=false, modal=document.getElementById('dealModal');
   function fld(label,val,full){return '<div class="mcell'+(full?' full':'')+'"><label>'+label+'</label><strong>'+esc(val==null||val===''?'—':val)+'</strong></div>';}
+  function lnkCell(label,href,texto){return '<div class="mcell full"><label>'+label+'</label><strong><a href="'+href+'" style="color:var(--accent,#0b66ff);text-decoration:none;font-weight:800">'+esc(texto)+'</a></strong></div>';}
   function openDeal(c){ if(!c) return;
+    var fone=foneDe(c);
     document.getElementById('dLead').textContent=c.lead_nome||'Negócio';
     document.getElementById('dSub').textContent=[c.imob_nome,c.origem].filter(Boolean).join(' · ')||'—';
     document.getElementById('dGrid').innerHTML=
@@ -182,7 +189,10 @@ a{text-decoration:none;color:inherit}
       +fld('SLA',c.sla)
       +fld('Último contato',c.ultimo_contato)
       +(c.status_label?fld('Status',c.status_label,true):'')
-      +(c.motivo_perda?fld('Motivo da perda',c.motivo_perda,true):'');
+      +(c.motivo_perda?fld('Motivo da perda',c.motivo_perda,true):'')
+      +(c.imovel_codigo?lnkCell('Ver imóvel','/imoveis?codigo='+encodeURIComponent(c.imovel_codigo),'Cód. '+c.imovel_codigo):'')
+      +(fone?lnkCell('Abrir conversa','/whatsapp?jid='+encodeURIComponent(fone),'WhatsApp'):'')
+      +fld('Observações',c.observacoes,true);
     modal.classList.add('open');
   }
   function closeDeal(){modal.classList.remove('open');}
@@ -191,9 +201,11 @@ a{text-decoration:none;color:inherit}
   modal.addEventListener('click',function(e){if(e.target===modal)closeDeal();});
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDeal();});
 
+  function foneDe(c){ return c.lead_telefone||c.telefone||c.contato||c.jid||''; }
   function card(c){
     var cor=ORIGEM_COR[c.origem]||'#64748b';
     var slaOk=(c.sla==='Venda concluída'||c.sla==='Dentro do SLA');
+    var fone=foneDe(c);
     return '<div class="kcard" draggable="true" data-id="'+esc(c.id)+'">'
       +'<div class="lead">'+esc(c.lead_nome||'—')+'</div>'
       +'<div class="desc">'+esc(c.imovel_desc||(c.imovel_codigo?'Cód. '+c.imovel_codigo:'—'))+'</div>'
@@ -203,6 +215,10 @@ a{text-decoration:none;color:inherit}
       +(c.motivo_perda
         ?'<div class="meta" style="color:var(--red)">Motivo: '+esc(c.motivo_perda)+'</div>'
         :'<div class="meta"><span>Tent.: '+(c.tentativas||1)+(c.ultimo_contato?' · '+esc(c.ultimo_contato):'')+'</span>'+(c.sla?'<span style="color:'+(slaOk?'var(--green)':'var(--orange)')+';font-weight:700">'+esc(c.sla)+'</span>':'')+'</div>')
+      +((fone||c.imovel_codigo)?('<div class="kc-links">'
+        +(fone?'<a class="kc-lnk wa" href="/whatsapp?jid='+encodeURIComponent(fone)+'" title="Abrir conversa no WhatsApp" onclick="event.stopPropagation()">WhatsApp</a>':'')
+        +(c.imovel_codigo?'<a class="kc-lnk cod" href="/imoveis?codigo='+encodeURIComponent(c.imovel_codigo)+'" title="Ver imóvel" onclick="event.stopPropagation()">Cód. '+esc(c.imovel_codigo)+'</a>':'')
+        +'</div>'):'')
       +'</div>';
   }
 

@@ -693,6 +693,12 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   }).catch(function(){var t=$("statusText");if(t)t.textContent="Status indisponível";});
 
   loadMe();loadChats();loadAux();
+  // abre a conversa direto quando chega de outra tela (funil -> WhatsApp) via ?jid=
+  try{
+    var _qp=new URLSearchParams(location.search), _pj=_qp.get('jid');
+    if(_pj){ if(_pj.indexOf('@')<0) _pj=_pj.replace(/\D/g,'')+'@s.whatsapp.net';
+      setTimeout(function(){ try{ var cc=chatBy(_pj); openChat(_pj, (cc&&cc.nome)||''); }catch(_){} }, 1300); }
+  }catch(_){}
   // polling (~10s): o Hub ainda nao tem realtime; revalida conversas (toca som em transferencia nova)
   // e, se ha conversa aberta, atualiza as mensagens dela.
   setInterval(function(){
