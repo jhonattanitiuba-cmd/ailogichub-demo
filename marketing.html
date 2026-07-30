@@ -1,55 +1,69 @@
 <!doctype html>
 <html lang="pt-BR"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Estúdio de Marketing · AI Logic Hub</title>
+<title>Marketing · AI Logic Hub</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
 <style>
-:root{--bg:#070b14;--panel:#0e1524;--panel2:#131c30;--border:#1e2942;--border2:#26324f;--text:#e7edf7;--muted:#8fa1be;--head:#f4f8ff;--accent:#0b66ff;--accent2:#3b8cff;--green:#16a56f;--soft:0 10px 30px rgba(3,8,20,.5)}
-*{box-sizing:border-box}html,body{margin:0;height:100%}body{background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif}
+:root{--bg:#070b14;--panel:#0e1524;--panel2:#131c30;--border:#1e2942;--border2:#26324f;--text:#e7edf7;--muted:#8fa1be;--head:#f4f8ff;--brand:#0b66ff;--brand2:#3b8cff;--green:#16a56f;--soft:0 10px 30px rgba(3,8,20,.5)}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--text);font-family:Montserrat,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.5}
 a{color:inherit;text-decoration:none}
 .app{display:grid;grid-template-columns:250px 1fr;height:100vh}
 .sidebar{background:linear-gradient(180deg,#0a1120,#0b1322);border-right:1px solid var(--border);padding:16px 12px;overflow:auto}
-.brand{font-weight:800;font-size:15px;color:var(--head);padding:6px 10px 14px;letter-spacing:.3px}
-.brand span{color:var(--accent2)}
+.brand{font-weight:800;font-size:15px;color:var(--head);padding:6px 10px 14px}.brand span{color:var(--brand2)}
 .nav-sec{font-size:9.5px;text-transform:uppercase;letter-spacing:1.2px;color:#5f719a;margin:12px 10px 5px}
-.nav-item{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:11px;color:#b7c9e8;font-weight:650;font-size:13.5px;margin:2px 0}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:11px;color:#b7c9e8;font-weight:600;font-size:13.5px;margin:2px 0}
 .nav-item:hover{background:rgba(255,255,255,.05);color:#fff}
-.nav-item.active{background:linear-gradient(135deg,#0a66ff,#0748bb);color:#fff;box-shadow:0 10px 26px rgba(11,102,255,.35)}
+.nav-item.active{background:linear-gradient(135deg,var(--brand),#0748bb);color:#fff;box-shadow:0 10px 26px rgba(11,102,255,.35)}
 .ico{width:20px;text-align:center;opacity:.9}
-.main{overflow:auto;padding:26px 30px}
+.main{overflow:auto;padding:24px 30px}
 .h1{font-size:22px;font-weight:800;color:var(--head);margin:0}
 .sub{color:var(--muted);margin:4px 0 0;font-size:13px}
-.proto-note{margin:16px 0 22px;padding:11px 14px;border:1px solid var(--border2);border-radius:12px;background:var(--panel);color:var(--muted);font-size:12.5px;display:flex;gap:10px;align-items:center}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(22,165,111,.18)}
+/* abas numeradas (telas da gaveta, na ordem do processo) */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 20px;border-bottom:1px solid var(--border);padding-bottom:14px}
+.tab{display:flex;align-items:center;gap:8px;border:1px solid var(--border2);background:var(--panel);border-radius:12px;padding:9px 13px;font-weight:700;font-size:12.5px;color:#b7c9e8;cursor:pointer}
+.tab .num{width:20px;height:20px;border-radius:6px;background:var(--panel2);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--muted)}
+.tab.on{background:linear-gradient(135deg,var(--brand),#0748bb);color:#fff;border-color:transparent}
+.tab.on .num{background:rgba(255,255,255,.22);color:#fff}
+.screen{display:none}.screen.on{display:block}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
 @media(max-width:1100px){.grid{grid-template-columns:1fr}.app{grid-template-columns:1fr}}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:var(--soft)}
 .card h3{margin:0 0 4px;font-size:15px;color:var(--head);display:flex;align-items:center;gap:9px}
 .card .cd{color:var(--muted);font-size:12px;margin:0 0 14px}
-.emoji{width:34px;height:34px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0a66ff33,#3b8cff22);font-size:17px}
-.field{margin:9px 0}.field label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.ic{width:34px;height:34px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,color-mix(in srgb,var(--brand) 33%,transparent),color-mix(in srgb,var(--brand2) 22%,transparent))}
+.field{margin:11px 0}.field label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;font-weight:700}
 .inp{width:100%;background:var(--panel2);border:1px solid var(--border2);border-radius:10px;padding:9px 11px;color:var(--text);font:inherit}
 .chips{display:flex;gap:7px;flex-wrap:wrap}
-.chip{border:1px solid var(--border2);background:var(--panel2);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:700;color:#b7c9e8;cursor:pointer}
-.chip.on{background:linear-gradient(135deg,#0a66ff,#0748bb);color:#fff;border-color:transparent}
-.btn{margin-top:12px;width:100%;border:none;border-radius:11px;padding:11px;font-weight:800;font-size:13.5px;color:#fff;background:linear-gradient(135deg,#0a66ff,#0748bb);cursor:pointer}
+.chip{border:1px solid var(--border2);background:var(--panel2);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;color:#b7c9e8;cursor:pointer}
+.chip.on{background:linear-gradient(135deg,var(--brand),#0748bb);color:#fff;border-color:transparent}
+.btn{margin-top:12px;width:100%;border:none;border-radius:11px;padding:11px;font-weight:800;font-size:13.5px;color:#fff;background:linear-gradient(135deg,var(--brand),#0748bb);cursor:pointer}
 .btn.sec{background:var(--panel2);color:#b7c9e8;border:1px solid var(--border2)}
+.colorrow{display:flex;gap:12px;flex-wrap:wrap}
+.colorpick{flex:1;min-width:150px}
+.colorpick .swatch{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--border2);border-radius:10px;padding:7px 10px}
+.colorpick input[type=color]{width:34px;height:34px;border:none;border-radius:8px;background:none;cursor:pointer;padding:0}
+.colorpick input[type=text]{flex:1;background:none;border:none;color:var(--text);font:inherit;font-weight:700}
 .drop{border:1.5px dashed var(--border2);border-radius:12px;padding:20px;text-align:center;color:var(--muted);cursor:pointer;background:var(--panel2)}
-.ba{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.ba figure{margin:0}.ba .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:5px}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.ba figure{margin:0}
+.ba .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:5px}
 .ba img{width:100%;height:130px;object-fit:cover;border-radius:10px;border:1px solid var(--border2);background:var(--panel2)}
-.postpv{border:1px solid var(--border2);border-radius:12px;overflow:hidden;margin-top:12px;background:var(--panel2)}
-.postpv .im{height:150px;background:linear-gradient(135deg,#0a2a5e,#0a66ff44)}
-.postpv .tx{padding:12px;font-size:12.5px;color:#cdd8ea}
+.postpv{border:1px solid var(--border2);border-radius:14px;overflow:hidden;background:var(--panel2)}
+.postpv .im{height:150px;background:linear-gradient(135deg,var(--brand),color-mix(in srgb,var(--brand2) 55%,#0a2a5e))}
+.postpv .tx{padding:13px;font-size:13px;color:#eaf1fb}
+.postpv .tx b{color:#fff}
 .roteiro{margin-top:12px;font-size:12.5px;color:#cdd8ea}
 .roteiro .step{display:flex;gap:9px;padding:7px 0;border-bottom:1px solid var(--border)}
-.roteiro .n{flex:0 0 22px;height:22px;border-radius:50%;background:#0a66ff;color:#fff;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center}
-/* ===== convenção DEMO: semitransparente; ao passar o mouse fica nítido + legenda "Em produção" ===== */
+.roteiro .n{flex:0 0 22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center}
 .demo{opacity:.5;filter:saturate(.75);position:relative;transition:opacity .18s,filter .18s}
 .demo:hover{opacity:1;filter:none}
 .demo::after{content:"Em produção";position:absolute;top:8px;right:8px;background:#f59e0b;color:#1a1206;font-size:9.5px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border-radius:999px;opacity:0;transition:opacity .18s;pointer-events:none}
 .demo:hover::after{opacity:1}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:#111a2c;border:1px solid var(--border2);color:#e7edf7;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:700;opacity:0;transition:all .25s;box-shadow:var(--soft);z-index:60}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+svg{width:17px;height:17px}
+.conn{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:3px 9px;border-radius:999px;margin-left:8px}
+.conn.on{background:rgba(22,165,111,.16);color:#4ade9c;border:1px solid rgba(22,165,111,.4)}
 </style></head>
 <body>
 <div class="app">
@@ -62,7 +76,7 @@ a{color:inherit;text-decoration:none}
     <a class="nav-item" href="whatsapp"><span class="ico">◌</span>WhatsApp</a>
     <a class="nav-item" href="imoveis"><span class="ico">▤</span>Imóveis</a>
     <div class="nav-sec">Marketing</div>
-    <a class="nav-item active" href="marketing"><span class="ico">✦</span>Estúdio de Marketing</a>
+    <a class="nav-item active" href="marketing"><span class="ico">✦</span>Marketing</a>
     <a class="nav-item" href="site"><span class="ico">◍</span>Site do Hub</a>
     <a class="nav-item" href="anuncios"><span class="ico">↗</span>Anúncios</a>
     <div class="nav-sec">Gestão</div>
@@ -72,70 +86,189 @@ a{color:inherit;text-decoration:none}
   </aside>
 
   <main class="main">
-    <h1 class="h1">Estúdio de Marketing</h1>
-    <p class="sub">Conteúdo consistente para as imobiliárias e para o Hub, com IA integrada ao funil e ao WhatsApp.</p>
-    <div class="proto-note"><span class="dot"></span> Protótipo de validação. Blocos <b>semitransparentes</b> estão <b>em produção</b> (passe o mouse para ver a legenda). O que está nítido é o fluxo previsto para a reunião.</div>
+    <h1 class="h1">Marketing</h1>
+    <p class="sub">Da identidade visual ao vídeo publicado, na ordem do processo. Blocos semitransparentes estão <b>em produção</b> (passe o mouse).</p>
 
-    <div class="grid">
-      <!-- 1. Revitalização de fotos -->
-      <section class="card">
-        <h3><span class="emoji">🏠</span> Revitalização de Fotos</h3>
-        <p class="cd">A imobiliária sobe a foto do imóvel e a IA devolve uma versão revitalizada, <b>mantendo a originalidade</b> (mesmo ambiente, sem inventar).</p>
+    <div class="tabs" id="tabs">
+      <div class="tab on" data-s="s1"><span class="num">1</span>Identidade Visual</div>
+      <div class="tab" data-s="s2"><span class="num">2</span>Revitalização de Fotos</div>
+      <div class="tab" data-s="s3"><span class="num">3</span>Gerador de Post</div>
+      <div class="tab" data-s="s4"><span class="num">4</span>Roteiro e Vídeo</div>
+      <div class="tab" data-s="s5"><span class="num">5</span>Campanhas</div>
+      <div class="tab" data-s="s6"><span class="num">6</span>Google integrado</div>
+      <div class="tab" data-s="s7"><span class="num">7</span>Meta integrado</div>
+    </div>
+
+    <!-- 1. IDENTIDADE VISUAL (plug and play, interativo de verdade) -->
+    <div class="screen on" id="s1">
+      <div class="grid">
+        <section class="card">
+          <h3>Identidade da marca</h3>
+          <p class="cd">Escolha as cores, a fonte e o estilo. Tudo aqui é <b>plug and play</b> e aplica na prévia ao lado na hora.</p>
+          <div class="field"><label>Cores do sistema</label>
+            <div class="colorrow">
+              <div class="colorpick"><div class="lbl" style="font-size:10px;color:var(--muted);margin-bottom:5px">Primária</div><div class="swatch"><input type="color" id="cPrim" value="#0b66ff"><input type="text" id="cPrimHex" value="#0b66ff"></div></div>
+              <div class="colorpick"><div class="lbl" style="font-size:10px;color:var(--muted);margin-bottom:5px">Secundária</div><div class="swatch"><input type="color" id="cSec" value="#3b8cff"><input type="text" id="cSecHex" value="#3b8cff"></div></div>
+            </div>
+          </div>
+          <div class="field"><label>Fonte</label>
+            <select class="inp" id="fSel"><option>Montserrat</option><option>Inter</option><option>Poppins</option><option>Roboto</option><option>Playfair Display</option></select>
+          </div>
+          <div class="field"><label>Estilo de post</label><div class="chips" data-single><span class="chip on">Sofisticado</span><span class="chip">Minimalista</span><span class="chip">Vibrante</span><span class="chip">Clássico</span></div></div>
+          <div class="field"><label>Estilo de comunicação</label><div class="chips" data-single><span class="chip on">Consultivo</span><span class="chip">Próximo</span><span class="chip">Direto</span><span class="chip">Formal</span></div></div>
+          <button class="btn demo" data-demo>IA: sugerir identidade a partir do logo</button>
+          <button class="btn sec demo" data-demo style="margin-top:10px">Salvar identidade (aplica em todo o Hub)</button>
+        </section>
+        <section class="card">
+          <h3>Prévia ao vivo</h3>
+          <p class="cd">É assim que a identidade aparece nos materiais.</p>
+          <div class="postpv"><div class="im"></div><div class="tx"><b id="pvTitle" style="font-size:15px">Seu novo endereço de alto padrão.</b><br><span id="pvBody">3 dormitórios, vista livre e a poucos passos da Paulista. Agende sua visita.</span></div></div>
+          <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" style="margin-top:0">Botão primário</button><button class="btn sec" style="margin-top:0">Secundário</button></div>
+          <p class="cd" style="margin-top:12px">Fonte aplicada: <b id="fShow" style="color:var(--head)">Montserrat</b> · Cores <b id="cShow" style="color:var(--head)">#0b66ff / #3b8cff</b></p>
+        </section>
+      </div>
+    </div>
+
+    <!-- 2. REVITALIZAÇÃO -->
+    <div class="screen" id="s2">
+      <div class="grid"><section class="card">
+        <h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span> Revitalização de Fotos</h3>
+        <p class="cd">A imobiliária sobe a foto e a IA devolve uma versão revitalizada, <b>mantendo a originalidade</b> (mesmo ambiente, sem inventar).</p>
         <div class="drop" id="drop">Arraste ou clique para enviar a foto do imóvel<input type="file" id="file" accept="image/*" hidden></div>
-        <div class="ba">
-          <figure><div class="lbl">Original (enviada)</div><img id="orig" alt="original"></figure>
-          <figure class="demo"><div class="lbl">Revitalizada</div><img id="rev" alt="revitalizada"></figure>
-        </div>
+        <div class="ba"><figure><div class="lbl">Original (enviada)</div><img id="orig" alt=""></figure><figure class="demo"><div class="lbl">Revitalizada</div><img id="rev" alt=""></figure></div>
         <button class="btn demo" data-demo>Revitalizar mantendo a originalidade</button>
-      </section>
+      </section></div>
+    </div>
 
-      <!-- 2. Gerador de post -->
-      <section class="card">
-        <h3><span class="emoji">📝</span> Gerador de Post Consistente</h3>
-        <p class="cd">Posts na identidade da marca, prontos para Instagram e Facebook, a partir do imóvel ou de um tema.</p>
+    <!-- 3. POST -->
+    <div class="screen" id="s3">
+      <div class="grid"><section class="card">
+        <h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11l5 5v11H4z"/><path d="M9 13h6M9 17h4"/></svg></span> Gerador de Post</h3>
+        <p class="cd">Posts na identidade da marca (usa o que você definiu na tela 1), prontos para Instagram e Facebook.</p>
         <div class="field"><label>Tema / imóvel</label><input class="inp" placeholder="Ex.: Apartamento 3 dorm na Paulista, alto padrão"></div>
-        <div class="field"><label>Formato</label><div class="chips"><span class="chip on">Feed</span><span class="chip">Stories</span><span class="chip">Carrossel</span><span class="chip">Reels</span></div></div>
-        <div class="field"><label>Tom</label><div class="chips"><span class="chip on">Sofisticado</span><span class="chip">Direto</span><span class="chip">Acolhedor</span></div></div>
+        <div class="field"><label>Formato</label><div class="chips" data-single><span class="chip on">Feed</span><span class="chip">Stories</span><span class="chip">Carrossel</span><span class="chip">Reels</span></div></div>
         <button class="btn demo" data-demo>Gerar post</button>
-        <div class="postpv demo"><div class="im"></div><div class="tx"><b>Seu novo endereço de alto padrão.</b><br>3 dormitórios, vista livre e a poucos passos da Paulista. Agende sua visita pelo WhatsApp. #AILogicHub</div></div>
-      </section>
+        <div class="postpv demo" style="margin-top:12px"><div class="im"></div><div class="tx"><b>Seu novo endereço de alto padrão.</b><br>3 dormitórios, vista livre e a poucos passos da Paulista. Agende sua visita pelo WhatsApp.</div></div>
+      </section></div>
+    </div>
 
-      <!-- 3. Gerador de roteiro + video -->
-      <section class="card">
-        <h3><span class="emoji">🎬</span> Gerador de Roteiro e Vídeo</h3>
-        <p class="cd">Do roteiro ao vídeo do imóvel, com locução e cortes. Integrado ao acervo e ao imóvel selecionado.</p>
-        <div class="field"><label>Objetivo</label><div class="chips"><span class="chip on">Tour do imóvel</span><span class="chip">Captação</span><span class="chip">Institucional</span></div></div>
-        <button class="btn demo" data-demo>Gerar roteiro</button>
-        <div class="roteiro demo">
-          <div class="step"><span class="n">1</span><span>Abertura: fachada e localização (5s)</span></div>
-          <div class="step"><span class="n">2</span><span>Sala e integração com a varanda (8s)</span></div>
-          <div class="step"><span class="n">3</span><span>Suíte e vista (7s)</span></div>
-          <div class="step"><span class="n">4</span><span>Chamada: "Agende sua visita" (5s)</span></div>
-        </div>
-        <button class="btn sec demo" data-demo style="margin-top:10px">Montar vídeo com locução</button>
-      </section>
+    <!-- 4. ROTEIRO/VIDEO (+ apresentador virtual, pipeline de 4 etapas) -->
+    <div class="screen" id="s4">
+      <div class="grid">
+        <section class="card">
+          <h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><polygon points="10 8 16 12 10 16"/></svg></span> Roteiro e Vídeo</h3>
+          <p class="cd">Do roteiro ao vídeo publicado, com apresentador virtual, locução realista e acabamento na identidade da marca.</p>
+          <div class="field"><label>Objetivo</label><div class="chips" data-single><span class="chip on">Tour do imóvel</span><span class="chip">Captação</span><span class="chip">Institucional</span></div></div>
+          <div class="field"><label>Apresentador virtual</label><div class="chips" data-single><span class="chip on">Com apresentador</span><span class="chip">Só imagens do imóvel</span></div></div>
+          <button class="btn demo" data-demo>Gerar roteiro</button>
+          <div class="roteiro demo"><div class="step"><span class="n">1</span><span>Abertura: fachada e localização (5s)</span></div><div class="step"><span class="n">2</span><span>Sala e integração com a varanda (8s)</span></div><div class="step"><span class="n">3</span><span>Suíte e vista (7s)</span></div><div class="step"><span class="n">4</span><span>Chamada: agende sua visita (5s)</span></div></div>
+          <button class="btn sec demo" data-demo style="margin-top:10px">Montar vídeo com apresentador e locução</button>
+        </section>
+        <section class="card">
+          <h3>Pipeline de produção</h3>
+          <p class="cd">Cada etapa roda automaticamente e o status fica visível, sem retrabalho.</p>
+          <div class="roteiro">
+            <div class="step"><span class="n">1</span><span><b>Apresentador</b>: imagem do avatar na identidade da marca.</span></div>
+            <div class="step"><span class="n">2</span><span><b>Roteiro e voz</b>: texto do vídeo e locução realista.</span></div>
+            <div class="step"><span class="n">3</span><span><b>Sincronia labial</b>: o apresentador fala o roteiro (etapa-chave).</span></div>
+            <div class="step"><span class="n">4</span><span><b>Acabamento</b>: logo, selos, legendas e trilha, prontos para publicar.</span></div>
+          </div>
+          <div class="field" style="margin-top:14px"><label>Referência do apresentador (opcional)</label>
+            <div class="drop" id="drop2">Envie uma imagem base do apresentador<input type="file" id="file2" accept="image/*" hidden></div>
+          </div>
+          <button class="btn demo" data-demo>Produzir vídeo completo</button>
+        </section>
+      </div>
+    </div>
 
-      <!-- 4. Calendario / campanhas -->
-      <section class="card">
-        <h3><span class="emoji">📅</span> Campanhas e Calendário</h3>
-        <p class="cd">Planejamento e disparo de campanhas por imobiliária, com métricas ligadas ao funil.</p>
+    <!-- 5. CAMPANHAS -->
+    <div class="screen" id="s5">
+      <div class="grid"><section class="card">
+        <h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span> Campanhas e Calendário</h3>
+        <p class="cd">Planejamento e disparo por imobiliária, com métricas ligadas ao funil.</p>
         <div class="field"><label>Campanha</label><input class="inp" placeholder="Ex.: Lançamento Setembro · Zona Sul"></div>
         <div class="field"><label>Canais</label><div class="chips"><span class="chip on">Instagram</span><span class="chip on">WhatsApp</span><span class="chip">Google</span><span class="chip">Portais</span></div></div>
         <button class="btn demo" data-demo>Agendar campanha</button>
         <p class="cd demo" style="margin-top:12px">Prévia de métricas: alcance, leads gerados e custo por lead, alimentados pelo funil em tempo real.</p>
-      </section>
+      </section></div>
+    </div>
+
+    <!-- 6. GOOGLE INTEGRADO (folha propria) -->
+    <div class="screen" id="s6">
+      <div class="grid">
+        <section class="card">
+          <h3>Conta Google <span class="conn on">Conectada</span></h3>
+          <p class="cd">Perfil da Empresa no Google e campanhas de busca, com o imóvel aparecendo para quem procura na região.</p>
+          <div class="field"><label>Perfil da Empresa (Google Business)</label><input class="inp" value="Robotão Imóveis · São Paulo, SP" readonly></div>
+          <div class="field"><label>Objetivo da campanha</label><div class="chips" data-single><span class="chip on">Busca (pesquisa)</span><span class="chip">Display</span><span class="chip">Mapa local</span></div></div>
+          <div class="field"><label>Palavras-chave</label><input class="inp" placeholder="Ex.: apartamento 3 dorm Paulista, imóvel alto padrão zona sul"></div>
+          <button class="btn demo" data-demo>Publicar campanha no Google</button>
+        </section>
+        <section class="card">
+          <h3>Desempenho no Google</h3>
+          <p class="cd demo">Impressões, cliques, custo por clique e leads, sincronizados com o funil.</p>
+          <div class="postpv demo"><div class="tx" style="padding:16px"><b>1.240</b> impressões · <b>86</b> cliques · <b>R$ 2,10</b> CPC · <b>9</b> leads no funil</div></div>
+          <p class="cd" style="margin-top:12px">Os leads gerados aqui entram direto na folha Comercial (Leads e Funil), com origem marcada como Google.</p>
+        </section>
+      </div>
+    </div>
+
+    <!-- 7. META INTEGRADO (folha propria) -->
+    <div class="screen" id="s7">
+      <div class="grid">
+        <section class="card">
+          <h3>Conta Meta <span class="conn on">Conectada</span></h3>
+          <p class="cd">Instagram e Facebook num só lugar: publicação, catálogo de imóveis e anúncios.</p>
+          <div class="field"><label>Contas conectadas</label><input class="inp" value="Instagram @robotaoimoveis · Facebook Robotão Imóveis" readonly></div>
+          <div class="field"><label>Formato</label><div class="chips" data-single><span class="chip on">Publicação</span><span class="chip">Anúncio (impulsionar)</span><span class="chip">Catálogo de imóveis</span></div></div>
+          <div class="field"><label>Público</label><div class="chips"><span class="chip on">Região do imóvel</span><span class="chip on">Interessados em imóveis</span><span class="chip">Remarketing</span></div></div>
+          <button class="btn demo" data-demo>Publicar no Instagram e Facebook</button>
+        </section>
+        <section class="card">
+          <h3>Desempenho no Meta</h3>
+          <p class="cd demo">Alcance, engajamento e leads, integrados ao funil e ao WhatsApp.</p>
+          <div class="postpv demo"><div class="im"></div><div class="tx" style="padding:16px"><b>8.500</b> de alcance · <b>320</b> interações · <b>14</b> conversas no WhatsApp · <b>6</b> leads</div></div>
+          <p class="cd" style="margin-top:12px">Clique no anúncio abre a conversa no WhatsApp do Hub e cria o lead automaticamente.</p>
+        </section>
+      </div>
     </div>
   </main>
 </div>
 <div class="toast" id="toast">Recurso em produção</div>
 <script>
 (function(){
-  var drop=document.getElementById('drop'),file=document.getElementById('file'),orig=document.getElementById('orig'),rev=document.getElementById('rev'),toast=document.getElementById('toast');
-  drop.addEventListener('click',function(){file.click();});
-  file.addEventListener('change',function(){var f=file.files[0];if(!f)return;var u=URL.createObjectURL(f);orig.src=u;rev.src=u;drop.textContent='Foto enviada: '+f.name;});
+  var toast=document.getElementById('toast');
   function t(){toast.classList.add('on');setTimeout(function(){toast.classList.remove('on');},1600);}
+  // abas
+  document.querySelectorAll('.tab').forEach(function(tb){tb.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');});tb.classList.add('on');
+    document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');});
+    document.getElementById(tb.getAttribute('data-s')).classList.add('on');
+  });});
+  // chips (single-select onde marcado)
+  document.querySelectorAll('.chips').forEach(function(g){g.addEventListener('click',function(e){var c=e.target.closest('.chip');if(!c)return;
+    if(g.hasAttribute('data-single')){g.querySelectorAll('.chip').forEach(function(x){x.classList.remove('on');});c.classList.add('on');}
+    else c.classList.toggle('on');});});
+  // identidade visual: aplica cor/fonte ao vivo (plug and play)
+  var prim=document.getElementById('cPrim'),primH=document.getElementById('cPrimHex'),sec=document.getElementById('cSec'),secH=document.getElementById('cSecHex'),fSel=document.getElementById('fSel'),cShow=document.getElementById('cShow'),fShow=document.getElementById('fShow');
+  function applyId(){
+    document.documentElement.style.setProperty('--brand',prim.value);
+    document.documentElement.style.setProperty('--brand2',sec.value);
+    primH.value=prim.value;secH.value=sec.value;
+    cShow.textContent=prim.value+' / '+sec.value;
+    var f=fSel.value;document.body.style.fontFamily=f+',Montserrat,sans-serif';fShow.textContent=f;
+    // carrega a fonte escolhida sob demanda
+    if(!document.getElementById('gf-'+f)){var l=document.createElement('link');l.id='gf-'+f;l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family='+encodeURIComponent(f)+':wght@400;600;700;800&display=swap';document.head.appendChild(l);}
+  }
+  [prim,sec,fSel].forEach(function(el){el.addEventListener('input',applyId);});
+  primH.addEventListener('input',function(){if(/^#[0-9a-f]{6}$/i.test(primH.value)){prim.value=primH.value;applyId();}});
+  secH.addEventListener('input',function(){if(/^#[0-9a-f]{6}$/i.test(secH.value)){sec.value=secH.value;applyId();}});
+  // foto
+  var drop=document.getElementById('drop'),file=document.getElementById('file'),orig=document.getElementById('orig'),rev=document.getElementById('rev');
+  if(drop){drop.addEventListener('click',function(){file.click();});file.addEventListener('change',function(){var f=file.files[0];if(!f)return;var u=URL.createObjectURL(f);orig.src=u;rev.src=u;drop.textContent='Foto enviada: '+f.name;});}
+  var drop2=document.getElementById('drop2'),file2=document.getElementById('file2');
+  if(drop2){drop2.addEventListener('click',function(){file2.click();});file2.addEventListener('change',function(){var f=file2.files[0];if(f)drop2.textContent='Apresentador enviado: '+f.name;});}
   document.querySelectorAll('[data-demo]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();t();});});
-  document.querySelectorAll('.chip').forEach(function(c){c.addEventListener('click',function(){var sib=c.parentNode.querySelectorAll('.chip');if(c.parentNode.querySelectorAll('.chip.on').length<=1||!c.classList.contains('on')){}c.classList.toggle('on');});});
 })();
 </script>
 </body></html>
