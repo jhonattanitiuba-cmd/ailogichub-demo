@@ -146,7 +146,8 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     var tb=document.getElementById('rows');
     if(!list.length){tb.innerHTML='<tr><td colspan="6" class="empty">Nenhum lead encontrado.</td></tr>';return;}
     tb.innerHTML=list.map(function(l,ix){
-      return '<tr data-i="'+ix+'"><td class="strong">'+esc(l.nome||'—')+'</td><td>'+esc(l.telefone||'—')+'</td><td>'+esc(fonteMap[l.fonte_id]||'—')+'</td><td>'+esc(l.interesse||'—')+'</td><td>'+statusBadge(l.status)+'</td><td>'+esc(imobMap[l.imobiliaria_id]||'—')+'</td></tr>';
+      var waRow=l.telefone?' <a href="/whatsapp?jid='+encodeURIComponent(l.telefone)+'" title="Abrir conversa" onclick="event.stopPropagation()" style="color:#16a56f;font-weight:800;text-decoration:none;font-size:11px;margin-left:6px">WhatsApp</a>':'';
+      return '<tr data-i="'+ix+'"><td class="strong">'+esc(l.nome||'—')+'</td><td>'+esc(l.telefone||'—')+waRow+'</td><td>'+esc(fonteMap[l.fonte_id]||'—')+'</td><td>'+esc(l.interesse||'—')+'</td><td>'+statusBadge(l.status)+'</td><td>'+esc(imobMap[l.imobiliaria_id]||'—')+'</td></tr>';
     }).join('');
     Array.prototype.forEach.call(tb.querySelectorAll('tr'),function(tr){tr.addEventListener('click',function(){openLead(list[+tr.getAttribute('data-i')]);});});
   }
@@ -156,6 +157,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     document.getElementById('mSub').textContent=[fonteMap[l.fonte_id],imobMap[l.imobiliaria_id]].filter(Boolean).join(' · ')||'—';
     document.getElementById('mGrid').innerHTML=
        fld('Telefone',l.telefone)+fld('E-mail',l.email)
+      +(l.telefone?('<div class="mcell full"><label>WhatsApp</label><strong><a href="/whatsapp?jid='+encodeURIComponent(l.telefone)+'" style="color:#16a56f;font-weight:800;text-decoration:none">Abrir conversa</a></strong></div>'):'')
       +fld('Origem',fonteMap[l.fonte_id])+fld('Status',l.status)
       +fld('Interesse',l.interesse,true)
       +fld('Score',l.score)+fld('Imobiliária',imobMap[l.imobiliaria_id])

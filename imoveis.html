@@ -189,6 +189,11 @@ td.strong{font-weight:700;color:var(--heading)}
     }));
   }
   ['q','fFin','fStatus'].forEach(function(id){$(id).addEventListener(id==='q'?'input':'change',applyFilter);});
+  // chega do funil via ?codigo= : ja filtra o imovel
+  (function(){ try{ var _c=new URLSearchParams(location.search).get('codigo'); if(!_c) return;
+    if($('q')) $('q').value=_c;
+    setTimeout(function(){ try{ if($('q')) $('q').value=_c; applyFilter(); }catch(_){} }, 1200);
+  }catch(_){} })();
 
   // ---- detail ----
   function fld(l,v,full){return '<div class="mcell'+(full?' full':'')+'"><label>'+l+'</label><strong>'+esc(v==null||v===''?'—':v)+'</strong></div>';}
