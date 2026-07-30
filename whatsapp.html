@@ -206,6 +206,161 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   .chat-box .chat-actions::-webkit-scrollbar{display:none}
   .chat-box .chat-actions>*{flex:0 0 auto}
 }
+
+/* ======================================================================
+   REV2: alta fidelidade WhatsApp Web (light default + dark)
+   Só sobrescreve cor/forma via cascata. Nenhum id/class do JS foi alterado.
+   ====================================================================== */
+:root{
+  --font:Montserrat,Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --radius:12px;
+  --bg:#f0f2f5;
+  --panel:#ffffff;
+  --panel2:#f0f2f5;
+  --border:#e9edef;
+  --border2:#d1d7db;
+  --text:#111b21;
+  --muted:#667781;
+  --navy:#111b21;
+  --wa-green:#008069;
+  --wa-green-2:#00a884;
+  --wa-green-btn:#25d366;
+  --tick-blue:#53bdeb;
+  --chat-bg:#efeae2;
+  --bubble-in:#ffffff;
+  --bubble-out:#d9fdd3;
+  --bubble-text:#111b21;
+  --bubble-meta:rgba(17,27,33,.45);
+  --sel:#f0f2f5;
+  --hover:#f5f6f6;
+  --blue:#008069;--blue-s:#017561;--blueSoft:rgba(0,128,105,.12);
+  --green:#25d366;--green2:rgba(37,211,102,.16);
+  --orange:#f59e0b;--orange2:rgba(245,158,11,.16);
+  --red:#e94242;--red2:rgba(233,66,66,.12);
+  --wa-shadow:0 1px 1.5px rgba(11,20,26,.13);
+  --chat-doodle:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='120'%20height='120'%20viewBox='0%200%20120%20120'%3E%3Cg%20fill='none'%20stroke='%23000000'%20stroke-opacity='0.04'%20stroke-width='2'%3E%3Ccircle%20cx='24'%20cy='26'%20r='9'/%3E%3Cpath%20d='M72%2016h26v17H85l-6%206v-6h-7z'/%3E%3Cpath%20d='M16%2094c0-7%206-12%2013-12s13%205%2013%2012'/%3E%3Cpath%20d='M90%2084l7%207%2016-17'/%3E%3Cpath%20d='M56%2058c-5-7%206-12%208-6%202-7%2013-2%207%206l-7%208z'/%3E%3C/g%3E%3C/svg%3E");
+}
+:root[data-theme="dark"]{
+  --bg:#0b141a;
+  --panel:#111b21;
+  --panel2:#202c33;
+  --border:#222d34;
+  --border2:#2a3942;
+  --text:#e9edef;
+  --muted:#8696a0;
+  --chat-bg:#0b141a;
+  --bubble-in:#202c33;
+  --bubble-out:#005c4b;
+  --bubble-text:#e9edef;
+  --bubble-meta:rgba(233,237,239,.5);
+  --sel:#2a3942;
+  --hover:#202c33;
+  --blueSoft:rgba(0,168,132,.18);
+  --green2:rgba(37,211,102,.2);
+  --red2:rgba(233,66,66,.22);
+  --wa-shadow:0 1px 1.5px rgba(0,0,0,.28);
+  --chat-doodle:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='120'%20height='120'%20viewBox='0%200%20120%20120'%3E%3Cg%20fill='none'%20stroke='%23ffffff'%20stroke-opacity='0.05'%20stroke-width='2'%3E%3Ccircle%20cx='24'%20cy='26'%20r='9'/%3E%3Cpath%20d='M72%2016h26v17H85l-6%206v-6h-7z'/%3E%3Cpath%20d='M16%2094c0-7%206-12%2013-12s13%205%2013%2012'/%3E%3Cpath%20d='M90%2084l7%207%2016-17'/%3E%3Cpath%20d='M56%2058c-5-7%206-12%208-6%202-7%2013-2%207%206l-7%208z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* topo da página (texto legível nos dois temas) */
+.headline h1{color:var(--text)}
+.kpi .value{color:var(--text)}
+.kpi{box-shadow:none}
+
+/* ---- painel esquerdo: lista de conversas ---- */
+.instance-card{background:var(--wa-green);border-bottom:0;padding:14px 16px}
+.instance-card strong{color:#fff}
+.instance-card span{color:rgba(255,255,255,.82)}
+.wa-logo{background:rgba(255,255,255,.18);color:#fff}
+.searchbar{background:var(--panel);border-bottom:1px solid var(--border);padding:8px 12px}
+.searchbar .inp{height:38px;border-radius:999px;background:var(--panel2);border:1px solid transparent}
+.searchbar .inp:focus{border-color:var(--wa-green);box-shadow:none;background:var(--panel)}
+.wa-tabs{background:var(--panel);border-bottom:1px solid var(--border)}
+.wa-tab{background:var(--panel2);color:var(--muted);border:1px solid transparent}
+.wa-tab .cnt{background:rgba(0,0,0,.08);color:var(--muted)}
+.wa-tab.active{background:var(--wa-green);border-color:var(--wa-green);color:#fff;box-shadow:none}
+.wa-tab.active .cnt{background:rgba(255,255,255,.28);color:#fff}
+.conversation-list{background:var(--panel)}
+.conversation{grid-template-columns:49px 1fr auto;padding:9px 15px;align-items:center;border-bottom:1px solid var(--border)}
+.conversation:hover{background:var(--hover)}
+.conversation.selected{background:var(--sel);box-shadow:none}
+.conv-avatar{width:49px;height:49px;background:var(--border2);color:var(--panel);font-size:15px}
+.conv-title strong{color:var(--text);font-size:15px;font-weight:600}
+.conversation p{color:var(--muted);font-size:13px;margin-top:2px}
+.conv-meta{align-items:flex-start;padding-top:2px}
+.conv-assign{font-size:10px;color:var(--muted)}
+.conv-assign.ia{color:var(--wa-green-2)}
+.unread-badge{background:var(--wa-green-btn);color:#fff}
+.unread{background:var(--wa-green-btn);box-shadow:0 0 0 3px var(--green2)}
+.empty{color:var(--muted)}
+
+/* ---- header da conversa ---- */
+.chat-header{background:var(--panel2);border-bottom:1px solid var(--border);padding:10px 16px}
+.client strong{color:var(--text);font-size:16px;font-weight:600}
+.client span{color:var(--muted)}
+.cli-av{width:40px;height:40px;background:var(--border2);color:var(--panel)}
+.chat-actions .btn{background:transparent;border:1px solid var(--border2);color:var(--text)}
+.chat-actions .btn:hover{background:var(--hover);filter:none}
+.chat-actions .btn.primary{background:var(--wa-green-2);border-color:var(--wa-green-2);color:#fff}
+.chat-actions .btn.primary:hover{background:var(--wa-green);border-color:var(--wa-green)}
+.snd-toggle{background:transparent}.snd-toggle.on{color:var(--wa-green-2)}
+.attend-banner{background:var(--orange2);border-bottom:1px solid var(--border);color:#b26a00}
+:root[data-theme="dark"] .attend-banner{color:#fbbf5a}
+
+/* ---- corpo da conversa: papel de parede + balões ---- */
+.chat-stream{background-color:var(--chat-bg);background-image:var(--chat-doodle);background-size:auto;background-repeat:repeat;gap:2px}
+.msg{position:relative;box-shadow:var(--wa-shadow);border-radius:8px}
+.msg.in{background:var(--bubble-in);color:var(--bubble-text);border-top-left-radius:0}
+.msg.out{background:var(--bubble-out);color:var(--bubble-text);border-top-right-radius:0}
+.msg.in::before{content:"";position:absolute;top:0;left:-8px;width:8px;height:13px;background:var(--bubble-in);clip-path:polygon(100% 0,100% 100%,0 0)}
+.msg.out::before{content:"";position:absolute;top:0;right:-8px;width:8px;height:13px;background:var(--bubble-out);clip-path:polygon(0 0,0 100%,100% 0)}
+.msg-time{color:var(--bubble-meta)}
+.msg-time .tick{color:var(--bubble-meta)}
+.msg-time .tick.blue{color:var(--tick-blue)}
+.msg a{color:var(--tick-blue)}
+.msg .wa-mono{background:rgba(0,0,0,.08)}
+:root[data-theme="dark"] .msg .wa-mono{background:rgba(0,0,0,.3)}
+.wa-day span{background:var(--panel);color:var(--muted);box-shadow:var(--wa-shadow)}
+
+/* ---- composer estilo WhatsApp ---- */
+.composer{background:var(--panel2);border-top:1px solid var(--border);align-items:center;gap:8px}
+.composer .inp{height:44px;border-radius:999px;background:var(--panel);border:1px solid var(--border)}
+.composer .inp:focus{box-shadow:none;border-color:var(--border2)}
+.composer-ic{flex:none;width:42px;height:42px;border:0;background:transparent;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;border-radius:50%}
+.composer-ic:hover{background:var(--hover)}
+#waSend{flex:none;width:46px;height:46px;padding:0;border-radius:50%;background:var(--wa-green-2);border-color:var(--wa-green-2);color:#fff;font-size:0;display:grid;place-items:center}
+#waSend:hover{background:var(--wa-green);border-color:var(--wa-green);filter:none}
+#waSend::after{content:"\27A4";font-size:18px}
+#waSend:disabled{background:var(--border2);border-color:var(--border2)}
+
+/* ---- painel CRM (dados do contato) ---- */
+.crm-panel{background:var(--panel)}
+.crm-head{background:var(--panel2)}
+.crm-head strong{color:var(--text)}
+.crm-av{width:74px;height:74px;background:var(--border2);color:var(--panel)}
+.crm-close{background:transparent;color:var(--muted)}
+.crm-row .k{color:var(--muted)}
+.vinc-sug{background:var(--blueSoft);border-color:var(--wa-green)}
+
+/* ---- botões / badges / modais genéricos ---- */
+.btn.primary{background:var(--wa-green-2);border-color:var(--wa-green-2);color:#fff}
+.badge.green{background:var(--green2);color:var(--wa-green)}
+:root[data-theme="dark"] .badge.green{color:#25d366}
+.dd-item strong{color:var(--text)}
+.modal h3,.drawer h3{color:var(--text)}
+.switch.on .track{background:var(--wa-green-2)}
+.tool-tag.on{background:var(--green2);color:var(--wa-green)}
+:root[data-theme="dark"] .tool-tag.on{color:#25d366}
+.stage-opt{color:var(--muted)}
+
+/* ---- moldura única estilo WhatsApp Web (apenas desktop) ---- */
+@media(min-width:901px){
+  .wa-layout{gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 6px 24px rgba(11,20,26,.08)}
+  .wa-layout>.panel{border:0;border-radius:0}
+  #listPanel{border-right:1px solid var(--border)}
+  .crm-panel{border-left:1px solid var(--border)}
+  .chat-stream{padding:14px 6%}
+}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -239,6 +394,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   <a class="nav-item" href="suporte"><span class="ico">?</span>Suporte &amp; Treinamento</a>
   <a class="nav-item" href="administrador"><span class="ico">⚙</span>Administrador</a>
   <a class="nav-item" href="config-ia"><span class="ico">◈</span>Configurações · IA</a>
+  <a class="nav-item" href="arquitetura"><span class="ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 6h4M7 18h4M11 6v12M11 12h6"/></svg></span>Mapa do Sistema</a>
   <div class="profile"><div class="avatar">AL</div><div><strong>AILogic Hub</strong><span>Acesso protegido</span></div></div>
 </aside>
 
@@ -286,14 +442,14 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
       </div>
       <div class="attend-banner" id="attendBanner"><span>🙋 Você está atendendo. Para devolver à IA, digite ponto (.) e envie.</span></div>
       <div class="chat-stream" id="chatStream"><div class="stream-empty">Escolha uma conversa à esquerda para ver o histórico real de mensagens.</div></div>
-      <div class="composer"><input class="inp" id="waInput" placeholder="Escreva uma mensagem para o cliente (WhatsApp)..." disabled /><button class="btn primary" id="waSend" disabled>Enviar</button></div>
+      <div class="composer"><button class="composer-ic" type="button" tabindex="-1" aria-label="Emoji">🙂</button><button class="composer-ic" type="button" tabindex="-1" aria-label="Anexar">📎</button><input class="inp" id="waInput" placeholder="Escreva uma mensagem para o cliente (WhatsApp)..." disabled /><button class="btn primary" id="waSend" disabled>Enviar</button></div>
     </div>
 
     <div class="panel crm-panel" id="crmPanel">
-      <div class="crm-head"><button class="crm-close" id="crmClose" title="Fechar painel">×</button><div class="crm-av" id="crmAv">·</div><strong id="crmNome">Contato</strong><div class="cmeta" id="crmFone">—</div></div>
+      <div class="crm-head"><button class="crm-close" id="crmClose" title="Fechar painel">×</button><div class="crm-av" id="crmAv">·</div><strong id="crmNome">Contato</strong><div class="cmeta" id="crmFone">-</div></div>
       <div class="crm-sec"><h4>Vínculo CRM</h4><div id="crmVinculo"><div style="color:var(--muted);font-size:12px">Selecione uma conversa.</div></div></div>
       <div class="crm-sec"><h4>Pipeline</h4><div class="stage" id="crmStage"><div style="color:var(--muted);font-size:12px">Vincule um lead para ver a etapa.</div></div></div>
-      <div class="crm-sec"><h4>Informações</h4><div id="crmInfo"><div style="color:var(--muted);font-size:12px">—</div></div></div>
+      <div class="crm-sec"><h4>Informações</h4><div id="crmInfo"><div style="color:var(--muted);font-size:12px">-</div></div></div>
     </div>
   </section>
 </main>
@@ -360,7 +516,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   function inits(n){var p=String(n||"?").replace(/[^A-Za-zÀ-ÿ ]/g,"").trim().split(/\s+/).filter(Boolean);return ((p[0]||"#")[0]+((p[1]||"")[0]||"")).toUpperCase();}
   function $(id){return document.getElementById(id);}
   function setK(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
-  function foneFmt(jid){var n=String(jid||"").split("@")[0].replace(/\D/g,"");if(n.length>=12)return "+"+n.slice(0,2)+" "+n.slice(2,4)+" "+n.slice(4,9)+"-"+n.slice(9);return n||"—";}
+  function foneFmt(jid){var n=String(jid||"").split("@")[0].replace(/\D/g,"");if(n.length>=12)return "+"+n.slice(0,2)+" "+n.slice(2,4)+" "+n.slice(4,9)+"-"+n.slice(9);return n||"-";}
   function hhmm(ts){if(!ts)return "";var d=new Date(ts*1000);return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);}
   function chatBy(jid){for(var i=0;i<allChats.length;i++){if(allChats[i].jid===jid)return allChats[i];}return null;}
   // mobile: inbox single-pane (lista <-> thread, CRM como sheet)
@@ -433,7 +589,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     });
   }
 
-  // toquinho sintetico (Web Audio, sem arquivo) — dois beeps estilo Chatwoot
+  // toquinho sintetico (Web Audio, sem arquivo): dois beeps estilo Chatwoot
   function unlockAudio(){try{if(!audioCtx){var AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();}catch(_){}}
   function playTransferSound(){if(!sndOn)return;try{unlockAudio();if(!audioCtx)return;var t=audioCtx.currentTime;[ [659,0],[784,0.13] ].forEach(function(p){var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type="sine";o.frequency.value=p[0];o.connect(g);g.connect(audioCtx.destination);var s=t+p[1];g.gain.setValueAtTime(0.0001,s);g.gain.exponentialRampToValueAtTime(0.16,s+0.02);g.gain.exponentialRampToValueAtTime(0.0001,s+0.16);o.start(s);o.stop(s+0.18);});}catch(_){}}
 
@@ -542,7 +698,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   function renderCrm(jid,d){
     var lead=d.lead,sug=d.sugestao,stages=d.stages||Object.keys(STAGE_INFO),c=chatBy(jid)||{};
     if(lead){
-      $("crmVinculo").innerHTML='<div class="crm-row"><span class="k">Cliente</span><strong>'+esc(lead.nome||"—")+'</strong></div><button class="btn" style="margin-top:8px;height:32px" id="crmUnlink">Desvincular</button>';
+      $("crmVinculo").innerHTML='<div class="crm-row"><span class="k">Cliente</span><strong>'+esc(lead.nome||"-")+'</strong></div><button class="btn" style="margin-top:8px;height:32px" id="crmUnlink">Desvincular</button>';
       var ul=$("crmUnlink"); if(ul)ul.addEventListener("click",function(){vincular(jid,null);});
     } else if(sug){
       $("crmVinculo").innerHTML='<div class="vinc-sug">Sugestão automática: telefone bate com <strong>'+esc(sug.nome)+'</strong><br><button class="btn primary" style="height:32px" id="crmLink">Vincular agora</button></div>';
@@ -564,7 +720,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   var ddT=$("ddTransfer");
   function fillTransfer(){
     if(!ddT)return;
-    var itens=equipe.filter(function(u){return u.id&&u.id!==meuId;}).map(function(u){return '<div class="dd-item" data-uid="'+u.id+'"><strong>'+esc(u.nome||"—")+'</strong><span>'+esc(u.departamento||u.perfil||"")+'</span></div>';}).join("");
+    var itens=equipe.filter(function(u){return u.id&&u.id!==meuId;}).map(function(u){return '<div class="dd-item" data-uid="'+u.id+'"><strong>'+esc(u.nome||"-")+'</strong><span>'+esc(u.departamento||u.perfil||"")+'</span></div>';}).join("");
     ddT.innerHTML='<div class="dd-item" data-uid="__me"><strong>Atribuir a mim</strong><span>assumir a conversa</span></div>'+itens+'<div class="dd-item" data-uid="__ia"><strong>Devolver à IA</strong><span>Sam volta a responder</span></div>';
     Array.prototype.forEach.call(ddT.querySelectorAll(".dd-item"),function(it){it.addEventListener("click",function(ev){ev.stopPropagation();var uid=it.getAttribute("data-uid");ddT.classList.remove("open");if(!curJid)return;
       if(uid==="__ia"){fetch(API+"?action=ia",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jid:curJid,pausada:false})}).then(function(){loadChats(true);});return;}
@@ -578,7 +734,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   // ===== treinar o agente (drawer) =====
   var drawer=$("drawerTreino"),iaGlobalOn=true,toolImoveisOn=true;
   function setAgentFotoPreview(){ var p=$("agentFotoPrev"); if(p) p.innerHTML=agentFoto?'<img src="'+esc(agentFoto)+'" alt="">':"🤖"; }
-  // redimensiona/quadra a foto p/ ~128px (base64 pequeno) — plug and play
+  // redimensiona/quadra a foto p/ ~128px (base64 pequeno): plug and play
   function fileToAvatar(file,cb){ var img=new Image(),url=URL.createObjectURL(file);
     img.onload=function(){ var s=Math.min(img.width,img.height),c=document.createElement("canvas");c.width=c.height=128;
       c.getContext("2d").drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,128,128);URL.revokeObjectURL(url);cb(c.toDataURL("image/jpeg",0.82)); };
@@ -637,7 +793,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   var bc=$("btnCrm"); if(bc)bc.addEventListener("click",function(){var w=$("waLayout");if(!w)return;if(isMobile())w.classList.toggle("crm-open");else w.classList.toggle("crm-hidden");});
   var cc=$("crmClose"); if(cc)cc.addEventListener("click",function(){var w=$("waLayout");if(!w)return;if(isMobile())w.classList.remove("crm-open");else w.classList.add("crm-hidden");});
   // agendar mensagens / follow-ups (fase 2)
-  var ba=$("btnAgendar"); if(ba)ba.addEventListener("click",function(){alert("Agendamento de mensagens e follow-ups automáticos — em breve (fase 2).");});
+  var ba=$("btnAgendar"); if(ba)ba.addEventListener("click",function(){alert("Agendamento de mensagens e follow-ups automáticos: em breve (fase 2).");});
 
   function appendMsg(txt){
     var st=$("chatStream");var em=st.querySelector(".stream-empty");if(em)st.innerHTML="";

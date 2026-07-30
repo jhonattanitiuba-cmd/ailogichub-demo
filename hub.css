@@ -21,16 +21,22 @@ p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 .value,.num,.count,.metric strong,.kpi strong,.donut .num,.kpi .value{ font-weight:700 !important; }
 /* botões: fonte uniforme */
 .btn,.pill{ font-size:13px !important; font-weight:700 !important; }
-/* cantos: meio-termo (menos arredondado, diferença notável) */
-:root{ --radius:10px; }
-.panel,.kpi,.card,.alert-cell,.fstage,.fcard,.kbody,.fcol-body,.metric,.rule,.ph-card,.table-wrap table,table,.support{ border-radius:10px !important; }
-.nav-item,.btn,.pill,select,input,.search,.chip2,.kpi-icon,.card-icon,.r-ico,.ai,.logo,.fi,.ph-ico,.fst-ic,.kpi-ic,.alc-ic,.ins-ic{ border-radius:8px !important; }
+/* cantos generosos (visual XORA premium, muito respiro) */
+:root{ --radius:16px; }
+.panel,.kpi,.card,.alert-cell,.fstage,.fcard,.kbody,.fcol-body,.metric,.rule,.ph-card,.table-wrap table,table,.support{ border-radius:16px !important; }
+.nav-item,.btn,.pill,select,input,.search,.chip2,.kpi-icon,.card-icon,.r-ico,.ai,.logo,.fi,.ph-ico,.fst-ic,.kpi-ic,.alc-ic,.ins-ic{ border-radius:11px !important; }
 
 /* ===== varredura de fonte: Montserrat em TUDO + labels padronizadas em Bold ===== */
 *{ font-family:Montserrat,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif !important; }
 .trend{ font-weight:700 !important; }
 
-/* ===== contorno visivel dos widgets no MODO CLARO ===== */
+/* ===== fundo do app claro azulado (respiro XORA) ===== */
+:root:not([data-theme="dark"]) body{ background:var(--app-bg,#f4f7fc) !important; }
+/* mais espacamento entre secoes/widgets */
+.kpis{ gap:20px !important; }
+.grid2,.grid2b,.grid3,.layout,.cards,.res{ gap:22px !important; }
+
+/* ===== contorno suave dos widgets no MODO CLARO (borda sutil + sombra difusa) ===== */
 :root:not([data-theme="dark"]) .kpi,
 :root:not([data-theme="dark"]) .card,
 :root:not([data-theme="dark"]) .panel,
@@ -38,9 +44,26 @@ p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 :root:not([data-theme="dark"]) .alert-cell,
 :root:not([data-theme="dark"]) .ph-card,
 :root:not([data-theme="dark"]) .table-wrap{
-  border:1px solid #d7deea !important;
-  box-shadow:0 1px 3px rgba(15,23,42,.06) !important;
+  background:#fff !important;
+  border:1px solid var(--card-border,#eef1f7) !important;
+  box-shadow:0 6px 20px rgba(20,40,80,.06) !important;
 }
+
+/* ===== KPI de destaque: primeiro card da linha em degrade azul + texto branco ===== */
+.kpis > .kpi:first-child,.kpi.featured{
+  background:var(--grad-blue,linear-gradient(135deg,#2f5bd6,#1b306e)) !important;
+  border:0 !important; color:#fff !important;
+  box-shadow:0 10px 28px rgba(27,48,110,.28) !important;
+}
+.kpis > .kpi:first-child h3,.kpi.featured h3,
+.kpis > .kpi:first-child .value,.kpi.featured .value,
+.kpis > .kpi:first-child .trend,.kpi.featured .trend,
+.kpis > .kpi:first-child .label,.kpi.featured .label{ color:#fff !important; }
+.kpis > .kpi:first-child .kpi-ic,.kpis > .kpi:first-child .kpi-icon,
+.kpi.featured .kpi-ic,.kpi.featured .kpi-icon{ background:rgba(255,255,255,.18) !important; color:#fff !important; }
+/* labels de secao discretas */
+.kpi h3,.section-title{ color:var(--gray500) !important; }
+.kpis > .kpi:first-child h3,.kpi.featured h3{ color:rgba(255,255,255,.85) !important; }
 
 /* ===== badges sólidos: cor no box, fonte branca, fundo predominante + hover ===== */
 .badge{ transition:transform .15s ease; }
@@ -54,8 +77,8 @@ p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 .badge.gray{ background:var(--gray500) !important; color:#fff !important; }
 
 /* ===== ícones do app: fundo navy (cor sidebar) + ícone branco + hover ===== */
-.kpi-icon,.card-icon,.r-ico,.fi,.fst-ic,.kpi-ic,.ins-ic{ background:#061629 !important; color:#fff !important; transition:transform .16s ease, box-shadow .16s ease; }
-.kpi-icon:hover,.card-icon:hover,.r-ico:hover,.fi:hover,.fst-ic:hover,.kpi-ic:hover,.ins-ic:hover{ transform:scale(1.1); box-shadow:0 7px 18px rgba(6,22,41,.32); }
+.kpi-icon,.card-icon,.r-ico,.fi,.fst-ic,.kpi-ic,.ins-ic{ background:var(--accent-dk,#1b306e) !important; color:#fff !important; transition:transform .16s ease, box-shadow .16s ease; }
+.kpi-icon:hover,.card-icon:hover,.r-ico:hover,.fi:hover,.fst-ic:hover,.kpi-ic:hover,.ins-ic:hover{ transform:scale(1.1); box-shadow:0 7px 18px rgba(27,48,110,.30); }
 .fst.last .fst-ic,.fst.last .fi{ background:rgba(255,255,255,.16) !important; color:#fff !important; }
 /* logo WhatsApp (marcador .wa-ico) com tamanho adequado */
 .wa-ico .hub-ic{ font-size:18px; }
@@ -63,12 +86,15 @@ p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 /* caixa de alerta com logo WhatsApp fica branca (logo verde precisa de contraste) */
 .ai:has(svg[fill="#25D366"]){ background:#fff !important; border:1px solid var(--gray200) !important; }
 
-/* cor padrão da sidebar (tom enviado pelo Jhonattan = v1 #061629, navy chapado) */
-.sidebar{ background:#061629 !important; }
+/* cor da sidebar: AZUL navy rico em degrade (pedido do cliente, sem quase-preto) */
+.sidebar{ background:var(--sidebar-grad,linear-gradient(180deg,#152a63,#0e1c44)) !important; }
 /* tipografia da sidebar: tudo normal, só o item selecionado em negrito */
-.sidebar .nav-item{ font-weight:400 !important; }
-.sidebar .nav-item.active{ font-weight:700 !important; }
-.sidebar .section-title{ font-weight:500 !important; }
+.sidebar .nav-item{ font-weight:400 !important; color:#c8d5f0 !important; }
+.sidebar .nav-item.active{ font-weight:700 !important; color:#fff !important; }
+.sidebar .section-title{ font-weight:500 !important; color:#8ea3d4 !important; }
+/* item ativo em azul mais vivo */
+.sidebar .nav-item.active{ background:rgba(79,111,240,.28) !important; box-shadow:inset 0 0 0 1px rgba(120,150,255,.24); }
+.sidebar .nav-item:hover:not(.active){ background:rgba(255,255,255,.07) !important; }
 /* ícones do menu com traço mais fino */
 .hub-ic svg{ stroke-width:1.8; }
 .nav-item .ico .hub-ic svg{ stroke-width:1.8; }
@@ -127,7 +153,7 @@ html.hub-pre .kpis .kpi, html.hub-pre .main > .panel, html.hub-pre .layout > *, 
 .nav-item:hover:not(.active){ transform:translateX(2px); }
 .nav-item.active{ transform:scale(1.03); }
 /* setas do funil em navy (estavam quase invisíveis) */
-.fconn{ color:#061629 !important; }
+.fconn{ color:var(--accent-dk,#1b306e) !important; }
 /* ===== clique dinâmico em TODOS os botões: sem quadrado de toque, só a animação ===== */
 button, a, [role="button"], .btn, .pill, .icon-btn, .wa-tab, .chip, .chip2, .seg button,
 .act button, .nav-item, .sb-toggle, .hub-logout, .snd-toggle, .modal-x, .crm-close,
@@ -140,16 +166,16 @@ button, a, [role="button"], .btn, .pill, .icon-btn, .wa-tab, .chip, .chip2, .seg
 .pill:hover,.btn:hover{ transform:translateY(-1px); box-shadow:0 8px 18px rgba(15,23,42,.12); }
 .pill:active,.btn:active{ transform:translateY(0) scale(.94); }
 /* botões sólidos (cor de fundo predominante) padronizados em todo o sistema */
-.btn{ background:#061629 !important; color:#fff !important; border-color:#061629 !important; box-shadow:none !important; }
-.btn.primary{ background:#061629 !important; border-color:#061629 !important; }
+.btn{ background:var(--accent-dk,#1b306e) !important; color:#fff !important; border-color:var(--accent-dk,#1b306e) !important; box-shadow:none !important; }
+.btn.primary{ background:var(--accent-dk,#1b306e) !important; border-color:var(--accent-dk,#1b306e) !important; }
 .btn.blue{ background:var(--blue) !important; border-color:var(--blue) !important; color:#fff !important; }
 .btn.red{ background:var(--red) !important; border-color:var(--red) !important; color:#fff !important; }
 .btn.ghost{ background:#eef3fb !important; color:var(--gray700) !important; border-color:var(--gray200) !important; }
 .btn:hover{ filter:brightness(1.12); }
 .kpi,.card,.panel{ transition:transform .18s ease, box-shadow .18s ease; }
-.kpi:hover,.card:hover{ transform:translateY(-2px); box-shadow:0 18px 40px rgba(15,23,42,.12); }
+.kpi:hover,.card:hover{ transform:translateY(-3px); box-shadow:0 12px 30px rgba(20,40,80,.10); }
 .kpi,.card,.panel{ transition:transform .18s ease, box-shadow .18s ease; }
-.kpi:hover,.card:hover{ transform:translateY(-2px); box-shadow:0 18px 40px rgba(15,23,42,.12); }
+.kpi:hover,.card:hover{ transform:translateY(-3px); box-shadow:0 12px 30px rgba(20,40,80,.10); }
 
 /* ===== REV0c: loading (barrinha no topo + skeleton shimmer) ===== */
 @keyframes hubTopbar{ 0%{left:-45%;width:45%} 60%{width:55%} 100%{left:100%;width:45%} }
@@ -267,7 +293,7 @@ button, a, [role="button"], .btn, .pill, .icon-btn, .wa-tab, .chip, .chip2, .seg
 @keyframes hubSpin{ to{ transform:rotate(360deg) } }
 
 /* FAB do agente (flutuante) */
-.hub-fab{ position:fixed; right:16px; bottom:calc(20px + env(safe-area-inset-bottom)); z-index:90; width:52px; height:52px; border:0; border-radius:50%; background:#061629; color:#fff; display:grid; place-items:center; cursor:pointer; box-shadow:0 10px 26px rgba(6,22,41,.4); transition:transform .16s ease; -webkit-tap-highlight-color:transparent; }
+.hub-fab{ position:fixed; right:16px; bottom:calc(20px + env(safe-area-inset-bottom)); z-index:90; width:52px; height:52px; border:0; border-radius:50%; background:var(--accent-dk,#1b306e); color:#fff; display:grid; place-items:center; cursor:pointer; box-shadow:0 10px 26px rgba(6,22,41,.4); transition:transform .16s ease; -webkit-tap-highlight-color:transparent; }
 .hub-fab:hover{ transform:translateY(-2px); } .hub-fab:active{ transform:scale(.94); }
 .hub-fab .hub-ic svg{ width:24px; height:24px; position:relative; z-index:1; }
 /* luzinha circular fininha girando devagar, discreta */
@@ -308,4 +334,52 @@ button, a, [role="button"], .btn, .pill, .icon-btn, .wa-tab, .chip, .chip2, .seg
   /* dentro da conversa do WhatsApp o dock some (padrão de app de chat) */
   body.wa-thread .hub-dock{ display:none !important; }
   body.wa-thread .hub-fab{ display:none !important; }
+}
+
+/* ===== sidebar em coluna: perfil no topo, rodapé colado embaixo ===== */
+.sidebar{ display:flex; flex-direction:column; }
+.sidebar .brand{ flex:0 0 auto; }
+.sidebar .hub-gav{ flex:0 1 auto; }
+/* perfil no topo (logo após a marca): separador embaixo em vez de acima */
+.sidebar > .profile{ margin-top:2px; padding:0 4px 16px; border-top:0; border-bottom:1px solid rgba(255,255,255,.08); }
+/* rodapé da sidebar: recolher (<) + sair */
+/* rodape destacado (visual XORA): grupo inferior em painel translucido suave */
+.hub-sb-footer{ margin-top:auto; display:flex; align-items:center; gap:8px; padding:10px; border-top:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.05); border-radius:12px; }
+.hub-sb-footer .sb-toggle{ margin:0 !important; }
+.hub-sb-footer .hub-logout{ margin:0 0 0 auto !important; }
+.app.sb-collapsed .hub-sb-footer{ flex-direction:column; gap:10px; align-items:center; }
+.app.sb-collapsed .hub-sb-footer .sb-toggle,
+.app.sb-collapsed .hub-sb-footer .hub-logout{ margin:0 !important; }
+.app.sb-collapsed .sidebar > .profile{ padding:0 0 14px; }
+
+/* ===== olho de privacidade (borra/abre todos os valores) ===== */
+.hub-eye{ flex:none; width:32px; height:32px; margin-left:auto; padding:0; border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.06); color:#cddcf5; border-radius:9px; display:grid; place-items:center; cursor:pointer; transition:background .15s, color .15s, border-color .15s, transform .12s; -webkit-tap-highlight-color:transparent; }
+.hub-eye:hover{ background:rgba(255,255,255,.12); color:#fff; }
+.hub-eye:active{ transform:scale(.9); }
+.hub-eye svg{ width:17px; height:17px; }
+.app.sb-collapsed .hub-eye-side{ display:none; }
+
+/* ===== valores desfocados por padrão (privacidade) + transição suave ===== */
+.value,.num,.count,.kpi .value,.kpi strong,.metric strong,.donut .num{ transition:filter .28s ease; }
+body.hub-values-hidden .value,
+body.hub-values-hidden .num,
+body.hub-values-hidden .count,
+body.hub-values-hidden .kpi .value,
+body.hub-values-hidden .kpi strong,
+body.hub-values-hidden .metric strong,
+body.hub-values-hidden .donut .num{ filter:blur(7px); -webkit-user-select:none; user-select:none; }
+
+/* ===== legenda de carregamento (frase rápida por tela) ===== */
+.hub-loadhint{ position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:9998; padding:5px 14px; border-radius:999px; background:rgba(6,22,41,.92); color:#dce8ff; font-size:12px; font-weight:600 !important; letter-spacing:.2px; box-shadow:0 6px 18px rgba(6,22,41,.28); pointer-events:none; opacity:1; transition:opacity .3s ease, transform .3s ease; white-space:nowrap; max-width:calc(100vw - 32px); overflow:hidden; text-overflow:ellipsis; }
+.hub-loadhint.done{ opacity:0; transform:translateX(-50%) translateY(-6px); }
+@media (prefers-reduced-motion:reduce){ .hub-loadhint{ transition:none; } }
+
+/* ===== barra mobile: avatar + olho no topo (sidebar some no mobile) ===== */
+.hub-mtop{ display:none; }
+@media (max-width:900px){
+  .hub-mtop{ display:flex; align-items:center; gap:9px; position:fixed; top:calc(9px + env(safe-area-inset-top)); right:12px; z-index:75; }
+  .hub-mtop .hub-eye{ margin:0; width:34px; height:34px; background:rgba(6,22,41,.92); border-color:rgba(255,255,255,.16); color:#dce8ff; box-shadow:0 4px 14px rgba(6,22,41,.28); }
+  .hub-mtop-av{ width:32px; height:32px; border-radius:50%; background:#0b66ff; color:#fff; display:grid; place-items:center; font-weight:800; font-size:12px; box-shadow:0 4px 14px rgba(6,22,41,.3); background-size:cover; background-position:center; }
+  /* abre espaço no cabeçalho para não colidir com os controles do topo */
+  html:not([data-scr="whatsapp"]) .main>.header{ padding-right:92px !important; }
 }

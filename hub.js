@@ -479,10 +479,25 @@
     setTimeout(function(){ try{ d.remove(); localStorage.setItem('ailogic_swipehint','1'); }catch(_){} }, 3600);
   }
   /* ---------- loading global: barrinha no topo + skeleton shimmer (REV0c) ---------- */
-  var _bar=null,_loadObs=null,_loadTimer=null,_loadChk=null;
+  var _bar=null,_loadObs=null,_loadTimer=null,_loadChk=null,_hint=null;
+  // frases rapidas e uteis por tela (data-scr). Sem travessao.
+  var LOAD_PHRASES={ visaogeral:'Reunindo os números do dia', leads:'Buscando seus leads mais quentes',
+    funil:'Montando seu funil de vendas', whatsapp:'Sincronizando suas conversas',
+    imoveis:'Carregando o acervo de imóveis', financeiro:'Fechando os números do mês',
+    relatorios:'Compilando seus indicadores', agenda:'Organizando sua agenda',
+    marketing:'Preparando seu estúdio de marketing', imobiliarias:'Reunindo as imobiliárias',
+    corretores:'Chamando o time de corretores', pessoas:'Organizando seus contatos',
+    captacao:'Buscando novas captações', credito:'Simulando as melhores condições',
+    locacao:'Preparando as locações', insights:'Gerando insights pra você',
+    emails:'Sincronizando seus e-mails', mapa:'Desenhando seu mapa de atuação',
+    anuncios:'Preparando seus anúncios', site:'Ajustando o site do Hub',
+    integracoes:'Conectando suas automações', assinaturas:'Preparando seus documentos' };
+  function _hintEl(){ if(!_hint){ _hint=document.createElement('div'); _hint.className='hub-loadhint'; (document.body||document.documentElement).appendChild(_hint); } return _hint; }
+  function _loadHintShow(){ var s=(document.documentElement.getAttribute('data-scr')||'').trim(); var msg=LOAD_PHRASES[s]||'Carregando suas informações'; var el=_hintEl(); el.textContent=msg; el.classList.remove('done'); }
+  function _loadHintHide(){ if(_hint){ var h=_hint; h.classList.add('done'); setTimeout(function(){ if(h&&h.parentNode) h.parentNode.removeChild(h); if(_hint===h) _hint=null; },300); } }
   function _barEl(){ if(!_bar){ _bar=document.createElement('div'); _bar.className='hub-topbar'; (document.body||document.documentElement).appendChild(_bar); } return _bar; }
-  function loadBar(){ _barEl().classList.remove('done'); }
-  function loadBarDone(){ if(_bar){ var b=_bar; b.classList.add('done'); setTimeout(function(){ if(b&&b.parentNode) b.parentNode.removeChild(b); if(_bar===b) _bar=null; },380); } }
+  function loadBar(){ _barEl().classList.remove('done'); _loadHintShow(); }
+  function loadBarDone(){ _loadHintHide(); if(_bar){ var b=_bar; b.classList.add('done'); setTimeout(function(){ if(b&&b.parentNode) b.parentNode.removeChild(b); if(_bar===b) _bar=null; },380); } }
   // placeholders "ainda carregando": KPIs com "·" e caixas .empty/.stream-empty com "Carregando"
   function _loadTargets(){
     var kpis=[].slice.call(document.querySelectorAll('.main [data-k]')).filter(function(e){ return (e.textContent||'').trim()==='·'; });
@@ -615,7 +630,7 @@
     ['trafego','Trafego',['anuncios']],
     ['marketing','Marketing',['site','vitrine']],
     ['financeiro','Financeiro',['financeiro','credito','parceria','relatorios']],
-    ['tecnologia','Tecnologia',['integracoes','insights','config-ia']]
+    ['tecnologia','Tecnologia',['integracoes','insights','config-ia','arquitetura']]
   ];
   var NAMES={comercial:'Comercial',adm:'Administrativo',juridico:'Jurídico',operacoes:'Operações',trafego:'Tráfego',marketing:'Marketing',financeiro:'Financeiro',tecnologia:'Tecnologia'};
   function slugOf(a){ var r=a.getAttribute('href')||''; if(/^(https?:|#|mailto:|tel:)/.test(r)) return ''; return r.split('/').pop().split('?')[0].replace(/\.html$/,'')||''; }
@@ -667,10 +682,93 @@
       '.hub-leaf .hs-num{width:19px;height:19px;flex:0 0 19px;border-radius:6px;background:rgba(255,255,255,.06);color:#7f93b8;font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-right:2px}',
       '.hub-leaf:hover .hs-num,.hub-leaf.active .hs-num{background:#0a66ff;color:#fff}',
       '.sb-collapsed .hub-sec-h .hs-nm,.sb-collapsed .hub-sec-h .hs-cv,.sb-collapsed .hub-leaf .hs-num{display:none}',
-      '.sb-collapsed .hub-leaves{max-height:660px}'
+      /* recolhido: SO os icones dos setores, centralizados, sem folhas e sem scroll interno */
+      '.sb-collapsed .hub-gav{overflow:visible}',
+      '.sb-collapsed .hub-sec{margin:4px 0}',
+      '.sb-collapsed .hub-sec-h{justify-content:center;gap:0;padding:11px 0}',
+      '.sb-collapsed .hub-sec-h .hs-ic{margin:0}',
+      '.sb-collapsed .hub-leaves{max-height:0 !important}',
+      '.sb-collapsed .hub-sec.op .hub-leaves{max-height:0 !important}'
     ].join('');
     var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
   }
   if(document.readyState!=='loading'){ try{build();}catch(e){} }
   else document.addEventListener('DOMContentLoaded',function(){ try{build();}catch(e){} });
+})();
+
+/* ===== Chrome da sidebar: perfil no topo, rodapé (recolher + sair), olho de privacidade e versão mobile ===== */
+(function(){ 'use strict';
+  var VAL_KEY='ailh_val', AUTH_KEY='ailogic-auth';
+  /* --- usuário logado (mesma leitura do auth.js, para não ficar vazio) --- */
+  function readUser(){
+    try{
+      var raw=localStorage.getItem(AUTH_KEY); if(!raw) return null;
+      var s=JSON.parse(raw);
+      var u=(s&&s.user)||(s&&s.currentSession&&s.currentSession.user); if(!u) return null;
+      var meta=u.user_metadata||{}, email=u.email||'';
+      var nome=meta.nome||(email?email.split('@')[0]:'Usuário');
+      var perfil=meta.perfil||'Usuário';
+      var foto=''; try{ foto=localStorage.getItem('ailh_avatar_'+email)||''; }catch(_){}
+      if(!foto) foto=meta.avatar_url||meta.foto||'';
+      var ini=(nome.trim().split(/\s+/).map(function(w){return w[0];}).slice(0,2).join('')||'U').toUpperCase();
+      return { nome:nome, perfil:perfil.charAt(0).toUpperCase()+perfil.slice(1), foto:foto, ini:ini };
+    }catch(_){ return null; }
+  }
+  function paintAvatar(av,u){ if(!av) return;
+    if(u&&u.foto){ av.textContent=''; av.style.backgroundImage='url("'+u.foto+'")'; av.style.backgroundSize='cover'; av.style.backgroundPosition='center'; }
+    else if(u && !av.textContent.trim()){ av.textContent=u.ini; av.style.backgroundImage=''; }
+  }
+  function fillProfile(prof,u){ if(!prof||!u) return;
+    var st=prof.querySelector('strong'); if(st && (!st.textContent.trim()||/AILogic Hub/i.test(st.textContent))) st.textContent=u.nome;
+    var sp=prof.querySelector('span'); if(sp && (!sp.textContent.trim()||/Acesso protegido/i.test(sp.textContent))) sp.textContent=u.perfil;
+    paintAvatar(prof.querySelector('.avatar'),u);
+  }
+  /* --- olho de privacidade: borra/abre TODOS os valores de uma vez --- */
+  var EYE_OPEN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var EYE_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 10.6a3 3 0 0 0 4.2 4.2"/><path d="M9.9 4.7A9.6 9.6 0 0 1 12 4.5c6.5 0 10 7.5 10 7.5a17 17 0 0 1-3 3.9M6.3 6.3A17 17 0 0 0 2 12s3.5 7.5 10 7.5a9.4 9.4 0 0 0 3.2-.6"/></svg>';
+  var _eyeBtns=[];
+  function valuesHidden(){ return document.body.classList.contains('hub-values-hidden'); }
+  function syncEye(){ var h=valuesHidden(); _eyeBtns.forEach(function(b){ b.innerHTML=h?EYE_OFF:EYE_OPEN; b.title=h?'Mostrar valores':'Ocultar valores'; b.setAttribute('aria-label',b.title); }); }
+  function toggleValues(){ var h=!valuesHidden(); document.body.classList.toggle('hub-values-hidden',h); try{ localStorage.setItem(VAL_KEY,h?'hidden':'shown'); }catch(_){} syncEye(); }
+  function makeEye(cls){ var b=document.createElement('button'); b.type='button'; b.className='hub-eye'+(cls?' '+cls:''); b.setAttribute('data-noswipe','');
+    b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); toggleValues(); }); _eyeBtns.push(b); return b; }
+  function applyInitialValues(){ var v=null; try{ v=localStorage.getItem(VAL_KEY); }catch(_){}
+    document.body.classList.toggle('hub-values-hidden', v!=='shown'); }   // sem preferência -> começa escondido
+  /* --- monta o cromo da sidebar + barra mobile --- */
+  function build(){
+    var side=document.querySelector('.sidebar');
+    var u=readUser();
+    if(side && !side.getAttribute('data-chrome')){
+      side.setAttribute('data-chrome','1');
+      var brand=side.querySelector('.brand');
+      var prof=side.querySelector('.profile');
+      if(prof){
+        prof.style.display='';                                    // gavetas escondia o perfil
+        if(brand && brand.nextSibling) side.insertBefore(prof, brand.nextSibling);   // topo, logo após a marca
+        else if(brand) side.appendChild(prof);
+        fillProfile(prof,u);
+        if(!prof.querySelector('.hub-eye')) prof.appendChild(makeEye('hub-eye-side'));
+      }
+      // rodapé: recolher (<) + sair, colados embaixo (margin-top:auto no CSS)
+      var foot=side.querySelector('.hub-sb-footer');
+      if(!foot){ foot=document.createElement('div'); foot.className='hub-sb-footer'; side.appendChild(foot); }
+      var tog=side.querySelector('.sb-toggle'); if(tog) foot.appendChild(tog);
+      var lo=side.querySelector('.hub-logout'); if(lo) foot.appendChild(lo);
+    }
+    // barra mobile fixa (avatar + olho): fora do .main -> sobrevive à troca de tela SPA
+    if(!document.querySelector('.hub-mtop')){
+      var bar=document.createElement('div'); bar.className='hub-mtop'; bar.setAttribute('data-noswipe','');
+      bar.appendChild(makeEye('hub-eye-m'));
+      var av=document.createElement('div'); av.className='avatar hub-mtop-av'; bar.appendChild(av);
+      document.body.appendChild(bar);
+      paintAvatar(av,u);
+    }
+    syncEye();
+  }
+  function init(){ try{ applyInitialValues(); build(); }catch(_){}
+    // reforça o preenchimento do perfil caso o auth.js pinte depois
+    setTimeout(function(){ try{ var u=readUser(); fillProfile(document.querySelector('.sidebar .profile'),u); paintAvatar(document.querySelector('.hub-mtop-av'),u); }catch(_){} },400);
+  }
+  if(document.readyState!=='loading') init();
+  else document.addEventListener('DOMContentLoaded', init);
 })();

@@ -4,12 +4,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
 
 :root{
-  --navy:#061936;--blue:#0b66ff;--blue2:#eaf2ff;--green:#16a56f;--green2:#eafaf3;
+  /* Paleta XORA premium: acento azul royal/navy unico. */
+  --navy:#1b306e;--blue:#2b4bd1;--blue2:#e7edff;--green:#16a56f;--green2:#eafaf3;
   --orange:#f59e0b;--orange2:#fff7e6;--red:#e94242;--red2:#fff0f0;--purple:#7257ff;--purple2:#f1efff;
   --cyan:#0ea5e9;--cyan2:#ecfeff;--gray900:#0f172a;--gray700:#334155;--gray500:#64748b;
-  --gray300:#d9e2ef;--gray200:#edf2f7;--white:#fff;--shadow:0 14px 34px rgba(15,23,42,.08);
-  --soft:0 8px 22px rgba(15,23,42,.055);--radius:18px;
+  --gray300:#d9e2ef;--gray200:#edf2f7;--white:#fff;
+  /* Sombra difusa suave (nada de sombra dura) + cantos generosos. */
+  --shadow:0 6px 20px rgba(20,40,80,.06);
+  --soft:0 4px 14px rgba(20,40,80,.05);--radius:16px;
+  /* Acento em degrade e cores de apoio do visual XORA. */
+  --accent:#2b4bd1;--accent-dk:#1b306e;--grad-blue:linear-gradient(135deg,#2f5bd6,#1b306e);
+  --sidebar-grad:linear-gradient(180deg,#152a63,#0e1c44);--card-border:#eef1f7;--app-bg:#f4f7fc;
   --font:Montserrat,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+/* ===== modo escuro: mantem o dark funcional com o novo acento ===== */
+:root[data-theme="dark"]{
+  --blue:#4f6ff0;--blue2:#1a2547;--accent:#4f6ff0;--accent-dk:#26408f;
+  --shadow:0 8px 24px rgba(0,0,0,.4);--soft:0 4px 14px rgba(0,0,0,.32);
+  --grad-blue:linear-gradient(135deg,#2f5bd6,#152a63);
+  --sidebar-grad:linear-gradient(180deg,#101d40,#0a1330);--card-border:#1e2b47;--app-bg:#0a0f1e;
 }
 
 /* ===== choreografia de entrada (padrão de TODAS as telas) =====
