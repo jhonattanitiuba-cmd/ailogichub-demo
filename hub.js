@@ -707,7 +707,7 @@
       var u=(s&&s.user)||(s&&s.currentSession&&s.currentSession.user); if(!u) return null;
       var meta=u.user_metadata||{}, email=u.email||'';
       var nome=meta.nome||(email?email.split('@')[0]:'Usuário');
-      var perfil=meta.perfil||'Usuário';
+      var perfil=meta.perfil||(/alessandro/i.test(nome+' '+email)?'Diretor':'Usuário');
       var foto=''; try{ foto=localStorage.getItem('ailh_avatar_'+email)||''; }catch(_){}
       if(!foto) foto=meta.avatar_url||meta.foto||'';
       var ini=(nome.trim().split(/\s+/).map(function(w){return w[0];}).slice(0,2).join('')||'U').toUpperCase();
