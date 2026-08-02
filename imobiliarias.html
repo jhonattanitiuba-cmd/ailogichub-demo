@@ -66,6 +66,12 @@ td.strong{font-weight:700;color:var(--heading)}
 .ac-item:last-child{border-bottom:0}.ac-item:hover{background:var(--panel2)}
 .ac-item small{display:block;color:var(--muted);font-size:11px;margin-top:1px}
 .ac-empty{padding:10px 12px;font-size:12px;color:var(--muted)}
+.vagas{font-size:11px;font-weight:800;color:var(--blue);background:var(--blueSoft);border-radius:999px;padding:2px 9px;margin-left:6px}
+.vagas.full{color:var(--red);background:rgba(220,38,38,.10)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--border2);border-radius:999px;padding:5px 10px;font-size:12.5px;font-weight:650}
+.chip small{color:var(--muted);font-weight:500}
+.chip-new{border-color:var(--blue);color:var(--blue)}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
 .mcell{background:var(--panel);padding:13px 18px}.mcell.full{grid-column:1/-1}.mcell label{display:block;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}.mcell strong{font-size:13.5px;color:var(--text);font-weight:650}
 @media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto}.main{height:auto}.sidebar{height:auto}.kpis{grid-template-columns:repeat(2,1fr)}.fg2{grid-template-columns:1fr}}
@@ -157,6 +163,32 @@ td.strong{font-weight:700;color:var(--heading)}
         <button type="button" class="linklike" id="gestorInviteCancel">Cancelar convite</button>
       </div>
     </div>
+
+    <!-- REV2 item 02 — Corretores + plano -->
+    <div class="fsec">
+      <div class="fsec-h">Plano</div>
+      <label style="text-transform:none"><select id="f_plano">
+        <option value="">Base (inclui 2 corretores)</option>
+        <option value="pro">Pro (até 5 corretores)</option>
+        <option value="premium">Premium (corretores ilimitados)</option>
+      </select></label>
+    </div>
+    <div class="fsec">
+      <div class="fsec-h">Corretores <span id="corVagas" class="vagas"></span></div>
+      <div id="corChips" class="chips"></div>
+      <div id="corSearchWrap">
+        <input id="f_cor_busca" placeholder="Buscar usuário ativo por nome ou e-mail…" autocomplete="off">
+        <div id="corResults" class="ac-list" style="display:none"></div>
+        <button type="button" class="linklike" id="corInviteToggle">+ Convidar novo corretor</button>
+      </div>
+      <div id="corInvite" style="display:none">
+        <div class="fg2"><label>Nome do corretor*<input id="f_cor_nome"></label><label>E-mail do corretor*<input id="f_cor_email" type="email"></label></div>
+        <div class="fg2"><label>Telefone<input id="f_cor_tel"></label><label>CRECI<input id="f_cor_creci"></label></div>
+        <button type="button" class="linklike" id="corInviteAdd">Adicionar corretor</button>
+        <button type="button" class="linklike" id="corInviteCancel">Cancelar</button>
+      </div>
+      <p class="hint" id="corHint"></p>
+    </div>
   </div>
   <div class="modal-f"><span class="ferr" id="fErr"></span><button class="btn" id="fCancel">Cancelar</button><button class="btn primary" id="fSave">Salvar</button></div>
 </div></div>
@@ -202,7 +234,9 @@ td.strong{font-weight:700;color:var(--heading)}
     var extra=m.pendente?(fld('Solicitação','Pendente de aprovação')+fld('Responsável',m.responsavel_nome)+fld('E-mail do responsável',m.responsavel_email)+fld('WhatsApp',m.responsavel_telefone)):'';
     var g=m.gestor_id?userById(m.gestor_id):null;
     var gestorTxt=g?(g.nome+(g.email?(' · '+g.email):'')):(m.gestor_id?'Vinculado':'Não definido');
-    $('dGrid').innerHTML=fld('Gestor responsável',gestorTxt,true)+fld('CRECI',m.creci)+fld('Status',m.pendente?'Pendente':m.status)+fld('Telefone',m.telefone)+fld('E-mail',m.email)+fld('Cidade',m.cidade)+fld('Instagram',m.instagram)+fld('Site',m.site,true)+fld('Endereço',m.endereco,true)+extra;
+    var nCor=usersCache.filter(function(u){return String(u.imobiliaria_id)===String(m.id)&&(u.perfil||'')==='corretor';}).length;
+    var planoTxt=({pro:'Pro',premium:'Premium'})[(m.plano||'').toLowerCase()]||'Base';
+    $('dGrid').innerHTML=fld('Gestor responsável',gestorTxt,true)+fld('Plano',planoTxt)+fld('Corretores',nCor)+fld('CRECI',m.creci)+fld('Status',m.pendente?'Pendente':m.status)+fld('Telefone',m.telefone)+fld('E-mail',m.email)+fld('Cidade',m.cidade)+fld('Instagram',m.instagram)+fld('Site',m.site,true)+fld('Endereço',m.endereco,true)+extra;
     $('dApprove').style.display=m.pendente?'':'none';
     dm.classList.add('open');}
   $('dClose').addEventListener('click',function(){dm.classList.remove('open');});
@@ -262,6 +296,48 @@ td.strong{font-weight:700;color:var(--heading)}
   $('gestorInviteToggle').addEventListener('click',showInvite);
   $('gestorInviteCancel').addEventListener('click',function(){cancelInvite();});
 
+  // ---- Corretores (REV2 item 02) ----
+  var PLAN_QUOTAS={'':2,pro:5,premium:Infinity};
+  var corList=[]; // {id?, nome, email, telefone, creci, _new}
+  function cotaAtual(){var p=($('f_plano').value||'').toLowerCase();return PLAN_QUOTAS[p]!=null?PLAN_QUOTAS[p]:2;}
+  function renderCor(){
+    var cota=cotaAtual(),usados=corList.length,cheio=(cota!==Infinity&&usados>=cota);
+    var vg=$('corVagas');vg.textContent=usados+' / '+(cota===Infinity?'∞':cota)+' vagas';vg.className='vagas'+(cheio?' full':'');
+    $('corChips').innerHTML=corList.map(function(c,i){return '<span class="chip'+(c._new?' chip-new':'')+'">'+esc(c.nome||'—')+' <small>'+esc(c.email||'')+'</small><button type="button" class="chip-x" data-i="'+i+'" title="Remover">×</button></span>';}).join('');
+    Array.prototype.forEach.call($('corChips').querySelectorAll('.chip-x'),function(b){b.addEventListener('click',function(){corList.splice(+b.getAttribute('data-i'),1);renderCor();});});
+    var full=(cota!==Infinity&&usados>=cota);
+    $('corSearchWrap').style.display=full?'none':'';
+    $('corHint').textContent=full?('Limite do plano atingido. Selecione um plano superior para incluir mais corretores.'):(cota===Infinity?'Plano com corretores ilimitados.':('Você pode incluir até '+cota+' corretores neste plano.'));
+  }
+  function corHas(id,email){return corList.some(function(c){return (id&&String(c.id)===String(id))||(email&&(c.email||'').toLowerCase()===String(email).toLowerCase());});}
+  function addCor(c){
+    var cota=cotaAtual();
+    if(cota!==Infinity&&corList.length>=cota){$('corHint').textContent='Limite do plano atingido. Escolha um plano superior.';return;}
+    if(corHas(c.id,c.email)){return;}
+    corList.push(c);renderCor();$('f_cor_busca').value='';$('corResults').style.display='none';
+  }
+  function renderCorResults(q){
+    var res=$('corResults');q=(q||'').trim().toLowerCase();
+    if(!q){res.style.display='none';return;}
+    var list=usersCache.filter(function(u){return ((u.nome||'')+' '+(u.email||'')).toLowerCase().indexOf(q)>=0 && !corHas(u.id,u.email) && (!gestorSel||String(gestorSel.id)!==String(u.id));}).slice(0,8);
+    if(!list.length){res.innerHTML='<div class="ac-empty">Nenhum usuário disponível. Use “Convidar novo corretor”.</div>';res.style.display='';return;}
+    res.innerHTML=list.map(function(u,i){return '<div class="ac-item" data-i="'+i+'">'+esc(u.nome||'—')+'<small>'+esc(u.email||'')+(u.perfil?(' · '+u.perfil):'')+'</small></div>';}).join('');
+    Array.prototype.forEach.call(res.querySelectorAll('.ac-item'),function(el){el.addEventListener('click',function(){addCor({id:list[+el.getAttribute('data-i')].id,nome:list[+el.getAttribute('data-i')].nome,email:list[+el.getAttribute('data-i')].email,_new:false});});});
+    res.style.display='';
+  }
+  $('f_cor_busca').addEventListener('input',function(){renderCorResults(this.value);});
+  $('f_plano').addEventListener('change',renderCor);
+  $('corInviteToggle').addEventListener('click',function(){$('corInvite').style.display='';$('corSearchWrap').style.display='none';});
+  function corInviteHide(){$('corInvite').style.display='none';$('f_cor_nome').value='';$('f_cor_email').value='';$('f_cor_tel').value='';$('f_cor_creci').value='';renderCor();}
+  $('corInviteCancel').addEventListener('click',corInviteHide);
+  $('corInviteAdd').addEventListener('click',function(){
+    var n=$('f_cor_nome').value.trim(),e=$('f_cor_email').value.trim();
+    if(!n||!e){$('corHint').textContent='Informe nome e e-mail do corretor.';return;}
+    if(!isEmail(e)){$('corHint').textContent='E-mail do corretor inválido.';return;}
+    addCor({nome:n,email:e,telefone:$('f_cor_tel').value.trim(),creci:$('f_cor_creci').value.trim(),_new:true});
+    corInviteHide();
+  });
+
   function openForm(m){m=m||{};$('fTit').textContent=m.id?'Editar imobiliária':'Nova imobiliária';$('fErr').textContent='';
     $('f_nome').value=m.nome||'';$('f_creci').value=m.creci||'';$('f_telefone').value=m.telefone||'';$('f_email').value=m.email||'';
     $('f_cidade').value=m.cidade||'';$('f_instagram').value=m.instagram||'';$('f_site').value=m.site||'';$('f_endereco').value=m.endereco||'';
@@ -272,6 +348,12 @@ td.strong{font-weight:700;color:var(--heading)}
     if(g)setGestor(g);
     else if(m.gestor_id){setGestor({id:m.gestor_id,nome:m.gestor_nome||'Gestor vinculado',email:m.gestor_email||''});}
     else setGestor(null);
+    // corretores: prefill dos já vinculados a esta imobiliária
+    $('f_plano').value=(m.plano||'').toLowerCase();
+    $('corInvite').style.display='none';$('corSearchWrap').style.display='';$('f_cor_busca').value='';
+    corList=[];
+    if(m.id){corList=usersCache.filter(function(u){return String(u.imobiliaria_id)===String(m.id)&&(u.perfil||'')==='corretor';}).map(function(u){return {id:u.id,nome:u.nome,email:u.email,_new:false,_existing:true};});}
+    renderCor();
     fm.dataset.id=m.id||'';fm.classList.add('open');
     if(!usersCache.length)loadUsers();}
   function closeForm(){fm.classList.remove('open');}
@@ -299,27 +381,47 @@ td.strong{font-weight:700;color:var(--heading)}
     } else {
       $('fErr').textContent='Selecione ou convide o gestor responsável.';return;
     }
+    o.plano=($('f_plano').value||'').toLowerCase();
     if(fm.dataset.id)o.id=fm.dataset.id;
+    // valida cota client-side (o backend é a autoridade final)
+    var cota=cotaAtual();
+    if(cota!==Infinity&&corList.length>cota){$('fErr').textContent='Corretores acima do limite do plano ('+cota+'). Ajuste o plano ou remova corretores.';return;}
     var btn=$('fSave');btn.disabled=true;btn.textContent='Salvando…';$('fErr').textContent='';
-    // 1) salva imobiliária (com gestor_id se já selecionado)
+    var notices=[];
+    // 1) salva imobiliária (plano + gestor_id se já selecionado)
     postJSON('imobiliarias','save',o)
       .then(function(x){
         if(!x.ok)throw new Error((x.j&&x.j.error)||'falha ao salvar imobiliária');
         var imobId=(x.j&&x.j.row&&x.j.row.id)||o.id;
-        if(!inv)return {imobId:imobId,extra:null};
-        // 2) convite: cria o gestor vinculado à imobiliária
+        // 2) gestor por convite
+        if(!inv)return imobId;
         inv.imobiliaria_id=imobId;
         return postJSON('corretores','save',inv).then(function(u){
           if(!u.ok||!u.j||!u.j.row){throw new Error('imobiliária salva, mas falhou ao criar o gestor ('+((u.j&&u.j.error)||'')+')');}
-          // 3) vincula gestor_id
-          return postJSON('imobiliarias','save',{id:imobId,gestor_id:u.j.row.id}).then(function(){return {imobId:imobId,extra:u.j};});
+          if(u.j.senha_temporaria)notices.push('Gestor '+inv.nome+': senha temporária '+u.j.senha_temporaria);
+          return postJSON('imobiliarias','save',{id:imobId,gestor_id:u.j.row.id}).then(function(){return imobId;});
         });
       })
-      .then(function(r){btn.disabled=false;btn.textContent='Salvar';closeForm();usersCache=[];loadUsers();load();
-        if(r.extra&&r.extra.login_criado&&r.extra.senha_temporaria){alert('Gestor convidado! Login criado. Senha temporária para repassar: '+r.extra.senha_temporaria);}
-        else if(r.extra&&r.extra.login_ja_existe){alert('Gestor vinculado (o e-mail já possuía login no Hub).');}
+      .then(function(imobId){
+        // 3) persiste corretores (só os novos/recém-selecionados; ignora já vinculados)
+        var pend=corList.filter(function(c){return !c._existing;});
+        var chain=Promise.resolve();
+        pend.forEach(function(c){
+          chain=chain.then(function(){
+            var body={imobiliaria_id:imobId,nome:c.nome,email:c.email,telefone:c.telefone||'',creci:c.creci||'',perfil:'corretor',status:'Ativo'};
+            if(c.id)body.id=c.id;
+            return postJSON('corretores','save',body).then(function(u){
+              if(!u.ok){var e=(u.j&&(u.j.message||u.j.error))||'falha';notices.push('Corretor '+c.nome+': '+e);}
+              else if(u.j&&u.j.senha_temporaria){notices.push('Corretor '+c.nome+': senha temporária '+u.j.senha_temporaria);}
+            });
+          });
+        });
+        return chain;
       })
-      .catch(function(e){btn.disabled=false;btn.textContent='Salvar';$('fErr').textContent=(e&&e.message)||'Falha na requisição.';});
+      .then(function(){btn.disabled=false;btn.textContent='Salvar';closeForm();usersCache=[];loadUsers();load();
+        if(notices.length)alert(notices.join('\n'));
+      })
+      .catch(function(e){btn.disabled=false;btn.textContent='Salvar';$('fErr').textContent=(e&&e.message)||'Falha na requisição.';if(notices.length)alert(notices.join('\n'));});
   });
 
   function delItem(m){
