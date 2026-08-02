@@ -72,6 +72,12 @@ td.strong{font-weight:700;color:var(--heading)}
 .chip{display:inline-flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--border2);border-radius:999px;padding:5px 10px;font-size:12.5px;font-weight:650}
 .chip small{color:var(--muted);font-weight:500}
 .chip-new{border-color:var(--blue);color:var(--blue)}
+.sumsec{margin-top:12px}.sumsec:first-child{margin-top:0}
+.sumsec h4{margin:0 0 6px;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.sumrow{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+.sumrow:last-child{border-bottom:0}.sumrow b{color:var(--muted);font-weight:650}
+.sumrow .tag{font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 8px;background:var(--blueSoft);color:var(--blue)}
+.sumrow .tag.exist{background:var(--panel2);color:var(--muted)}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
 .mcell{background:var(--panel);padding:13px 18px}.mcell.full{grid-column:1/-1}.mcell label{display:block;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}.mcell strong{font-size:13.5px;color:var(--text);font-weight:650}
 @media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto}.main{height:auto}.sidebar{height:auto}.kpis{grid-template-columns:repeat(2,1fr)}.fg2{grid-template-columns:1fr}}
@@ -191,6 +197,12 @@ td.strong{font-weight:700;color:var(--heading)}
     </div>
   </div>
   <div class="modal-f"><span class="ferr" id="fErr"></span><button class="btn" id="fCancel">Cancelar</button><button class="btn primary" id="fSave">Salvar</button></div>
+</div></div>
+
+<div class="modal-bg" id="confModal"><div class="modal">
+  <div class="modal-h"><h3>Revisar cadastro</h3><button class="modal-x" id="cfClose">×</button></div>
+  <div class="fbody"><p class="hint" style="margin:0 0 4px">Confira os dados antes de confirmar. Cada pessoa convidada receberá acesso para criar a própria senha.</p><div id="cfBody"></div></div>
+  <div class="modal-f"><span class="ferr" id="cfErr"></span><button class="btn" id="cfBack">Voltar</button><button class="btn primary" id="cfConfirm">Confirmar cadastro</button></div>
 </div></div>
 
 <div class="modal-bg" id="detModal"><div class="modal">
@@ -360,68 +372,96 @@ td.strong{font-weight:700;color:var(--heading)}
   $('btnNew').addEventListener('click',function(){openForm(null);});
   $('fClose').addEventListener('click',closeForm);$('fCancel').addEventListener('click',closeForm);
   fm.addEventListener('click',function(e){if(e.target===fm)closeForm();});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeForm();dm.classList.remove('open');}});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){document.getElementById('confModal').classList.remove('open');closeForm();dm.classList.remove('open');}});
 
   function postJSON(ent,action,body){return fetch(DATA+'?ent='+ent+'&action='+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});});}
   function isEmail(s){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);}
 
+  var cm=document.getElementById('confModal'),pending=null;
+
+  // REV2 item 03 — valida, checa e-mail único e monta o resumo de confirmação
   $('fSave').addEventListener('click',function(){
     var o={nome:$('f_nome').value.trim(),creci:$('f_creci').value.trim(),telefone:$('f_telefone').value.trim(),email:$('f_email').value.trim(),
       cidade:$('f_cidade').value.trim(),instagram:$('f_instagram').value.trim(),site:$('f_site').value.trim(),endereco:$('f_endereco').value.trim(),status:$('f_status').value};
     if(!o.nome){$('fErr').textContent='Informe o nome.';return;}
-    // REV2 item 01 — gestor responsável é obrigatório
-    var inv=null;
+    if(o.email&&!isEmail(o.email)){$('fErr').textContent='E-mail da imobiliária inválido.';return;}
+    // gestor obrigatório (seleção ou convite)
+    var inv=null,gInfo=null;
     if(gestorInviteMode){
       var gn=$('f_gestor_nome').value.trim(),ge=$('f_gestor_email').value.trim();
       if(!gn||!ge){$('fErr').textContent='Informe nome e e-mail do gestor a convidar.';return;}
       if(!isEmail(ge)){$('fErr').textContent='E-mail do gestor inválido.';return;}
       inv={nome:gn,email:ge,telefone:$('f_gestor_tel').value.trim(),perfil:'gestor',status:'Ativo'};
+      gInfo={nome:gn,email:ge,novo:true};
     } else if(gestorSel){
-      o.gestor_id=gestorSel.id;
-    } else {
-      $('fErr').textContent='Selecione ou convide o gestor responsável.';return;
-    }
+      o.gestor_id=gestorSel.id;gInfo={nome:gestorSel.nome,email:gestorSel.email,novo:false};
+    } else { $('fErr').textContent='Selecione ou convide o gestor responsável.';return; }
     o.plano=($('f_plano').value||'').toLowerCase();
     if(fm.dataset.id)o.id=fm.dataset.id;
-    // valida cota client-side (o backend é a autoridade final)
     var cota=cotaAtual();
     if(cota!==Infinity&&corList.length>cota){$('fErr').textContent='Corretores acima do limite do plano ('+cota+'). Ajuste o plano ou remova corretores.';return;}
-    var btn=$('fSave');btn.disabled=true;btn.textContent='Salvando…';$('fErr').textContent='';
-    var notices=[];
-    // 1) salva imobiliária (plano + gestor_id se já selecionado)
+    // e-mail único entre gestor(convite) e corretores(convite) — evita colisão no cadastro
+    var emails={},dup=null;
+    var novos=[]; if(inv)novos.push({nome:inv.nome,email:inv.email}); corList.filter(function(c){return c._new;}).forEach(function(c){novos.push({nome:c.nome,email:c.email});});
+    novos.forEach(function(p){var k=(p.email||'').toLowerCase();if(!k)return;if(emails[k])dup=p.email;else emails[k]=1;});
+    if(dup){$('fErr').textContent='E-mail repetido no cadastro: '+dup+'. Cada pessoa precisa de um e-mail único.';return;}
+    $('fErr').textContent='';
+    pending={o:o,inv:inv};
+    // ---- Resumo ----
+    var planoTxt=({pro:'Pro (até 5)',premium:'Premium (ilimitado)'})[o.plano]||'Base (até 2)';
+    var html='<div class="sumsec"><h4>Empresa</h4>'
+      +'<div class="sumrow"><b>Nome</b><span>'+esc(o.nome)+'</span></div>'
+      +(o.email?'<div class="sumrow"><b>E-mail</b><span>'+esc(o.email)+'</span></div>':'')
+      +(o.cidade?'<div class="sumrow"><b>Cidade</b><span>'+esc(o.cidade)+'</span></div>':'')
+      +'<div class="sumrow"><b>Plano</b><span>'+planoTxt+'</span></div></div>';
+    html+='<div class="sumsec"><h4>Gestor responsável</h4><div class="sumrow"><span>'+esc(gInfo.nome)+(gInfo.email?' · '+esc(gInfo.email):'')+'</span>'+(gInfo.novo?'<span class="tag">convite</span>':'<span class="tag exist">existente</span>')+'</div></div>';
+    html+='<div class="sumsec"><h4>Corretores ('+corList.length+' / '+(cota===Infinity?'∞':cota)+')</h4>';
+    if(!corList.length)html+='<div class="sumrow"><span class="hint" style="margin:0">Nenhum corretor adicionado.</span></div>';
+    else corList.forEach(function(c){html+='<div class="sumrow"><span>'+esc(c.nome)+(c.email?' · '+esc(c.email):'')+'</span>'+(c._existing?'<span class="tag exist">já vinculado</span>':(c._new?'<span class="tag">convite</span>':'<span class="tag exist">existente</span>'))+'</div>';});
+    html+='</div>';
+    $('cfBody').innerHTML=html;$('cfErr').textContent='';
+    cm.classList.add('open');
+  });
+
+  function closeConf(){cm.classList.remove('open');}
+  $('cfClose').addEventListener('click',closeConf);
+  $('cfBack').addEventListener('click',closeConf);
+  cm.addEventListener('click',function(e){if(e.target===cm)closeConf();});
+
+  // REV2 item 03 — persistência integrada (empresa + gestor + corretores + convites)
+  $('cfConfirm').addEventListener('click',function(){
+    if(!pending)return;
+    var o=pending.o,inv=pending.inv,notices=[];
+    var btn=$('cfConfirm');btn.disabled=true;btn.textContent='Cadastrando…';$('cfErr').textContent='';
     postJSON('imobiliarias','save',o)
       .then(function(x){
         if(!x.ok)throw new Error((x.j&&x.j.error)||'falha ao salvar imobiliária');
         var imobId=(x.j&&x.j.row&&x.j.row.id)||o.id;
-        // 2) gestor por convite
         if(!inv)return imobId;
         inv.imobiliaria_id=imobId;
         return postJSON('corretores','save',inv).then(function(u){
-          if(!u.ok||!u.j||!u.j.row){throw new Error('imobiliária salva, mas falhou ao criar o gestor ('+((u.j&&u.j.error)||'')+')');}
+          if(!u.ok||!u.j||!u.j.row)throw new Error('imobiliária salva, mas falhou ao criar o gestor ('+((u.j&&u.j.error)||'')+')');
           if(u.j.senha_temporaria)notices.push('Gestor '+inv.nome+': senha temporária '+u.j.senha_temporaria);
           return postJSON('imobiliarias','save',{id:imobId,gestor_id:u.j.row.id}).then(function(){return imobId;});
         });
       })
       .then(function(imobId){
-        // 3) persiste corretores (só os novos/recém-selecionados; ignora já vinculados)
         var pend=corList.filter(function(c){return !c._existing;});
         var chain=Promise.resolve();
-        pend.forEach(function(c){
-          chain=chain.then(function(){
-            var body={imobiliaria_id:imobId,nome:c.nome,email:c.email,telefone:c.telefone||'',creci:c.creci||'',perfil:'corretor',status:'Ativo'};
-            if(c.id)body.id=c.id;
-            return postJSON('corretores','save',body).then(function(u){
-              if(!u.ok){var e=(u.j&&(u.j.message||u.j.error))||'falha';notices.push('Corretor '+c.nome+': '+e);}
-              else if(u.j&&u.j.senha_temporaria){notices.push('Corretor '+c.nome+': senha temporária '+u.j.senha_temporaria);}
-            });
+        pend.forEach(function(c){chain=chain.then(function(){
+          var body={imobiliaria_id:imobId,nome:c.nome,email:c.email,telefone:c.telefone||'',creci:c.creci||'',perfil:'corretor',status:'Ativo'};
+          if(c.id)body.id=c.id;
+          return postJSON('corretores','save',body).then(function(u){
+            if(!u.ok){notices.push('Corretor '+c.nome+': '+((u.j&&(u.j.message||u.j.error))||'falha'));}
+            else if(u.j&&u.j.senha_temporaria){notices.push('Corretor '+c.nome+': senha temporária '+u.j.senha_temporaria);}
           });
-        });
+        });});
         return chain;
       })
-      .then(function(){btn.disabled=false;btn.textContent='Salvar';closeForm();usersCache=[];loadUsers();load();
-        if(notices.length)alert(notices.join('\n'));
+      .then(function(){btn.disabled=false;btn.textContent='Confirmar cadastro';closeConf();closeForm();pending=null;usersCache=[];loadUsers();load();
+        if(notices.length)alert('Cadastro concluído.\n\n'+notices.join('\n'));
       })
-      .catch(function(e){btn.disabled=false;btn.textContent='Salvar';$('fErr').textContent=(e&&e.message)||'Falha na requisição.';if(notices.length)alert(notices.join('\n'));});
+      .catch(function(e){btn.disabled=false;btn.textContent='Confirmar cadastro';$('cfErr').textContent=(e&&e.message)||'Falha na requisição.';if(notices.length)alert(notices.join('\n'));});
   });
 
   function delItem(m){
