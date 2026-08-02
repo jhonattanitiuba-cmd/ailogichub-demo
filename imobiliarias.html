@@ -52,6 +52,32 @@ td.strong{font-weight:700;color:var(--heading)}
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .modal-f{padding:14px 20px;display:flex;justify-content:flex-end;align-items:center;gap:10px;border-top:1px solid var(--border)}
 .ferr{margin-right:auto;color:var(--red);font-size:12px;font-weight:600}
+.fsec{border-top:1px solid var(--border);padding-top:12px;margin-top:2px}
+.fsec-h{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px}
+.fsec-h .req{color:var(--red);margin-left:2px}
+.fsec input{display:block;width:100%;height:40px;border:1px solid var(--border2);border-radius:10px;padding:0 12px;font:inherit;font-size:13px;color:var(--text);background:var(--panel2);outline:none}
+.fsec input:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--blueSoft)}
+.linklike{background:none;border:0;color:var(--blue);font:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:6px 0;margin-top:2px}
+.hint{font-size:11px;color:var(--muted);margin:6px 0 0}
+.chip-picked{display:inline-flex;align-items:center;gap:8px;background:var(--blueSoft);color:var(--blue);border:1px solid var(--blue);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:700;margin-bottom:8px}
+.chip-x{background:none;border:0;color:inherit;font-size:16px;cursor:pointer;line-height:1}
+.ac-list{position:relative;border:1px solid var(--border2);border-radius:10px;margin-top:6px;max-height:180px;overflow:auto;background:var(--panel)}
+.ac-item{padding:9px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border)}
+.ac-item:last-child{border-bottom:0}.ac-item:hover{background:var(--panel2)}
+.ac-item small{display:block;color:var(--muted);font-size:11px;margin-top:1px}
+.ac-empty{padding:10px 12px;font-size:12px;color:var(--muted)}
+.vagas{font-size:11px;font-weight:800;color:var(--blue);background:var(--blueSoft);border-radius:999px;padding:2px 9px;margin-left:6px}
+.vagas.full{color:var(--red);background:rgba(220,38,38,.10)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--border2);border-radius:999px;padding:5px 10px;font-size:12.5px;font-weight:650}
+.chip small{color:var(--muted);font-weight:500}
+.chip-new{border-color:var(--blue);color:var(--blue)}
+.sumsec{margin-top:12px}.sumsec:first-child{margin-top:0}
+.sumsec h4{margin:0 0 6px;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.sumrow{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+.sumrow:last-child{border-bottom:0}.sumrow b{color:var(--muted);font-weight:650}
+.sumrow .tag{font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 8px;background:var(--blueSoft);color:var(--blue)}
+.sumrow .tag.exist{background:var(--panel2);color:var(--muted)}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
 .mcell{background:var(--panel);padding:13px 18px}.mcell.full{grid-column:1/-1}.mcell label{display:block;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}.mcell strong{font-size:13.5px;color:var(--text);font-weight:650}
 @media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto}.main{height:auto}.sidebar{height:auto}.kpis{grid-template-columns:repeat(2,1fr)}.fg2{grid-template-columns:1fr}}
@@ -123,8 +149,60 @@ td.strong{font-weight:700;color:var(--heading)}
     <div class="fg2"><label>Telefone<input id="f_telefone"></label><label>E-mail<input id="f_email"></label></div>
     <div class="fg2"><label>Cidade<input id="f_cidade"></label><label>Instagram<input id="f_instagram"></label></div>
     <div class="fg2"><label>Site<input id="f_site"></label><label>Endereço<input id="f_endereco"></label></div>
+
+    <!-- REV2 item 01 — Gestor responsável -->
+    <div class="fsec">
+      <div class="fsec-h">Gestor responsável<span class="req">*</span></div>
+      <div id="gestorPicked" class="chip-picked" style="display:none">
+        <span id="gestorPickedTxt"></span>
+        <button type="button" class="chip-x" id="gestorClear" title="Remover">×</button>
+      </div>
+      <div id="gestorSearchWrap">
+        <input id="f_gestor_busca" placeholder="Buscar usuário ativo por nome ou e-mail…" autocomplete="off">
+        <div id="gestorResults" class="ac-list" style="display:none"></div>
+        <button type="button" class="linklike" id="gestorInviteToggle">+ Convidar novo gestor</button>
+      </div>
+      <div id="gestorInvite" style="display:none">
+        <div class="fg2"><label>Nome do gestor*<input id="f_gestor_nome"></label><label>E-mail do gestor*<input id="f_gestor_email" type="email"></label></div>
+        <label>Telefone<input id="f_gestor_tel"></label>
+        <p class="hint">Ao salvar, o gestor recebe um convite por e-mail para criar a própria senha.</p>
+        <button type="button" class="linklike" id="gestorInviteCancel">Cancelar convite</button>
+      </div>
+    </div>
+
+    <!-- REV2 item 02 — Corretores + plano -->
+    <div class="fsec">
+      <div class="fsec-h">Plano</div>
+      <label style="text-transform:none"><select id="f_plano">
+        <option value="">Base (inclui 2 corretores)</option>
+        <option value="pro">Pro (até 5 corretores)</option>
+        <option value="premium">Premium (corretores ilimitados)</option>
+      </select></label>
+    </div>
+    <div class="fsec">
+      <div class="fsec-h">Corretores <span id="corVagas" class="vagas"></span></div>
+      <div id="corChips" class="chips"></div>
+      <div id="corSearchWrap">
+        <input id="f_cor_busca" placeholder="Buscar usuário ativo por nome ou e-mail…" autocomplete="off">
+        <div id="corResults" class="ac-list" style="display:none"></div>
+        <button type="button" class="linklike" id="corInviteToggle">+ Convidar novo corretor</button>
+      </div>
+      <div id="corInvite" style="display:none">
+        <div class="fg2"><label>Nome do corretor*<input id="f_cor_nome"></label><label>E-mail do corretor*<input id="f_cor_email" type="email"></label></div>
+        <div class="fg2"><label>Telefone<input id="f_cor_tel"></label><label>CRECI<input id="f_cor_creci"></label></div>
+        <button type="button" class="linklike" id="corInviteAdd">Adicionar corretor</button>
+        <button type="button" class="linklike" id="corInviteCancel">Cancelar</button>
+      </div>
+      <p class="hint" id="corHint"></p>
+    </div>
   </div>
   <div class="modal-f"><span class="ferr" id="fErr"></span><button class="btn" id="fCancel">Cancelar</button><button class="btn primary" id="fSave">Salvar</button></div>
+</div></div>
+
+<div class="modal-bg" id="confModal"><div class="modal">
+  <div class="modal-h"><h3>Revisar cadastro</h3><button class="modal-x" id="cfClose">×</button></div>
+  <div class="fbody"><p class="hint" style="margin:0 0 4px">Confira os dados antes de confirmar. Cada pessoa convidada receberá acesso para criar a própria senha.</p><div id="cfBody"></div></div>
+  <div class="modal-f"><span class="ferr" id="cfErr"></span><button class="btn" id="cfBack">Voltar</button><button class="btn primary" id="cfConfirm">Confirmar cadastro</button></div>
 </div></div>
 
 <div class="modal-bg" id="detModal"><div class="modal">
@@ -138,7 +216,10 @@ td.strong{font-weight:700;color:var(--heading)}
 <script>/*imob-crud*/(function(){
   var DATA="/api/data";
   var items=[],curDetail=null,fm=document.getElementById('formModal'),dm=document.getElementById('detModal');
+  var usersCache=[],gestorSel=null,gestorInviteMode=false;
   function $(id){return document.getElementById(id);}
+  function loadUsers(){return fetch(DATA+'?ent=corretores&action=list',{cache:'no-store'}).then(function(r){return r.ok?r.json():{rows:[]};}).then(function(d){usersCache=(d.rows||[]).filter(function(u){return (u.status||'Ativo')!=='Inativo';});return usersCache;}).catch(function(){return [];});}
+  function userById(id){for(var i=0;i<usersCache.length;i++){if(String(usersCache[i].id)===String(id))return usersCache[i];}return null;}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
   function get(){return fetch(DATA+'?ent=imobiliarias&action=list',{cache:'no-store'}).then(function(r){return r.ok?r.json():{rows:[]};}).then(function(d){return d.rows||[];}).catch(function(){return [];});}
@@ -163,7 +244,11 @@ td.strong{font-weight:700;color:var(--heading)}
 
   function openDetail(m){curDetail=m;$('dTit').textContent=m.nome||'Imobiliária';
     var extra=m.pendente?(fld('Solicitação','Pendente de aprovação')+fld('Responsável',m.responsavel_nome)+fld('E-mail do responsável',m.responsavel_email)+fld('WhatsApp',m.responsavel_telefone)):'';
-    $('dGrid').innerHTML=fld('CRECI',m.creci)+fld('Status',m.pendente?'Pendente':m.status)+fld('Telefone',m.telefone)+fld('E-mail',m.email)+fld('Cidade',m.cidade)+fld('Instagram',m.instagram)+fld('Site',m.site,true)+fld('Endereço',m.endereco,true)+extra;
+    var g=m.gestor_id?userById(m.gestor_id):null;
+    var gestorTxt=g?(g.nome+(g.email?(' · '+g.email):'')):(m.gestor_id?'Vinculado':'Não definido');
+    var nCor=usersCache.filter(function(u){return String(u.imobiliaria_id)===String(m.id)&&(u.perfil||'')==='corretor';}).length;
+    var planoTxt=({pro:'Pro',premium:'Premium'})[(m.plano||'').toLowerCase()]||'Base';
+    $('dGrid').innerHTML=fld('Gestor responsável',gestorTxt,true)+fld('Plano',planoTxt)+fld('Corretores',nCor)+fld('CRECI',m.creci)+fld('Status',m.pendente?'Pendente':m.status)+fld('Telefone',m.telefone)+fld('E-mail',m.email)+fld('Cidade',m.cidade)+fld('Instagram',m.instagram)+fld('Site',m.site,true)+fld('Endereço',m.endereco,true)+extra;
     $('dApprove').style.display=m.pendente?'':'none';
     dm.classList.add('open');}
   $('dClose').addEventListener('click',function(){dm.classList.remove('open');});
@@ -202,27 +287,181 @@ td.strong{font-weight:700;color:var(--heading)}
   }
   dm.addEventListener('click',function(e){if(e.target===dm)dm.classList.remove('open');});
 
+  // ---- Gestor picker (REV2 item 01) ----
+  function setGestor(u){gestorSel=u;
+    if(u){$('gestorPicked').style.display='';$('gestorPickedTxt').textContent=(u.nome||'—')+(u.email?(' · '+u.email):'');$('gestorSearchWrap').style.display='none';cancelInvite();}
+    else{$('gestorPicked').style.display='none';$('gestorSearchWrap').style.display='';$('f_gestor_busca').value='';$('gestorResults').style.display='none';}
+  }
+  function renderGestorResults(q){
+    var res=$('gestorResults');q=(q||'').trim().toLowerCase();
+    if(!q){res.style.display='none';return;}
+    var list=usersCache.filter(function(u){return ((u.nome||'')+' '+(u.email||'')).toLowerCase().indexOf(q)>=0;}).slice(0,8);
+    if(!list.length){res.innerHTML='<div class="ac-empty">Nenhum usuário ativo encontrado. Use “Convidar novo gestor”.</div>';res.style.display='';return;}
+    res.innerHTML=list.map(function(u,i){return '<div class="ac-item" data-i="'+i+'">'+esc(u.nome||'—')+'<small>'+esc(u.email||'')+(u.perfil?(' · '+u.perfil):'')+'</small></div>';}).join('');
+    Array.prototype.forEach.call(res.querySelectorAll('.ac-item'),function(el){el.addEventListener('click',function(){setGestor(list[+el.getAttribute('data-i')]);});});
+    res.style.display='';
+  }
+  function showInvite(){gestorInviteMode=true;$('gestorInvite').style.display='';$('gestorSearchWrap').style.display='none';$('gestorPicked').style.display='none';gestorSel=null;}
+  function cancelInvite(){gestorInviteMode=false;$('gestorInvite').style.display='none';$('f_gestor_nome').value='';$('f_gestor_email').value='';$('f_gestor_tel').value='';if(!gestorSel)$('gestorSearchWrap').style.display='';}
+  $('f_gestor_busca').addEventListener('input',function(){renderGestorResults(this.value);});
+  $('gestorClear').addEventListener('click',function(){setGestor(null);});
+  $('gestorInviteToggle').addEventListener('click',showInvite);
+  $('gestorInviteCancel').addEventListener('click',function(){cancelInvite();});
+
+  // ---- Corretores (REV2 item 02) ----
+  var PLAN_QUOTAS={'':2,pro:5,premium:Infinity};
+  var corList=[]; // {id?, nome, email, telefone, creci, _new}
+  function cotaAtual(){var p=($('f_plano').value||'').toLowerCase();return PLAN_QUOTAS[p]!=null?PLAN_QUOTAS[p]:2;}
+  function renderCor(){
+    var cota=cotaAtual(),usados=corList.length,cheio=(cota!==Infinity&&usados>=cota);
+    var vg=$('corVagas');vg.textContent=usados+' / '+(cota===Infinity?'∞':cota)+' vagas';vg.className='vagas'+(cheio?' full':'');
+    $('corChips').innerHTML=corList.map(function(c,i){return '<span class="chip'+(c._new?' chip-new':'')+'">'+esc(c.nome||'—')+' <small>'+esc(c.email||'')+'</small><button type="button" class="chip-x" data-i="'+i+'" title="Remover">×</button></span>';}).join('');
+    Array.prototype.forEach.call($('corChips').querySelectorAll('.chip-x'),function(b){b.addEventListener('click',function(){corList.splice(+b.getAttribute('data-i'),1);renderCor();});});
+    var full=(cota!==Infinity&&usados>=cota);
+    $('corSearchWrap').style.display=full?'none':'';
+    $('corHint').textContent=full?('Limite do plano atingido. Selecione um plano superior para incluir mais corretores.'):(cota===Infinity?'Plano com corretores ilimitados.':('Você pode incluir até '+cota+' corretores neste plano.'));
+  }
+  function corHas(id,email){return corList.some(function(c){return (id&&String(c.id)===String(id))||(email&&(c.email||'').toLowerCase()===String(email).toLowerCase());});}
+  function addCor(c){
+    var cota=cotaAtual();
+    if(cota!==Infinity&&corList.length>=cota){$('corHint').textContent='Limite do plano atingido. Escolha um plano superior.';return;}
+    if(corHas(c.id,c.email)){return;}
+    corList.push(c);renderCor();$('f_cor_busca').value='';$('corResults').style.display='none';
+  }
+  function renderCorResults(q){
+    var res=$('corResults');q=(q||'').trim().toLowerCase();
+    if(!q){res.style.display='none';return;}
+    var list=usersCache.filter(function(u){return ((u.nome||'')+' '+(u.email||'')).toLowerCase().indexOf(q)>=0 && !corHas(u.id,u.email) && (!gestorSel||String(gestorSel.id)!==String(u.id));}).slice(0,8);
+    if(!list.length){res.innerHTML='<div class="ac-empty">Nenhum usuário disponível. Use “Convidar novo corretor”.</div>';res.style.display='';return;}
+    res.innerHTML=list.map(function(u,i){return '<div class="ac-item" data-i="'+i+'">'+esc(u.nome||'—')+'<small>'+esc(u.email||'')+(u.perfil?(' · '+u.perfil):'')+'</small></div>';}).join('');
+    Array.prototype.forEach.call(res.querySelectorAll('.ac-item'),function(el){el.addEventListener('click',function(){addCor({id:list[+el.getAttribute('data-i')].id,nome:list[+el.getAttribute('data-i')].nome,email:list[+el.getAttribute('data-i')].email,_new:false});});});
+    res.style.display='';
+  }
+  $('f_cor_busca').addEventListener('input',function(){renderCorResults(this.value);});
+  $('f_plano').addEventListener('change',renderCor);
+  $('corInviteToggle').addEventListener('click',function(){$('corInvite').style.display='';$('corSearchWrap').style.display='none';});
+  function corInviteHide(){$('corInvite').style.display='none';$('f_cor_nome').value='';$('f_cor_email').value='';$('f_cor_tel').value='';$('f_cor_creci').value='';renderCor();}
+  $('corInviteCancel').addEventListener('click',corInviteHide);
+  $('corInviteAdd').addEventListener('click',function(){
+    var n=$('f_cor_nome').value.trim(),e=$('f_cor_email').value.trim();
+    if(!n||!e){$('corHint').textContent='Informe nome e e-mail do corretor.';return;}
+    if(!isEmail(e)){$('corHint').textContent='E-mail do corretor inválido.';return;}
+    addCor({nome:n,email:e,telefone:$('f_cor_tel').value.trim(),creci:$('f_cor_creci').value.trim(),_new:true});
+    corInviteHide();
+  });
+
   function openForm(m){m=m||{};$('fTit').textContent=m.id?'Editar imobiliária':'Nova imobiliária';$('fErr').textContent='';
     $('f_nome').value=m.nome||'';$('f_creci').value=m.creci||'';$('f_telefone').value=m.telefone||'';$('f_email').value=m.email||'';
     $('f_cidade').value=m.cidade||'';$('f_instagram').value=m.instagram||'';$('f_site').value=m.site||'';$('f_endereco').value=m.endereco||'';
     $('f_status').value=(m.status==='Pausado')?'Pausado':'Implantando';
-    fm.dataset.id=m.id||'';fm.classList.add('open');}
+    // gestor: prefill se já vinculado
+    gestorInviteMode=false;cancelInvite();
+    var g=m.gestor_id?userById(m.gestor_id):null;
+    if(g)setGestor(g);
+    else if(m.gestor_id){setGestor({id:m.gestor_id,nome:m.gestor_nome||'Gestor vinculado',email:m.gestor_email||''});}
+    else setGestor(null);
+    // corretores: prefill dos já vinculados a esta imobiliária
+    $('f_plano').value=(m.plano||'').toLowerCase();
+    $('corInvite').style.display='none';$('corSearchWrap').style.display='';$('f_cor_busca').value='';
+    corList=[];
+    if(m.id){corList=usersCache.filter(function(u){return String(u.imobiliaria_id)===String(m.id)&&(u.perfil||'')==='corretor';}).map(function(u){return {id:u.id,nome:u.nome,email:u.email,_new:false,_existing:true};});}
+    renderCor();
+    fm.dataset.id=m.id||'';fm.classList.add('open');
+    if(!usersCache.length)loadUsers();}
   function closeForm(){fm.classList.remove('open');}
   $('btnNew').addEventListener('click',function(){openForm(null);});
   $('fClose').addEventListener('click',closeForm);$('fCancel').addEventListener('click',closeForm);
   fm.addEventListener('click',function(e){if(e.target===fm)closeForm();});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeForm();dm.classList.remove('open');}});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){document.getElementById('confModal').classList.remove('open');closeForm();dm.classList.remove('open');}});
 
+  function postJSON(ent,action,body){return fetch(DATA+'?ent='+ent+'&action='+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});});}
+  function isEmail(s){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);}
+
+  var cm=document.getElementById('confModal'),pending=null;
+
+  // REV2 item 03 — valida, checa e-mail único e monta o resumo de confirmação
   $('fSave').addEventListener('click',function(){
     var o={nome:$('f_nome').value.trim(),creci:$('f_creci').value.trim(),telefone:$('f_telefone').value.trim(),email:$('f_email').value.trim(),
       cidade:$('f_cidade').value.trim(),instagram:$('f_instagram').value.trim(),site:$('f_site').value.trim(),endereco:$('f_endereco').value.trim(),status:$('f_status').value};
     if(!o.nome){$('fErr').textContent='Informe o nome.';return;}
+    if(o.email&&!isEmail(o.email)){$('fErr').textContent='E-mail da imobiliária inválido.';return;}
+    // gestor obrigatório (seleção ou convite)
+    var inv=null,gInfo=null;
+    if(gestorInviteMode){
+      var gn=$('f_gestor_nome').value.trim(),ge=$('f_gestor_email').value.trim();
+      if(!gn||!ge){$('fErr').textContent='Informe nome e e-mail do gestor a convidar.';return;}
+      if(!isEmail(ge)){$('fErr').textContent='E-mail do gestor inválido.';return;}
+      inv={nome:gn,email:ge,telefone:$('f_gestor_tel').value.trim(),perfil:'gestor',status:'Ativo'};
+      gInfo={nome:gn,email:ge,novo:true};
+    } else if(gestorSel){
+      o.gestor_id=gestorSel.id;gInfo={nome:gestorSel.nome,email:gestorSel.email,novo:false};
+    } else { $('fErr').textContent='Selecione ou convide o gestor responsável.';return; }
+    o.plano=($('f_plano').value||'').toLowerCase();
     if(fm.dataset.id)o.id=fm.dataset.id;
-    var btn=$('fSave');btn.disabled=true;btn.textContent='Salvando…';
-    fetch(DATA+'?ent=imobiliarias&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)})
-      .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
-      .then(function(x){btn.disabled=false;btn.textContent='Salvar';if(x.ok){closeForm();load();}else{$('fErr').textContent='Erro: '+((x.j&&x.j.error)||'desconhecido');}})
-      .catch(function(){btn.disabled=false;btn.textContent='Salvar';$('fErr').textContent='Falha na requisição.';});
+    var cota=cotaAtual();
+    if(cota!==Infinity&&corList.length>cota){$('fErr').textContent='Corretores acima do limite do plano ('+cota+'). Ajuste o plano ou remova corretores.';return;}
+    // e-mail único entre gestor(convite) e corretores(convite) — evita colisão no cadastro
+    var emails={},dup=null;
+    var novos=[]; if(inv)novos.push({nome:inv.nome,email:inv.email}); corList.filter(function(c){return c._new;}).forEach(function(c){novos.push({nome:c.nome,email:c.email});});
+    novos.forEach(function(p){var k=(p.email||'').toLowerCase();if(!k)return;if(emails[k])dup=p.email;else emails[k]=1;});
+    if(dup){$('fErr').textContent='E-mail repetido no cadastro: '+dup+'. Cada pessoa precisa de um e-mail único.';return;}
+    $('fErr').textContent='';
+    pending={o:o,inv:inv};
+    // ---- Resumo ----
+    var planoTxt=({pro:'Pro (até 5)',premium:'Premium (ilimitado)'})[o.plano]||'Base (até 2)';
+    var html='<div class="sumsec"><h4>Empresa</h4>'
+      +'<div class="sumrow"><b>Nome</b><span>'+esc(o.nome)+'</span></div>'
+      +(o.email?'<div class="sumrow"><b>E-mail</b><span>'+esc(o.email)+'</span></div>':'')
+      +(o.cidade?'<div class="sumrow"><b>Cidade</b><span>'+esc(o.cidade)+'</span></div>':'')
+      +'<div class="sumrow"><b>Plano</b><span>'+planoTxt+'</span></div></div>';
+    html+='<div class="sumsec"><h4>Gestor responsável</h4><div class="sumrow"><span>'+esc(gInfo.nome)+(gInfo.email?' · '+esc(gInfo.email):'')+'</span>'+(gInfo.novo?'<span class="tag">convite</span>':'<span class="tag exist">existente</span>')+'</div></div>';
+    html+='<div class="sumsec"><h4>Corretores ('+corList.length+' / '+(cota===Infinity?'∞':cota)+')</h4>';
+    if(!corList.length)html+='<div class="sumrow"><span class="hint" style="margin:0">Nenhum corretor adicionado.</span></div>';
+    else corList.forEach(function(c){html+='<div class="sumrow"><span>'+esc(c.nome)+(c.email?' · '+esc(c.email):'')+'</span>'+(c._existing?'<span class="tag exist">já vinculado</span>':(c._new?'<span class="tag">convite</span>':'<span class="tag exist">existente</span>'))+'</div>';});
+    html+='</div>';
+    $('cfBody').innerHTML=html;$('cfErr').textContent='';
+    cm.classList.add('open');
+  });
+
+  function closeConf(){cm.classList.remove('open');}
+  $('cfClose').addEventListener('click',closeConf);
+  $('cfBack').addEventListener('click',closeConf);
+  cm.addEventListener('click',function(e){if(e.target===cm)closeConf();});
+
+  // REV2 item 03 — persistência integrada (empresa + gestor + corretores + convites)
+  $('cfConfirm').addEventListener('click',function(){
+    if(!pending)return;
+    var o=pending.o,inv=pending.inv,notices=[];
+    var btn=$('cfConfirm');btn.disabled=true;btn.textContent='Cadastrando…';$('cfErr').textContent='';
+    postJSON('imobiliarias','save',o)
+      .then(function(x){
+        if(!x.ok)throw new Error((x.j&&x.j.error)||'falha ao salvar imobiliária');
+        var imobId=(x.j&&x.j.row&&x.j.row.id)||o.id;
+        if(!inv)return imobId;
+        inv.imobiliaria_id=imobId;
+        return postJSON('corretores','save',inv).then(function(u){
+          if(!u.ok||!u.j||!u.j.row)throw new Error('imobiliária salva, mas falhou ao criar o gestor ('+((u.j&&u.j.error)||'')+')');
+          if(u.j.senha_temporaria)notices.push('Gestor '+inv.nome+': senha temporária '+u.j.senha_temporaria);
+          return postJSON('imobiliarias','save',{id:imobId,gestor_id:u.j.row.id}).then(function(){return imobId;});
+        });
+      })
+      .then(function(imobId){
+        var pend=corList.filter(function(c){return !c._existing;});
+        var chain=Promise.resolve();
+        pend.forEach(function(c){chain=chain.then(function(){
+          var body={imobiliaria_id:imobId,nome:c.nome,email:c.email,telefone:c.telefone||'',creci:c.creci||'',perfil:'corretor',status:'Ativo'};
+          if(c.id)body.id=c.id;
+          return postJSON('corretores','save',body).then(function(u){
+            if(!u.ok){notices.push('Corretor '+c.nome+': '+((u.j&&(u.j.message||u.j.error))||'falha'));}
+            else if(u.j&&u.j.senha_temporaria){notices.push('Corretor '+c.nome+': senha temporária '+u.j.senha_temporaria);}
+          });
+        });});
+        return chain;
+      })
+      .then(function(){btn.disabled=false;btn.textContent='Confirmar cadastro';closeConf();closeForm();pending=null;usersCache=[];loadUsers();load();
+        if(notices.length)alert('Cadastro concluído.\n\n'+notices.join('\n'));
+      })
+      .catch(function(e){btn.disabled=false;btn.textContent='Confirmar cadastro';$('cfErr').textContent=(e&&e.message)||'Falha na requisição.';if(notices.length)alert(notices.join('\n'));});
   });
 
   function delItem(m){
@@ -240,7 +479,7 @@ td.strong{font-weight:700;color:var(--heading)}
     kset('pendentes',items.filter(function(m){return m.pendente;}).length);
     renderRows(items);
   });}
-  load();
+  loadUsers();load();
 
   var tt=$('themeToggle');
   function syncIcon(){var d=window.hubTheme&&window.hubTheme.get()==='dark';tt.innerHTML=d?"<svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'/></svg>":"<svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z'/></svg>";}
