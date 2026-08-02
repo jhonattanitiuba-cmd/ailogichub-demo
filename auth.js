@@ -211,15 +211,24 @@
   // ---- pinta o usuário logado (nome, perfil e FOTO) + restringe menu por perfil ----
   // Jurídico (advogado): só enxerga o escopo dele. Segurança real é server-side
   // (api/_auth.js); esta é a camada de UX pedida pelo cliente (relatório 20/07).
+  var ADMIN_ROLES_MENU = { admin:1, administrador:1, diretor:1, diretoria:1, dono:1, owner:1, super:1 };
   function restrictMenu(perfil) {
     try {
       var pf = String(perfil || '').toLowerCase();
       var isJur = pf === 'advogado' || pf === 'juridico' || pf === 'jurídico';
+      var isAdmin = !!ADMIN_ROLES_MENU[pf];
+      var nav = document.querySelectorAll('.nav-item'), i, h;
+      // REV2 item 04 — módulo Jurídico (visão da Diretoria) só aparece para perfis administrativos
+      if (!isAdmin) {
+        for (i = 0; i < nav.length; i++) {
+          h = (nav[i].getAttribute('href') || '').split('/').pop().replace(/\.html$/, '');
+          if (h === 'juridico') nav[i].style.display = 'none';
+        }
+      }
       if (!isJur) return;
       var ALLOW = { visaogeral: 1, pessoas: 1, leads: 1, funil: 1, assinaturas: 1, relatorios: 1, suporte: 1 };
-      var nav = document.querySelectorAll('.nav-item');
-      for (var i = 0; i < nav.length; i++) {
-        var h = (nav[i].getAttribute('href') || '').split('/').pop().replace(/\.html$/, '');
+      for (i = 0; i < nav.length; i++) {
+        h = (nav[i].getAttribute('href') || '').split('/').pop().replace(/\.html$/, '');
         if (h && !ALLOW[h]) nav[i].style.display = 'none';
       }
     } catch (_) {}
