@@ -81,23 +81,38 @@ h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
   var cfg=window.HUB_CONFIG||{};
   if(!window.supabase||!cfg.SUPABASE_URL||!cfg.SUPABASE_ANON_KEY){ show(invalid); return; }
 
-  // cliente próprio: detecta o token de recuperação no hash da URL; não persiste
-  // sessão (storageKey padrão, diferente do app) para não interferir no login.
+  // REV2 item 05 — suporta os DOIS formatos de link de recuperação do Supabase:
+  //  • implicit: token no hash (#access_token=...&type=recovery)
+  //  • PKCE:     ?code=... na query (precisa do code_verifier gravado pelo app)
+  // Usa a MESMA storageKey do app ('ailogic-auth') para ter acesso ao code_verifier;
+  // persistSession:false -> a sessão de recuperação fica só em memória, não desloga o app.
   var sb=window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
-    auth:{ detectSessionInUrl:true, persistSession:false, autoRefreshToken:false, flowType:'implicit' }
+    auth:{ detectSessionInUrl:true, persistSession:false, autoRefreshToken:false, storageKey:'ailogic-auth' }
   });
 
   var ready=false;
   function ok(){ if(ready)return; ready=true; show(form); }
 
   sb.auth.onAuthStateChange(function(evt, session){ if(session) ok(); });
-  // rede de segurança: confere a sessão após o processamento do hash
+
+  // Fallback PKCE explícito: se veio ?code= na URL, troca por sessão.
+  (function(){
+    try{
+      var qs=new URLSearchParams(location.search);
+      var code=qs.get('code');
+      if(code && sb.auth.exchangeCodeForSession){
+        sb.auth.exchangeCodeForSession(code).then(function(r){ if(r && r.data && r.data.session) ok(); }).catch(function(){});
+      }
+    }catch(_){}
+  })();
+
+  // rede de segurança: confere a sessão após o processamento do hash/código
   setTimeout(function(){
     sb.auth.getSession().then(function(r){
       if(r && r.data && r.data.session){ ok(); }
       else if(!ready){ show(invalid); }
     }).catch(function(){ if(!ready) show(invalid); });
-  }, 1400);
+  }, 1800);
 
   form.addEventListener('submit',async function(e){
     e.preventDefault();

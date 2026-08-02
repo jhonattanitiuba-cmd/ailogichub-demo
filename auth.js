@@ -224,6 +224,67 @@
       }
     } catch (_) {}
   }
+  // REV2 item 07 — upload/substituição da foto do usuário.
+  // Redimensiona no canvas (256px, quadrado) e persiste em user_metadata.avatar_url
+  // (sobrevive a novo login e a outros dispositivos); fallback em localStorage.
+  var AV_MAX_BYTES = 3 * 1024 * 1024;   // limite do arquivo original: 3 MB
+  var AV_OK_TYPES = { 'image/jpeg': 1, 'image/png': 1, 'image/webp': 1 };
+  function resizeImage(file, size) {
+    return new Promise(function (resolve, reject) {
+      var fr = new FileReader();
+      fr.onerror = function () { reject(new Error('falha ao ler o arquivo')); };
+      fr.onload = function () {
+        var img = new Image();
+        img.onerror = function () { reject(new Error('imagem inválida')); };
+        img.onload = function () {
+          var s = Math.min(img.width, img.height);
+          var sx = (img.width - s) / 2, sy = (img.height - s) / 2;
+          var c = document.createElement('canvas'); c.width = size; c.height = size;
+          var ctx = c.getContext('2d');
+          ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+          resolve(c.toDataURL('image/jpeg', 0.85));
+        };
+        img.src = fr.result;
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+  function saveAvatar(email, dataUrl, onDone) {
+    try { localStorage.setItem('ailh_avatar_' + email, dataUrl); } catch (_) {}   // fallback imediato
+    if (onDone) onDone(dataUrl);
+    // persiste no perfil do usuário (Supabase) para sobreviver a novo login/dispositivo
+    try {
+      var c = client();
+      if (c && c.auth && c.auth.updateUser) {
+        c.auth.updateUser({ data: { avatar_url: dataUrl } }).catch(function () {});
+      }
+    } catch (_) {}
+  }
+  var _avWired = false;
+  function wireAvatarUpload(email, onDone) {
+    if (_avWired) return; _avWired = true;
+    var inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'image/png,image/jpeg,image/webp'; inp.style.display = 'none';
+    document.body.appendChild(inp);
+    inp.addEventListener('change', function () {
+      var f = inp.files && inp.files[0]; inp.value = '';
+      if (!f) return;
+      if (!AV_OK_TYPES[f.type]) { alert('Formato não suportado. Use JPG, PNG ou WEBP.'); return; }
+      if (f.size > AV_MAX_BYTES) { alert('Imagem muito grande (máx. 3 MB).'); return; }
+      resizeImage(f, 256).then(function (dataUrl) { saveAvatar(email, dataUrl, onDone); })
+        .catch(function (e) { alert('Não foi possível processar a imagem: ' + ((e && e.message) || e)); });
+    });
+    // torna clicáveis os avatares visíveis
+    ['.profile .avatar', '.hub-user-av', '.hub-mtop-av'].forEach(function (sel) {
+      var el = document.querySelector(sel);
+      if (el && !el.dataset.avUp) {
+        el.dataset.avUp = '1'; el.style.cursor = 'pointer';
+        el.title = 'Clique para alterar a foto';
+        el.addEventListener('click', function (ev) { ev.stopPropagation(); inp.click(); });
+      }
+    });
+  }
+
   function paintUser() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY); if (!raw) return;
@@ -253,12 +314,53 @@
         }
         // avatar do topo à direita (se a tela expõe .hub-user-av)
         paintAv(document.querySelector('.hub-user-av'));
+        // REV2 item 07 — clique no avatar troca a foto (upload persistente)
+        wireAvatarUpload(email, function (dataUrl) { foto = dataUrl; apply(); });
         restrictMenu(perfil);
       }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
       else apply();
     } catch (_) {}
   }
+
+  // ---- REV2 item 06 — encerramento de sessão por inatividade ----
+  // Política: 15 min para perfis administrativos, 30 min para os demais.
+  // Reinicia a contagem a cada interação; ao expirar, faz signOut (invalida o acesso).
+  var ADMIN_ROLES = { admin:1, administrador:1, diretor:1, diretoria:1, dono:1, owner:1, super:1 };
+  function perfilAtual() {
+    try {
+      var s = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      var u = (s && s.user) || (s && s.currentSession && s.currentSession.user);
+      return String((u && u.user_metadata && u.user_metadata.perfil) || '').toLowerCase();
+    } catch (_) { return ''; }
+  }
+  function idleLimitMs() { return (ADMIN_ROLES[perfilAtual()] ? 15 : 30) * 60 * 1000; }
+  var idleTimer = null, lastReset = 0;
+  function onIdleExpire() {
+    try { sessionStorage.setItem('ailh_logout_reason', 'inatividade'); } catch (_) {}
+    if (window.hubAuth && window.hubAuth.signOut) window.hubAuth.signOut();
+    else { setFlag(false); location.replace('/login'); }
+  }
+  function resetIdle() {
+    if (/\/login/.test(location.pathname)) return;
+    if (!readToken() && !hasSession()) return;      // sem sessão -> nada a expirar
+    var now = Date.now();
+    if (now - lastReset < 1000) return;             // throttle: no máx. 1x/seg
+    lastReset = now;
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = setTimeout(onIdleExpire, idleLimitMs());
+    try { localStorage.setItem('ailh_last_activity', String(now)); } catch (_) {}
+  }
+  // conta atividade real do usuário
+  ['click','keydown','mousemove','scroll','touchstart','visibilitychange'].forEach(function (ev) {
+    window.addEventListener(ev, resetIdle, { passive: true });
+  });
+  // sincroniza inatividade entre abas: se outra aba registrou atividade, reinicia aqui
+  window.addEventListener('storage', function (e) {
+    if (e.key === 'ailh_last_activity') resetIdle();
+    if (e.key === STORAGE_KEY && !e.newValue) { if (idleTimer) clearTimeout(idleTimer); } // logout em outra aba
+  });
+  resetIdle();
 
   // roda o gate assim que possível (fora da tela de login)
   guard();
