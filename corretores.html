@@ -37,6 +37,8 @@ th{position:sticky;top:0;color:var(--muted);font-size:10.5px;text-transform:uppe
 td.strong{font-weight:700;color:var(--heading)}
 .badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 9px;font-size:10.5px;font-weight:800}
 .badge.green{background:var(--greenSoft);color:var(--green)}.badge.gray{background:var(--border);color:var(--muted)}.badge.purple{background:var(--purpleSoft);color:var(--purple)}.badge.blue{background:var(--blueSoft);color:var(--blue)}
+.stt{display:inline-block;border-radius:999px;padding:3px 10px;font-size:10.5px;font-weight:800}
+.stt.ok{background:var(--greenSoft);color:var(--green)}.stt.pend{background:#efe9ff;color:#7257ff}.stt.blk{background:rgba(220,38,38,.10);color:var(--red)}
 .act{display:flex;gap:6px}.act button{height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--border2);background:var(--panel2);color:var(--text);font:inherit;font-weight:700;font-size:11.5px;cursor:pointer}
 .act .del{color:var(--red);border-color:var(--redSoft)}
 .empty{padding:30px;text-align:center;color:var(--muted);font-size:13px}
@@ -108,7 +110,7 @@ td.strong{font-weight:700;color:var(--heading)}
   <section class="panel">
     <div class="toolbar"><input class="inp search" id="q" placeholder="Buscar por nome, e-mail ou CRECI..." /><select class="inp" id="fImob"><option value="">Toda imobiliária</option></select></div>
     <div class="table-wrap">
-      <table><thead><tr><th>Corretor</th><th>Imobiliária</th><th>CRECI</th><th>Telefone</th><th>Perfil</th><th>Status</th><th>Ações</th></tr></thead>
+      <table><thead><tr><th>Corretor</th><th>Imobiliária</th><th>CRECI</th><th>Telefone</th><th>Perfil</th><th>Status de acesso</th><th>Ações</th></tr></thead>
       <tbody id="rows"><tr><td colspan="7" class="empty">Carregando…</td></tr></tbody></table>
     </div>
   </section>
@@ -145,20 +147,44 @@ td.strong{font-weight:700;color:var(--heading)}
   function get(ent){return fetch(DATA+'?ent='+ent+'&action=list',{cache:'no-store'}).then(function(r){return r.ok?r.json():{rows:[]};}).then(function(d){return d.rows||[];}).catch(function(){return [];});}
   function fld(l,v,full){return '<div class="mcell'+(full?' full':'')+'"><label>'+l+'</label><strong>'+esc(v==null||v===''?'—':v)+'</strong></div>';}
   function stBadge(s){return (s||'')==='Inativo'?'<span class="badge gray">Inativo</span>':'<span class="badge green">Ativo</span>';}
+  // REV2 item 10 — status de acesso padronizado
+  function acessoInfo(m){
+    if((m.status==='Inativo')||(m.status==='Bloqueado')||m.bloqueado===true)return {label:'Bloqueado',cls:'blk'};
+    if(m.auth_user_id)return {label:'Ativo',cls:'ok'};
+    if(!m.email)return {label:'Sem e-mail',cls:'blk'};
+    return {label:'Convite pendente',cls:'pend'};
+  }
+  function acessoBadge(m){var a=acessoInfo(m);return '<span class="stt '+a.cls+'">'+a.label+'</span>';}
+  function genSenha(){return 'Hub'+Math.random().toString(36).slice(2,8)+'#'+Math.floor(10+Math.random()*89);}
 
   function renderRows(list){
     var tb=$('rows');
     if(!list.length){tb.innerHTML='<tr><td colspan="7" class="empty">Nenhum corretor encontrado.</td></tr>';return;}
     tb.innerHTML=list.map(function(m,ix){
-      return '<tr data-i="'+ix+'"><td class="strong open">'+esc(m.nome||'—')+'</td><td>'+esc(imobMap[m.imobiliaria_id]||'—')+'</td><td>'+esc(m.creci||'—')+'</td><td>'+esc(m.telefone||'—')+'</td><td><span class="badge purple">'+esc(cap(m.perfil))+'</span></td><td>'+stBadge(m.status)+'</td>'
-        +'<td><div class="act"><button data-a="edit">Editar</button><button class="del" data-a="del">Excluir</button></div></td></tr>';
+      var pend=(acessoInfo(m).cls==='pend');
+      return '<tr data-i="'+ix+'"><td class="strong open">'+esc(m.nome||'—')+'</td><td>'+esc(imobMap[m.imobiliaria_id]||'—')+'</td><td>'+esc(m.creci||'—')+'</td><td>'+esc(m.telefone||'—')+'</td><td><span class="badge purple">'+esc(cap(m.perfil))+'</span></td><td>'+acessoBadge(m)+'</td>'
+        +'<td><div class="act">'+(pend?'<button data-a="invite" title="Reenviar convite de acesso">Convite</button>':'')+'<button data-a="edit">Editar</button><button class="del" data-a="del">Excluir</button></div></td></tr>';
     }).join('');
     Array.prototype.forEach.call(tb.querySelectorAll('tr'),function(tr){
       var m=list[+tr.getAttribute('data-i')];
       tr.querySelector('.open').addEventListener('click',function(){openDetail(m);});
       tr.querySelector('[data-a="edit"]').addEventListener('click',function(e){e.stopPropagation();openForm(m);});
       tr.querySelector('[data-a="del"]').addEventListener('click',function(e){e.stopPropagation();delItem(m);});
+      var ib=tr.querySelector('[data-a="invite"]');if(ib)ib.addEventListener('click',function(e){e.stopPropagation();reenviarConvite(m);});
     });
+  }
+  function reenviarConvite(m){
+    if(!m.email){alert('Este usuário não tem e-mail cadastrado. Edite o cadastro e informe um e-mail antes de enviar o convite.');return;}
+    if(!confirm('Enviar/reenviar convite de acesso para '+m.email+'?\nUma nova senha temporária será gerada para repasse.'))return;
+    var senha=genSenha();
+    var body={id:m.id,nome:m.nome,email:m.email,telefone:m.telefone||'',creci:m.creci||'',perfil:m.perfil||'corretor',imobiliaria_id:m.imobiliaria_id||null,status:m.status||'Ativo',senha:senha};
+    fetch(DATA+'?ent=corretores&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+      .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+      .then(function(x){
+        if(x.ok&&(x.j.senha_atualizada||x.j.login_criado!==false)){alert('Convite enviado para '+m.email+'.\nSenha temporária para repassar: '+senha);load();}
+        else alert('Não foi possível enviar o convite: '+((x.j&&(x.j.login_motivo||x.j.error))||'erro desconhecido'));
+      })
+      .catch(function(){alert('Falha na requisição.');});
   }
   function applyFilter(){var q=$('q').value.trim().toLowerCase(),im=$('fImob').value;
     renderRows(items.filter(function(m){
@@ -167,7 +193,7 @@ td.strong{font-weight:700;color:var(--heading)}
   $('q').addEventListener('input',applyFilter);$('fImob').addEventListener('change',applyFilter);
 
   function openDetail(m){curDetail=m;$('dTit').textContent=m.nome||'Corretor';
-    $('dGrid').innerHTML=fld('Imobiliária',imobMap[m.imobiliaria_id])+fld('Perfil',cap(m.perfil))+fld('E-mail',m.email)+fld('Telefone',m.telefone)+fld('CRECI',m.creci)+fld('Status',m.status);
+    $('dGrid').innerHTML=fld('Imobiliária',imobMap[m.imobiliaria_id])+fld('Perfil',cap(m.perfil))+fld('E-mail',m.email)+fld('Telefone',m.telefone)+fld('CRECI',m.creci)+'<div class="mcell full"><label>Status de acesso</label><strong>'+acessoBadge(m)+'</strong></div>';
     dm.classList.add('open');}
   $('dClose').addEventListener('click',function(){dm.classList.remove('open');});
   $('dClose2').addEventListener('click',function(){dm.classList.remove('open');});

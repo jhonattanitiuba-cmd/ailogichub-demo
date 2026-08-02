@@ -101,7 +101,9 @@ function corOut(r) {
   const e = r.extra || {};
   return Object.assign({
     id: r.id, imobiliaria_id: r.imobiliaria_id, nome: r.nome, email: r.email,
-    telefone: r.telefone, creci: r.creci, perfil: r.perfil, status: (r.ativo ? 'Ativo' : 'Inativo')
+    telefone: r.telefone, creci: r.creci, perfil: r.perfil, status: (r.ativo ? 'Ativo' : 'Inativo'),
+    // REV2 item 10 — expõe se o login já foi ativado (auth_user_id) para status "Convite pendente" x "Ativo"
+    auth_user_id: r.auth_user_id || null
   }, e);
 }
 function leadOut(r) {
