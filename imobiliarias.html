@@ -78,6 +78,19 @@ td.strong{font-weight:700;color:var(--heading)}
 .sumrow:last-child{border-bottom:0}.sumrow b{color:var(--muted);font-weight:650}
 .sumrow .tag{font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 8px;background:var(--blueSoft);color:var(--blue)}
 .sumrow .tag.exist{background:var(--panel2);color:var(--muted)}
+.subtabs{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--border);padding:0 12px}
+.subtab{background:none;border:0;border-bottom:2px solid transparent;padding:12px 14px;font:inherit;font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap}
+.subtab:hover{color:var(--text)}
+.subtab.active{color:var(--blue);border-bottom-color:var(--blue)}
+#dPane{min-height:120px}
+.tbl-u{width:100%;border-collapse:collapse}
+.tbl-u th,.tbl-u td{text-align:left;padding:9px 18px;font-size:12.5px;border-bottom:1px solid var(--border)}
+.tbl-u th{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:800}
+.tbl-u .empty{color:var(--muted);text-align:center;padding:22px}
+.stt{display:inline-block;border-radius:999px;padding:2px 9px;font-size:10.5px;font-weight:800}
+.stt.ok{background:var(--greenSoft,#e6f6ec);color:var(--green,#16a34a)}
+.stt.pend{background:#efe9ff;color:#7257ff}
+.stt.blk{background:rgba(220,38,38,.10);color:var(--red)}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
 .mcell{background:var(--panel);padding:13px 18px}.mcell.full{grid-column:1/-1}.mcell label{display:block;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}.mcell strong{font-size:13.5px;color:var(--text);font-weight:650}
 @media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto}.main{height:auto}.sidebar{height:auto}.kpis{grid-template-columns:repeat(2,1fr)}.fg2{grid-template-columns:1fr}}
@@ -207,7 +220,14 @@ td.strong{font-weight:700;color:var(--heading)}
 
 <div class="modal-bg" id="detModal"><div class="modal">
   <div class="modal-h"><h3 id="dTit">·</h3><button class="modal-x" id="dClose">×</button></div>
-  <div class="mgrid" id="dGrid"></div>
+  <div class="subtabs" id="dTabs">
+    <button class="subtab active" data-t="geral">Dados gerais</button>
+    <button class="subtab" data-t="gestor">Gestor</button>
+    <button class="subtab" data-t="corretores">Corretores</button>
+    <button class="subtab" data-t="usuarios">Usuários e acesso</button>
+    <button class="subtab" data-t="plano">Plano e financeiro</button>
+  </div>
+  <div id="dPane"></div>
   <div class="modal-f"><button class="btn primary" id="dApprove" style="display:none">Aprovar acesso</button><button class="btn" id="dEdit">Editar</button><button class="btn" id="dClose2">Fechar</button></div>
 </div></div>
 
@@ -218,7 +238,8 @@ td.strong{font-weight:700;color:var(--heading)}
   var items=[],curDetail=null,fm=document.getElementById('formModal'),dm=document.getElementById('detModal');
   var usersCache=[],gestorSel=null,gestorInviteMode=false;
   function $(id){return document.getElementById(id);}
-  function loadUsers(){return fetch(DATA+'?ent=corretores&action=list',{cache:'no-store'}).then(function(r){return r.ok?r.json():{rows:[]};}).then(function(d){usersCache=(d.rows||[]).filter(function(u){return (u.status||'Ativo')!=='Inativo';});return usersCache;}).catch(function(){return [];});}
+  function loadUsers(){return fetch(DATA+'?ent=corretores&action=list',{cache:'no-store'}).then(function(r){return r.ok?r.json():{rows:[]};}).then(function(d){usersCache=(d.rows||[]);return usersCache;}).catch(function(){return [];});}
+  function ativo(u){return (u.status||'Ativo')!=='Inativo'&&u.status!=='Bloqueado';}
   function userById(id){for(var i=0;i<usersCache.length;i++){if(String(usersCache[i].id)===String(id))return usersCache[i];}return null;}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
@@ -242,14 +263,49 @@ td.strong{font-weight:700;color:var(--heading)}
   }
   $('q').addEventListener('input',function(){var q=$('q').value.trim().toLowerCase();renderRows(items.filter(function(m){return ((m.nome||'')+' '+(m.cidade||'')+' '+(m.creci||'')).toLowerCase().indexOf(q)>=0;}));});
 
-  function openDetail(m){curDetail=m;$('dTit').textContent=m.nome||'Imobiliária';
+  // REV2 item 10 — status de acesso do usuário (Convite pendente / Ativo / Bloqueado)
+  function acessoStt(u){
+    if(u&&(u.bloqueado===true||u.status==='Bloqueado'||u.status==='Inativo'))return '<span class="stt blk">Bloqueado</span>';
+    if(u&&u.auth_user_id)return '<span class="stt ok">Ativo</span>';
+    if(u&&!u.email)return '<span class="stt blk">Sem e-mail</span>';
+    return '<span class="stt pend">Convite pendente</span>';
+  }
+  function usersDaImob(id,perfilFilter){return usersCache.filter(function(u){return String(u.imobiliaria_id)===String(id)&&(!perfilFilter||(u.perfil||'')===perfilFilter);});}
+  function tblUsers(list,cols){
+    if(!list.length)return '<div class="mcell full"><span class="stt pend" style="background:none;color:var(--muted)">Nenhum registro.</span></div>';
+    var head='<tr><th>Nome</th><th>E-mail</th>'+(cols&&cols.perfil?'<th>Perfil</th>':'')+'<th>Status de acesso</th></tr>';
+    var body=list.map(function(u){return '<tr><td class="strong">'+esc(u.nome||'—')+'</td><td>'+esc(u.email||'—')+'</td>'+(cols&&cols.perfil?'<td>'+esc(u.perfil||'—')+'</td>':'')+'<td>'+acessoStt(u)+'</td></tr>';}).join('');
+    return '<table class="tbl-u"><thead>'+head+'</thead><tbody>'+body+'</tbody></table>';
+  }
+
+  function paneGeral(m){
     var extra=m.pendente?(fld('Solicitação','Pendente de aprovação')+fld('Responsável',m.responsavel_nome)+fld('E-mail do responsável',m.responsavel_email)+fld('WhatsApp',m.responsavel_telefone)):'';
+    return '<div class="mgrid">'+fld('CRECI',m.creci)+fld('Status',m.pendente?'Pendente':m.status)+fld('Telefone',m.telefone)+fld('E-mail',m.email)+fld('Cidade',m.cidade)+fld('Instagram',m.instagram)+fld('Site',m.site,true)+fld('Endereço',m.endereco,true)+extra+'</div>';
+  }
+  function paneGestor(m){
     var g=m.gestor_id?userById(m.gestor_id):null;
-    var gestorTxt=g?(g.nome+(g.email?(' · '+g.email):'')):(m.gestor_id?'Vinculado':'Não definido');
-    var nCor=usersCache.filter(function(u){return String(u.imobiliaria_id)===String(m.id)&&(u.perfil||'')==='corretor';}).length;
-    var planoTxt=({pro:'Pro',premium:'Premium'})[(m.plano||'').toLowerCase()]||'Base';
-    $('dGrid').innerHTML=fld('Gestor responsável',gestorTxt,true)+fld('Plano',planoTxt)+fld('Corretores',nCor)+fld('CRECI',m.creci)+fld('Status',m.pendente?'Pendente':m.status)+fld('Telefone',m.telefone)+fld('E-mail',m.email)+fld('Cidade',m.cidade)+fld('Instagram',m.instagram)+fld('Site',m.site,true)+fld('Endereço',m.endereco,true)+extra;
+    if(!g&&!m.gestor_id)return '<div class="mgrid">'+fld('Gestor responsável','Não definido',true)+'</div>';
+    if(!g)return '<div class="mgrid">'+fld('Gestor responsável','Vinculado',true)+'</div>';
+    return '<div class="mgrid">'+fld('Nome',g.nome)+fld('E-mail',g.email)+fld('Telefone',g.telefone)+fld('Perfil',g.perfil||'gestor')+'<div class="mcell full"><label>Status de acesso</label><strong>'+acessoStt(g)+'</strong></div></div>';
+  }
+  function paneCorretores(m){return tblUsers(usersDaImob(m.id,'corretor'),{perfil:false});}
+  function paneUsuarios(m){return tblUsers(usersDaImob(m.id,null),{perfil:true});}
+  function panePlano(m){
+    var planoTxt=({pro:'Pro (até 5 corretores)',premium:'Premium (ilimitado)'})[(m.plano||'').toLowerCase()]||'Base (inclui 2 corretores)';
+    var nCor=usersDaImob(m.id,'corretor').length;
+    var cota=({pro:5,premium:'∞'})[(m.plano||'').toLowerCase()]||2;
+    return '<div class="mgrid">'+fld('Plano contratado',planoTxt,true)+fld('Corretores em uso',nCor+' / '+cota)+fld('Vagas restantes',cota==='∞'?'∞':Math.max(0,cota-nCor))+'</div>';
+  }
+  var PANES={geral:paneGeral,gestor:paneGestor,corretores:paneCorretores,usuarios:paneUsuarios,plano:panePlano};
+  function showPane(t){
+    Array.prototype.forEach.call($('dTabs').querySelectorAll('.subtab'),function(b){b.classList.toggle('active',b.getAttribute('data-t')===t);});
+    $('dPane').innerHTML=(PANES[t]||paneGeral)(curDetail);
+  }
+  Array.prototype.forEach.call($('dTabs').querySelectorAll('.subtab'),function(b){b.addEventListener('click',function(){showPane(b.getAttribute('data-t'));});});
+
+  function openDetail(m){curDetail=m;$('dTit').textContent=m.nome||'Imobiliária';
     $('dApprove').style.display=m.pendente?'':'none';
+    showPane('geral');
     dm.classList.add('open');}
   $('dClose').addEventListener('click',function(){dm.classList.remove('open');});
   $('dClose2').addEventListener('click',function(){dm.classList.remove('open');});
@@ -295,7 +351,7 @@ td.strong{font-weight:700;color:var(--heading)}
   function renderGestorResults(q){
     var res=$('gestorResults');q=(q||'').trim().toLowerCase();
     if(!q){res.style.display='none';return;}
-    var list=usersCache.filter(function(u){return ((u.nome||'')+' '+(u.email||'')).toLowerCase().indexOf(q)>=0;}).slice(0,8);
+    var list=usersCache.filter(function(u){return ativo(u)&&((u.nome||'')+' '+(u.email||'')).toLowerCase().indexOf(q)>=0;}).slice(0,8);
     if(!list.length){res.innerHTML='<div class="ac-empty">Nenhum usuário ativo encontrado. Use “Convidar novo gestor”.</div>';res.style.display='';return;}
     res.innerHTML=list.map(function(u,i){return '<div class="ac-item" data-i="'+i+'">'+esc(u.nome||'—')+'<small>'+esc(u.email||'')+(u.perfil?(' · '+u.perfil):'')+'</small></div>';}).join('');
     Array.prototype.forEach.call(res.querySelectorAll('.ac-item'),function(el){el.addEventListener('click',function(){setGestor(list[+el.getAttribute('data-i')]);});});
@@ -331,7 +387,7 @@ td.strong{font-weight:700;color:var(--heading)}
   function renderCorResults(q){
     var res=$('corResults');q=(q||'').trim().toLowerCase();
     if(!q){res.style.display='none';return;}
-    var list=usersCache.filter(function(u){return ((u.nome||'')+' '+(u.email||'')).toLowerCase().indexOf(q)>=0 && !corHas(u.id,u.email) && (!gestorSel||String(gestorSel.id)!==String(u.id));}).slice(0,8);
+    var list=usersCache.filter(function(u){return ativo(u)&&((u.nome||'')+' '+(u.email||'')).toLowerCase().indexOf(q)>=0 && !corHas(u.id,u.email) && (!gestorSel||String(gestorSel.id)!==String(u.id));}).slice(0,8);
     if(!list.length){res.innerHTML='<div class="ac-empty">Nenhum usuário disponível. Use “Convidar novo corretor”.</div>';res.style.display='';return;}
     res.innerHTML=list.map(function(u,i){return '<div class="ac-item" data-i="'+i+'">'+esc(u.nome||'—')+'<small>'+esc(u.email||'')+(u.perfil?(' · '+u.perfil):'')+'</small></div>';}).join('');
     Array.prototype.forEach.call(res.querySelectorAll('.ac-item'),function(el){el.addEventListener('click',function(){addCor({id:list[+el.getAttribute('data-i')].id,nome:list[+el.getAttribute('data-i')].nome,email:list[+el.getAttribute('data-i')].email,_new:false});});});
