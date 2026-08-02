@@ -61,15 +61,27 @@ function jidsIrmaos(jid, ct) {
   return out;
 }
 
-async function evo(path, method = 'GET', body) {
-  const r = await fetch(EVO_BASE + path, {
-    method,
-    headers: { apikey: EVO_KEY, 'Content-Type': 'application/json' },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  const t = await r.text();
-  let j; try { j = JSON.parse(t); } catch (_) { j = { raw: t }; }
-  return { ok: r.ok, status: r.status, body: j };
+// REV2 item 08 — timeout na chamada externa (Evolution/WhatsApp). Sem isto, um
+// canal lento pendura a função serverless (e a conexão do banco) ate o limite da
+// Vercel. Aborta em `ms` e retorna erro tratavel para nao travar o request.
+async function evo(path, method = 'GET', body, ms) {
+  ms = ms || 8000;
+  const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const to = ctrl ? setTimeout(function () { try { ctrl.abort(); } catch (_) {} }, ms) : null;
+  try {
+    const r = await fetch(EVO_BASE + path, {
+      method,
+      headers: { apikey: EVO_KEY, 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined,
+      signal: ctrl ? ctrl.signal : undefined
+    });
+    const t = await r.text();
+    let j; try { j = JSON.parse(t); } catch (_) { j = { raw: t }; }
+    return { ok: r.ok, status: r.status, body: j };
+  } catch (e) {
+    // timeout/rede: devolve corpo vazio para o handler seguir (lista vazia) em vez de estourar
+    return { ok: false, status: (e && e.name === 'AbortError') ? 504 : 0, body: [], erro: (e && e.name === 'AbortError') ? 'timeout' : String((e && e.message) || e) };
+  }
 }
 
 // corte de espelhamento: inbox só mostra conversas a partir desta data

@@ -559,6 +559,26 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   var curJid=null, curNome="", curFone="", imobs=[], leadsCount=0, allChats=[];
   var meuId=null, meuNome="", meuDepto="", filtro="minhas", mineBefore={}, sndOn=(localStorage.getItem("ailogic_wa_som")!=="0"), audioCtx=null;
   var agentFoto="";   // foto do agente (plug and play, salva em ia_tools.agente_foto)
+  // REV2 item 08 — fetch com timeout: evita "Carregando…" infinito quando o backend
+  // (conexao fria do banco / canal WA lento) nao responde. Rejeita apos `ms`.
+  function waFetch(url,opts,ms){
+    opts=opts||{}; ms=ms||12000;
+    var ctrl=(typeof AbortController!=="undefined")?new AbortController():null;
+    if(ctrl)opts.signal=ctrl.signal;
+    var to=setTimeout(function(){try{ctrl&&ctrl.abort();}catch(_){}},ms);
+    return fetch(url,opts).then(function(r){
+      clearTimeout(to);
+      if(!r.ok)throw new Error("HTTP "+r.status);
+      return r.json();
+    },function(e){clearTimeout(to);throw (e&&e.name==="AbortError")?new Error("timeout"):e;});
+  }
+  function errBox(msg,onRetry){
+    var d=document.createElement("div");d.className="empty";d.style.textAlign="center";
+    d.innerHTML='<div style="color:var(--red);margin-bottom:8px">'+esc(msg)+'</div>';
+    var b=document.createElement("button");b.className="btn";b.textContent="Tentar novamente";
+    b.style.cssText="height:32px;padding:0 14px";b.addEventListener("click",onRetry);
+    d.appendChild(b);return d;
+  }
   var BOT_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M5 9h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1ZM9 14v1M15 14v1M2 12v3M22 12v3"/></svg>';
   // quem enviou uma mensagem OUT: humano do sistema (tem assinatura "*Nome / Depto:*") ou o agente
   function outSender(m){ var t=(m&&m.texto)||""; var mm=/^\*([^*\/]+?)\s*\/\s*[^*]+:\*/.exec(t); return mm?{tipo:"humano",nome:mm[1].trim()}:{tipo:"agente",nome:"Sam"}; }
@@ -685,11 +705,15 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     refreshAttendUI();markRead(jid);loadCrm(jid);
     if(isMobile())showThread();
     var st=$("chatStream");st.innerHTML='<div class="stream-empty">Carregando mensagens…</div>';
-    fetch(API+"?action=messages&jid="+encodeURIComponent(jid),{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
+    waFetch(API+"?action=messages&jid="+encodeURIComponent(jid),{cache:"no-store"}).then(function(d){
       if(curJid!==jid)return; var msgs=(d&&d.msgs)||[];
       st.innerHTML=renderMsgs(msgs);bindMedia(st,jid);
       st.scrollTop=st.scrollHeight;
-    }).catch(function(){st.innerHTML='<div class="stream-empty" style="color:var(--red)">Falha ao carregar as mensagens.</div>';});
+    }).catch(function(e){
+      if(curJid!==jid)return;
+      var msg=((e&&e.message)==="timeout")?"As mensagens demoraram a responder.":"Falha ao carregar as mensagens.";
+      st.innerHTML="";st.appendChild(errBox(msg,function(){openChat(jid,nome);}));
+    });
   }
 
   function matchFiltro(c){
@@ -720,8 +744,12 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     setK("conversas",allChats.length);setK("aguardando",nao);
   }
 
+  var chatsCarregou=false;
   function loadChats(silent){
-    return fetch(API+"?action=chats",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
+    // primeira carga: garante estado de "carregando" visível (evita tela em branco)
+    if(!silent&&!chatsCarregou){var cl=$("convList");if(cl&&!cl.querySelector(".conversation"))cl.innerHTML='<div class="empty">Carregando conversas…</div>';}
+    return waFetch(API+"?action=chats",{cache:"no-store"}).then(function(d){
+      chatsCarregou=true;
       if(d&&d.meuId!==undefined&&d.meuId!==null)meuId=d.meuId;
       allChats=(d&&d.chats)||[];
       // detecta transferencia NOVA para mim -> toca o som
@@ -730,7 +758,12 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
       mineBefore=mineNow;
       if(novas&&silent)playTransferSound();
       renderCounts();paintList();refreshAttendUI();
-    }).catch(function(){if(!silent)$("convList").innerHTML='<div class="empty" style="color:var(--red)">Falha ao carregar conversas.</div>';});
+    }).catch(function(e){
+      // erro só interrompe a UI na carga não-silenciosa; no polling, mantém o que já está na tela
+      if(silent)return;
+      var msg=((e&&e.message)==="timeout")?"O canal demorou a responder. Verifique a conexão e tente de novo.":"Não foi possível carregar as conversas.";
+      var cl=$("convList");if(cl){cl.innerHTML="";cl.appendChild(errBox(msg,function(){loadChats();}));}
+    });
   }
   function loadAux(){
     fetch(DATA+"?ent=leads&action=list",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){leadsCount=((d&&d.rows)||[]).length;setK("leads",leadsCount);}).catch(function(){});
