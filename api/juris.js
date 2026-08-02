@@ -146,6 +146,32 @@ module.exports = async (req, res) => {
       res.status(200).json({ resumo: (r.rows[0] || {}).resumo_ia || '', resumo_em: (r.rows[0] || {}).resumo_em || null }); return;
     }
 
+    // ---- REV2 item 04 — todos os casos jurídicos (visão da diretoria) ----
+    if (action === 'casos') {
+      if (!admin) { res.status(403).json({ error: 'apenas diretoria' }); return; }
+      const r = await db(`select na.negocio_id, na.advogado_id, na.honorario_pct, na.resumo_em,
+          u.nome advogado_nome, u.email advogado_email,
+          n.valor, n.comissao, n.etapa_funil, n.fechado_em,
+          l.nome lead_nome, im.titulo imovel, ib.nome imob_nome,
+          c.id contrato_id, c.status_assinatura, c.assinado_em
+        from negocio_advogado na
+          left join usuarios u on u.id=na.advogado_id
+          left join negocios n on n.id=na.negocio_id
+          left join leads l on l.id=n.lead_id
+          left join imoveis im on im.id=n.imovel_id
+          left join imobiliarias ib on ib.id=n.imobiliaria_id
+          left join contratos c on c.negocio_id=na.negocio_id
+        order by na.criado_em desc`);
+      res.status(200).json({ casos: (r.rows || []).map(x => ({
+        negocio_id: x.negocio_id, advogado_id: x.advogado_id, advogado_nome: x.advogado_nome, advogado_email: x.advogado_email,
+        honorario_pct: x.honorario_pct != null ? Number(x.honorario_pct) : null,
+        valor: x.valor != null ? Number(x.valor) : null, comissao: x.comissao != null ? Number(x.comissao) : null,
+        etapa: x.etapa_funil, fechado_em: x.fechado_em, lead_nome: x.lead_nome, imovel: x.imovel, imob_nome: x.imob_nome,
+        contrato_id: x.contrato_id, status_assinatura: x.status_assinatura, assinado_em: x.assinado_em,
+        ganho: (x.comissao != null && x.honorario_pct != null) ? Number(x.comissao) * Number(x.honorario_pct) / 100 : null
+      })) }); return;
+    }
+
     // ---- lista de advogados (dropdown de atribuição, diretoria) ----
     if (action === 'advogados') {
       if (!admin) { res.status(403).json({ error: 'apenas diretoria' }); return; }
