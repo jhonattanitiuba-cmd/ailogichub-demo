@@ -24,13 +24,13 @@ body,input,button,select,textarea{font-family:var(--font)}
 strong,b,h1,h2,h3,.btn,label{font-weight:700}
 body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;overflow:hidden}
 /* painel esquerdo (marca) */
-.brandside{position:relative;background:#000108;color:#e8eefb;padding:58px 62px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.brandside{position:relative;background:#000108;color:#e8eefb;padding:58px 62px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
 .glow{position:absolute;border-radius:50%;filter:blur(90px)}
 .g1{width:420px;height:420px;background:#1560d6;top:-150px;right:-150px;opacity:.16;animation:float1 14s ease-in-out infinite}
 .g2{width:340px;height:340px;background:#0a58c8;bottom:-170px;left:-120px;opacity:.12;animation:float2 16s ease-in-out infinite}
 .grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(120,170,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(120,170,255,.05) 1px,transparent 1px);background-size:54px 54px;mask-image:radial-gradient(circle at 30% 26%,#000,transparent 74%)}
 .bs-top,.bs-mid,.bs-bot{position:relative;z-index:2}
-.brandlogo{width:min(340px,72%);height:auto;display:block;margin:-6px 0 0 -6px}
+.brandlogo{width:min(440px,82%);height:auto;display:block;margin:0 auto}
 .hero h1{font-size:40px;line-height:1.1;letter-spacing:-.03em;margin:0 0 16px;font-weight:800}
 .hero p{color:#b8cdf0;font-size:15px;line-height:1.6;max-width:420px;margin:0}
 .feats{display:grid;gap:14px;margin-top:30px}
@@ -51,6 +51,10 @@ body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-heigh
 .inp input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(11,102,255,.13)}
 .inp .ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#94a3b8;display:grid;place-items:center}
 .inp .ic svg{width:18px;height:18px}
+.inp input.haseye{padding-right:46px}
+.eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;background:transparent;color:#94a3b8;border-radius:9px;display:grid;place-items:center;cursor:pointer;transition:color .15s,background .15s}
+.eye:hover{color:var(--blue);background:rgba(11,102,255,.08)}
+.eye svg{width:18px;height:18px}
 .row{display:flex;justify-content:space-between;align-items:center;margin:4px 0 22px;font-size:12.5px}
 .row label{display:flex;align-items:center;gap:7px;color:#475569;cursor:pointer}
 .row a{color:var(--blue);text-decoration:none;font-weight:700}
@@ -103,16 +107,6 @@ body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-heigh
   <section class="brandside">
     <div class="glow g1"></div><div class="glow g2"></div><div class="grid-bg"></div>
     <div class="bs-top"><img class="brandlogo" src="/assets/logo-perfil.png" alt="AI Logic Hub"></div>
-    <div class="bs-mid hero">
-      <h1>Toda a operação imobiliária,<br>orquestrada por IA.</h1>
-      <p>Do primeiro contato no WhatsApp ao repasse: qualificação por IA, funil unificado, imóveis e CRM de todas as imobiliárias parceiras, num painel só.</p>
-      <div class="feats">
-        <div class="feat"><span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.6a7.5 7.5 0 1 1 3.5 6.3L4 19l1.1-3.4a7.4 7.4 0 0 1-1.1-4Z"/><path d="M9.2 9.4c.2 1.3.9 2.5 1.8 3.4s2.1 1.6 3.4 1.8c.4.1.8-.1 1-.5l.3-.8c.1-.3 0-.6-.3-.8l-1.3-.8c-.3-.2-.6-.1-.8.1l-.4.4a5 5 0 0 1-1.6-1.6l.4-.4c.2-.2.3-.5.1-.8l-.8-1.3c-.2-.3-.5-.4-.8-.3l-.8.3c-.4.2-.6.6-.5 1.6Z"/></svg></span>IA atende no WhatsApp, qualifica o lead e transfere pro corretor certo</div>
-        <div class="feat"><span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6 7v5.5l-4 2V12z"/></svg></span>Funil unificado multi-imobiliária, com pipeline em tempo real</div>
-        <div class="feat"><span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v15"/><path d="M14 10h5a1 1 0 0 1 1 1v10"/><path d="M7.5 9h3M7.5 13h3M17 14h0M3 21h18"/></svg></span>Imóveis, CRM e repasses por imobiliária, em um só lugar</div>
-      </div>
-    </div>
-    <div class="bs-bot">© 2026 AILogic Hub · Plataforma white-label de inteligência imobiliária</div>
   </section>
 
   <section class="formside">
@@ -149,9 +143,10 @@ body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-heigh
         <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div></div>
       <div class="field f2"><label for="pass">Senha</label>
         <div class="inp"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V8a6 6 0 0 1 12 0v2"/><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M12 15v2"/></svg></span>
-        <input id="pass" type="password" name="pass_hub" placeholder="••••••••" autocomplete="new-password" required></div></div>
+        <input id="pass" class="haseye" type="password" name="pass_hub" placeholder="••••••••" autocomplete="new-password" required>
+        <button type="button" class="eye" id="eye" aria-label="Mostrar senha" title="Mostrar senha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
       <div class="row"><label><input type="checkbox" id="keep" checked> Manter conectado</label><a href="#" id="forgotLink">Esqueci a senha</a></div>
-      <button class="btn" type="submit">Entrar no Hub
+      <button class="btn" type="submit">Entrar
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
       <div class="err" id="err"></div>
       <div class="note" id="note"></div>
@@ -213,6 +208,11 @@ document.getElementById('form').addEventListener('submit',async function(e){
   function fill(){ if(/@ailogichub\.app$/i.test(sel.value)) pass.value=DEMO; }
   sel.addEventListener('change',fill);
   fill(); // ja preenche pro acesso pre-selecionado
+  // olhinho: mostra/oculta a senha
+  var eye=document.getElementById('eye');
+  if(eye){ eye.addEventListener('click',function(){ var show=pass.type==='password'; pass.type=show?'text':'password'; eye.classList.toggle('on',show); eye.title=show?'Ocultar senha':'Mostrar senha'; eye.setAttribute('aria-label',eye.title); eye.innerHTML=show
+    ?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 10.6a3 3 0 0 0 4.2 4.2"/><path d="M9.9 4.7A9.6 9.6 0 0 1 12 4.5c6.5 0 10 7.5 10 7.5a17 17 0 0 1-3 3.9M6.3 6.3A17 17 0 0 0 2 12s3.5 7.5 10 7.5a9.4 9.4 0 0 0 3.2-.6"/></svg>'
+    :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>'; }); }
 })();
 </script>
 
