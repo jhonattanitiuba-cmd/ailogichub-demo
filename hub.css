@@ -101,9 +101,9 @@ p,.card p,.side-row span,.detail-item span,.rule span,td{ font-weight:400; }
 
 /* ===== recolher sidebar (mini rail) ===== */
 .app{ transition:grid-template-columns .25s ease; }
-.sb-toggle{ display:flex; align-items:center; justify-content:center; width:30px; height:30px; margin:0 0 10px auto; padding:0; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); border-radius:8px; color:#a9c0e4; cursor:pointer; transition:background .15s,color .15s,transform .2s; }
+.sb-toggle{ display:flex; align-items:center; justify-content:center; width:28px; height:28px; margin:0 0 10px auto; padding:0; background:none; border:0; border-radius:8px; color:#6f86ab; cursor:pointer; transition:color .15s,transform .2s; }
 .app.sb-collapsed .sb-toggle{ margin:0 auto 10px; }
-.sb-toggle:hover{ background:rgba(255,255,255,.10); color:#dce8ff; }
+.sb-toggle:hover{ color:#dce8ff; }
 .app.sb-collapsed{ grid-template-columns:62px 1fr !important; }
 .app.sb-collapsed .sidebar{ padding:22px 11px; }
 .app.sb-collapsed .nav-item{ justify-content:center; padding:11px 0; }
@@ -344,8 +344,11 @@ button, a, [role="button"], .btn, .pill, .icon-btn, .wa-tab, .chip, .chip2, .seg
 .sidebar > .profile{ margin-top:2px; padding:0 4px 16px; border-top:0; border-bottom:1px solid rgba(255,255,255,.08); }
 /* rodapé da sidebar: recolher (<) + sair */
 /* rodape destacado (visual XORA): grupo inferior em painel translucido suave */
-.hub-sb-footer{ margin-top:auto; display:flex; flex-direction:column; gap:8px; padding:10px; border-top:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.05); border-radius:12px; }
+.hub-sb-footer{ margin-top:auto; display:flex; flex-direction:column; gap:6px; padding:10px 2px 2px; border-top:1px solid rgba(255,255,255,.08); background:none; border-radius:0; }
 .hub-sb-footer > .profile{ display:flex; align-items:center; gap:10px; width:100%; margin:0; padding:0; border:0; }
+.hub-sb-footer > .profile .avatar{ flex:0 0 auto; }
+.hub-sb-footer > .profile > div{ min-width:0; overflow:hidden; }
+.hub-sb-footer > .profile > div strong,.hub-sb-footer > .profile > div span{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .hub-sb-footer .sb-toggle{ margin:0 !important; align-self:flex-start; }
 .hub-sb-footer .hub-logout{ margin:0 0 0 auto !important; }
 .app.sb-collapsed .hub-sb-footer{ align-items:center; gap:10px; }
@@ -355,8 +358,8 @@ button, a, [role="button"], .btn, .pill, .icon-btn, .wa-tab, .chip, .chip2, .seg
 .app.sb-collapsed .hub-sb-footer .hub-logout{ margin:0 !important; }
 
 /* ===== olho de privacidade (borra/abre todos os valores) ===== */
-.hub-eye{ flex:none; width:32px; height:32px; margin-left:auto; padding:0; border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.06); color:#cddcf5; border-radius:9px; display:grid; place-items:center; cursor:pointer; transition:background .15s, color .15s, border-color .15s, transform .12s; -webkit-tap-highlight-color:transparent; }
-.hub-eye:hover{ background:rgba(255,255,255,.12); color:#fff; }
+.hub-eye{ flex:none; width:30px; height:30px; margin-left:auto; padding:0; border:0; background:none; color:#8aa0c4; border-radius:9px; display:grid; place-items:center; cursor:pointer; transition:color .15s, transform .12s; -webkit-tap-highlight-color:transparent; }
+.hub-eye:hover{ color:#fff; }
 .hub-eye:active{ transform:scale(.9); }
 .hub-eye svg{ width:17px; height:17px; }
 .app.sb-collapsed .hub-eye-side{ display:none; }

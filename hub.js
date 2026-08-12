@@ -316,7 +316,7 @@
     if(!prof || prof.querySelector('.hub-logout')) return;
     if(!document.getElementById('hub-logout-style')){
       var st=document.createElement('style'); st.id='hub-logout-style';
-      st.textContent='.hub-logout{margin-left:auto;flex:none;width:34px;height:34px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#cddcf5;border-radius:10px;display:grid;place-items:center;cursor:pointer;transition:background .15s,color .15s,border-color .15s}.hub-logout:hover{background:rgba(233,66,66,.16);border-color:rgba(233,66,66,.5);color:#ffb4b4}.hub-logout svg{width:18px;height:18px}.sb-collapsed .hub-logout{margin:8px auto 0}';
+      st.textContent='.hub-logout{margin-left:auto;flex:none;width:30px;height:30px;border:0;background:none;color:#8aa0c4;border-radius:9px;display:grid;place-items:center;cursor:pointer;transition:color .15s,transform .12s}.hub-logout:hover{color:#ff8f8f}.hub-logout:active{transform:scale(.9)}.hub-logout svg{width:18px;height:18px}.sb-collapsed .hub-logout{margin:8px auto 0}';
       document.head.appendChild(st);
     }
     var b=document.createElement('button');
