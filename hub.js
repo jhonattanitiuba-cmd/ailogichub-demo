@@ -612,13 +612,26 @@
     try{
       if((document.documentElement.getAttribute('data-scr')||'')!=='visaogeral') return;
       var p=_perfilAtual().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+      // saudacao para TODOS os perfis (inclusive admin)
+      var nice = (p.indexOf('admin')>=0||p.indexOf('diretor')>=0)?'Diretoria'
+        :(p.indexOf('imobili')>=0||p.indexOf('gestor')>=0)?'Imobiliária'
+        :(p.indexOf('comercial')>=0)?'Comercial'
+        :(p.indexOf('corretor')>=0||p.indexOf('parceiro')>=0||p.indexOf('autonom')>=0)?'Corretor'
+        :(p.indexOf('juridic')>=0||p.indexOf('advogad')>=0)?'Jurídico'
+        :(p.indexOf('financeir')>=0)?'Financeiro'
+        :(p.indexOf('marketing')>=0)?'Marketing'
+        :(p.indexOf('proprietar')>=0)?'Proprietário'
+        :(p.indexOf('anunciant')>=0)?'Anunciante'
+        :(p.indexOf('cliente')>=0)?'Cliente':'Bem-vindo';
+      var hello=document.getElementById('hubHello'); if(hello) hello.textContent='Olá, '+nice;
       var isAdmin=p.indexOf('admin')>=0||p.indexOf('diretor')>=0||p.indexOf('dono')>=0||p.indexOf('owner')>=0||p.indexOf('super')>=0;
       if(isAdmin) return;
       var hideBox=function(el){ if(el){ var b=el.closest('.panel')||el.closest('section')||el; if(b) b.style.display='none'; } };
-      hideBox(document.getElementById('ranking'));            // Ranking por imobiliaria
-      hideBox(document.getElementById('imobRows'));           // Imobiliarias na plataforma
-      var ki=document.querySelector('[data-k="imob"]'); if(ki){ var kb=ki.closest('.kpi'); if(kb) kb.style.display='none'; }
-      if(p.indexOf('corretor')>=0||p.indexOf('parceiro')>=0||p.indexOf('autonom')>=0){ var kp=document.querySelector('[data-k="pipeline"]'); if(kp){ var kpb=kp.closest('.kpi'); if(kpb) kpb.style.display='none'; } }
+      hideBox(document.getElementById('ranking'));            // Ranking por imobiliaria (multi-imob)
+      hideBox(document.getElementById('imobRows'));           // Imobiliarias na plataforma (multi-imob)
+      var hideKpi=function(k){ var e=document.querySelector('[data-k="'+k+'"]'); if(e){ var b=e.closest('.kpi'); if(b) b.style.display='none'; } };
+      hideKpi('imob');        // so faz sentido no Hub
+      hideKpi('conversas');   // canal WhatsApp do Hub, nao e do tenant
       var h1=document.querySelector('.main header h1, .main .header h1, .main h1');
       if(h1){
         if(p.indexOf('corretor')>=0||p.indexOf('parceiro')>=0||p.indexOf('autonom')>=0) h1.textContent='Meu Painel';
@@ -662,8 +675,17 @@
   var NAMES={comercial:'Comercial',adm:'Administrativo',juridico:'Jurídico',operacoes:'Operações',trafego:'Tráfego',marketing:'Marketing',financeiro:'Financeiro',tecnologia:'Tecnologia'};
   function slugOf(a){ var r=a.getAttribute('href')||''; if(/^(https?:|#|mailto:|tel:)/.test(r)) return ''; return r.split('/').pop().split('?')[0].replace(/\.html$/,'')||''; }
   function ico(k){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(IC[k]||'')+'</svg>'; }
+  // as GAVETAS por setor sao SO do Hub (admin/diretoria). Demais perfis = sidebar FLAT.
+  function _isHubTier(){
+    try{ var s=JSON.parse(localStorage.getItem('ailogic-auth')||'{}'); var u=(s&&s.user)||(s&&s.currentSession&&s.currentSession.user);
+      var p=String((u&&u.user_metadata&&u.user_metadata.perfil)||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+      return p.indexOf('admin')>=0||p.indexOf('diretor')>=0||p.indexOf('dono')>=0||p.indexOf('owner')>=0||p.indexOf('super')>=0;
+    }catch(_){ return true; } // na duvida, mantem o Hub (nao quebra o admin)
+  }
   function build(){
-    var side=document.querySelector('.sidebar'); if(!side||side.getAttribute('data-gav')) return; side.setAttribute('data-gav','1');
+    var side=document.querySelector('.sidebar'); if(!side||side.getAttribute('data-gav')||side.getAttribute('data-flat')) return;
+    if(!_isHubTier()){ side.setAttribute('data-flat','1'); return; }   // perfil nao-Hub -> menu flat (nav-items simples)
+    side.setAttribute('data-gav','1');
     var map={}, cur=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';
     [].slice.call(side.querySelectorAll('.nav-item')).forEach(function(a){ var s=slugOf(a); if(s&&!map[s]) map[s]=a; });
     var wrap=document.createElement('div'); wrap.className='hub-gav';
@@ -738,7 +760,22 @@
       }
     }catch(_){}
   }
-  function boot(){ try{build();}catch(e){} setTimeout(hideEmptySectors,60); setTimeout(hideEmptySectors,700); }
+  // modo FLAT (perfil nao-Hub): esconde rotulos de setor que ficaram sem nav-item visivel (evita rotulo orfao)
+  function hideEmptyFlatSections(){
+    try{
+      var side=document.querySelector('.sidebar[data-flat]'); if(!side) return;
+      var titles=side.querySelectorAll('.section-title');
+      for(var i=0;i<titles.length;i++){
+        var n=titles[i].nextElementSibling, vis=0;
+        while(n && !(n.classList&&n.classList.contains('section-title'))){
+          if(n.classList&&n.classList.contains('nav-item')&&n.style.display!=='none') vis++;
+          n=n.nextElementSibling;
+        }
+        titles[i].style.display = vis? '' : 'none';
+      }
+    }catch(_){}
+  }
+  function boot(){ try{build();}catch(e){} setTimeout(function(){ hideEmptySectors(); hideEmptyFlatSections(); },60); setTimeout(function(){ hideEmptySectors(); hideEmptyFlatSections(); },700); }
   if(document.readyState!=='loading'){ boot(); }
   else document.addEventListener('DOMContentLoaded', boot);
 })();

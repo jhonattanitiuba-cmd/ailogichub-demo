@@ -117,7 +117,7 @@ tr:last-child td{border-bottom:0}td.strong{font-weight:700;color:var(--heading)}
 
 <main class="main">
   <header class="header">
-    <div class="headline"><h1>Central de Operações</h1><p>Visão consolidada de imobiliárias, leads, imóveis e funil comercial, dados reais do Hub.</p></div>
+    <div class="headline"><p class="hub-hello" id="hubHello" style="margin:0 0 4px;color:#0b66ff;font-weight:800;font-size:12px;letter-spacing:.02em"></p><h1>Central de Operações</h1><p>Visão consolidada de imobiliárias, leads, imóveis e funil comercial, dados reais do Hub.</p></div>
     <div class="head-actions"><span class="live-dot" id="imobDot" title="Sistema online"></span><button class="icon-btn" id="themeToggle" title="Alternar tema"><svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z'/></svg></button></div>
   </header>
 
@@ -184,8 +184,17 @@ tr:last-child td{border-bottom:0}td.strong{font-weight:700;color:var(--heading)}
     kset('pipeline',brl(cards.reduce(function(s,c){return s+(Number(c.valor)||0);},0)));
     kset('conversas',chats.length);
 
+    // perfil: admin/diretoria ve o funil GLOBAL do Hub; demais veem o funil do PROPRIO escopo (cards)
+    var _p=''; try{ var _s=JSON.parse(localStorage.getItem('ailogic-auth')||'{}'); var _u=(_s&&_s.user)||(_s&&_s.currentSession&&_s.currentSession.user); _p=String((_u&&_u.user_metadata&&_u.user_metadata.perfil)||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }catch(_){}
+    var _isAdmin=_p.indexOf('admin')>=0||_p.indexOf('diretor')>=0||_p.indexOf('dono')>=0||_p.indexOf('owner')>=0||_p.indexOf('super')>=0;
     var fn=document.getElementById('funnel');
-    if(etapas.length){
+    if(!_isAdmin){
+      var ORD=['novo','qualif_ia','distribuido','atendimento','visita','proposta','documentacao','fechado','perdido'];
+      var LBL={novo:'Novo lead',qualif_ia:'Qualificação',distribuido:'Distribuído',atendimento:'Atendimento',visita:'Visita',proposta:'Proposta',documentacao:'Documentação',fechado:'Fechado',perdido:'Perdido'};
+      var byE={}; cards.forEach(function(c){ byE[c.etapa]=(byE[c.etapa]||0)+1; });
+      var pres=ORD.filter(function(k){return byE[k];}), base0=cards.length||1;
+      fn.innerHTML=pres.length?pres.map(function(k,i){ var n=byE[k], pct=Math.round(n/base0*100); return (i?'<span class="farrow">›</span>':'')+'<div class="fstep"><div class="fn">'+esc(LBL[k]||k)+'</div><div class="fv">'+n+'</div><div class="fp">'+pct+'%</div></div>'; }).join(''):'<div class="empty">Sem negócios no seu funil.</div>';
+    } else if(etapas.length){
       var base=(etapas[0]&&etapas[0].negocios)||cards.length||0;
       fn.innerHTML=etapas.map(function(e,i){
         var n=e.negocios!=null?e.negocios:cards.filter(function(c){return c.etapa===e.key;}).length;
