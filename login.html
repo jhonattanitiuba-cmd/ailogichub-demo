@@ -22,7 +22,11 @@
 *{box-sizing:border-box}
 body,input,button,select,textarea{font-family:var(--font)}
 strong,b,h1,h2,h3,.btn,label{font-weight:700}
-body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;overflow:hidden}
+body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;overflow:hidden;transition:opacity .42s ease,transform .42s ease}
+/* saida: ao entrar, a pagina inteira some antes de abrir a tela azul de loading */
+body.leaving{opacity:0;transform:scale(.985);pointer-events:none}
+body.leaving .brandside{transform:translateX(-24px);transition:transform .42s ease}
+body.leaving .formside{transform:translateX(24px);transition:transform .42s ease}
 /* painel esquerdo (marca) */
 .brandside{position:relative;background:#000108;color:#e8eefb;padding:58px 62px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
 .glow{position:absolute;border-radius:50%;filter:blur(80px);z-index:3;mix-blend-mode:screen;pointer-events:none}
@@ -191,7 +195,8 @@ document.getElementById('form').addEventListener('submit',async function(e){
     if(!window.hubAuth) throw new Error('Config de autenticação não carregou.');
     await window.hubAuth.signIn(email,pass);
     try{ localStorage.setItem('ailogic_user',email); }catch(_){}
-    location.href='/entrando';
+    document.body.classList.add('leaving');                 // some com tudo, animado
+    setTimeout(function(){ location.href='/entrando'; }, 430); // depois abre a tela azul de loading
   }catch(ex){
     var msg=(ex&&ex.message)||'Falha no login.';
     if(isNetErr(msg)) msg=NET_MSG;
