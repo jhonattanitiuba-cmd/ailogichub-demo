@@ -1,6 +1,6 @@
 // AILOGIC HUB — dados do dashboard (Central de Operações) + funil de negócios
 const { db } = require('./_db');
-const { requireAuth, isLawyerRole } = require('./_auth');
+const { requireAuth, isLawyerRole, isSelfRole } = require('./_auth');
 const { cacheGet, cacheSet } = require('./_cache');
 const DB_URL = process.env.DB_URL || '';
 module.exports = async (req, res) => {
@@ -67,30 +67,35 @@ module.exports = async (req, res) => {
         cacheSet(lkey, lout, 60); res.status(200).json(lout); return;
       }
       if (!isAdmin && !user.imobiliariaId) { res.status(200).json({ imobiliarias: [], leadsTotal: 0, leadsQualificados: 0, leadsPorFonte: [], leadsPorStatus: [], imoveisTotal: 0 }); return; }
-      const ckey = 'dash:resumo:' + (isAdmin ? 'all' : user.imobiliariaId);
+      // self: corretor/autonomo -> os agregados de LEADS contam so os proprios (responsavel_id);
+      // imoveis segue o acervo da imobiliaria (compartilhado). Chave de cache inclui o usuarioId.
+      const self = !isAdmin && isSelfRole(user.perfil) && !!user.usuarioId;
+      const ckey = 'dash:resumo:' + (isAdmin ? 'all' : (self ? ('self:' + user.usuarioId + ':' + user.imobiliariaId) : user.imobiliariaId));
       const cached = await cacheGet(ckey);
       if (cached) { res.status(200).json(cached); return; }   // hit no Redis -> instantaneo
       const scoped = !isAdmin;
       const p = scoped ? [user.imobiliariaId] : [];
-      const fI = scoped ? 'and i.id=$1' : '';          // imobiliarias (alias i)
-      const fL = scoped ? 'and imobiliaria_id=$1' : ''; // leads/imoveis (sem alias)
-      const fLl = scoped ? 'and l.imobiliaria_id=$1' : ''; // leads (alias l)
+      if (self) p.push(user.usuarioId);                 // $2 = usuarioId (so quando self)
+      const fI = scoped ? 'and i.id=$1' : '';           // imobiliarias (alias i)
+      const fImob = scoped ? 'and imobiliaria_id=$1' : '';                                        // imoveis (so imobiliaria)
+      const fLeads = scoped ? ('and imobiliaria_id=$1' + (self ? ' and responsavel_id=$2' : '')) : '';    // leads (sem alias)
+      const fLeadsL = scoped ? ('and l.imobiliaria_id=$1' + (self ? ' and l.responsavel_id=$2' : '')) : ''; // leads (alias l)
       const sql = `select
         (select coalesce(json_agg(x),'[]'::json) from (
            select i.id, i.nome, i.cidade, case when i.ativo then 'Ativo' else 'Pausado' end status,
              (select count(*) from imoveis m where m.imobiliaria_id=i.id and m.deleted_at is null) imoveis,
              (select count(*) from leads l where l.imobiliaria_id=i.id and l.deleted_at is null) leads
            from imobiliarias i where i.deleted_at is null ${fI} order by i.created_at) x) as imobiliarias,
-        (select count(*)::int from leads where deleted_at is null ${fL}) as leads_total,
-        (select count(*)::int from leads where deleted_at is null and status::text ilike '%qualif%' ${fL}) as leads_qualif,
-        (select count(*)::int from imoveis where deleted_at is null ${fL}) as imoveis_total,
+        (select count(*)::int from leads where deleted_at is null ${fLeads}) as leads_total,
+        (select count(*)::int from leads where deleted_at is null and status::text ilike '%qualif%' ${fLeads}) as leads_qualif,
+        (select count(*)::int from imoveis where deleted_at is null ${fImob}) as imoveis_total,
         (select coalesce(json_agg(y),'[]'::json) from (
            select coalesce(f.nome, f.canal, 'Sem origem') nome, count(*)::int c
            from leads l left join fontes_lead f on f.id=l.fonte_id
-           where l.deleted_at is null ${fLl} group by 1 order by 2 desc) y) as por_fonte,
+           where l.deleted_at is null ${fLeadsL} group by 1 order by 2 desc) y) as por_fonte,
         (select coalesce(json_agg(z),'[]'::json) from (
            select coalesce(status::text,'sem status') status, count(*)::int c
-           from leads where deleted_at is null ${fL} group by 1 order by 2 desc) z) as por_status`;
+           from leads where deleted_at is null ${fLeads} group by 1 order by 2 desc) z) as por_status`;
       const row = (await db(sql, p)).rows[0] || {};
       const out = {
         imobiliarias: (row.imobiliarias || []).map(x => ({ id: x.id, nome: x.nome, cidade: x.cidade, status: x.status, imoveis: Number(x.imoveis), leads: Number(x.leads) })),

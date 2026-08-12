@@ -2,7 +2,9 @@
 // Colunas escalares populadas + coluna `extra jsonb` com os campos do formulário.
 // Segredo DB_URL em env var da Vercel.
 const { db } = require('./_db');
-const { requireAuth, isLawyerRole } = require('./_auth');
+const { requireAuth, isLawyerRole, isSelfRole } = require('./_auth');
+// entidades com responsavel_id -> corretor/autonomo (self) ve so os proprios
+const SELF_ENT = { leads: 1, negocios: 1, agenda: 1 };
 const { cacheGet, cacheSet, cacheDel } = require('./_cache');
 const DB_URL = process.env.DB_URL || '';
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
@@ -160,7 +162,9 @@ module.exports = async (req, res) => {
     // ---- LIST (com escopo RBAC) ----
     if (action === 'list') {
       const lawyer = isLawyerRole(user.perfil) && !user.isAdmin;
-      const scope = user.isAdmin ? 'all' : (lawyer ? ('law:' + (user.usuarioId || 'none')) : (user.imobiliariaId || 'none'));
+      // self: corretor/autonomo ve so os proprios em leads/negocios/agenda (tem responsavel_id)
+      const self = !user.isAdmin && !lawyer && isSelfRole(user.perfil) && !!user.usuarioId && !!SELF_ENT[ent];
+      const scope = user.isAdmin ? 'all' : (lawyer ? ('law:' + (user.usuarioId || 'none')) : (self ? ('self:' + user.usuarioId + ':' + (user.imobiliariaId || 'none')) : (user.imobiliariaId || 'none')));
       const ckey = 'data:' + ent + ':' + scope;
       const cached = await cacheGet(ckey);
       if (cached) { res.status(200).json(cached); return; }   // hit Redis -> nav instantanea
@@ -178,6 +182,10 @@ module.exports = async (req, res) => {
         const col = (ent === 'imobiliarias') ? 'id' : 'imobiliaria_id';
         params.push(user.imobiliariaId);
         conds.push(col + ' = $' + params.length);
+        if (self) { // corretor/autonomo: alem da imobiliaria, so os proprios (responsavel_id)
+          params.push(user.usuarioId);
+          conds.push('responsavel_id = $' + params.length);
+        }
       }
       const where = conds.length ? 'where ' + conds.join(' and ') : '';
       const r = await db(`select * from ${TABLE[ent]} ${where} order by created_at`, params);

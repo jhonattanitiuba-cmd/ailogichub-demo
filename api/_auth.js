@@ -17,6 +17,10 @@ function isAdminRole(p) { return ADMIN_ROLES.indexOf(String(p || '').toLowerCase
 // perfis de advogado/associado: NÃO veem o geral; só os negócios atribuídos a eles
 const LAWYER_ROLES = ['advogado', 'associado', 'juridico', 'jurídico'];
 function isLawyerRole(p) { return LAWYER_ROLES.indexOf(String(p || '').toLowerCase()) >= 0; }
+// perfis "self": corretor/autônomo veem só os proprios registros (responsavel_id),
+// diferente do gestor/comercial que veem a imobiliaria inteira.
+const SELF_ROLES = ['corretor', 'parceiro'];
+function isSelfRole(p) { return SELF_ROLES.indexOf(String(p || '').toLowerCase()) >= 0; }
 // ids dos negócios atribuídos a um advogado (join negocio_advogado)
 async function negociosDoAdvogado(usuarioId) {
   if (!usuarioId) return [];
@@ -123,4 +127,4 @@ async function requireAuth(req, res) {
   return scope;
 }
 
-module.exports = { getUser, requireAuth, isAdminRole, isLawyerRole, negociosDoAdvogado, departamentoDe };
+module.exports = { getUser, requireAuth, isAdminRole, isLawyerRole, isSelfRole, negociosDoAdvogado, departamentoDe };
