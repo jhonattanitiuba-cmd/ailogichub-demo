@@ -283,7 +283,7 @@
       var cur=document.querySelector('.main'); if(cur) cur.parentNode.replaceChild(newMain, cur);
       swapPageExtras(doc);   // troca os modais/overlays junto (fim do "preciso dar F5")
       if(doc.title) document.title=doc.title;
-      try{ markScr(); replaceIconHosts(); cleanText(); active(); dockSync(); runPageScripts(doc); revealContent(newMain, 'spa', dir); markWidgets(newMain); standardizeButtons(newMain); markStatusPills(); setupPullRefresh(); loadBegin(); }catch(e){}
+      try{ markScr(); replaceIconHosts(); cleanText(); active(); dockSync(); runPageScripts(doc); revealContent(newMain, 'spa', dir); markWidgets(newMain); standardizeButtons(newMain); markStatusPills(); setupPullRefresh(); loadBegin(); gateDashboard(); setTimeout(gateDashboard,400); }catch(e){}
       window.scrollTo(0,0); navving=false;
     }).catch(function(){ location.href=slug; });
   }
@@ -606,7 +606,34 @@
     document.addEventListener('click',function(e){ if(box.classList.contains('open') && !box.contains(e.target) && !b.contains(e.target)) close(); });
     document.body.appendChild(b);
   }
-  function run(){ try{ ensureViewport(); markScr(); ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); setupDock(); cascadeSidebar(); revealContent(document.querySelector('.main'), 'entry'); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); standardizeButtons(); watchButtons(); markStatusPills(); setupPullRefresh(); setupFab(); loadBegin(); window.addEventListener('resize', onResize); window.addEventListener('orientationchange', onResize); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
+  /* ---------- segregacao do dashboard (visaogeral): esconde widgets multi-imobiliaria p/ nao-admin ---------- */
+  function _perfilAtual(){ try{ var s=JSON.parse(localStorage.getItem('ailogic-auth')||'{}'); var u=(s&&s.user)||(s&&s.currentSession&&s.currentSession.user); return String((u&&u.user_metadata&&u.user_metadata.perfil)||''); }catch(_){ return ''; } }
+  function gateDashboard(){
+    try{
+      if((document.documentElement.getAttribute('data-scr')||'')!=='visaogeral') return;
+      var p=_perfilAtual().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+      var isAdmin=p.indexOf('admin')>=0||p.indexOf('diretor')>=0||p.indexOf('dono')>=0||p.indexOf('owner')>=0||p.indexOf('super')>=0;
+      if(isAdmin) return;
+      var hideBox=function(el){ if(el){ var b=el.closest('.panel')||el.closest('section')||el; if(b) b.style.display='none'; } };
+      hideBox(document.getElementById('ranking'));            // Ranking por imobiliaria
+      hideBox(document.getElementById('imobRows'));           // Imobiliarias na plataforma
+      var ki=document.querySelector('[data-k="imob"]'); if(ki){ var kb=ki.closest('.kpi'); if(kb) kb.style.display='none'; }
+      if(p.indexOf('corretor')>=0||p.indexOf('parceiro')>=0||p.indexOf('autonom')>=0){ var kp=document.querySelector('[data-k="pipeline"]'); if(kp){ var kpb=kp.closest('.kpi'); if(kpb) kpb.style.display='none'; } }
+      var h1=document.querySelector('.main header h1, .main .header h1, .main h1');
+      if(h1){
+        if(p.indexOf('corretor')>=0||p.indexOf('parceiro')>=0||p.indexOf('autonom')>=0) h1.textContent='Meu Painel';
+        else if(p.indexOf('financeir')>=0) h1.textContent='Painel Financeiro';
+        else if(p.indexOf('marketing')>=0) h1.textContent='Painel de Marketing';
+        else if(p.indexOf('juridic')>=0||p.indexOf('advogad')>=0) h1.textContent='Painel Jurídico';
+        else if(p.indexOf('gestor')>=0) h1.textContent='Painel da Imobiliária';
+        else if(p.indexOf('proprietar')>=0) h1.textContent='Meus Imóveis';
+        else if(p.indexOf('anunciant')>=0) h1.textContent='Meus Anúncios';
+        else if(p.indexOf('cliente')>=0) h1.textContent='Meu Acompanhamento';
+      }
+    }catch(_){}
+  }
+  try{ window.hubGateDash=gateDashboard; }catch(_){}
+  function run(){ try{ ensureViewport(); markScr(); ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); setupDock(); cascadeSidebar(); revealContent(document.querySelector('.main'), 'entry'); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); standardizeButtons(); watchButtons(); markStatusPills(); setupPullRefresh(); setupFab(); loadBegin(); gateDashboard(); setTimeout(gateDashboard,400); window.addEventListener('resize', onResize); window.addEventListener('orientationchange', onResize); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
 
@@ -700,8 +727,20 @@
     ].join('');
     var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
   }
-  if(document.readyState!=='loading'){ try{build();}catch(e){} }
-  else document.addEventListener('DOMContentLoaded',function(){ try{build();}catch(e){} });
+  // segregacao: apos o restrictMenu (auth.js) esconder .nav-item, some com o cabecalho do setor que ficou sem folha visivel
+  function hideEmptySectors(){
+    try{
+      var secs=document.querySelectorAll('.sidebar .hub-sec');
+      for(var i=0;i<secs.length;i++){
+        var leaves=secs[i].querySelectorAll('.hub-leaf'), vis=0;
+        for(var k=0;k<leaves.length;k++){ if(leaves[k].style.display!=='none') vis++; }
+        secs[i].style.display = vis? '' : 'none';
+      }
+    }catch(_){}
+  }
+  function boot(){ try{build();}catch(e){} setTimeout(hideEmptySectors,60); setTimeout(hideEmptySectors,700); }
+  if(document.readyState!=='loading'){ boot(); }
+  else document.addEventListener('DOMContentLoaded', boot);
 })();
 
 /* ===== Chrome da sidebar: perfil no topo, rodapé (recolher + sair), olho de privacidade e versão mobile ===== */

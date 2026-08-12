@@ -212,23 +212,46 @@
   // Jurídico (advogado): só enxerga o escopo dele. Segurança real é server-side
   // (api/_auth.js); esta é a camada de UX pedida pelo cliente (relatório 20/07).
   var ADMIN_ROLES_MENU = { admin:1, administrador:1, diretor:1, diretoria:1, dono:1, owner:1, super:1 };
+  function _norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  // perfil (rótulo do metadata) -> chave canônica de menu
+  function _menuKey(perfil) {
+    var p = _norm(perfil);
+    if (ADMIN_ROLES_MENU[p] || p.indexOf('admin') >= 0 || p.indexOf('diretor') >= 0 || p.indexOf('dono') >= 0 || p.indexOf('owner') >= 0 || p.indexOf('super') >= 0) return 'admin';
+    if (p.indexOf('advogad') >= 0 || p.indexOf('juridic') >= 0 || p.indexOf('associad') >= 0) return 'juridico';
+    if (p.indexOf('gestor') >= 0) return 'gestor';
+    if (p.indexOf('comercial') >= 0) return 'comercial';
+    if (p.indexOf('corretor') >= 0 || p.indexOf('parceiro') >= 0 || p.indexOf('autonom') >= 0) return 'corretor';
+    if (p.indexOf('financeir') >= 0) return 'financeiro';
+    if (p.indexOf('marketing') >= 0) return 'marketing';
+    if (p.indexOf('proprietar') >= 0) return 'proprietario';
+    if (p.indexOf('anunciant') >= 0) return 'anunciante';
+    if (p.indexOf('cliente') >= 0) return 'cliente';
+    return 'tenant';
+  }
+  // whitelist de telas por perfil (visaogeral sempre incluida; o slug 'juridico'
+  // (modulo da Diretoria, item 04) fica fora das listas nao-admin -> so admin ve).
+  var MENU = {
+    gestor: ['corretores', 'pessoas', 'leads', 'funil', 'locacao', 'imoveis', 'captacao', 'mapa', 'agenda', 'whatsapp', 'emails', 'assinaturas', 'credito', 'financeiro', 'relatorios', 'anuncios', 'site', 'marketing', 'suporte'],
+    comercial: ['leads', 'funil', 'locacao', 'pessoas', 'imoveis', 'captacao', 'mapa', 'agenda', 'whatsapp', 'emails', 'relatorios'],
+    corretor: ['leads', 'funil', 'pessoas', 'imoveis', 'agenda', 'whatsapp', 'mapa'],
+    juridico: ['pessoas', 'leads', 'funil', 'assinaturas', 'relatorios', 'suporte'],
+    financeiro: ['financeiro', 'credito', 'parceria', 'relatorios', 'assinaturas'],
+    marketing: ['site', 'vitrine', 'anuncios', 'captacao', 'marketing', 'insights', 'mapa'],
+    proprietario: ['imoveis', 'assinaturas', 'relatorios'],
+    anunciante: ['imoveis', 'anuncios', 'captacao'],
+    cliente: ['imoveis', 'agenda', 'assinaturas'],
+    tenant: ['leads', 'funil', 'imoveis', 'agenda', 'whatsapp']
+  };
   function restrictMenu(perfil) {
     try {
-      var pf = String(perfil || '').toLowerCase();
-      var isJur = pf === 'advogado' || pf === 'juridico' || pf === 'jurídico';
-      var isAdmin = !!ADMIN_ROLES_MENU[pf];
-      var nav = document.querySelectorAll('.nav-item'), i, h;
-      // REV2 item 04 — módulo Jurídico (visão da Diretoria) só aparece para perfis administrativos
-      if (!isAdmin) {
-        for (i = 0; i < nav.length; i++) {
-          h = (nav[i].getAttribute('href') || '').split('/').pop().replace(/\.html$/, '');
-          if (h === 'juridico') nav[i].style.display = 'none';
-        }
-      }
-      if (!isJur) return;
-      var ALLOW = { visaogeral: 1, pessoas: 1, leads: 1, funil: 1, assinaturas: 1, relatorios: 1, suporte: 1 };
-      for (i = 0; i < nav.length; i++) {
-        h = (nav[i].getAttribute('href') || '').split('/').pop().replace(/\.html$/, '');
+      var key = _menuKey(perfil);
+      if (key === 'admin') return; // admin/diretoria veem tudo (inclui modulo Juridico)
+      var list = MENU[key] || MENU.tenant;
+      var ALLOW = { visaogeral: 1 };
+      for (var j = 0; j < list.length; j++) ALLOW[list[j]] = 1;
+      var nav = document.querySelectorAll('.nav-item');
+      for (var i = 0; i < nav.length; i++) {
+        var h = (nav[i].getAttribute('href') || '').split('/').pop().split('?')[0].replace(/\.html$/, '');
         if (h && !ALLOW[h]) nav[i].style.display = 'none';
       }
     } catch (_) {}
