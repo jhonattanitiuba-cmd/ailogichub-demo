@@ -4,63 +4,78 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>AILogic Hub</title>
-<link rel="icon" href="/assets/favicon.png">
+<link rel="icon" href="/assets/logo-ai.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-<meta name="theme-color" content="#061936">
+<meta name="theme-color" content="#04122b">
+<link rel="stylesheet" href="/tokens.css">
 <script src="/api/config"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/auth.js"></script>
 <style>
-:root{--bg:#061936;--blue:#0b66ff;--blue2:#10b5ff;--text:#e7eefb;--muted:#7f9cc9;--font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+:root{--bg:#04122b;--blue:#0b66ff;--blue2:#3bb0ff;--text:#dfe9ff;--muted:#8aa6d6;--font:Montserrat,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:radial-gradient(1100px 700px at 50% 42%,#0f2b57 0%,var(--bg) 60%);color:var(--text);font-family:var(--font);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;padding:24px;overflow:hidden}
-.wrap{display:flex;flex-direction:column;align-items:center;gap:26px;text-align:center;animation:fadeIn .6s ease both}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.halo{position:relative;width:132px;height:132px;display:grid;place-items:center}
-.halo::before{content:"";position:absolute;inset:-40px;border-radius:50%;background:radial-gradient(circle,rgba(59,150,255,.55),rgba(59,150,255,0) 65%);filter:blur(6px);animation:pulse 2.4s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:.55;transform:scale(.92)}50%{opacity:1;transform:scale(1.06)}}
-.logo{width:118px;height:118px;border-radius:30px;overflow:hidden;box-shadow:0 22px 60px rgba(11,102,255,.5);position:relative;z-index:1}
-.logo img{width:100%;height:100%;object-fit:cover;display:block}
-.brand strong{display:block;font-size:23px;letter-spacing:-.02em;color:#fff}
-.brand span{display:block;font-size:12.5px;color:#8fb0e6;margin-top:4px;letter-spacing:.02em}
-.bar{width:220px;max-width:70vw;height:5px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:2px}
-.bar i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--blue2));box-shadow:0 0 12px rgba(16,181,255,.7);animation:fill 10s linear forwards}
-@keyframes fill{from{width:0}to{width:100%}}
-.tip{font-size:12.5px;color:var(--muted);min-height:16px}
-@media(prefers-reduced-motion:reduce){.halo::before,.bar i{animation-duration:.01s}}
+body{margin:0;background:radial-gradient(1200px 820px at 50% 38%,#123262 0%,#0a1f42 46%,#04122b 100%);color:var(--text);font-family:var(--font);display:flex;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;padding:24px;overflow:hidden}
+/* brilho azul de fundo, discreto */
+.aura{position:fixed;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(59,150,255,.22),rgba(59,150,255,0) 68%);filter:blur(20px);top:34%;left:50%;transform:translate(-50%,-50%);animation:breathe 3.4s ease-in-out infinite;pointer-events:none}
+@keyframes breathe{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(.94)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}}
+.load{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;width:min(460px,90vw);animation:fadeIn .5s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.msg{font-size:clamp(18px,4.5vw,24px);font-weight:700;letter-spacing:-.01em;color:#fff;min-height:30px;transition:opacity .3s}
+/* sabre de luz azul: trilho + segmento brilhante varrendo */
+.saber{position:relative;width:min(340px,80vw);height:3px;border-radius:999px;background:rgba(120,170,255,.14);overflow:hidden}
+.saber::before{content:"";position:absolute;top:0;left:-45%;height:100%;width:42%;border-radius:999px;background:linear-gradient(90deg,transparent,var(--blue2),var(--blue),transparent);box-shadow:0 0 20px 3px rgba(59,176,255,.85);animation:sweep 1.15s cubic-bezier(.45,0,.25,1) infinite}
+@keyframes sweep{0%{left:-45%}100%{left:103%}}
+.sub{font-size:13px;color:var(--muted);font-weight:400;min-height:18px}
+.dots{display:inline-block;width:18px;text-align:left}
+@media(prefers-reduced-motion:reduce){.saber::before{animation-duration:.01s}.aura{animation:none}}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="halo"><div class="logo"><img src="/assets/logo-mark.png" alt="AILogic Hub"></div></div>
-    <div class="brand"><strong>AILogic Hub</strong><span>Inteligência Imobiliária</span></div>
-    <div class="bar"><i></i></div>
-    <div class="tip" id="tip">Preparando sua operação…</div>
+  <div class="aura"></div>
+  <div class="load">
+    <div class="msg" id="tip">Sincronizando sua operação</div>
+    <div class="saber"></div>
+    <div class="sub" id="sub">Isso leva só um instante<span class="dots" id="dots"></span></div>
   </div>
 <script>
 (function(){
   // gate: sem sessão -> login (não mostra a splash)
   try{ if(!(window.hubAuth && window.hubAuth.token && window.hubAuth.token())){ location.replace('/login'); return; } }catch(_){ location.replace('/login'); return; }
 
-  var DASH='/api/dash', WA='/api/wa', DATA='/api/data';
+  var DASH='/api/dash', WA='/api/wa';
   function gj(url){ return fetch(url,{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}); }
 
-  // pré-carrega SÓ o que a Visão Geral consome (resumo/dash/funil/chats) durante os 10s.
-  // (leads/imobiliarias eram baixados à toa — o fromPreload nem lê -> removidos.)
+  // infos dinâmicas coerentes com o que o Hub carrega
+  var MSGS=[
+    'Sincronizando imóveis e leads',
+    'Montando seu funil de negócios',
+    'Conectando o atendimento no WhatsApp',
+    'Reunindo os números do painel',
+    'Aplicando suas permissões de acesso',
+    'Preparando o Estúdio de Marketing'
+  ];
+  var tip=document.getElementById('tip'), i=0, done=false;
+  var rot=setInterval(function(){ if(done) return; i=(i+1)%MSGS.length; tip.style.opacity='0'; setTimeout(function(){ tip.textContent=MSGS[i]; tip.style.opacity='1'; },160); },1600);
+  // reticências animadas
+  var d=document.getElementById('dots'), dn=0;
+  var dotInt=setInterval(function(){ dn=(dn+1)%4; d.textContent='.'.repeat(dn); },420);
+
+  // pré-carrega SÓ o que a Visão Geral consome (resumo/dash/funil/chats)
   var pre={ ts:Date.now() };
   Promise.all([
-    gj(DASH+'?action=resumo').then(function(d){pre.resumo=d;}),
-    gj(DASH).then(function(d){pre.dash=d;}),
-    gj(DASH+'?action=funil').then(function(d){pre.funil=d;}),
-    gj(WA+'?action=chats').then(function(d){pre.chats=d;})
+    gj(DASH+'?action=resumo').then(function(x){pre.resumo=x;}),
+    gj(DASH).then(function(x){pre.dash=x;}),
+    gj(DASH+'?action=funil').then(function(x){pre.funil=x;}),
+    gj(WA+'?action=chats').then(function(x){pre.chats=x;})
   ]).then(function(){
     try{ sessionStorage.setItem('hub_preload', JSON.stringify(pre)); }catch(_){}
-    var t=document.getElementById('tip'); if(t)t.textContent='Tudo pronto ✓';
+    done=true; clearInterval(dotInt); if(d) d.textContent='';
+    tip.style.opacity='0'; setTimeout(function(){ tip.textContent='Tudo pronto'; tip.style.opacity='1'; var s=document.getElementById('sub'); if(s) s.textContent='Abrindo seu painel'; },160);
   }).catch(function(){});
 
   // tempo FIXO de 10s -> entra na Visão Geral (dados já em cache)
-  setTimeout(function(){ location.replace('/visaogeral'); }, 10000);
+  setTimeout(function(){ clearInterval(rot); location.replace('/visaogeral'); }, 10000);
 })();
 </script>
 </body>
