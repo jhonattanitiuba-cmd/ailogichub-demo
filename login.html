@@ -25,12 +25,12 @@ strong,b,h1,h2,h3,.btn,label{font-weight:700}
 body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;overflow:hidden}
 /* painel esquerdo (marca) */
 .brandside{position:relative;background:#000108;color:#e8eefb;padding:58px 62px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
-.glow{position:absolute;border-radius:50%;filter:blur(80px);z-index:1;mix-blend-mode:screen;pointer-events:none}
+.glow{position:absolute;border-radius:50%;filter:blur(80px);z-index:3;mix-blend-mode:screen;pointer-events:none}
 .g1{width:470px;height:470px;background:#2b7dff;top:-150px;right:-140px;animation:float1 9s ease-in-out infinite}
 .g2{width:400px;height:400px;background:#1e6bff;bottom:-180px;left:-130px;animation:float2 11s ease-in-out infinite}
 .g3{width:300px;height:300px;background:#3aa0ff;top:44%;left:32%;animation:float3 7.5s ease-in-out infinite}
 .grid-bg{position:absolute;inset:0;z-index:1;background-image:linear-gradient(rgba(120,170,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(120,170,255,.06) 1px,transparent 1px);background-size:54px 54px;mask-image:radial-gradient(circle at 30% 26%,#000,transparent 74%)}
-.bs-top,.bs-mid,.bs-bot{position:relative;z-index:2}
+.bs-top,.bs-mid,.bs-bot{position:relative;z-index:1}
 .brandlogo{width:min(460px,84%);height:auto;display:block;margin:0 auto;mix-blend-mode:screen;animation:logoFade 1.3s cubic-bezier(.22,.61,.36,1) .12s both}
 .hero h1{font-size:40px;line-height:1.1;letter-spacing:-.03em;margin:0 0 16px;font-weight:800}
 .hero p{color:#b8cdf0;font-size:15px;line-height:1.6;max-width:420px;margin:0}
@@ -107,7 +107,7 @@ body{margin:0;font-family:var(--font);background:#f6f9fd;color:#0f172a;min-heigh
 </head>
 <body>
   <section class="brandside">
-    <div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div><div class="grid-bg"></div>
+    <div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div>
     <div class="bs-top"><img class="brandlogo" src="/assets/logo-perfil.png" alt="AI Logic Hub"></div>
   </section>
 
