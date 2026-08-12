@@ -64,7 +64,8 @@ body.leaving .formside{transform:translateX(24px);transition:transform .42s ease
 .row label{display:flex;align-items:center;gap:7px;color:#475569;cursor:pointer}
 .row a{color:var(--blue);text-decoration:none;font-weight:700}
 .btn{width:auto;min-width:170px;height:44px;padding:0 22px;border:0;border-radius:11px;background:linear-gradient(135deg,#0b66ff,#0a53c9);color:#fff;font:inherit;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 8px 20px rgba(11,102,255,.24);transition:transform .12s,box-shadow .15s,filter .15s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
-.btn:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(11,102,255,.32);filter:brightness(1.05)}
+.btn{transition:transform .12s,box-shadow .15s,background .2s ease}
+.btn:hover{background:#000108;transform:translateY(-1px);box-shadow:0 12px 26px rgba(0,4,20,.5)}
 .btn:active{transform:translateY(0)}
 .btn svg{width:16px;height:16px}
 /* select de acesso (demo): logins pre-carregados por grupo */
@@ -120,33 +121,22 @@ body.leaving .formside{transform:translateX(24px);transition:transform .42s ease
       <div class="head"><h2>Acessar o Hub</h2><div class="sub">Entre com suas credenciais corporativas.</div></div>
       <div class="field f1"><label for="email">E-mail corporativo</label>
         <div class="inp"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Z"/><path d="M3 7l9 6 9-6"/></svg></span>
-        <select id="email" name="email_hub" required>
-          <optgroup label="Diretoria e Admin">
-            <option value="diretoria@ailogichub.app" selected>Diretoria · diretoria@ailogichub.app</option>
-          </optgroup>
-          <optgroup label="Comercial">
-            <option value="comercial@ailogichub.app">Comercial interno · comercial@ailogichub.app</option>
-            <option value="comercial-rep@ailogichub.app">Comercial representante · comercial-rep@ailogichub.app</option>
-          </optgroup>
-          <optgroup label="Imobiliária">
-            <option value="gestor@ailogichub.app">Gestor · gestor@ailogichub.app</option>
-            <option value="corretor@ailogichub.app">Corretor · corretor@ailogichub.app</option>
-            <option value="autonomo@ailogichub.app">Corretor autônomo · autonomo@ailogichub.app</option>
-          </optgroup>
-          <optgroup label="Jurídico e Financeiro">
-            <option value="juridico@ailogichub.app">Jurídico · juridico@ailogichub.app</option>
-            <option value="financeiro@ailogichub.app">Financeiro · financeiro@ailogichub.app</option>
-          </optgroup>
-          <optgroup label="Marketing">
-            <option value="marketing@ailogichub.app">Marketing · marketing@ailogichub.app</option>
-          </optgroup>
-          <optgroup label="Portais">
-            <option value="proprietario@ailogichub.app">Proprietário · proprietario@ailogichub.app</option>
-            <option value="anunciante@ailogichub.app">Anunciante · anunciante@ailogichub.app</option>
-            <option value="cliente@ailogichub.app">Cliente · cliente@ailogichub.app</option>
-          </optgroup>
-        </select>
-        <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div></div>
+        <input id="email" class="haseye" type="email" name="email_hub" list="logins" placeholder="Selecione ou digite seu e-mail" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" required>
+        <button type="button" class="eye" id="clrEmail" aria-label="Apagar" title="Apagar" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <datalist id="logins">
+          <option value="diretoria@ailogichub.app">Diretoria</option>
+          <option value="comercial@ailogichub.app">Comercial interno</option>
+          <option value="comercial-rep@ailogichub.app">Comercial representante</option>
+          <option value="gestor@ailogichub.app">Gestor</option>
+          <option value="corretor@ailogichub.app">Corretor</option>
+          <option value="autonomo@ailogichub.app">Corretor autônomo</option>
+          <option value="juridico@ailogichub.app">Jurídico</option>
+          <option value="financeiro@ailogichub.app">Financeiro</option>
+          <option value="marketing@ailogichub.app">Marketing</option>
+          <option value="proprietario@ailogichub.app">Proprietário</option>
+          <option value="anunciante@ailogichub.app">Anunciante</option>
+          <option value="cliente@ailogichub.app">Cliente</option>
+        </datalist></div></div>
       <div class="field f2"><label for="pass">Senha</label>
         <div class="inp"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V8a6 6 0 0 1 12 0v2"/><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M12 15v2"/></svg></span>
         <input id="pass" class="haseye" type="password" name="pass_hub" placeholder="••••••••" autocomplete="new-password" required>
@@ -209,12 +199,18 @@ document.getElementById('form').addEventListener('submit',async function(e){
 <script>
 /* ---- Demo: logins pre-carregados por grupo -> preenche a senha padrao ao escolher ---- */
 (function(){
-  var sel=document.getElementById('email'), pass=document.getElementById('pass');
-  if(!sel||!pass) return;
-  var DEMO='AiLogicHub@2026';
-  function fill(){ if(/@ailogichub\.app$/i.test(sel.value)) pass.value=DEMO; }
-  sel.addEventListener('change',fill);
-  fill(); // ja preenche pro acesso pre-selecionado
+  var email=document.getElementById('email'), pass=document.getElementById('pass'), clr=document.getElementById('clrEmail');
+  if(!email||!pass) return;
+  var DEMO_PASS='AiLogicHub@2026';
+  var DEMO=['diretoria','comercial','comercial-rep','gestor','corretor','autonomo','juridico','financeiro','marketing','proprietario','anunciante','cliente'].map(function(x){return x+'@ailogichub.app';});
+  function onEmail(){
+    var v=email.value.trim().toLowerCase();
+    if(clr) clr.style.display=v?'grid':'none';
+    if(DEMO.indexOf(v)>=0) pass.value=DEMO_PASS;   // login demo -> preenche senha; e-mail novo NAO
+  }
+  email.addEventListener('input',onEmail); email.addEventListener('change',onEmail);
+  if(clr) clr.addEventListener('click',function(){ email.value=''; pass.value=''; clr.style.display='none'; email.focus(); });
+  onEmail();
   // olhinho: mostra/oculta a senha
   var eye=document.getElementById('eye');
   if(eye){ eye.addEventListener('click',function(){ var show=pass.type==='password'; pass.type=show?'text':'password'; eye.classList.toggle('on',show); eye.title=show?'Ocultar senha':'Mostrar senha'; eye.setAttribute('aria-label',eye.title); eye.innerHTML=show
