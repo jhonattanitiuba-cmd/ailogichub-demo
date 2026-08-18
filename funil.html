@@ -224,6 +224,9 @@ a{text-decoration:none;color:inherit}
       +'</div>';
   }
 
+  // rotulo de etapa (Revisao 3: nao ha "Distribuido" antes da visita; a etapa e "Envio de imoveis")
+  var ETLBL={distribuido:'Envio de imóveis'};
+  function _etLabel(key,nome){ return ETLBL[key]||nome||key; }
   function render(etapas,cards){
     dealsById={}; cards.forEach(function(c){dealsById[c.id]=c;});
     if((!etapas||!etapas.length)&&cards.length){var seen={};etapas=[];cards.forEach(function(c){if(c.etapa&&!seen[c.etapa]){seen[c.etapa]=1;etapas.push({key:c.etapa,nome:c.etapa});}});}
@@ -231,7 +234,7 @@ a{text-decoration:none;color:inherit}
     K.innerHTML=etapas.map(function(e,i){
       var list=cards.filter(function(c){return c.etapa===e.key;});
       var val=list.reduce(function(a,c){return a+(Number(c.valor)||0);},0);
-      return '<div class="kcol"><div class="kcol-head"><div class="t">'+(i+1)+'. '+esc(e.nome)+'</div><div class="s">'+list.length+' negócios'+(val?' · '+brl(val):'')+'</div></div>'
+      return '<div class="kcol"><div class="kcol-head"><div class="t">'+(i+1)+'. '+esc(_etLabel(e.key,e.nome))+'</div><div class="s">'+list.length+' negócios'+(val?' · '+brl(val):'')+'</div></div>'
         +'<div class="kbody" data-etapa="'+esc(e.key)+'">'+(list.map(card).join('')||'<div style="text-align:center;color:var(--muted);font-size:11px;padding:8px">·</div>')+'</div></div>';
     }).join('');
     wireDnD();computePanels(etapas,cards);
@@ -239,7 +242,7 @@ a{text-decoration:none;color:inherit}
 
   function computePanels(etapas,cards){
     var total=cards.length, sum=cards.reduce(function(a,c){return a+(Number(c.valor)||0);},0);
-    var nome={}; (etapas||[]).forEach(function(e){nome[e.key]=e.nome||e.key;});
+    var nome={}; (etapas||[]).forEach(function(e){nome[e.key]=_etLabel(e.key,e.nome);});
     function cat(c){return String(nome[c.etapa]||c.etapa||'');}
     var visitas=cards.filter(function(c){return /visit/i.test(cat(c));}).length;
     var propostas=cards.filter(function(c){return /propost/i.test(cat(c));}).length;

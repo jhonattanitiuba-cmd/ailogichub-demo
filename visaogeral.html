@@ -190,7 +190,7 @@ tr:last-child td{border-bottom:0}td.strong{font-weight:700;color:var(--heading)}
     var fn=document.getElementById('funnel');
     if(!_isAdmin){
       var ORD=['novo','qualif_ia','distribuido','atendimento','visita','proposta','documentacao','fechado','perdido'];
-      var LBL={novo:'Novo lead',qualif_ia:'Qualificação',distribuido:'Distribuído',atendimento:'Atendimento',visita:'Visita',proposta:'Proposta',documentacao:'Documentação',fechado:'Fechado',perdido:'Perdido'};
+      var LBL={novo:'Novo lead',qualif_ia:'Qualificação',distribuido:'Envio de imóveis',atendimento:'Atendimento',visita:'Visita',proposta:'Proposta',documentacao:'Documentação',fechado:'Fechado',perdido:'Perdido'};
       var byE={}; cards.forEach(function(c){ byE[c.etapa]=(byE[c.etapa]||0)+1; });
       var pres=ORD.filter(function(k){return byE[k];}), base0=cards.length||1;
       fn.innerHTML=pres.length?pres.map(function(k,i){ var n=byE[k], pct=Math.round(n/base0*100); return (i?'<span class="farrow">›</span>':'')+'<div class="fstep"><div class="fn">'+esc(LBL[k]||k)+'</div><div class="fv">'+n+'</div><div class="fp">'+pct+'%</div></div>'; }).join(''):'<div class="empty">Sem negócios no seu funil.</div>';

@@ -218,7 +218,7 @@
     var p = _norm(perfil);
     if (ADMIN_ROLES_MENU[p] || p.indexOf('admin') >= 0 || p.indexOf('diretor') >= 0 || p.indexOf('dono') >= 0 || p.indexOf('owner') >= 0 || p.indexOf('super') >= 0) return 'admin';
     if (p.indexOf('advogad') >= 0 || p.indexOf('juridic') >= 0 || p.indexOf('associad') >= 0) return 'juridico';
-    if (p.indexOf('gestor') >= 0) return 'gestor';
+    if (p.indexOf('gestor') >= 0 || p.indexOf('imobili') >= 0) return 'gestor';
     if (p.indexOf('comercial') >= 0) return 'comercial';
     if (p.indexOf('corretor') >= 0 || p.indexOf('parceiro') >= 0 || p.indexOf('autonom') >= 0) return 'corretor';
     if (p.indexOf('financeir') >= 0) return 'financeiro';
