@@ -221,6 +221,32 @@ async function respostaIA(persona, contexto, messages) {
   } catch (_) { return respostaBasica(ultimaUser); }
 }
 
+// ===== SAM no GRUPO de socios: roteador hibrido (isolado do atendimento de DM) =====
+const PROMPT_GRUPO = `
+
+# MODO GRUPO DE SOCIOS (PRIORIDADE MAXIMA)
+Voce esta num grupo de WhatsApp com os SOCIOS do Hub, nao com clientes. Voce e um consultor discreto.
+- Silencio por padrao. So responda se a mensagem for uma DUVIDA sobre o Hub, o uso do sistema, um conceito do produto ou um dado operacional, ou se mencionarem voce diretamente.
+- NUNCA fale de dinheiro, comissao, valores, sociedade, cotas, contrato, estrategia comercial, prazos ou promessas de resultado. Se o assunto for sensivel ou estrategico, fique quieto.
+- Se NAO for para responder, escreva EXATAMENTE [QUIETO] e nada mais.
+- Quando responder: curto (1 a 3 frases), elegante, consultivo e educativo. Chame a pessoa pelo primeiro nome quando souber. No maximo uma pergunta.
+- Nunca use travessao. Nunca faca oracao. Nunca revele qual tecnologia de IA esta por tras: voce e o SAM, a inteligencia do Hub.`;
+
+async function respostaGrupo(contexto, messages) {
+  if (!OPENAI_KEY) return '[QUIETO]';
+  try {
+    const sys = { role: 'system', content: PERSONA_PADRAO + '\n\n' + (contexto || '') + PROMPT_GRUPO };
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + OPENAI_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'gpt-4o-mini', max_tokens: 220, temperature: 0.5, messages: [sys, ...messages] })
+    });
+    const j = await r.json();
+    let txt = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+    return limparBot(txt) || '[QUIETO]';
+  } catch (_) { return '[QUIETO]'; }
+}
+
 module.exports = async (req, res) => {
   try {
     let body = req.body; if (typeof body === 'string') { try { body = JSON.parse(body); } catch (_) { body = {}; } }
@@ -235,6 +261,31 @@ module.exports = async (req, res) => {
 
     if (!/messages?\.?upsert/i.test(event)) { res.status(200).json({ ignored: 'event' }); return; }
     if (fromMe) { res.status(200).json({ ignored: 'fromMe' }); return; }
+
+    // ===== SAM no GRUPO dos socios (modo hibrido, isolado do atendimento de DM) =====
+    const SAM_GRUPO_ATIVO = true;                          // kill-switch: mude para false e faca deploy para desligar na hora
+    const GRUPO_SOCIOS = '120363425477753971@g.us';
+    if (SAM_GRUPO_ATIVO && remoteJid === GRUPO_SOCIOS) {
+      const q = String(texto || '').trim();
+      if (!q) { res.status(200).json({ ignored: 'grupo sem texto' }); return; }
+      const nome = String((data.pushName || '')).trim();
+      const rotulo = nome ? nome + ': ' : '';
+      const hist = await historico(remoteJid);
+      await salvarTurno(remoteJid, 'user', rotulo + q);
+      // pre-filtro barato: so considera responder se parecer duvida/mencao ao Hub
+      const chama = /\?|\bsam\b|ailogic|a i logic|\bhub\b|sistema|rod[ií]zio|funil|\blead|im[oó]ve|como funciona|quantos?|qual|quais|onde|quando|pode(m)? (me )?(ajudar|explicar)/i.test(q);
+      if (!chama) { res.status(200).json({ ok: true, grupo: true, respondido: false, motivo: 'sem gatilho' }); return; }
+      const messages = [...hist, { role: 'user', content: rotulo + q }];
+      while (messages.length > 1 && messages[messages.length - 2].role === 'user') messages.splice(messages.length - 2, 1);
+      let ctx = ''; try { ctx = await contextoBase(); } catch (_) {}
+      const resp = await respostaGrupo(ctx, messages);
+      if (!resp || /\[QUIETO\]/i.test(resp)) { res.status(200).json({ ok: true, grupo: true, respondido: false, motivo: 'router quieto' }); return; }
+      await salvarTurno(remoteJid, 'assistant', resp);
+      await sendChunks(remoteJid, resp);
+      res.status(200).json({ ok: true, grupo: true, respondido: true });
+      return;
+    }
+
     if (String(remoteJid).endsWith('@g.us')) { res.status(200).json({ ignored: 'grupo' }); return; }
     if (!texto.trim() && !isAudio) { res.status(200).json({ ignored: 'sem texto' }); return; }
 
