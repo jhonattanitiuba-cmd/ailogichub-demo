@@ -34,7 +34,9 @@ async function getCatalogo() {
   try {
     const r = await db(
       "select codigo, tipo, finalidade, cidade, bairro, quartos, suites, vagas, area_util, preco " +
-      "from imoveis where deleted_at is null and lower(status::text)='disponivel' order by created_at desc limit 30");
+      "from imoveis where deleted_at is null and lower(status::text)='disponivel' " +
+      "and ((lower(finalidade::text)='venda' and preco>=700000) or (lower(finalidade::text) in ('locacao','temporada') and preco>=4000)) " +
+      "order by preco desc limit 30");
     const linhas = (r.rows || []).map(x => {
       const specs = [x.quartos ? x.quartos + 'q' : '', x.suites ? x.suites + ' suite(s)' : '', x.vagas ? x.vagas + ' vaga(s)' : '', x.area_util ? x.area_util + 'm2' : ''].filter(Boolean).join(', ');
       const preco = x.preco != null ? ('R$ ' + Number(x.preco).toLocaleString('pt-BR')) : 'sob consulta';
