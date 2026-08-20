@@ -62,7 +62,8 @@ const MAP_TIPO = { 'Apartamento':'apartamento','Casa':'casa','Sala comercial':'s
 const MAP_FIN  = { 'Venda':'venda','Locação':'locacao','Temporada':'temporada' };
 const MAP_ST   = { 'Disponível':'disponivel','Reservado':'reservado','Vendido':'vendido','Locado':'locado','Inativo':'inativo' };
 // Cota de corretores por plano (REV2 item 02): base inclui 2; a partir do 3o exige plano.
-const PLAN_QUOTAS = { _base: 2, '': 2, free: 2, gratis: 2, starter: 2, basico: 2, essencial: 2, pro: 5, plus: 5, avancado: 5, premium: Infinity, ilimitado: Infinity, enterprise: Infinity };
+// Modelo comercial atual: sem teto de corretores por plano (unico custo = taxa de ativacao do WhatsApp). Cota liberada.
+const PLAN_QUOTAS = { _base: Infinity, '': Infinity, free: Infinity, gratis: Infinity, starter: Infinity, basico: Infinity, essencial: Infinity, pro: Infinity, plus: Infinity, avancado: Infinity, premium: Infinity, ilimitado: Infinity, enterprise: Infinity };
 
 function imobOut(r) {
   const e = r.extra || {};
