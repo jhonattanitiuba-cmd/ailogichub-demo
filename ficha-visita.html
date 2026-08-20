@@ -124,6 +124,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:"Source Serif
       +'<div class="f"><span>Plataforma</span><b>AI Logic Hub</b></div>'
     +'</div>'
 
+    +'<div id="handoff"></div>'
     +'<h2>Termo de visita</h2>'
     +'<p class="clause"><b class="n">1.</b> O cliente confirma o interesse em visitar o imóvel acima, no horário agendado, com o acompanhamento do corretor responsável indicado pela plataforma.</p>'
     +'<p class="clause"><b class="n">2.</b> Esta ficha, assinada digitalmente, registra o vínculo do atendimento: <b>o negócio referente a este imóvel fica associado ao corretor que realizar esta visita</b>, preservando a rede de parceiros e evitando conflito de atendimento.</p>'
@@ -140,6 +141,20 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:"Source Serif
 
     document.getElementById('doc').innerHTML=html;
     document.title='Ficha de Visita · '+titulo+' · AI Logic Hub';
+    carregarHandoff();
+  }
+  function carregarHandoff(){
+    var conv=null;try{conv=JSON.parse(localStorage.getItem('ail_atendimento')||'null');}catch(_){}
+    if(!conv||!conv.length)return;
+    fetch('/api/sam-web?action=resumo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:conv})}).then(function(r){return r.json();}).then(function(h){
+      if(!h||(!h.resumo&&!h.perfil&&!(h.checklist&&h.checklist.length)))return;
+      var el=document.getElementById('handoff');if(!el)return;
+      var chk=(h.checklist||[]).map(function(x){return '<li style="margin:2px 0">'+esc(x)+'</li>';}).join('');
+      el.innerHTML='<h2>Passagem do atendimento</h2>'
+        +(h.perfil?'<div class="grid"><div class="f full"><span>Perfil do cliente</span><b>'+esc(h.perfil)+'</b></div></div>':'')
+        +(chk?'<p style="margin:8px 0 4px;font-family:Montserrat,Arial,sans-serif;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">Checklist da visita (critérios do cliente)</p><ul style="margin:0 0 10px;padding-left:18px">'+chk+'</ul>':'')
+        +(h.resumo?'<p class="clause">'+esc(h.resumo)+'</p>':'');
+    }).catch(function(){});
   }
 })();
 </script>
