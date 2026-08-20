@@ -327,7 +327,7 @@
   }
 
   /* ---------- 11) widgets clicáveis: cada KPI leva à sua página ---------- */
-  var KPINAV={imobili:'imobiliarias',lead:'leads','imóve':'imoveis',imove:'imoveis','negóci':'funil',negoci:'funil',funil:'funil',pipeline:'funil',corretor:'corretores',equipe:'corretores',pesso:'pessoas',contato:'pessoas',agenda:'agenda',visita:'agenda',whatsapp:'whatsapp',convers:'whatsapp',mensag:'whatsapp','e-mail':'emails',email:'emails','captaç':'captacao',captac:'captacao',assinatura:'assinaturas',documento:'assinaturas','crédito':'credito',credito:'credito',financiamento:'credito','locaç':'locacao',locac:'locacao',financ:'financeiro',repass:'financeiro','anúnci':'anuncios',anunci:'anuncios','rodízio':'anuncios',mapa:'mapa',relat:'relatorios',insight:'insights',suporte:'suporte'};
+  var KPINAV={imobili:'imobiliarias',lead:'leads','imóve':'imoveis',imove:'imoveis','negóci':'funil',negoci:'funil',funil:'funil',pipeline:'funil',corretor:'corretores',equipe:'corretores',pesso:'pessoas',contato:'pessoas',agenda:'agenda',visita:'agenda',whatsapp:'whatsapp',convers:'whatsapp',mensag:'whatsapp','e-mail':'emails',email:'emails',assinatura:'assinaturas',documento:'assinaturas','crédito':'credito',credito:'credito',financiamento:'credito','locaç':'locacao',locac:'locacao',financ:'financeiro',repass:'financeiro','anúnci':'anuncios',anunci:'anuncios','rodízio':'anuncios',mapa:'mapa',relat:'relatorios',insight:'insights',suporte:'suporte'};
   function _curSlug(){ return (location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral'; }
   function widgetTarget(el){ var h=el.querySelector('h3'); var t=((h&&h.textContent)||el.textContent||'').toLowerCase(); for(var k in KPINAV){ if(t.indexOf(k)>=0) return KPINAV[k]; } return null; }
   function markWidgets(root){ root=root||document; [].slice.call(root.querySelectorAll('.kpi')).forEach(function(el){ if(el.hasAttribute('data-kpinav')) return; var tg=widgetTarget(el); if(tg && tg!==_curSlug()){ el.setAttribute('data-kpinav',tg); el.style.cursor='pointer'; el.setAttribute('title','Abrir '+tg); } }); }
@@ -666,7 +666,7 @@
     ['comercial','Comercial',['leads','funil','locacao','pessoas']],
     ['adm','Administrativo',['imobiliarias','corretores','administrador','suporte']],
     ['juridico','Juridico',['assinaturas']],
-    ['operacoes','Operacoes',['imoveis','captacao','mapa','agenda','whatsapp','emails']],
+    ['operacoes','Operacoes',['imoveis','mapa','agenda','whatsapp','emails']],
     ['trafego','Trafego',['anuncios']],
     ['marketing','Marketing',['site','vitrine']],
     ['financeiro','Financeiro',['financeiro','credito','parceria','relatorios']],
