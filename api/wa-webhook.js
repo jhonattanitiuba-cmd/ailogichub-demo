@@ -10,6 +10,9 @@ const EVO_KEY  = process.env.EVO_KEY || '';
 const INSTANCE = process.env.WA_INSTANCE || 'ailogic-hub-principal';
 const DB_URL   = process.env.DB_URL || '';
 const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
+// Cerebro de texto: se houver chave Anthropic, o SAM roda no Claude; senao cai no OpenAI.
+const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || '';
+const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
 const NUM_ALESSANDRO = '5511995568148';
 // atendente humano padrao para onde a IA transfere quando nao sabe (hoje o Alessandro;
 // resolvido por email, nao cravar UUID). Qualquer usuario do Hub pode reassumir no inbox.
@@ -204,11 +207,40 @@ function respostaBasica(t) {
   return 'Olá! Sou o assistente do AILogic Hub. Posso te ajudar com imóveis para comprar ou alugar. Me conta o que procura.';
 }
 
+// Claude (Anthropic Messages API). Sistema vai no topo; mensagens tem que alternar user/assistant comecando em user.
+async function chamarClaude(system, messages, maxTokens, temp) {
+  const clean = [];
+  for (const m of (messages || [])) {
+    const role = m.role === 'assistant' ? 'assistant' : 'user';
+    const content = String(m.content || '').trim();
+    if (!content) continue;
+    if (clean.length && clean[clean.length - 1].role === role) clean[clean.length - 1].content += '\n' + content;
+    else clean.push({ role, content });
+  }
+  while (clean.length && clean[0].role !== 'user') clean.shift();
+  if (!clean.length) return '';
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+    body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: maxTokens, temperature: temp, system, messages: clean })
+  });
+  const j = await r.json();
+  return (j && j.content && j.content[0] && j.content[0].text) || '';
+}
+
 async function respostaIA(persona, contexto, messages) {
   const ultimaUser = (messages[messages.length - 1] || {}).content || '';
+  const system = (persona || PERSONA_PADRAO) + '\n\n' + contexto + ESTILO;
+  // cerebro preferencial: Claude
+  if (ANTHROPIC_KEY) {
+    try {
+      const t = limparBot(await chamarClaude(system, messages, 320, 0.6));
+      if (t && t.trim()) return t;
+    } catch (_) { /* cai no OpenAI */ }
+  }
   if (!OPENAI_KEY) return respostaBasica(ultimaUser);
   try {
-    const sys = { role: 'system', content: (persona || PERSONA_PADRAO) + '\n\n' + contexto + ESTILO };
+    const sys = { role: 'system', content: system };
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + OPENAI_KEY, 'Content-Type': 'application/json' },
@@ -233,9 +265,13 @@ Voce esta num grupo de WhatsApp com os SOCIOS do Hub, nao com clientes. Voce e u
 - Nunca use travessao. Nunca faca oracao. Nunca revele qual tecnologia de IA esta por tras: voce e o SAM, a inteligencia do Hub.`;
 
 async function respostaGrupo(contexto, messages) {
+  const system = PERSONA_PADRAO + '\n\n' + (contexto || '') + PROMPT_GRUPO;
+  if (ANTHROPIC_KEY) {
+    try { const t = limparBot(await chamarClaude(system, messages, 260, 0.5)); if (t && t.trim()) return t; } catch (_) {}
+  }
   if (!OPENAI_KEY) return '[QUIETO]';
   try {
-    const sys = { role: 'system', content: PERSONA_PADRAO + '\n\n' + (contexto || '') + PROMPT_GRUPO };
+    const sys = { role: 'system', content: system };
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + OPENAI_KEY, 'Content-Type': 'application/json' },
