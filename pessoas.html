@@ -87,24 +87,22 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
 
 <main class="main">
   <header class="header">
-    <div class="headline"><h1>Pessoas &amp; Contatos</h1><p>Visão unificada de clientes (leads) e equipe (corretores), dados reais.</p></div>
+    <div class="headline"><h1>Pessoas &amp; Contatos</h1><p>Clientes e leads da sua base, com dados reais.</p></div>
     <div class="head-actions"><button class="icon-btn" id="themeToggle" title="Alternar tema"><svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z'/></svg></button></div>
   </header>
 
   <section class="kpis">
-    <article class="kpi"><h3>Total de pessoas</h3><div class="value" data-k="total">·</div><small>clientes + equipe</small></article>
-    <article class="kpi"><h3>Clientes</h3><div class="value" data-k="clientes">·</div><small>leads no banco</small></article>
-    <article class="kpi"><h3>Equipe</h3><div class="value" data-k="equipe">·</div><small>corretores / usuários</small></article>
+    <article class="kpi"><h3>Total de clientes</h3><div class="value" data-k="total">·</div><small>leads na base</small></article>
     <article class="kpi"><h3>Com telefone</h3><div class="value" data-k="fone">·</div><small>contatáveis</small></article>
+    <article class="kpi"><h3>Com e-mail</h3><div class="value" data-k="mail">·</div><small>com e-mail cadastrado</small></article>
   </section>
 
   <section class="panel">
     <div class="toolbar">
       <input class="inp search" id="q" placeholder="Buscar nome, telefone ou e-mail..." />
-      <select class="inp" id="fTipo"><option value="">Todos</option><option value="cliente">Clientes</option><option value="equipe">Equipe</option></select>
     </div>
     <div class="table-wrap">
-      <table><thead><tr><th>Nome</th><th>Tipo</th><th>Telefone</th><th>E-mail</th><th>Imobiliária</th></tr></thead>
+      <table><thead><tr><th>Nome</th><th>Telefone</th><th>E-mail</th><th>Status</th><th>Imobiliária</th></tr></thead>
       <tbody id="rows"><tr><td colspan="5" class="empty">Carregando…</td></tr></tbody></table>
     </div>
   </section>
@@ -132,14 +130,14 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     var tb=document.getElementById('rows');
     if(!list.length){tb.innerHTML='<tr><td colspan="5" class="empty">Nenhuma pessoa encontrada.</td></tr>';return;}
     tb.innerHTML=list.map(function(p,ix){
-      return '<tr data-i="'+ix+'"><td class="strong">'+esc(p.nome||'—')+'</td><td>'+tipoBadge(p.tipo)+'</td><td>'+esc(p.telefone||'—')+'</td><td>'+esc(p.email||'—')+'</td><td>'+esc(imobMap[p.imobiliaria_id]||'—')+'</td></tr>';
+      return '<tr data-i="'+ix+'"><td class="strong">'+esc(p.nome||'—')+'</td><td>'+esc(p.telefone||'—')+'</td><td>'+esc(p.email||'—')+'</td><td>'+(p.papel?'<span class="badge blue">'+esc(p.papel)+'</span>':'—')+'</td><td>'+esc(imobMap[p.imobiliaria_id]||'—')+'</td></tr>';
     }).join('');
     Array.prototype.forEach.call(tb.querySelectorAll('tr'),function(tr){tr.addEventListener('click',function(){openIt(list[+tr.getAttribute('data-i')]);});});
   }
   function openIt(p){ if(!p)return;
     document.getElementById('mTit').textContent=p.nome||'Pessoa';
-    document.getElementById('mSub').textContent=(p.tipo==='equipe'?'Equipe':'Cliente')+(p.papel?' · '+p.papel:'');
-    document.getElementById('mGrid').innerHTML=fld('Telefone',p.telefone)+fld('E-mail',p.email)+fld('Tipo',p.tipo==='equipe'?'Equipe':'Cliente')+fld('Papel/Status',p.papel)+fld('Imobiliária',imobMap[p.imobiliaria_id],true);
+    document.getElementById('mSub').textContent='Cliente'+(p.papel?' · '+p.papel:'');
+    document.getElementById('mGrid').innerHTML=fld('Telefone',p.telefone)+fld('E-mail',p.email)+fld('Status',p.papel)+fld('Imobiliária',imobMap[p.imobiliaria_id],true);
     modal.classList.add('open');
   }
   function close_(){modal.classList.remove('open');}
@@ -147,23 +145,20 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   modal.addEventListener('click',function(e){if(e.target===modal)close_();});document.addEventListener('keydown',function(e){if(e.key==='Escape')close_();});
 
   function applyFilter(){
-    var q=document.getElementById('q').value.trim().toLowerCase(),tp=document.getElementById('fTipo').value;
+    var q=document.getElementById('q').value.trim().toLowerCase();
     renderRows(pessoas.filter(function(p){
-      if(tp&&p.tipo!==tp)return false;
       if(!q)return true;return ((p.nome||'')+' '+(p.telefone||'')+' '+(p.email||'')).toLowerCase().indexOf(q)>=0;
     }));
   }
-  document.getElementById('q').addEventListener('input',applyFilter);document.getElementById('fTipo').addEventListener('change',applyFilter);
+  document.getElementById('q').addEventListener('input',applyFilter);
 
-  Promise.all([get('leads'),get('corretores'),get('imobiliarias')]).then(function(a){
-    a[2].forEach(function(i){imobMap[i.id]=i.nome;});
-    var cli=a[0].map(function(l){return {nome:l.nome,telefone:l.telefone,email:l.email,imobiliaria_id:l.imobiliaria_id,tipo:'cliente',papel:l.status};});
-    var eq=a[1].map(function(u){return {nome:u.nome,telefone:u.telefone,email:u.email,imobiliaria_id:u.imobiliaria_id,tipo:'equipe',papel:u.perfil||u.status};});
-    pessoas=cli.concat(eq).sort(function(x,y){return (x.nome||'').localeCompare(y.nome||'');});
+  Promise.all([get('leads'),get('imobiliarias')]).then(function(a){
+    a[1].forEach(function(i){imobMap[i.id]=i.nome;});
+    pessoas=a[0].map(function(l){return {nome:l.nome,telefone:l.telefone,email:l.email,imobiliaria_id:l.imobiliaria_id,tipo:'cliente',papel:l.status};})
+      .sort(function(x,y){return (x.nome||'').localeCompare(y.nome||'');});
     kset('total',pessoas.length);
-    kset('clientes',cli.length);
-    kset('equipe',eq.length);
     kset('fone',pessoas.filter(function(p){return p.telefone;}).length);
+    kset('mail',pessoas.filter(function(p){return p.email;}).length);
     renderRows(pessoas);
   });
 
