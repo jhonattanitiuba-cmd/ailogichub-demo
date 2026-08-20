@@ -122,7 +122,7 @@ td.strong{font-weight:700;color:var(--heading)}
   <div class="modal-h"><h3 id="fTit">Novo corretor</h3><button class="modal-x" id="fClose">×</button></div>
   <div class="fbody">
     <label>Nome*<input id="f_nome"></label>
-    <label>Imobiliária*<select id="f_imob"></select></label>
+    <label>Imobiliária*<span style="display:flex;gap:8px;align-items:stretch"><select id="f_imob" style="flex:1"></select><button type="button" id="fEditImob" class="btn" style="padding:0 12px;white-space:nowrap" title="Editar o nome da imobiliária">✎ Nome</button></span></label>
     <div class="fg2"><label>E-mail<input id="f_email"></label><label>Telefone<input id="f_telefone"></label></div>
     <div class="fg2"><label>CRECI<input id="f_creci"></label><label>Perfil<select id="f_perfil"><option value="corretor">Corretor</option><option value="estagiario">Estagiário</option><option value="gerente">Gerente</option><option value="admin">Admin</option></select></label></div>
     <div class="fg2" id="supRow" style="display:none"><label>Corretor responsável<select id="f_supervisor"></select></label><label style="align-self:end"><span style="display:block;font-size:11px;color:#7a8699;line-height:1.4;padding-bottom:9px">Estagiário atua dentro da rede do corretor responsável, sem CRECI própria.</span></label></div>
@@ -213,6 +213,22 @@ td.strong{font-weight:700;color:var(--heading)}
   function toggleSup(){var est=$('f_perfil').value==='estagiario';$('supRow').style.display=est?'':'none';$('f_creci').placeholder=est?'Sem CRECI (atua na rede do corretor)':'';if(!fm.dataset.id)$('fTit').textContent=est?'Novo estagiário':'Novo corretor';if(est)popSupervisors($('f_supervisor').value);}
   $('f_perfil').addEventListener('change',toggleSup);
   $('f_imob').addEventListener('change',function(){if($('f_perfil').value==='estagiario')popSupervisors('');});
+  $('fEditImob').addEventListener('click',function(){
+    var id=$('f_imob').value;var cur=imobs.filter(function(x){return String(x.id)===String(id);})[0];
+    if(!cur){alert('Selecione uma imobiliária.');return;}
+    var nome=prompt('Nome da imobiliária:',cur.nome||'');
+    if(nome==null)return;nome=nome.trim();if(!nome){alert('Informe um nome.');return;}
+    if(nome===cur.nome)return;
+    var payload=Object.assign({},cur,{nome:nome});var b=$('fEditImob');b.disabled=true;b.textContent='…';
+    fetch(DATA+'?ent=imobiliarias&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+      .then(function(x){b.disabled=false;b.textContent='✎ Nome';
+        if(x.ok){for(var i=0;i<imobs.length;i++){if(String(imobs[i].id)===String(id))imobs[i].nome=nome;}imobMap[id]=nome;
+          var sel=$('f_imob');for(var k=0;k<sel.options.length;k++){if(sel.options[k].value===String(id))sel.options[k].textContent=nome;}
+          load();}
+        else alert('Não foi possível renomear: '+((x.j&&x.j.error)||'erro'));})
+      .catch(function(){b.disabled=false;b.textContent='✎ Nome';alert('Falha na requisição.');});
+  });
   function closeForm(){fm.classList.remove('open');}
   $('btnNew').addEventListener('click',function(){if(!imobs.length){alert('Cadastre uma imobiliária antes de criar corretores.');return;}openForm(null);});
   $('fClose').addEventListener('click',closeForm);$('fCancel').addEventListener('click',closeForm);
