@@ -10,6 +10,8 @@ const EVO_KEY  = process.env.EVO_KEY || '';
 const INSTANCE = process.env.WA_INSTANCE || 'ailogic-hub-principal';
 const DB_URL   = process.env.DB_URL || '';
 const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
+const ELEVEN_KEY = process.env.ELEVENLABS_API_KEY || '';
+const ELEVEN_VOICE = process.env.ELEVENLABS_VOICE_ID || '';
 // Cerebro de texto: se houver chave Anthropic, o SAM roda no Claude; senao cai no OpenAI.
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || '';
 const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
@@ -47,6 +49,28 @@ async function evoFetch(path, body) {
 async function evoSend(remoteJid, text) {
   const number = String(remoteJid).endsWith('@s.whatsapp.net') ? String(remoteJid).split('@')[0] : remoteJid;
   await evoFetch('/message/sendText/' + INSTANCE, { number, text });
+}
+// Voz do Sam via ElevenLabs (gated por env). Sintetiza o texto e envia como nota de voz no WhatsApp.
+async function ttsEleven(texto) {
+  if (!ELEVEN_KEY || !ELEVEN_VOICE) return null;
+  const clean = String(texto || '').replace(/\[[^\]]*\]/g, '').replace(/https?:\/\/\S+/g, '').replace(/\s{2,}/g, ' ').trim().slice(0, 700);
+  if (!clean) return null;
+  try {
+    const r = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + ELEVEN_VOICE + '?output_format=mp3_44100_128', {
+      method: 'POST',
+      headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: clean, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.8 } })
+    });
+    if (!r.ok) return null;
+    return Buffer.from(await r.arrayBuffer()).toString('base64');
+  } catch (_) { return null; }
+}
+async function responderComVoz(remoteJid, texto) {
+  try {
+    const b64 = await ttsEleven(texto); if (!b64) return;
+    const number = String(remoteJid).endsWith('@s.whatsapp.net') ? String(remoteJid).split('@')[0] : remoteJid;
+    await evoFetch('/message/sendWhatsAppAudio/' + INSTANCE, { number, audio: b64 });
+  } catch (_) {}
 }
 // Curadoria: apos o texto, envia a 1a foto de cada imovel que o SAM citou pelo codigo [COD] (com legenda + link).
 async function enviarFotosCuradoria(remoteJid, texto) {
@@ -456,6 +480,8 @@ module.exports = async (req, res) => {
     await salvarTurno(remoteJid, 'assistant', resposta);
     await sendChunks(remoteJid, resposta);
     if (!querTransferir) await enviarFotosCuradoria(remoteJid, resposta);
+    // Se o cliente mandou audio, o Sam responde tambem por voz (ElevenLabs, gated por env).
+    if (isAudio && ELEVEN_KEY && ELEVEN_VOICE) await responderComVoz(remoteJid, resposta);
     res.status(200).json({ ok: true, respondido: true, transferido: querTransferir, motor: ANTHROPIC_KEY ? 'claude' : (OPENAI_KEY ? 'openai' : 'basico'), turns: messages.length });
   } catch (e) {
     res.status(200).json({ ok: false, erro: String((e && e.message) || e) });
