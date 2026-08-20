@@ -82,10 +82,10 @@ input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;ba
       '<div class="tags"><span class="tag">'+fin+'</span>'+(p.tipo?'<span class="tag">'+esc(p.tipo)+'</span>':'')+(p.codigo?'<span class="tag">Cód. '+esc(p.codigo)+'</span>':'')+'</div>'+
       '<div class="specs">'+facts.map(function(f){return '<div><span>'+f[0]+'</span>'+f[1]+'</div>';}).join('')+'</div>'+
       (p.descricao?'<p class="desc">'+esc(p.descricao)+'</p>':'')+
-      '<div class="actions"><button class="btn p" id="bp">✍️ Fazer proposta e assinatura</button><button class="btn v" id="bv">📅 Agendar uma visita</button></div>'+
+      '<div class="actions"><button class="btn p" id="bp">Fazer proposta e assinatura</button><button class="btn v" id="bv">Agendar uma visita</button></div>'+
       '<div class="panel" id="pp"><h3>Proposta e assinatura digital</h3><div class="sub">Preencha e o Hub gera o documento para assinatura digital via Google.</div>'+
         '<label>Seu nome</label><input id="pn" placeholder="Nome completo"><label>WhatsApp</label><input id="pw" placeholder="(11) 90000-0000"><label>Valor da sua proposta</label><input id="pv" placeholder="R$">'+
-        '<button class="btn p" style="margin-top:14px" id="penv">Enviar proposta</button><div class="ok" id="pok">✅ Proposta registrada! Você vai receber por WhatsApp o link de assinatura digital via Google para concluir.</div></div>'+
+        '<button class="btn p" style="margin-top:14px" id="penv">Gerar proposta e contrato</button><div class="ok" id="pok">Proposta registrada. Abrimos o contrato timbrado do Hub para conferência e, na sequência, você recebe o link de assinatura digital por WhatsApp.</div></div>'+
       '<div class="panel" id="vp"><h3>Agende uma visita</h3><div class="sub">Escolha um horário disponível. A confirmação chega no seu WhatsApp.</div><div class="slots" id="slots"></div>'+
         '<div class="ok" id="vok"></div></div>';
     wire(p,fotos);
@@ -98,10 +98,17 @@ input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;ba
     var pp=document.getElementById('pp'),vp=document.getElementById('vp');
     document.getElementById('bp').addEventListener('click',function(){vp.classList.remove('on');pp.classList.toggle('on');pp.scrollIntoView({behavior:'smooth',block:'center'});});
     document.getElementById('bv').addEventListener('click',function(){pp.classList.remove('on');vp.classList.toggle('on');vp.scrollIntoView({behavior:'smooth',block:'center'});});
-    document.getElementById('penv').addEventListener('click',function(){document.getElementById('pok').classList.add('on');});
+    document.getElementById('penv').addEventListener('click',function(){
+      document.getElementById('pok').classList.add('on');
+      var nm=(document.getElementById('pn').value||'').trim();
+      var wp=(document.getElementById('pw').value||'').trim();
+      var vl=(document.getElementById('pv').value||'').replace(/[^\d]/g,'');
+      var u='/contrato?cod='+encodeURIComponent(cod||(p&&p.codigo)||'')+(nm?'&cliente='+encodeURIComponent(nm):'')+(wp?'&whatsapp='+encodeURIComponent(wp):'')+(vl?'&valor='+encodeURIComponent(vl):'');
+      window.open(u,'_blank','noopener');
+    });
     // blocos de horario
     var dias=['Amanhã','Depois'],horas=['09:00','11:00','14:00','16:00'],slots=document.getElementById('slots');
-    dias.forEach(function(dia){horas.forEach(function(h){var s=document.createElement('button');s.className='slot';s.innerHTML=h+'<span>'+dia+'</span>';s.addEventListener('click',function(){document.querySelectorAll('.slot').forEach(function(x){x.classList.remove('on');});s.classList.add('on');var ok=document.getElementById('vok');ok.textContent='✅ Visita solicitada para '+dia.toLowerCase()+' às '+h+'. Você recebe a confirmação no WhatsApp.';ok.classList.add('on');});slots.appendChild(s);});});
+    dias.forEach(function(dia){horas.forEach(function(h){var s=document.createElement('button');s.className='slot';s.innerHTML=h+'<span>'+dia+'</span>';s.addEventListener('click',function(){document.querySelectorAll('.slot').forEach(function(x){x.classList.remove('on');});s.classList.add('on');var ok=document.getElementById('vok');ok.textContent='Visita solicitada para '+dia.toLowerCase()+' às '+h+'. Você recebe a confirmação no WhatsApp.';ok.classList.add('on');});slots.appendChild(s);});});
   }
 })();
 </script>
