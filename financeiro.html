@@ -115,10 +115,11 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     <div class="toolbar">
       <input class="inp search" id="q" placeholder="Buscar por imobiliária..." />
       <select class="inp" id="fStatus"><option value="">Todos</option><option value="fechado">Fechados</option><option value="aberto">Em aberto</option></select>
+      <span id="repasseResumo" style="margin-left:auto;font-size:12px;font-weight:700;color:var(--muted)"></span>
     </div>
     <div class="table-wrap">
-      <table><thead><tr><th>Imobiliária</th><th class="num">Valor</th><th class="num">Comissão</th><th class="num">RLOR</th><th>Etapa</th><th>Status</th><th>Fechado em</th></tr></thead>
-      <tbody id="rows"><tr><td colspan="7" class="empty">Carregando…</td></tr></tbody></table>
+      <table><thead><tr><th>Imobiliária</th><th class="num">Valor</th><th class="num">Comissão</th><th class="num">RLOR</th><th>Etapa</th><th>Status</th><th>Repasse</th><th>Fechado em</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="8" class="empty">Carregando…</td></tr></tbody></table>
     </div>
   </section>
 </main>
@@ -142,14 +143,30 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   function get(ent){return fetch(DATA+'?ent='+ent+'&action=list',{cache:'no-store'}).then(function(r){return r.ok?r.json():{rows:[]};}).then(function(d){return d.rows||[];}).catch(function(){return [];});}
   function fld(l,v,full){return '<div class="mcell'+(full?' full':'')+'"><label>'+l+'</label><strong>'+esc(v==null||v===''?'—':v)+'</strong></div>';}
 
+  var pagos={};
+  function keyOf(n){return String(n.id||(String(n.imobiliaria_id||'')+'|'+(n.valor||'')+'|'+(n.fechado_em||'')+'|'+(n.etapa_funil||'')));}
+  function splitDe(n){var hub=(n.rlor!=null)?Number(n.rlor):((Number(n.comissao)||0)*0.5);var parc=Math.max(0,(Number(n.comissao)||0)-hub);return {hub:hub,parc:parc};}
+  function confirmarPagamento(n){pagos[keyOf(n)]=true;renderRows(_lista);}
+  function atualizaResumo(){var rep=0,ar=0;(_lista||[]).forEach(function(n){var s=splitDe(n);if(pagos[keyOf(n)])rep+=s.parc;else if(n.fechado_em)ar+=s.parc;});var el=document.getElementById('repasseResumo');if(el)el.textContent='Repassado aos parceiros: '+brl(rep)+' · a repassar: '+brl(ar);}
+  var _lista=[];
   function renderRows(list){
-    var tb=document.getElementById('rows');
-    if(!list.length){tb.innerHTML='<tr><td colspan="7" class="empty">Nenhum negócio encontrado.</td></tr>';return;}
+    _lista=list;var tb=document.getElementById('rows');
+    if(!list.length){tb.innerHTML='<tr><td colspan="8" class="empty">Nenhum negócio encontrado.</td></tr>';atualizaResumo();return;}
     tb.innerHTML=list.map(function(n,ix){
-      var st=n.fechado_em?'<span class="badge green">Fechado</span>':'<span class="badge gray">Em aberto</span>';
-      return '<tr data-i="'+ix+'"><td class="strong">'+esc(imobMap[n.imobiliaria_id]||'—')+'</td><td class="num">'+brl(n.valor)+'</td><td class="num">'+brl(n.comissao)+'</td><td class="num">'+brl(n.rlor)+'</td><td>'+esc(n.etapa_funil||'—')+'</td><td>'+st+'</td><td>'+dt(n.fechado_em)+'</td></tr>';
+      var pago=!!pagos[keyOf(n)];var s=splitDe(n);
+      var st=pago?'<span class="badge green">Pago</span>':(n.fechado_em?'<span class="badge green">Fechado</span>':'<span class="badge gray">Em aberto</span>');
+      var rep=pago
+        ? '<span class="badge green">Repassado</span><div style="font-size:10px;color:var(--muted);margin-top:2px">Parceiro '+brl(s.parc)+' · Hub '+brl(s.hub)+'</div>'
+        : '<button class="btn" data-pay="'+ix+'" style="height:28px;padding:0 10px;font-size:11px">Confirmar pagamento</button>';
+      return '<tr data-i="'+ix+'"><td class="strong">'+esc(imobMap[n.imobiliaria_id]||'—')+'</td><td class="num">'+brl(n.valor)+'</td><td class="num">'+brl(n.comissao)+'</td><td class="num">'+brl(n.rlor)+'</td><td>'+esc(n.etapa_funil||'—')+'</td><td>'+st+'</td><td>'+rep+'</td><td>'+dt(n.fechado_em)+'</td></tr>';
     }).join('');
-    Array.prototype.forEach.call(tb.querySelectorAll('tr'),function(tr){tr.addEventListener('click',function(){openNeg(list[+tr.getAttribute('data-i')]);});});
+    Array.prototype.forEach.call(tb.querySelectorAll('tr'),function(tr){
+      var n=list[+tr.getAttribute('data-i')];
+      var b=tr.querySelector('[data-pay]');
+      if(b)b.addEventListener('click',function(e){e.stopPropagation();confirmarPagamento(n);});
+      tr.addEventListener('click',function(){openNeg(n);});
+    });
+    atualizaResumo();
   }
 
   function openNeg(n){ if(!n)return;
