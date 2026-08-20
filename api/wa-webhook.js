@@ -53,8 +53,11 @@ async function enviarFotosCuradoria(remoteJid, texto) {
   try {
     if (!EVO_BASE) return;
     const number = String(remoteJid).endsWith('@s.whatsapp.net') ? String(remoteJid).split('@')[0] : remoteJid;
-    const cods = []; const re = /\[([A-Za-z0-9][A-Za-z0-9\-]{1,24})\]/g; let mm;
-    while ((mm = re.exec(String(texto || ''))) !== null) { const c = mm[1]; if (c.toUpperCase() !== 'TRANSFERIR' && cods.indexOf(c) < 0) cods.push(c); }
+    const cods = []; const t = String(texto || '');
+    const re = /\[([A-Za-z0-9][A-Za-z0-9\-]{1,24})\]/g; let mm;
+    while ((mm = re.exec(t)) !== null) { const c = mm[1]; if (c.toUpperCase() !== 'TRANSFERIR' && cods.indexOf(c) < 0) cods.push(c); }
+    const re2 = /cod=([A-Za-z0-9\-]{2,25})/gi; let m2;
+    while ((m2 = re2.exec(t)) !== null) { let c; try { c = decodeURIComponent(m2[1]); } catch (_) { c = m2[1]; } if (cods.indexOf(c) < 0) cods.push(c); }
     if (!cods.length) return;
     const alvo = cods.slice(0, 3);
     const r = await db('select codigo, titulo, bairro, cidade, preco, extra from imoveis where deleted_at is null and codigo = any($1)', [alvo]);
