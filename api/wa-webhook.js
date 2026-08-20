@@ -264,10 +264,11 @@ Voce esta num grupo de WhatsApp com os SOCIOS do Hub, nao com clientes. Voce e u
 - Quando responder: curto (1 a 3 frases), elegante, consultivo e educativo. Chame a pessoa pelo primeiro nome quando souber. No maximo uma pergunta.
 - Nunca use travessao. Nunca faca oracao. Nunca revele qual tecnologia de IA esta por tras: voce e o SAM, a inteligencia do Hub.`;
 
-async function respostaGrupo(contexto, messages) {
-  const system = PERSONA_PADRAO + '\n\n' + (contexto || '') + PROMPT_GRUPO;
+async function respostaGrupo(contexto, messages, forcar) {
+  let system = PERSONA_PADRAO + '\n\n' + (contexto || '') + PROMPT_GRUPO;
+  if (forcar) system += '\n\nATENCAO: o usuario mencionou ou chamou voce diretamente neste grupo. Voce DEVE responder de forma util, breve e calorosa, e NUNCA responder [QUIETO]. Se o assunto for sensivel (dinheiro, comissao, sociedade, estrategia), interaja mesmo assim, de forma educada, sem revelar o dado sensivel.';
   if (ANTHROPIC_KEY) {
-    try { const t = limparBot(await chamarClaude(system, messages, 260, 0.5)); if (t && t.trim()) return t; } catch (_) {}
+    try { const t = limparBot(await chamarClaude(system, messages, forcar ? 300 : 260, 0.5)); if (t && t.trim()) return t; } catch (_) {}
   }
   if (!OPENAI_KEY) return '[QUIETO]';
   try {
@@ -306,19 +307,24 @@ module.exports = async (req, res) => {
       if (!q) { res.status(200).json({ ignored: 'grupo sem texto' }); return; }
       const nome = String((data.pushName || '')).trim();
       const rotulo = nome ? nome + ': ' : '';
+      // foi mencionado/chamado direto? (mention do numero do Hub, ou nome Sam/AILogic no texto) -> responde SEMPRE
+      const ctxInfo = (data.message && ((data.message.extendedTextMessage && data.message.extendedTextMessage.contextInfo) || data.message.contextInfo)) || {};
+      const ment = ctxInfo.mentionedJid || [];
+      const mencionado = ment.some(j => String(j).indexOf('5511936238387') >= 0) || /5511936238387/.test(q) || /@?\s*a\.?\s*i\.?\s*logic|\bsam\b/i.test(q);
       const hist = await historico(remoteJid);
       await salvarTurno(remoteJid, 'user', rotulo + q);
-      // pre-filtro barato: so considera responder se parecer duvida/mencao ao Hub
-      const chama = /\?|\bsam\b|ailogic|a i logic|\bhub\b|sistema|rod[ií]zio|funil|\blead|im[oó]ve|como funciona|quantos?|qual|quais|onde|quando|pode(m)? (me )?(ajudar|explicar)/i.test(q);
-      if (!chama) { res.status(200).json({ ok: true, grupo: true, respondido: false, motivo: 'sem gatilho' }); return; }
+      // pre-filtro barato: fora da mencao, so considera responder se parecer duvida/mencao ao Hub
+      const chama = /\?|\bhub\b|sistema|rod[ií]zio|funil|\blead|im[oó]ve|como funciona|quantos?|qual|quais|onde|quando|pode(m)? (me )?(ajudar|explicar)/i.test(q);
+      if (!mencionado && !chama) { res.status(200).json({ ok: true, grupo: true, respondido: false, motivo: 'sem gatilho' }); return; }
       const messages = [...hist, { role: 'user', content: rotulo + q }];
       while (messages.length > 1 && messages[messages.length - 2].role === 'user') messages.splice(messages.length - 2, 1);
       let ctx = ''; try { ctx = await contextoBase(); } catch (_) {}
-      const resp = await respostaGrupo(ctx, messages);
+      let resp = await respostaGrupo(ctx, messages, mencionado);
+      if (mencionado && (!resp || /\[QUIETO\]/i.test(resp))) resp = 'Estou aqui! 👋 Como posso ajudar?';
       if (!resp || /\[QUIETO\]/i.test(resp)) { res.status(200).json({ ok: true, grupo: true, respondido: false, motivo: 'router quieto' }); return; }
       await salvarTurno(remoteJid, 'assistant', resp);
       await sendChunks(remoteJid, resp);
-      res.status(200).json({ ok: true, grupo: true, respondido: true });
+      res.status(200).json({ ok: true, grupo: true, respondido: true, mencionado });
       return;
     }
 
