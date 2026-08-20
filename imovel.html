@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Logic Hub · Imóvel</title>
+<style>
+:root{--ink:#0d1b2f;--blue:#0f8bff;--blue2:#0748bb;--ice:#f5f8fc;--line:#e3e9f0;--muted:#5b6b82;--night:#061326}
+*{box-sizing:border-box}body{margin:0;background:var(--ice);color:var(--ink);font-family:Inter,Montserrat,Arial,sans-serif;line-height:1.5}
+img{display:block;max-width:100%}
+.top{display:flex;align-items:center;gap:10px;padding:16px clamp(16px,4vw,40px);background:var(--night);color:#fff}
+.top img{width:34px;height:34px;object-fit:contain}
+.top b{font-weight:800}.top b span{color:#4cc6ff}
+.wrap{max-width:1000px;margin:0 auto;padding:clamp(16px,3vw,32px)}
+.gal{border-radius:20px;overflow:hidden;background:var(--night);position:relative;aspect-ratio:16/10}
+.gal img{width:100%;height:100%;object-fit:cover}
+.ph{width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),var(--night));color:#ffffffcc;font-weight:700}
+.thumbs{display:flex;gap:8px;margin-top:10px;overflow:auto}
+.thumbs img{width:88px;height:64px;object-fit:cover;border-radius:10px;cursor:pointer;opacity:.65;border:2px solid transparent}
+.thumbs img.on{opacity:1;border-color:var(--blue)}
+.head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:end;margin:22px 0 6px}
+h1{font-size:clamp(24px,4vw,34px);margin:0;letter-spacing:-.02em}
+.loc{color:var(--muted);margin-top:4px}
+.price{font-size:clamp(26px,4vw,34px);font-weight:800;color:var(--blue)}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.tag{font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;background:#e7f2ff;color:var(--blue)}
+.specs{display:flex;flex-wrap:wrap;gap:20px;margin:16px 0;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.specs div{font-size:14px}.specs span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.desc{color:#38465a;margin:16px 0}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.btn{padding:16px;border:0;border-radius:14px;font-weight:800;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s,filter .15s}
+.btn:active{transform:scale(.98)}
+.btn.p{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
+.btn.v{background:#fff;color:var(--ink);border:1.5px solid var(--ink)}
+.btn:hover{filter:brightness(1.05)}
+.panel{margin-top:16px;border:1px solid var(--line);border-radius:16px;background:#fff;padding:20px;display:none}
+.panel.on{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+.panel h3{margin:0 0 4px;font-size:19px}
+.panel .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+label{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.05em;margin:10px 0 5px;text-transform:uppercase}
+input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;background:#f7f9fc;font-size:15px}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:6px}
+.slot{padding:12px 8px;border:1px solid var(--line);border-radius:12px;background:#f7f9fc;cursor:pointer;text-align:center;font-size:13px;font-weight:700;transition:.12s}
+.slot span{display:block;font-size:11px;color:var(--muted);font-weight:600}
+.slot.on{background:var(--blue);color:#fff;border-color:var(--blue)}.slot.on span{color:#dbeafe}
+.ok{padding:16px;border-radius:12px;background:#e6f7ee;color:#0a7d43;font-weight:700;margin-top:14px;display:none}
+.ok.on{display:block}
+.foot{color:var(--muted);font-size:12px;text-align:center;padding:30px 0}
+@media(max-width:640px){.actions{grid-template-columns:1fr}.gal{aspect-ratio:4/3}}
+</style>
+</head>
+<body>
+<header class="top"><img src="/assets/logo-ai.png" alt=""><b>AI Logic <span>Hub</span></b></header>
+<div class="wrap" id="wrap"><p style="color:var(--muted)">Carregando imóvel...</p></div>
+<div class="foot">AI Logic Hub · Inteligência que conecta</div>
+<script>
+(function(){
+  var cod=new URLSearchParams(location.search).get('cod')||'';
+  function brl(v){return v==null?'Sob consulta':'R$ '+Math.round(v).toLocaleString('pt-BR');}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  fetch('/api/vitrine',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+    var rows=(d&&d.rows)||[];
+    var p=rows.filter(function(x){return String(x.codigo||'').toLowerCase()===cod.toLowerCase();})[0]||rows[0];
+    if(!p){document.getElementById('wrap').innerHTML='<p>Imóvel não encontrado.</p>';return;}
+    render(p);
+  }).catch(function(){document.getElementById('wrap').innerHTML='<p>Não foi possível carregar.</p>';});
+
+  function render(p){
+    var fotos=(p.fotos&&p.fotos.length?p.fotos:(p.foto?[p.foto]:[]));
+    var facts=[];
+    if(p.area)facts.push(['Área',p.area+' m²']);
+    if(p.quartos)facts.push(['Quartos',p.quartos]);
+    if(p.suites)facts.push(['Suítes',p.suites]);
+    if(p.vagas)facts.push(['Vagas',p.vagas]);
+    if(p.banheiros)facts.push(['Banheiros',p.banheiros]);
+    var fin=(p.finalidade||'').toLowerCase()==='locacao'?'Locação':(p.finalidade||'').toLowerCase()==='temporada'?'Temporada':'Venda';
+    var gal=fotos.length?'<img id="big" src="'+esc(fotos[0])+'" alt="">':'<div class="ph">Foto em breve</div>';
+    var th=fotos.length>1?'<div class="thumbs">'+fotos.map(function(f,i){return '<img class="'+(i===0?'on':'')+'" data-i="'+i+'" src="'+esc(f)+'">';}).join('')+'</div>':'';
+    document.getElementById('wrap').innerHTML=
+      '<div class="gal">'+gal+'</div>'+th+
+      '<div class="head"><div><h1>'+esc(p.titulo||'Imóvel')+'</h1><div class="loc">📍 '+esc([p.bairro,p.cidade].filter(Boolean).join(', '))+'</div></div><div class="price">'+brl(p.preco)+'</div></div>'+
+      '<div class="tags"><span class="tag">'+fin+'</span>'+(p.tipo?'<span class="tag">'+esc(p.tipo)+'</span>':'')+(p.codigo?'<span class="tag">Cód. '+esc(p.codigo)+'</span>':'')+'</div>'+
+      '<div class="specs">'+facts.map(function(f){return '<div><span>'+f[0]+'</span>'+f[1]+'</div>';}).join('')+'</div>'+
+      (p.descricao?'<p class="desc">'+esc(p.descricao)+'</p>':'')+
+      '<div class="actions"><button class="btn p" id="bp">✍️ Fazer proposta e assinatura</button><button class="btn v" id="bv">📅 Agendar uma visita</button></div>'+
+      '<div class="panel" id="pp"><h3>Proposta e assinatura digital</h3><div class="sub">Preencha e o Hub gera o documento para assinatura digital via Google.</div>'+
+        '<label>Seu nome</label><input id="pn" placeholder="Nome completo"><label>WhatsApp</label><input id="pw" placeholder="(11) 90000-0000"><label>Valor da sua proposta</label><input id="pv" placeholder="R$">'+
+        '<button class="btn p" style="margin-top:14px" id="penv">Enviar proposta</button><div class="ok" id="pok">✅ Proposta registrada! Você vai receber por WhatsApp o link de assinatura digital via Google para concluir.</div></div>'+
+      '<div class="panel" id="vp"><h3>Agende uma visita</h3><div class="sub">Escolha um horário disponível. A confirmação chega no seu WhatsApp.</div><div class="slots" id="slots"></div>'+
+        '<div class="ok" id="vok"></div></div>';
+    wire(p,fotos);
+  }
+
+  function wire(p,fotos){
+    // galeria
+    document.querySelectorAll('.thumbs img').forEach(function(t){t.addEventListener('click',function(){document.getElementById('big').src=t.src;document.querySelectorAll('.thumbs img').forEach(function(x){x.classList.toggle('on',x===t);});});});
+    // paineis
+    var pp=document.getElementById('pp'),vp=document.getElementById('vp');
+    document.getElementById('bp').addEventListener('click',function(){vp.classList.remove('on');pp.classList.toggle('on');pp.scrollIntoView({behavior:'smooth',block:'center'});});
+    document.getElementById('bv').addEventListener('click',function(){pp.classList.remove('on');vp.classList.toggle('on');vp.scrollIntoView({behavior:'smooth',block:'center'});});
+    document.getElementById('penv').addEventListener('click',function(){document.getElementById('pok').classList.add('on');});
+    // blocos de horario
+    var dias=['Amanhã','Depois'],horas=['09:00','11:00','14:00','16:00'],slots=document.getElementById('slots');
+    dias.forEach(function(dia){horas.forEach(function(h){var s=document.createElement('button');s.className='slot';s.innerHTML=h+'<span>'+dia+'</span>';s.addEventListener('click',function(){document.querySelectorAll('.slot').forEach(function(x){x.classList.remove('on');});s.classList.add('on');var ok=document.getElementById('vok');ok.textContent='✅ Visita solicitada para '+dia.toLowerCase()+' às '+h+'. Você recebe a confirmação no WhatsApp.';ok.classList.add('on');});slots.appendChild(s);});});
+  }
+})();
+</script>
+</body>
+</html>
