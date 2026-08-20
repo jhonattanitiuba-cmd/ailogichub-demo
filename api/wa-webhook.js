@@ -399,6 +399,19 @@ module.exports = async (req, res) => {
     if (senderNum === NUM_ALESSANDRO) contexto += '\n\nVocê está falando com ALESSANDRO FERREIRA, o dono/cliente do Hub. É a conversa de ONBOARDING/personalização do agente.';
     // le o historico ANTES de gravar o turno atual, depois grava a mensagem do usuario
     const hist = await historico(remoteJid);
+    // PRIMEIRO CONTATO: mensagem padrao de boas-vindas (cabecalho + 3 direcionamentos), depois a IA assume
+    if (!hist.length) {
+      await salvarTurno(remoteJid, 'user', msgUser);
+      const boas1 = '*AI LOGIC HUB*\n_Inteligência que conecta_\n\nOlá! Aqui é o Sam, seu curador de imóveis. 👋\n\nMe conta como posso te ajudar:\n🏠 *Comprar* um imóvel\n🔑 *Alugar* um imóvel\n💼 *Vender ou anunciar* o seu';
+      const boas2 = 'Pode ficar à vontade para mandar áudio ou digitar livre, como for mais conveniente pra você. Vamos conversar. 🎙️';
+      await salvarTurno(remoteJid, 'assistant', boas1 + '\n\n' + boas2);
+      try { await evoPresence(remoteJid, 1200); } catch (_) {}
+      await evoSend(remoteJid, boas1);
+      try { await evoPresence(remoteJid, 1500); } catch (_) {}
+      await evoSend(remoteJid, boas2);
+      res.status(200).json({ ok: true, respondido: true, boasVindas: true });
+      return;
+    }
     await salvarTurno(remoteJid, 'user', msgUser);
     const messages = [...hist, { role: 'user', content: msgUser }];
     // garante alternância terminando em user
