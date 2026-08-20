@@ -27,7 +27,7 @@ const PERSONA_PADRAO = PERSONA_SAM;
 const ESTILO = `
 
 # REGRAS DE ESTILO (PRIORIDADE MAXIMA, sobrepoem qualquer instrucao anterior)
-- Responda CURTO e OBJETIVO. No maximo 2 a 3 frases por mensagem.
+- Responda de forma enxuta e humana. Ate 4 ou 5 frases quando precisar apresentar imoveis ou explicar algo; nas trocas simples, prefira o mais curto que resolva. Nunca deixe a resposta pela metade.
 - NAO explique o que e o AiLogic Hub, nao faca discurso institucional, nao "venda". Va direto ao ponto.
 - UMA pergunta por vez. Termine com no maximo 1 pergunta.
 - Na PRIMEIRA mensagem: apresente-se em 1 linha curta e faca UMA pergunta aberta e humana, SEM menu, SEM numeros e SEM lista de opcoes. Ex.: "Oi! Aqui e o Sam, do AiLogic Hub. Como posso te ajudar hoje — voce esta pensando em comprar, alugar, vender ou anunciar um imovel?" Se souber o nome da pessoa, cumprimente pelo nome. Nao explique o que e a empresa e NUNCA abra com "digite 1, 2, 3" ou lista numerada.
@@ -37,7 +37,7 @@ const ESTILO = `
 - Aceite texto livre OU audio de forma equivalente. NUNCA use menu/lista numerada; sempre siga, de forma natural, o assunto que a pessoa trouxer.
 - Nas mensagens seguintes NAO repita a apresentacao nem o menu completo; se precisar oferecer escolhas, use no maximo 3 opcoes curtas.
 - Fale como um humano agil e esperto: natural, direto, sem parecer robo ou folheto. Sem repetir o que a pessoa disse.
-- Quando precisar dizer mais de uma coisa, SEPARE em mensagens curtas com uma linha em branco entre elas (o sistema envia como bolhas separadas). Prefira 1 ou 2 bolhas.
+- Quando precisar dizer mais de uma coisa (ex.: apresentar 2 ou 3 imoveis), SEPARE em mensagens curtas com uma linha em branco entre elas (o sistema envia como bolhas separadas). Use ate 3 bolhas.
 - NAO TRANSFERIR PARA HUMANO: o Sam conduz TODO o atendimento (qualificacao, curadoria de imoveis, agendamento e coleta de proposta) e deixa tudo registrado no CRM para o time dar sequencia internamente. NUNCA diga "vou te passar para um atendente/humano/corretor" e NUNCA use o marcador [TRANSFERIR] em atendimento normal (compra, locacao, venda, visita, proposta, negociacao). Se nao souber algo, diga que vai verificar e retorna. APENAS em casos realmente excepcionais e fora do escopo imobiliario (questao juridica formal, oficial de justica, contabilidade), oriente a pessoa a procurar o canal especifico por e-mail ou telefone informado — sem transferir a conversa nem prometer retorno humano imediato.`;
 
 async function evoFetch(path, body) {
@@ -58,15 +58,15 @@ function splitMsg(t) {
   const parts = t.split(/\n{2,}/).map(s => s.trim()).filter(Boolean);
   const out = [];
   parts.forEach(p => {
-    if (p.length <= 220) { out.push(p); return; }
+    if (p.length <= 360) { out.push(p); return; }
     let buf = '';
     p.split(/(?<=[.!?])\s+/).forEach(s => {
-      if ((buf + ' ' + s).trim().length > 220) { if (buf) out.push(buf.trim()); buf = s; }
+      if ((buf + ' ' + s).trim().length > 360) { if (buf) out.push(buf.trim()); buf = s; }
       else buf = (buf + ' ' + s).trim();
     });
     if (buf) out.push(buf.trim());
   });
-  return out.slice(0, 3); // no maximo 3 bolhas (rapido, sem estourar timeout)
+  return out.slice(0, 6); // ate 6 bolhas (evita cortar a resposta e ainda protege o timeout)
 }
 // envia como humano: digita, pausa, manda cada bolha
 async function sendChunks(remoteJid, text) {
@@ -234,7 +234,7 @@ async function respostaIA(persona, contexto, messages) {
   // cerebro preferencial: Claude
   if (ANTHROPIC_KEY) {
     try {
-      const t = limparBot(await chamarClaude(system, messages, 320, 0.6));
+      const t = limparBot(await chamarClaude(system, messages, 600, 0.6));
       if (t && t.trim()) return t;
     } catch (_) { /* cai no OpenAI */ }
   }
@@ -395,7 +395,7 @@ module.exports = async (req, res) => {
 
     let contexto = await contextoBase();
     const tools = (cfg.ia_tools && typeof cfg.ia_tools === 'object') ? cfg.ia_tools : {};
-    if (tools.oferecer_imoveis) contexto += await imoveisDisponiveis(12);   // tool plug-and-play
+    if (tools.oferecer_imoveis !== false) contexto += await imoveisDisponiveis(12);   // tool ligada por padrao (so desliga se explicitamente false)
     if (senderNum === NUM_ALESSANDRO) contexto += '\n\nVocê está falando com ALESSANDRO FERREIRA, o dono/cliente do Hub. É a conversa de ONBOARDING/personalização do agente.';
     // le o historico ANTES de gravar o turno atual, depois grava a mensagem do usuario
     const hist = await historico(remoteJid);
@@ -414,7 +414,7 @@ module.exports = async (req, res) => {
     }
     await salvarTurno(remoteJid, 'assistant', resposta);
     await sendChunks(remoteJid, resposta);
-    res.status(200).json({ ok: true, respondido: true, transferido: querTransferir, motor: OPENAI_KEY ? 'openai' : 'basico', turns: messages.length });
+    res.status(200).json({ ok: true, respondido: true, transferido: querTransferir, motor: ANTHROPIC_KEY ? 'claude' : (OPENAI_KEY ? 'openai' : 'basico'), turns: messages.length });
   } catch (e) {
     res.status(200).json({ ok: false, erro: String((e && e.message) || e) });
   }

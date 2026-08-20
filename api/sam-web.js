@@ -10,7 +10,7 @@ const INSTANCE = process.env.WA_INSTANCE || 'ailogic-hub-principal';
 const WEB_CONTEXTO = `
 
 # CONTEXTO: SITE PUBLICO DO AI LOGIC HUB
-Voce esta no site publico, conversando com um visitante que busca imovel. Conduza uma curadoria curta e consultiva: entenda a intencao (morar, investir ou alugar), a regiao, a faixa de valor e a principal necessidade, sem interrogatorio. Nao invente imoveis, valores nem disponibilidade. Quando tiver os criterios, diga que vai reunir as melhores opcoes do catalogo e convide o visitante a deixar nome e contato, ou falar no WhatsApp, para receber a curadoria. Respostas curtas, 1 a 3 frases. Nunca use travessao.`;
+Voce esta no site publico, conversando com um visitante que busca imovel. Conduza uma curadoria curta e consultiva: entenda a intencao (morar, investir ou alugar), a regiao, a faixa de valor e a principal necessidade, sem interrogatorio. Sugira SOMENTE imoveis do CATALOGO abaixo (quando houver algum compativel), sempre citando o codigo; NUNCA invente imoveis, valores nem disponibilidade. Apresente ate 3 opcoes por vez, curtas. Quando fizer sentido, convide o visitante a deixar nome e contato, ou falar no WhatsApp, para agendar visita. Respostas curtas, no maximo 4 frases. Nunca use travessao.`;
 
 let _persona = null, _personaTs = 0;
 async function getPersona() {
@@ -25,6 +25,26 @@ async function getPersona() {
 }
 
 function limpa(t) { return String(t || '').replace(/\s*[—–]\s*/g, ', ').trim(); }
+
+// Catalogo real (mesma base publica da vitrine): imoveis disponiveis, para o Sam sugerir de verdade.
+let _cat = null, _catTs = 0;
+async function getCatalogo() {
+  const now = Date.now();
+  if (_cat !== null && (now - _catTs) < 300000) return _cat;
+  try {
+    const r = await db(
+      "select codigo, tipo, finalidade, cidade, bairro, quartos, suites, vagas, area_util, preco " +
+      "from imoveis where deleted_at is null and lower(status)='disponivel' order by created_at desc limit 30");
+    const linhas = (r.rows || []).map(x => {
+      const specs = [x.quartos ? x.quartos + 'q' : '', x.suites ? x.suites + ' suite(s)' : '', x.vagas ? x.vagas + ' vaga(s)' : '', x.area_util ? x.area_util + 'm2' : ''].filter(Boolean).join(', ');
+      const preco = x.preco != null ? ('R$ ' + Number(x.preco).toLocaleString('pt-BR')) : 'sob consulta';
+      return `- [${x.codigo || 's/cod'}] ${x.tipo || 'imovel'} para ${x.finalidade || 'venda'} em ${x.bairro || ''}, ${x.cidade || ''} (${specs}) ${preco}`;
+    });
+    _cat = linhas.length ? ('\n\n# CATALOGO DISPONIVEL (ofereca SOMENTE estes, cite o codigo):\n' + linhas.join('\n')) : '';
+  } catch (_) { _cat = ''; }
+  _catTs = now;
+  return _cat;
+}
 
 module.exports = async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
@@ -49,7 +69,8 @@ module.exports = async (req, res) => {
     if (!ANTHROPIC_KEY) { res.status(200).json({ reply: 'Estou reunindo as informacoes. Me deixe seu nome e contato que a curadoria segue pelo time.' }); return; }
 
     const persona = await getPersona();
-    const system = (persona || 'Voce e o Sam, curador imobiliario digital do AI Logic Hub.') + WEB_CONTEXTO;
+    const catalogo = await getCatalogo();
+    const system = (persona || 'Voce e o Sam, curador imobiliario digital do AI Logic Hub.') + WEB_CONTEXTO + catalogo;
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
