@@ -108,7 +108,7 @@ input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;ba
     });
     // blocos de horario
     var dias=['Amanhã','Depois'],horas=['09:00','11:00','14:00','16:00'],slots=document.getElementById('slots');
-    dias.forEach(function(dia){horas.forEach(function(h){var s=document.createElement('button');s.className='slot';s.innerHTML=h+'<span>'+dia+'</span>';s.addEventListener('click',function(){document.querySelectorAll('.slot').forEach(function(x){x.classList.remove('on');});s.classList.add('on');var ok=document.getElementById('vok');ok.textContent='Visita solicitada para '+dia.toLowerCase()+' às '+h+'. Você recebe a confirmação no WhatsApp.';ok.classList.add('on');});slots.appendChild(s);});});
+    dias.forEach(function(dia){horas.forEach(function(h){var s=document.createElement('button');s.className='slot';s.innerHTML=h+'<span>'+dia+'</span>';s.addEventListener('click',function(){document.querySelectorAll('.slot').forEach(function(x){x.classList.remove('on');});s.classList.add('on');var ok=document.getElementById('vok');ok.textContent='Visita solicitada para '+dia.toLowerCase()+' às '+h+'. Geramos sua ficha de visita assinada e a confirmação chega pelo WhatsApp.';ok.classList.add('on');var nm=((document.getElementById('pn')||{}).value||'').trim();var wp=((document.getElementById('pw')||{}).value||'').trim();var u='/ficha-visita?cod='+encodeURIComponent(cod||(p&&p.codigo)||'')+'&dia='+encodeURIComponent(dia)+'&hora='+encodeURIComponent(h)+(nm?'&cliente='+encodeURIComponent(nm):'')+(wp?'&whatsapp='+encodeURIComponent(wp):'');window.open(u,'_blank','noopener');});slots.appendChild(s);});});
   }
 })();
 </script>
