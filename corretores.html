@@ -124,7 +124,8 @@ td.strong{font-weight:700;color:var(--heading)}
     <label>Nome*<input id="f_nome"></label>
     <label>Imobiliária*<select id="f_imob"></select></label>
     <div class="fg2"><label>E-mail<input id="f_email"></label><label>Telefone<input id="f_telefone"></label></div>
-    <div class="fg2"><label>CRECI<input id="f_creci"></label><label>Perfil<select id="f_perfil"><option>corretor</option><option>gerente</option><option>admin</option></select></label></div>
+    <div class="fg2"><label>CRECI<input id="f_creci"></label><label>Perfil<select id="f_perfil"><option value="corretor">Corretor</option><option value="estagiario">Estagiário</option><option value="gerente">Gerente</option><option value="admin">Admin</option></select></label></div>
+    <div class="fg2" id="supRow" style="display:none"><label>Corretor responsável<select id="f_supervisor"></select></label><label style="align-self:end"><span style="display:block;font-size:11px;color:#7a8699;line-height:1.4;padding-bottom:9px">Estagiário atua dentro da rede do corretor responsável, sem CRECI própria.</span></label></div>
     <label>Status<select id="f_status"><option>Ativo</option><option>Inativo</option></select></label>
   </div>
   <div class="modal-f"><span class="ferr" id="fErr"></span><button class="btn" id="fCancel">Cancelar</button><button class="btn primary" id="fSave">Salvar</button></div>
@@ -163,7 +164,7 @@ td.strong{font-weight:700;color:var(--heading)}
     if(!list.length){tb.innerHTML='<tr><td colspan="7" class="empty">Nenhum corretor encontrado.</td></tr>';return;}
     tb.innerHTML=list.map(function(m,ix){
       var pend=(acessoInfo(m).cls==='pend');
-      return '<tr data-i="'+ix+'"><td class="strong open">'+esc(m.nome||'—')+'</td><td>'+esc(imobMap[m.imobiliaria_id]||'—')+'</td><td>'+esc(m.creci||'—')+'</td><td>'+esc(m.telefone||'—')+'</td><td><span class="badge purple">'+esc(cap(m.perfil))+'</span></td><td>'+acessoBadge(m)+'</td>'
+      return '<tr data-i="'+ix+'"><td class="strong open">'+esc(m.nome||'—')+'</td><td>'+esc(imobMap[m.imobiliaria_id]||'—')+'</td><td>'+esc(m.creci||(m.perfil==='estagiario'&&m.supervisor_nome?('sob '+m.supervisor_nome):'—'))+'</td><td>'+esc(m.telefone||'—')+'</td><td><span class="badge '+(m.perfil==='estagiario'?'blue':'purple')+'">'+esc(m.perfil==='estagiario'?'Estagiário':cap(m.perfil))+'</span></td><td>'+acessoBadge(m)+'</td>'
         +'<td><div class="act">'+(pend?'<button data-a="invite" title="Reenviar convite de acesso">Convite</button>':'')+'<button data-a="edit">Editar</button><button class="del" data-a="del">Excluir</button></div></td></tr>';
     }).join('');
     Array.prototype.forEach.call(tb.querySelectorAll('tr'),function(tr){
@@ -194,7 +195,7 @@ td.strong{font-weight:700;color:var(--heading)}
   $('q').addEventListener('input',applyFilter);$('fImob').addEventListener('change',applyFilter);
 
   function openDetail(m){curDetail=m;$('dTit').textContent=m.nome||'Corretor';
-    $('dGrid').innerHTML=fld('Imobiliária',imobMap[m.imobiliaria_id])+fld('Perfil',cap(m.perfil))+fld('E-mail',m.email)+fld('Telefone',m.telefone)+fld('CRECI',m.creci)+'<div class="mcell full"><label>Status de acesso</label><strong>'+acessoBadge(m)+'</strong></div>';
+    $('dGrid').innerHTML=fld('Imobiliária',imobMap[m.imobiliaria_id])+fld('Perfil',m.perfil==='estagiario'?'Estagiário':cap(m.perfil))+fld('E-mail',m.email)+fld('Telefone',m.telefone)+fld('CRECI',m.creci)+(m.perfil==='estagiario'?fld('Corretor responsável',m.supervisor_nome):'')+'<div class="mcell full"><label>Status de acesso</label><strong>'+acessoBadge(m)+'</strong></div>';
     dm.classList.add('open');}
   $('dClose').addEventListener('click',function(){dm.classList.remove('open');});
   $('dClose2').addEventListener('click',function(){dm.classList.remove('open');});
@@ -207,7 +208,11 @@ td.strong{font-weight:700;color:var(--heading)}
     $('f_imob').innerHTML=imobs.map(function(i){return '<option value="'+esc(i.id)+'">'+esc(i.nome)+'</option>';}).join('');
     if(m.imobiliaria_id)$('f_imob').value=m.imobiliaria_id;
     selVal($('f_perfil'),m.perfil||'corretor');$('f_status').value=(m.status==='Inativo')?'Inativo':'Ativo';
-    fm.dataset.id=m.id||'';fm.classList.add('open');}
+    fm.dataset.id=m.id||'';popSupervisors(m.supervisor_id||'');toggleSup();fm.classList.add('open');}
+  function popSupervisors(selId){var im=$('f_imob').value;var list=items.filter(function(x){return (x.perfil==='corretor')&&String(x.imobiliaria_id||'')===String(im)&&x.id!==fm.dataset.id;});var sel=$('f_supervisor');sel.innerHTML=list.length?list.map(function(x){return '<option value="'+esc(x.id)+'">'+esc(x.nome||'—')+'</option>';}).join(''):'<option value="">Nenhum corretor nesta imobiliária</option>';if(selId)selVal(sel,selId);}
+  function toggleSup(){var est=$('f_perfil').value==='estagiario';$('supRow').style.display=est?'':'none';$('f_creci').placeholder=est?'Sem CRECI (atua na rede do corretor)':'';if(!fm.dataset.id)$('fTit').textContent=est?'Novo estagiário':'Novo corretor';if(est)popSupervisors($('f_supervisor').value);}
+  $('f_perfil').addEventListener('change',toggleSup);
+  $('f_imob').addEventListener('change',function(){if($('f_perfil').value==='estagiario')popSupervisors('');});
   function closeForm(){fm.classList.remove('open');}
   $('btnNew').addEventListener('click',function(){if(!imobs.length){alert('Cadastre uma imobiliária antes de criar corretores.');return;}openForm(null);});
   $('fClose').addEventListener('click',closeForm);$('fCancel').addEventListener('click',closeForm);
@@ -216,6 +221,7 @@ td.strong{font-weight:700;color:var(--heading)}
 
   $('fSave').addEventListener('click',function(){
     var o={nome:$('f_nome').value.trim(),imobiliaria_id:$('f_imob').value,email:$('f_email').value.trim(),telefone:$('f_telefone').value.trim(),creci:$('f_creci').value.trim(),perfil:$('f_perfil').value,status:$('f_status').value};
+    if(o.perfil==='estagiario'){var sv=$('f_supervisor');o.supervisor_id=sv.value||'';o.supervisor_nome=(sv.options[sv.selectedIndex]||{}).text||'';o.is_estagiario=true;o.creci='';if(!o.supervisor_id){$('fErr').textContent='Selecione o corretor responsável pelo estagiário.';return;}}
     if(!o.nome){$('fErr').textContent='Informe o nome.';return;}
     if(!o.imobiliaria_id){$('fErr').textContent='Selecione a imobiliária.';return;}
     if(fm.dataset.id)o.id=fm.dataset.id;
