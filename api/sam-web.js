@@ -10,7 +10,7 @@ const INSTANCE = process.env.WA_INSTANCE || 'ailogic-hub-principal';
 const WEB_CONTEXTO = `
 
 # CONTEXTO: SITE PUBLICO DO AI LOGIC HUB
-Voce esta no site publico, conversando com um visitante que busca imovel. Conduza uma curadoria curta e consultiva: entenda a intencao (morar, investir ou alugar), a regiao, a faixa de valor e a principal necessidade, sem interrogatorio. Sugira SOMENTE imoveis do CATALOGO abaixo, sempre citando o codigo; NUNCA invente imoveis, valores nem disponibilidade. IMPORTANTE: sempre que houver imoveis do catalogo na regiao OU na faixa de valor que a pessoa pediu, APRESENTE-OS (ate 3), mesmo que nao batam 100% dos criterios, explicando em uma linha o que difere. Considere "alto padrao" pela faixa de preco e localizacao, sem exigir uma marcacao explicita. So diga que nao encontrou se realmente NAO houver nenhum imovel proximo no catalogo. Ao apresentar, seja direto e atraente: bairro, metragem, quartos/suites, vagas e valor. Depois convide a deixar nome e contato, ou falar no WhatsApp, para agendar visita. Respostas no maximo 5 frases (ou uma lista curta de 2 a 3 imoveis). REGRAS DE CONDUCAO: faca no maximo UMA pergunta por vez; NUNCA repita uma pergunta que a pessoa ja respondeu nem recomece a saudacao; a cada resposta do visitante, AVANCE (se ja sabe intencao e faixa/regiao, va direto aos imoveis do catalogo). Escreva em texto simples e limpo, SEM asteriscos, sem markdown e sem emojis. Nunca use travessao.`;
+Voce esta no site publico, conversando com um visitante que busca imovel. Conduza uma curadoria curta e consultiva: entenda a intencao (morar, investir ou alugar), a regiao, a faixa de valor e a principal necessidade, sem interrogatorio. Sugira SOMENTE imoveis do CATALOGO abaixo, sempre citando o codigo; NUNCA invente imoveis, valores nem disponibilidade. IMPORTANTE: sempre que houver imoveis do catalogo na regiao OU na faixa de valor que a pessoa pediu, APRESENTE-OS (ate 3), mesmo que nao batam 100% dos criterios, explicando em uma linha o que difere. Considere "alto padrao" pela faixa de preco e localizacao, sem exigir uma marcacao explicita. So diga que nao encontrou se realmente NAO houver nenhum imovel proximo no catalogo. Ao apresentar, seja direto e atraente: bairro, metragem, quartos/suites, vagas e valor. Depois convide a deixar nome e contato, ou falar no WhatsApp, para agendar visita. Respostas no maximo 5 frases (ou uma lista curta de 2 a 3 imoveis). REGRAS DE CONDUCAO: faca no maximo UMA pergunta por vez; NUNCA repita uma pergunta que a pessoa ja respondeu nem recomece a saudacao; a cada resposta do visitante, AVANCE (se ja sabe intencao e faixa/regiao, va direto aos imoveis do catalogo). Escreva em texto simples e limpo, SEM asteriscos, sem markdown e sem emojis. Nunca use travessao. No FINAL de cada resposta, adicione em uma nova linha o marcador [[SUG]] seguido de EXATAMENTE 3 sugestoes curtas (2 a 4 palavras cada), do ponto de vista do visitante, para o proximo passo, coerentes com o que ele esta conversando (previstas pelo contexto), separadas por " | ". Exemplo: [[SUG]] Ver mais opcoes | Agendar visita | Falar no WhatsApp. Nunca explique o marcador nem o cite fora do final.`;
 
 let _persona = null, _personaTs = 0;
 async function getPersona() {
@@ -76,11 +76,20 @@ module.exports = async (req, res) => {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: 320, temperature: 0.6, system, messages: clean })
+      body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: 420, temperature: 0.6, system, messages: clean })
     });
     const j = await r.json();
-    const reply = limpa(j && j.content && j.content[0] && j.content[0].text) || 'Me conta um pouco mais que eu organizo as melhores opcoes pra voce.';
-    res.status(200).json({ reply });
+    let reply = limpa(j && j.content && j.content[0] && j.content[0].text) || 'Me conta um pouco mais que eu organizo as melhores opcoes pra voce.';
+    // extrai 3 sugestoes contextuais do marcador [[SUG]] e as remove do texto exibido (sem travessao/asterisco)
+    let sugestoes = [];
+    const idx = reply.indexOf('[[SUG]]');
+    if (idx >= 0) {
+      sugestoes = reply.slice(idx + 7).split('|')
+        .map(s => s.replace(/[—–*]/g, '').replace(/^[-•\d.\)\s]+/, '').trim())
+        .filter(Boolean).slice(0, 3);
+      reply = reply.slice(0, idx).trim();
+    }
+    res.status(200).json({ reply, sugestoes });
   } catch (e) {
     res.status(200).json({ reply: 'Tive um instante de instabilidade. Pode repetir, por favor?' });
   }
