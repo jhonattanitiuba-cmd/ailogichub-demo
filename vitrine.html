@@ -104,7 +104,18 @@ img{max-width:100%;display:block}
 .cta svg{width:18px;height:18px}
 @media(max-width:560px){.brand span{display:none}.search input{width:150px}.mbody{padding:18px}.mfoot .cta{margin-left:0;width:100%;justify-content:center}}
 </style>
-</head>
+<style>
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin:10px 0 6px}
+.catbox{display:flex;flex-direction:column;align-items:flex-start;gap:7px;padding:24px;border:1px solid #e3e9f0;border-radius:18px;background:linear-gradient(160deg,rgba(15,139,255,.06),#fff);cursor:pointer;text-align:left;transition:transform .12s,box-shadow .15s,border-color .15s}
+.catbox:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(15,139,255,.18);border-color:#0f8bff}
+.catbox .cati{width:54px;height:54px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,#0f8bff,#0748bb);color:#fff}
+.catbox .cati svg{width:28px;height:28px}
+.catbox .catn{font-size:21px;font-weight:800;color:#0d1b2f}
+.catbox .catd{font-size:13px;color:#5b6b82}
+.catbox .catq{font-size:12px;font-weight:800;color:#0f8bff;margin-top:2px}
+.voltar{display:inline-flex;align-items:center;gap:8px;margin:4px 0 14px;padding:9px 16px;border:1px solid #cbd3db;border-radius:999px;background:#fff;color:#0d1b2f;font-weight:700;font-size:13px;cursor:pointer;transition:border-color .15s,color .15s}
+.voltar:hover{border-color:#0f8bff;color:#0f8bff}
+</style></head>
 <body>
 <header class="hdr">
   <div class="hdr-in">
@@ -117,6 +128,8 @@ img{max-width:100%;display:block}
 </header>
 
 <div class="wrap">
+  <div class="cats" id="cats"></div>
+  <button class="voltar" id="voltar" style="display:none">‹ Voltar às categorias</button>
   <div class="chips" id="chips"></div>
   <div class="count" id="count"></div>
   <div class="grid" id="grid"></div>
@@ -128,8 +141,8 @@ img{max-width:100%;display:block}
 <script>
 (function(){
   var grid=document.getElementById('grid'),chipsEl=document.getElementById('chips'),
-      countEl=document.getElementById('count'),mbg=document.getElementById('mbg'),modal=document.getElementById('modal');
-  var all=[],list=[],bairro='',fin='',q='',fav={},gIdx=0,gCur=null;
+      countEl=document.getElementById('count'),mbg=document.getElementById('mbg'),modal=document.getElementById('modal'),catsEl=document.getElementById('cats'),voltarEl=document.getElementById('voltar');
+  var all=[],list=[],cat='',bairro='',fin='',q='',fav={},gIdx=0,gCur=null;
   try{fav=JSON.parse(localStorage.getItem('vitrine_fav')||'{}');}catch(_){}
 
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -246,7 +259,7 @@ img{max-width:100%;display:block}
 
   // ---- filtros ----
   function buildChips(){
-    var bs={};all.forEach(function(p){if(p.bairro)bs[p.bairro]=(bs[p.bairro]||0)+1;});
+    var bs={};all.forEach(function(p){if(cat&&categoriaDe(p.tipo)!==cat)return;if(p.bairro)bs[p.bairro]=(bs[p.bairro]||0)+1;});
     var items=['<button class="chip'+(bairro===''?' active':'')+'" data-b="">Todos</button>']
       .concat(Object.keys(bs).sort().map(function(b){return '<button class="chip'+(bairro===b?' active':'')+'" data-b="'+esc(b)+'">'+esc(b)+'</button>';}));
     chipsEl.innerHTML=items.join('');
@@ -254,6 +267,7 @@ img{max-width:100%;display:block}
   }
   function apply(){
     list=all.filter(function(p){
+      if(cat&&categoriaDe(p.tipo)!==cat)return false;
       if(bairro&&p.bairro!==bairro)return false;
       if(fin&&String(p.finalidade||'').toLowerCase()!==fin)return false;
       if(q){var hay=((p.titulo||'')+' '+(p.bairro||'')+' '+(p.cidade||'')+' '+(p.codigo||'')).toLowerCase();if(hay.indexOf(q)<0)return false;}
@@ -261,13 +275,19 @@ img{max-width:100%;display:block}
     });
     render();
   }
+  function categoriaDe(t){t=(t||'').toLowerCase();if(/sala|loja|galp|comercial|conjunto|corporativ|escrit/.test(t))return 'corporativo';if(/terreno|lote|area/.test(t))return 'terreno';return 'residencial';}
+  var CATS=[{key:'residencial',nome:'Residencial',icon:IC.casa,desc:'Apartamentos, casas e coberturas'},{key:'corporativo',nome:'Corporativo',icon:IC.predio,desc:'Salas, lojas e espaços comerciais'},{key:'terreno',nome:'Terrenos',icon:IC.terreno,desc:'Lotes e áreas'}];
+  function renderCats(){var cnt={};all.forEach(function(p){var k=categoriaDe(p.tipo);cnt[k]=(cnt[k]||0)+1;});catsEl.innerHTML=CATS.filter(function(c){return cnt[c.key];}).map(function(c){return '<button class="catbox" data-c="'+c.key+'"><span class="cati">'+c.icon+'</span><span class="catn">'+c.nome+'</span><span class="catd">'+c.desc+'</span><span class="catq">'+cnt[c.key]+' '+(cnt[c.key]>1?'imóveis':'imóvel')+'</span></button>';}).join('');catsEl.querySelectorAll('.catbox').forEach(function(x){x.addEventListener('click',function(){cat=x.getAttribute('data-c');showGrid();});});}
+  function showCats(){cat='';bairro='';q='';fin='';var qi=document.getElementById('q');if(qi)qi.value='';var fi=document.getElementById('fFin');if(fi)fi.value='';catsEl.style.display='grid';voltarEl.style.display='none';chipsEl.style.display='none';countEl.style.display='none';grid.style.display='none';window.scrollTo(0,0);}
+  function showGrid(){catsEl.style.display='none';voltarEl.style.display='inline-flex';chipsEl.style.display='';countEl.style.display='';buildChips();apply();window.scrollTo(0,0);}
+  voltarEl.addEventListener('click',showCats);
   document.getElementById('q').addEventListener('input',function(){q=this.value.trim().toLowerCase();apply();});
   document.getElementById('fFin').addEventListener('change',function(){fin=this.value;apply();});
 
   // ---- carregar ----
   grid.innerHTML=Array.from({length:6}).map(function(){return '<div class="sk"><div class="m"></div><div class="l"></div><div class="l s"></div></div>';}).join('');
   fetch('/api/vitrine',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
-    all=(d&&d.rows)||[];buildChips();apply();
+    all=(d&&d.rows)||[];renderCats();showCats();
   }).catch(function(){
     grid.style.display='block';
     grid.innerHTML='<div class="state">'+IC.predio+'<h2>Não foi possível carregar</h2><p>Tente novamente em instantes.</p></div>';
