@@ -48,6 +48,30 @@ async function evoSend(remoteJid, text) {
   const number = String(remoteJid).endsWith('@s.whatsapp.net') ? String(remoteJid).split('@')[0] : remoteJid;
   await evoFetch('/message/sendText/' + INSTANCE, { number, text });
 }
+// Curadoria: apos o texto, envia a 1a foto de cada imovel que o SAM citou pelo codigo [COD] (com legenda + link).
+async function enviarFotosCuradoria(remoteJid, texto) {
+  try {
+    if (!EVO_BASE) return;
+    const number = String(remoteJid).endsWith('@s.whatsapp.net') ? String(remoteJid).split('@')[0] : remoteJid;
+    const cods = []; const re = /\[([A-Za-z0-9][A-Za-z0-9\-]{1,24})\]/g; let mm;
+    while ((mm = re.exec(String(texto || ''))) !== null) { const c = mm[1]; if (c.toUpperCase() !== 'TRANSFERIR' && cods.indexOf(c) < 0) cods.push(c); }
+    if (!cods.length) return;
+    const alvo = cods.slice(0, 3);
+    const r = await db('select codigo, titulo, bairro, cidade, preco, extra from imoveis where deleted_at is null and codigo = any($1)', [alvo]);
+    const byCod = {}; r.rows.forEach(x => { byCod[String(x.codigo)] = x; });
+    for (const c of alvo) {
+      const im = byCod[c]; if (!im) continue;
+      const ex = im.extra || {};
+      const fotos = Array.isArray(ex.fotos) ? ex.fotos : (ex.foto ? [ex.foto] : []);
+      const url = fotos[0]; if (!url) continue;
+      const preco = im.preco != null ? ('R$ ' + Number(im.preco).toLocaleString('pt-BR')) : '';
+      const loc = [im.bairro, im.cidade].filter(Boolean).join(', ');
+      const cap = '*' + (im.titulo || ('Imóvel ' + c)) + '*' + (loc ? '\n' + loc : '') + (preco ? '\n' + preco : '') + '\n\nCód. ' + c + ' · https://ailogichub.app/imovel?cod=' + encodeURIComponent(c);
+      try { await evoFetch('/message/sendMedia/' + INSTANCE, { number, mediatype: 'image', media: url, caption: cap }); } catch (_) {}
+      await new Promise(res => setTimeout(res, 500));
+    }
+  } catch (_) {}
+}
 // mostra "digitando..." antes de mandar
 async function evoPresence(number, delay) {
   try { await evoFetch('/chat/sendPresence/' + INSTANCE, { number, delay, presence: 'composing' }); } catch (_) {}
@@ -428,6 +452,7 @@ module.exports = async (req, res) => {
     }
     await salvarTurno(remoteJid, 'assistant', resposta);
     await sendChunks(remoteJid, resposta);
+    if (!querTransferir) await enviarFotosCuradoria(remoteJid, resposta);
     res.status(200).json({ ok: true, respondido: true, transferido: querTransferir, motor: ANTHROPIC_KEY ? 'claude' : (OPENAI_KEY ? 'openai' : 'basico'), turns: messages.length });
   } catch (e) {
     res.status(200).json({ ok: false, erro: String((e && e.message) || e) });
