@@ -78,7 +78,7 @@ module.exports = async (req, res) => {
     });
     const j = await r.json();
     const reply = limpa(j && j.content && j.content[0] && j.content[0].text) || 'Me conta um pouco mais que eu organizo as melhores opcoes pra voce.';
-    res.status(200).json({ reply, _cat: catalogo.length, _per: (persona || '').length });
+    res.status(200).json({ reply });
   } catch (e) {
     res.status(200).json({ reply: 'Tive um instante de instabilidade. Pode repetir, por favor?' });
   }
