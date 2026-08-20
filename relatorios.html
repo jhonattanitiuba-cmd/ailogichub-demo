@@ -102,6 +102,10 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
     <div class="panel" id="panCorretores"><div class="panel-head"><h3 id="hCorretores">Ranking de corretores</h3></div><div class="pbody" id="pCorretores"><div class="empty">Carregando…</div></div></div>
     <div class="panel"><div class="panel-head"><h3>Clientes por status</h3></div><div class="pbody" id="pClientes"><div class="empty">Carregando…</div></div></div>
   </section>
+  <section class="grid2">
+    <div class="panel"><div class="panel-head"><h3 id="hStars">Satisfação: nota dos corretores (1 a 6)</h3></div><div class="pbody" id="pStars"><div class="empty">Carregando…</div></div></div>
+    <div class="panel"><div class="panel-head"><h3>Satisfação com o Hub</h3></div><div class="pbody" id="pHubNota"><div class="empty">Carregando…</div></div></div>
+  </section>
 </main>
 </div>
 
@@ -188,6 +192,17 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
     // clientes por status
     var byS={};leads.forEach(function(l){var k=String(l.status||'').trim()||'Sem status';byS[k]=(byS[k]||0)+1;});
     bars(document.getElementById('pClientes'),Object.keys(byS).map(function(k){return {n:k,v:byS[k]};}).sort(function(x,y){return y.v-x.v;}),'');
+
+    // B4 Satisfacao (estrelas 1 a 6). Demo deterministico a partir do nome do corretor.
+    function hstr(s){var h=0;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}return h;}
+    function stars(n){var out='';for(var i=1;i<=6;i++){out+='<span style="color:'+(i<=n?'#f5a623':'#d5deea')+';font-size:15px">★</span>';}return '<span style="letter-spacing:1px">'+out+'</span>';}
+    var corrSet={};cards.forEach(function(c){var k=String(c.corretor_nome||'').trim();if(k)corrSet[k]=1;});
+    var notas=Object.keys(corrSet).map(function(k){var r=4+(hstr(k)%201)/100;return {n:k,r:Math.round(Math.min(6,r)*10)/10};}).sort(function(a,b){return b.r-a.r;}).slice(0,8);
+    var pS=document.getElementById('pStars');
+    if(!notas.length){pS.innerHTML='<div class="empty">Sem avaliações ainda.</div>';}
+    else{pS.innerHTML=notas.map(function(x){return '<div class="brow"><div class="blab" title="'+esc(x.n)+'">'+esc(x.n)+'</div><div>'+stars(Math.round(x.r))+'</div><div class="bval">'+x.r.toFixed(1)+'</div></div>';}).join('');}
+    var media=notas.length?Math.round(notas.reduce(function(s,x){return s+x.r;},0)/notas.length*10)/10:5.4;
+    document.getElementById('pHubNota').innerHTML='<div style="text-align:center;padding:8px 0 4px"><div style="font-size:40px;font-weight:900;color:var(--heading);line-height:1">'+media.toFixed(1)+'</div><div style="margin:6px 0 2px">'+stars(Math.round(media))+'</div><div style="color:var(--muted);font-size:12px">nota média do Hub (1 a 6)</div></div><div class="brow" style="margin-top:8px"><div class="blab">Atendimento do curador</div><div>'+stars(6)+'</div><div class="bval">5.8</div></div><div class="brow"><div class="blab">Jornada e documentação</div><div>'+stars(5)+'</div><div class="bval">5.3</div></div>';
   });
 
   var tt=document.getElementById('themeToggle');
