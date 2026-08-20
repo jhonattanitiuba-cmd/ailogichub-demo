@@ -96,7 +96,11 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
   </section>
   <section class="grid2">
     <div class="panel"><div class="panel-head"><h3>Negócios por imobiliária (valor)</h3></div><div class="pbody" id="pImob"><div class="empty">Carregando…</div></div></div>
-    <div class="panel"><div class="panel-head"><h3>Situação dos negócios</h3></div><div class="pbody" id="pSit"><div class="empty">Carregando…</div></div></div>
+    <div class="panel"><div class="panel-head"><h3 id="hSit">Situação dos negócios</h3></div><div class="pbody" id="pSit"><div class="empty">Carregando…</div></div></div>
+  </section>
+  <section class="grid2">
+    <div class="panel" id="panCorretores"><div class="panel-head"><h3 id="hCorretores">Ranking de corretores</h3></div><div class="pbody" id="pCorretores"><div class="empty">Carregando…</div></div></div>
+    <div class="panel"><div class="panel-head"><h3>Clientes por status</h3></div><div class="pbody" id="pClientes"><div class="empty">Carregando…</div></div></div>
   </section>
 </main>
 </div>
@@ -121,38 +125,69 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
     fetch(DASH+'?action=funil',{cache:'no-store'}).then(function(r){return r.json();}).catch(function(){return {cards:[]};})
   ]).then(function(a){
     var leads=a[0],negs=a[1],fontes=a[2],imobs=a[3];
-    var etapas=(a[4]&&a[4].funil&&a[4].funil.etapas)||[];
+    var etapas=(a[5]&&a[5].etapas)||(a[4]&&a[4].funil&&a[4].funil.etapas)||[];
     var cards=(a[5]&&a[5].cards)||[];
+
+    // perfil + nome -> personaliza o relatorio para a realidade de cada perfil
+    var perfil='',nome='';
+    try{var s=JSON.parse(localStorage.getItem('ailogic-auth')||'{}');var u=(s&&s.user)||(s&&s.currentSession&&s.currentSession.user)||{};perfil=String((u.user_metadata&&u.user_metadata.perfil)||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');nome=String((u.user_metadata&&u.user_metadata.nome)||u.email||'').trim();}catch(_){}
+    var isAdmin=/admin|diretor|dono|owner/.test(perfil);
+    var isCorretor=(/corretor|autonomo|parceiro|estagiario/.test(perfil))&&!isAdmin;
+    var primeiro=(nome.split(' ')[0]||'');
+    var h1=document.querySelector('.headline h1'),sub=document.querySelector('.headline p');
+    if(isAdmin){h1.textContent='Relatório da rede';sub.textContent='Visão consolidada de todas as imobiliárias: clientes, corretores e resultados, com dados reais.';}
+    else if(isCorretor){h1.textContent='Seus resultados'+(primeiro?', '+primeiro:'');sub.textContent='Seus negócios, visitas e conversão na plataforma, com dados reais.';}
+    else {h1.textContent='Relatório da operação';sub.textContent='Clientes, equipe e resultados da sua imobiliária, com dados reais.';}
+
+    // corretor: recorta os cards para os proprios (por nome do corretor)
+    var viewCards=cards;
+    if(isCorretor&&primeiro){var nlow=nome.toLowerCase(),plow=primeiro.toLowerCase();var vc=cards.filter(function(c){var cn=String(c.corretor_nome||'').toLowerCase();return cn&&(cn.indexOf(nlow)>=0||cn.indexOf(plow)>=0);});if(vc.length)viewCards=vc;}
+    function fechadoDe(c){return /fechado|ganho/.test(String(c.etapa||'').toLowerCase());}
+
     var fechados=negs.filter(function(n){return n.fechado_em;});
     var receita=fechados.reduce(function(s,n){return s+(n.comissao||0);},0);
     var comValor=negs.filter(function(n){return n.valor;});
     var totalValor=negs.reduce(function(s,n){return s+(n.valor||0);},0);
-
     kset('leads',leads.length);
     kset('negocios',negs.length);
     kset('conv',leads.length?Math.round(fechados.length/leads.length*100)+'%':'—');
     kset('receita',brl(receita));
     kset('ticket',comValor.length?brl(totalValor/comValor.length):'—');
 
-    // funil (usa etapas do dash; senão agrupa cards)
+    // funil (etapas configuraveis; recorte por perfil)
     var fr;
-    if(etapas.length){fr=etapas.map(function(e){return {n:e.nome,v:(e.negocios!=null?e.negocios:cards.filter(function(c){return c.etapa===e.key;}).length)};});}
-    else {var byE={};cards.forEach(function(c){var k=c.etapa||'—';byE[k]=(byE[k]||0)+1;});fr=Object.keys(byE).map(function(k){return {n:k,v:byE[k]};});}
+    if(etapas.length){fr=etapas.map(function(e){return {n:e.nome,v:viewCards.filter(function(c){return c.etapa===e.key;}).length};});}
+    else {var byE={};viewCards.forEach(function(c){var k=c.etapa||'—';byE[k]=(byE[k]||0)+1;});fr=Object.keys(byE).map(function(k){return {n:k,v:byE[k]};});}
     bars(document.getElementById('pFunil'),fr,'');
 
-    // origem
+    // origem dos clientes (leads)
     var fmap={};fontes.forEach(function(f){fmap[f.id]=f.nome||f.canal;});
     var byF={};leads.forEach(function(l){var k=fmap[l.fonte_id]||'Sem origem';byF[k]=(byF[k]||0)+1;});
     bars(document.getElementById('pOrigem'),Object.keys(byF).map(function(k){return {n:k,v:byF[k]};}).sort(function(x,y){return y.v-x.v;}),'g');
 
-    // negocios por imobiliaria (valor)
+    // gestao: negocios por imobiliaria (rede) — some para corretor
     var imobMap={};imobs.forEach(function(i){imobMap[i.id]=i.nome;});
-    var byI={};negs.forEach(function(n){var k=imobMap[n.imobiliaria_id]||'—';byI[k]=(byI[k]||0)+(n.valor||0);});
-    var ir=Object.keys(byI).map(function(k){return {n:k,v:byI[k]};}).filter(function(r){return r.v>0;}).sort(function(x,y){return y.v-x.v;}).slice(0,8);
-    bars(document.getElementById('pImob'),ir,'p',brl);
+    var secImob=document.getElementById('pImob'),panImob=secImob&&secImob.closest?secImob.closest('.panel'):null;
+    if(isCorretor){ if(panImob)panImob.style.display='none'; }
+    else { var hI=panImob?panImob.querySelector('h3'):null; if(hI)hI.textContent=isAdmin?'Negócios por imobiliária (valor)':'Negócios da sua imobiliária (valor)';
+      var byI={};negs.forEach(function(n){var k=imobMap[n.imobiliaria_id]||'—';byI[k]=(byI[k]||0)+(n.valor||0);});
+      bars(secImob,Object.keys(byI).map(function(k){return {n:k,v:byI[k]};}).filter(function(r){return r.v>0;}).sort(function(x,y){return y.v-x.v;}).slice(0,8),'p',brl); }
 
-    // situacao
-    bars(document.getElementById('pSit'),[{n:'Fechados',v:fechados.length},{n:'Em aberto',v:negs.length-fechados.length}],'o');
+    // resultados: fechados x em aberto (recorte por perfil)
+    var vFech=viewCards.filter(fechadoDe).length;
+    var hSit=document.getElementById('hSit'); if(hSit)hSit.textContent=isCorretor?'Seus resultados':'Situação dos negócios';
+    bars(document.getElementById('pSit'),[{n:'Fechados',v:vFech},{n:'Em aberto',v:Math.max(0,viewCards.length-vFech)}],'o');
+
+    // ranking de corretores (some para o proprio corretor)
+    var panCor=document.getElementById('panCorretores'),hc=document.getElementById('hCorretores');
+    if(isCorretor){ if(panCor)panCor.style.display='none'; }
+    else { if(hc)hc.textContent=isAdmin?'Ranking de corretores (rede)':'Ranking da sua equipe';
+      var byC={};cards.forEach(function(c){var k=String(c.corretor_nome||'').trim();if(!k)return;byC[k]=(byC[k]||0)+1;});
+      bars(document.getElementById('pCorretores'),Object.keys(byC).map(function(k){return {n:k,v:byC[k]};}).sort(function(x,y){return y.v-x.v;}).slice(0,8),'',function(v){return v+' neg.';}); }
+
+    // clientes por status
+    var byS={};leads.forEach(function(l){var k=String(l.status||'').trim()||'Sem status';byS[k]=(byS[k]||0)+1;});
+    bars(document.getElementById('pClientes'),Object.keys(byS).map(function(k){return {n:k,v:byS[k]};}).sort(function(x,y){return y.v-x.v;}),'');
   });
 
   var tt=document.getElementById('themeToggle');
