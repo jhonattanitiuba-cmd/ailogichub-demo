@@ -267,13 +267,21 @@ Voce esta num grupo de WhatsApp com os SOCIOS do Hub, nao com clientes. Voce e u
 // Conhecimento do EVENTO de pre-lancamento (so o SAM do GRUPO usa; nao entra no atendimento de cliente).
 const EVENTO_PRELANCAMENTO = `
 
-# EVENTO DE PRE-LANCAMENTO DA AILOGIC HUB (voce pode falar disso no grupo de socios quando perguntarem)
-Datas: 20 a 22 de agosto de 2026. Status geral: praticamente lotado, 28 convidados confirmados, 1 aguardando (Elson Garcia).
-- 20/08 (quinta) 09h: LOTADO (6 de 6). 14h: LOTADO (6 de 6).
-- 21/08 (sexta) 09h: 7 confirmados. 14h: LOTADO (6 de 6).
-- 22/08 (sabado) 09h: 3 confirmados mais Elson aguardando; restam 2 vagas livres.
-Publico presente: corretores, imobiliarias, incorporadores e construtores, cartorios, financiamento (Caixa), advogada.
-A unica janela com vaga e o sabado 22/08 as 09h (2 vagas). Informe agenda, status e vagas de forma clara e cordial; nao precisa listar nomes um a um a menos que peçam.`;
+# EVENTO DE PRE-LANCAMENTO DA AILOGIC HUB (voce pode falar disso no grupo de socios quando perguntarem: agenda, status, vagas e a lista de convidados)
+Datas: 20 a 22 de agosto de 2026. Status geral: praticamente lotado, 28 confirmados, 1 aguardando (Elson Garcia). Unica janela com vaga: sabado 22/08 as 09h (2 vagas).
+
+## 20/08 (quinta)
+09h (LOTADO 6/6): 1) Raizza Colette, Corretora, Boituva; 2) Vanessa, Corretora ABPI, Indaiatuba; 3) Cidinha Amorim, Corretora, Boituva; 4) Antonio Marques Martins, Qualita Imoveis, Sorocaba; 5) Qualita Imoveis, Sorocaba (nome a informar); 6) Marcelo, Proprietario.
+14h (LOTADO 6/6): 1) Fabiana Oliveira, Corretora, Barueri; 2) Vinicius, Vitoria Imoveis; 3) Luciana Midorikawa, Veritas Imobiliaria e Construtora; 4) Pedro Queiroz Lima, Veritas Imobiliaria e Construtora; 5) Allan Fidalgo Fernandes, Incorporador e Construtor; 6) Vitor Rossi Matias, Incorporador e Construtor.
+
+## 21/08 (sexta)
+09h (7 confirmados): 1) Marcelo, HP, Aracariguama; 2) Daniel, Corretor, Alphaville; 3) Vania Murari, Financiamentos Caixa; 4) Jaqueline, JZ Moveis; 5) Everton Almeida, Corretor, Almeida Imobiliaria; 6) Fabricio Rosa, Incorporador, Rosa Empreendimentos; 7) Raphaela, Andrade Midia.
+14h (LOTADO 6/6): 1) Maria de Fatima, Construtora Fsilva, Porta do Sol; 2) Mara Zazula, Imobiliaria Zazula, Mairinque; 3) Ronaldo, Cartorio; 4) Adriana Cruz, Cartorio; 5) Claudia Camargo, Planear Solucoes, Correspondente Caixa; 6) Adriana Felix, Felix Incorporadora.
+
+## 22/08 (sabado)
+09h (3 confirmados + Elson aguardando; 2 vagas livres): 1) Marcia, Cirag, Sao Paulo; 2) Sandro, Solucoes Financeiras, Sao Paulo; 3) Eliane Garcia, Advogada, Imobiliaria; 4) Elson Garcia, Construtor (aguardando confirmacao).
+
+Ao responder: seja claro e cordial. Se pedirem a lista de um dia, liste os nomes daquele dia. Se pedirem vagas, informe que so o sabado 22/08 09h tem 2 vagas.`;
 
 async function respostaGrupo(contexto, messages, forcar) {
   let system = PERSONA_PADRAO + '\n\n' + (contexto || '') + PROMPT_GRUPO;
@@ -321,11 +329,12 @@ module.exports = async (req, res) => {
       // foi mencionado/chamado direto? (mention do numero do Hub, ou nome Sam/AILogic no texto) -> responde SEMPRE
       const ctxInfo = (data.message && ((data.message.extendedTextMessage && data.message.extendedTextMessage.contextInfo) || data.message.contextInfo)) || {};
       const ment = ctxInfo.mentionedJid || [];
-      const mencionado = ment.some(j => String(j).indexOf('5511936238387') >= 0) || /5511936238387/.test(q) || /@?\s*a\.?\s*i\.?\s*logic|\bsam\b/i.test(q);
+      // qualquer @mencao no grupo de socios ja aciona (o WhatsApp manda o @ pelo ID novo/LID, entao nao da p/ so casar o numero); + nome Sam/AILogic
+      const mencionado = ment.length > 0 || /5511936238387/.test(q) || /@?\s*a\.?\s*i\.?\s*logic|\bsam\b/i.test(q);
       const hist = await historico(remoteJid);
       await salvarTurno(remoteJid, 'user', rotulo + q);
-      // pre-filtro barato: fora da mencao, so considera responder se parecer duvida/mencao ao Hub
-      const chama = /\?|\bhub\b|sistema|rod[ií]zio|funil|\blead|im[oó]ve|como funciona|quantos?|qual|quais|onde|quando|pode(m)? (me )?(ajudar|explicar)/i.test(q);
+      // pre-filtro barato: fora da mencao, considera responder se parecer duvida do Hub OU do evento
+      const chama = /\?|\bhub\b|sistema|rod[ií]zio|funil|\blead|im[oó]ve|evento|vaga|agenda|lan[çc]amento|convidad|s[aá]bado|sexta|quinta|como funciona|quantos?|qual|quais|onde|quando|pode(m)? (me )?(ajudar|explicar)/i.test(q);
       if (!mencionado && !chama) { res.status(200).json({ ok: true, grupo: true, respondido: false, motivo: 'sem gatilho' }); return; }
       const messages = [...hist, { role: 'user', content: rotulo + q }];
       while (messages.length > 1 && messages[messages.length - 2].role === 'user') messages.splice(messages.length - 2, 1);
