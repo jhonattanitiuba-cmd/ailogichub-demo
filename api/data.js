@@ -147,6 +147,26 @@ module.exports = async (req, res) => {
   try {
     const user = await requireAuth(req, res); if (!user) return;
     if (!DB_URL) { res.status(500).json({ error: 'backend nao configurado (DB_URL)' }); return; }
+    // Upload de foto de imovel -> Supabase Storage (bucket publico 'imoveis'). Sem ent (nao consome funcao serverless extra).
+    if (req.query && req.query.action === 'upload') {
+      if (!SUPABASE_URL || !SERVICE_KEY) { res.status(500).json({ error: 'storage indisponivel' }); return; }
+      let ub = req.body; if (typeof ub === 'string') { try { ub = JSON.parse(ub); } catch (_) { ub = {}; } } ub = ub || {};
+      const type = String(ub.type || 'image/jpeg');
+      if (!/^image\/(jpeg|png|webp)$/.test(type)) { res.status(400).json({ error: 'tipo invalido' }); return; }
+      const b64 = String(ub.dataBase64 || '').replace(/^data:[^;]+;base64,/, '');
+      if (!b64) { res.status(400).json({ error: 'sem dados' }); return; }
+      const buf = Buffer.from(b64, 'base64');
+      if (!buf.length) { res.status(400).json({ error: 'dados vazios' }); return; }
+      if (buf.length > 8 * 1024 * 1024) { res.status(413).json({ error: 'imagem muito grande' }); return; }
+      const ext = type === 'image/png' ? 'png' : type === 'image/webp' ? 'webp' : 'jpg';
+      const path = (user.imobiliariaId || 'geral') + '/' + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6) + '.' + ext;
+      const up = await fetch(SUPABASE_URL + '/storage/v1/object/imoveis/' + path, {
+        method: 'POST', headers: { apikey: SERVICE_KEY, Authorization: 'Bearer ' + SERVICE_KEY, 'Content-Type': type, 'x-upsert': 'true' }, body: buf
+      });
+      if (!up.ok) { const t = await up.text().catch(() => ''); res.status(502).json({ error: 'upload falhou', detail: t.slice(0, 200) }); return; }
+      res.status(200).json({ url: SUPABASE_URL + '/storage/v1/object/public/imoveis/' + path });
+      return;
+    }
     const ent = req.query && req.query.ent;
     const action = (req.query && req.query.action) || 'list';
     if (!TABLE[ent]) { res.status(400).json({ error: 'ent invalido' }); return; }
