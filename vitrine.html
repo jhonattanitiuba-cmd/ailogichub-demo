@@ -287,7 +287,7 @@ img{max-width:100%;display:block}
   // ---- carregar ----
   grid.innerHTML=Array.from({length:6}).map(function(){return '<div class="sk"><div class="m"></div><div class="l"></div><div class="l s"></div></div>';}).join('');
   fetch('/api/vitrine',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
-    all=(d&&d.rows)||[];renderCats();showCats();
+    all=((d&&d.rows)||[]).filter(function(p){var pr=Number(p.preco)||0;var f=(p.finalidade||'').toLowerCase();return (f==='locacao'||f==='temporada')?pr>=4000:pr>=700000;});renderCats();showCats();
   }).catch(function(){
     grid.style.display='block';
     grid.innerHTML='<div class="state">'+IC.predio+'<h2>Não foi possível carregar</h2><p>Tente novamente em instantes.</p></div>';
