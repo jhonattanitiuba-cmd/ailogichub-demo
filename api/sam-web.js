@@ -68,7 +68,7 @@ module.exports = async (req, res) => {
     if (req.query && req.query.action === 'resumo') {
       if (!ANTHROPIC_KEY || !msgs.length) { res.status(200).json({ nome: '', perfil: '', checklist: [], resumo: '' }); return; }
       const conversa = msgs.map(m => (m.role === 'assistant' ? 'Sam' : 'Cliente') + ': ' + m.content).join('\n').slice(0, 6000);
-      const sys = 'Voce resume um atendimento de curadoria imobiliaria para o corretor que vai receber a visita. Leia a conversa e responda SOMENTE um JSON valido, sem texto fora dele, com as chaves: nome (primeiro nome do cliente se citado, senao vazio), perfil (uma linha curta, ex.: Executivo exigente, ou Familia com filhos), checklist (array de ate 6 criterios concretos que o cliente valoriza, ex.: churrasqueira, sol da manha, 3 vagas, home office), resumo (2 a 3 frases). Sem travessao, sem markdown, sem emojis.';
+      const sys = 'Voce resume um atendimento de curadoria imobiliaria para o corretor que vai receber a visita. Leia a conversa e responda SOMENTE um JSON valido, sem texto fora dele, com as chaves: nome (primeiro nome do cliente se citado, senao vazio), perfil (uma linha curta, ex.: Executivo exigente, ou Familia com filhos), checklist (array de ate 6 criterios concretos que o cliente valoriza, ex.: churrasqueira, sol da manha, 3 vagas, home office), score (numero de 0 a 10 com uma casa decimal: a MEDIA da qualidade e completude das respostas nas etapas de qualificacao, considerando intencao, regiao, faixa de valor e criterios especificos; 10 = tudo claro e detalhado, 0 = quase nada informado), resumo (2 a 3 frases). Sem travessao, sem markdown, sem emojis.';
       try {
         const rr = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST', headers: { 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
@@ -77,7 +77,9 @@ module.exports = async (req, res) => {
         const jj = await rr.json();
         const t = (jj && jj.content && jj.content[0] && jj.content[0].text) || '{}';
         let obj = {}; try { obj = JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)); } catch (_) {}
-        res.status(200).json({ nome: limpa(obj.nome || ''), perfil: limpa(obj.perfil || ''), checklist: (Array.isArray(obj.checklist) ? obj.checklist : []).map(x => limpa(String(x))).filter(Boolean).slice(0, 6), resumo: limpa(obj.resumo || '') });
+        let sc = (obj.score != null && obj.score !== '') ? Number(obj.score) : null;
+        if (sc != null && (isNaN(sc) || sc < 0)) sc = null; else if (sc != null) sc = Math.min(10, Math.round(sc * 10) / 10);
+        res.status(200).json({ nome: limpa(obj.nome || ''), perfil: limpa(obj.perfil || ''), checklist: (Array.isArray(obj.checklist) ? obj.checklist : []).map(x => limpa(String(x))).filter(Boolean).slice(0, 6), score: sc, resumo: limpa(obj.resumo || '') });
       } catch (_) { res.status(200).json({ nome: '', perfil: '', checklist: [], resumo: '' }); }
       return;
     }

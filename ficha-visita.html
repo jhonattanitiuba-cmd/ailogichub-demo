@@ -151,7 +151,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:"Source Serif
       var el=document.getElementById('handoff');if(!el)return;
       var chk=(h.checklist||[]).map(function(x){return '<li style="margin:2px 0">'+esc(x)+'</li>';}).join('');
       el.innerHTML='<h2>Passagem do atendimento</h2>'
-        +(h.perfil?'<div class="grid"><div class="f full"><span>Perfil do cliente</span><b>'+esc(h.perfil)+'</b></div></div>':'')
+        +((h.perfil||h.score!=null)?'<div class="grid">'+(h.perfil?'<div class="f"><span>Perfil do cliente</span><b>'+esc(h.perfil)+'</b></div>':'')+(h.score!=null?'<div class="f"><span>Grau de qualificação</span><b>'+Number(h.score).toFixed(1)+' / 10</b></div>':'')+'</div>':'')
         +(chk?'<p style="margin:8px 0 4px;font-family:Montserrat,Arial,sans-serif;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">Checklist da visita (critérios do cliente)</p><ul style="margin:0 0 10px;padding-left:18px">'+chk+'</ul>':'')
         +(h.resumo?'<p class="clause">'+esc(h.resumo)+'</p>':'');
     }).catch(function(){});
