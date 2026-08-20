@@ -131,7 +131,7 @@ async function imoveisDisponiveis(limite) {
       const carac = [i.quartos ? i.quartos + ' quartos' : '', i.vagas ? i.vagas + ' vagas' : '', i.area_util ? i.area_util + 'm2' : ''].filter(Boolean).join(', ');
       return '- [' + i.codigo + '] ' + (i.tipo || 'imóvel') + (i.finalidade ? '/' + i.finalidade : '') + ' em ' + (loc || 'local a confirmar') + (carac ? ' (' + carac + ')' : '') + ' · ' + preco;
     }).join('\n');
-    return '\n\nIMÓVEIS REAIS DISPONÍVEIS NO ESTOQUE (ofereça SOMENTE estes, nunca invente imóvel/valor; cite o código entre colchetes; filtre pelo que a pessoa procura):\n' + linhas;
+    return '\n\nSELEÇÃO DE IMÓVEIS DO NOSSO PORTFÓLIO (apresente SOMENTE estes, nunca invente imóvel nem valor; cite o código entre colchetes; escolha os que fazem sentido para o cliente). NUNCA use a palavra "estoque", fale em portfólio, seleção, carteira ou curadoria:\n' + linhas;
   } catch (_) { return ''; }
 }
 
