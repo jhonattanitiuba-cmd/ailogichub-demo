@@ -237,7 +237,7 @@
     juridico: ['pessoas', 'leads', 'funil', 'assinaturas', 'relatorios', 'suporte'],
     financeiro: ['financeiro', 'credito', 'parceria', 'relatorios', 'assinaturas'],
     marketing: ['site', 'vitrine', 'anuncios', 'captacao', 'marketing', 'insights', 'mapa'],
-    proprietario: ['imoveis', 'assinaturas', 'relatorios'],
+    proprietario: ['imoveis', 'funil', 'assinaturas', 'relatorios'],
     anunciante: ['imoveis', 'anuncios', 'captacao'],
     cliente: ['imoveis', 'agenda', 'assinaturas'],
     tenant: ['leads', 'funil', 'imoveis', 'agenda', 'whatsapp']
