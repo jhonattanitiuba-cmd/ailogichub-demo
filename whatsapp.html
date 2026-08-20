@@ -411,6 +411,23 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 .sign-row b{color:var(--text);font-weight:700}
 .composer-line{display:flex;align-items:center;gap:8px}
 .composer-line .inp{flex:1}
+
+/* Refino WhatsApp: fino, minimalista, elegante */
+.wa-layout{gap:12px}
+.panel{border-color:rgba(255,255,255,.07);border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.22)}
+.instance-card,.searchbar,.wa-tabs,.chat-header,.composer,.attend-banner{border-color:rgba(255,255,255,.06)!important}
+.kpi{border-radius:14px;border-color:rgba(255,255,255,.07)}
+.wa-tab{font-weight:650;letter-spacing:.01em;border-color:rgba(255,255,255,.09);transition:background .15s,color .15s,border-color .15s}
+.wa-tab:hover{filter:none;border-color:var(--blue);color:#fff}
+.wa-tab.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.searchbar .inp{border-radius:10px;height:38px}
+.composer .inp{border-radius:22px}
+.composer-ic{transition:color .15s,transform .12s;color:var(--muted)}
+.composer-ic:hover{color:var(--blue);transform:translateY(-1px)}
+.btn{border-radius:10px;transition:transform .12s,filter .15s,border-color .15s}
+.btn:hover{transform:translateY(-1px)}
+.inst-ic{transition:color .15s}.inst-ic:hover{color:var(--blue)}
+.chat-header,.composer{backdrop-filter:blur(4px)}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -453,8 +470,8 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   <header class="header">
     <div class="headline"><h1>WhatsApp · Atendimento</h1><p>A IA atende sozinha e transfere para você quando precisa. Assuma uma conversa e devolva à IA digitando ponto (.).</p></div>
     <div style="display:flex;gap:10px;align-items:center">
-      <button class="btn" id="btnAgendar" title="Agendar mensagens e follow-ups">🗓 Agendar</button>
-      <button class="btn" id="btnTreinar">🤖 Treinar IA</button>
+      <button class="btn" id="btnAgendar" title="Agendar mensagens e follow-ups"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>Agendar</button>
+      <button class="btn" id="btnTreinar"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M12 3l1.7 4.6L18 9l-4.3 1.4L12 15l-1.7-4.6L6 9l4.3-1.4L12 3z"/></svg>Treinar IA</button>
       <div class="pill" id="statusPill"><span class="dot" id="statusDot"></span><span id="statusText">Verificando canal…</span></div>
     </div>
   </header>
@@ -490,16 +507,16 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
           <span class="badge gray" id="iaBadge">·</span>
           <div class="dd"><button class="btn" id="btnTransferir" disabled>⇄ Transferir</button><div class="dd-menu" id="ddTransfer"></div></div>
           <button class="btn" id="btnAtender" disabled>Assumir</button>
-          <button class="btn" id="btnLimpar" disabled title="Limpar contexto da IA (o agente esquece esta conversa)">🧹</button>
+          <button class="btn" id="btnLimpar" disabled title="Limpar contexto da IA (o agente esquece esta conversa)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg></button>
           <button class="snd-toggle on" id="sndToggle" title="Som ao receber transferência">♪</button>
           <button class="btn primary" id="btnLead" disabled>＋ Criar lead</button>
         </div>
       </div>
-      <div class="attend-banner" id="attendBanner"><span>🙋 Você está atendendo. Para devolver à IA, digite ponto (.) e envie.</span></div>
+      <div class="attend-banner" id="attendBanner"><span>Você está atendendo. Para devolver à IA, digite ponto (.) e envie.</span></div>
       <div class="chat-stream" id="chatStream"><div class="stream-empty">Escolha uma conversa à esquerda para ver o histórico real de mensagens.</div></div>
       <div class="composer">
         <label class="sign-row"><input type="checkbox" checked tabindex="-1"> Assinar como <b>atendente / depto</b></label>
-        <div class="composer-line"><button class="composer-ic" type="button" tabindex="-1" aria-label="Emoji">🙂</button><button class="composer-ic" type="button" tabindex="-1" aria-label="Anexar">📎</button><input class="inp" id="waInput" placeholder="Escreva uma mensagem para o cliente (WhatsApp)..." disabled /><button class="composer-ic" type="button" tabindex="-1" aria-label="Áudio">🎤</button><button class="btn primary" id="waSend" disabled>Enviar</button></div>
+        <div class="composer-line"><button class="composer-ic" type="button" tabindex="-1" aria-label="Emoji"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14a4 4 0 0 0 7 0"/><path d="M9 9.5h.01M15 9.5h.01"/></svg></button><button class="composer-ic" type="button" tabindex="-1" aria-label="Anexar"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8.5l-9 9a4 4 0 0 1-5.7-5.7l9-9a2.7 2.7 0 0 1 3.8 3.8l-8.6 8.5a1.3 1.3 0 0 1-1.9-1.9l7.8-7.8"/></svg></button><input class="inp" id="waInput" placeholder="Escreva uma mensagem para o cliente (WhatsApp)..." disabled /><button class="composer-ic" type="button" tabindex="-1" aria-label="Áudio"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button class="btn primary" id="waSend" disabled>Enviar</button></div>
       </div>
     </div>
 
@@ -525,12 +542,12 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 
 <div class="drawer" id="drawerTreino">
   <div class="drawer-panel">
-    <h3><span class="agent-ic">🤖</span> Treinar o agente (Sam)</h3>
+    <h3><span class="agent-ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 3l1.7 4.6L18 9l-4.3 1.4L12 15l-1.7-4.6L6 9l4.3-1.4L12 3z"/></svg></span> Treinar o agente (Sam)</h3>
     <p>Edite a persona/base de conhecimento. Vale para as próximas conversas.</p>
     <div style="margin-bottom:14px"><span class="switch" id="iaGlobalSwitch"><span class="track"></span> IA ativa no canal</span></div>
     <textarea id="treinoPersona" placeholder="Persona / instruções do agente..."></textarea>
     <div class="agent-foto-sec">
-      <div class="agent-foto-prev" id="agentFotoPrev">🤖</div>
+      <div class="agent-foto-prev" id="agentFotoPrev"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.7 4.6L18 9l-4.3 1.4L12 15l-1.7-4.6L6 9l4.3-1.4L12 3z"/></svg></div>
       <div class="agent-foto-txt">
         <strong>Foto do agente</strong>
         <span>Aparece nas mensagens enviadas pela IA. Plug and play.</span>
@@ -824,7 +841,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
 
   // ===== treinar o agente (drawer) =====
   var drawer=$("drawerTreino"),iaGlobalOn=true,toolImoveisOn=true;
-  function setAgentFotoPreview(){ var p=$("agentFotoPrev"); if(p) p.innerHTML=agentFoto?'<img src="'+esc(agentFoto)+'" alt="">':"🤖"; }
+  function setAgentFotoPreview(){ var p=$("agentFotoPrev"); if(p) p.innerHTML=agentFoto?'<img src="'+esc(agentFoto)+'" alt="">':'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.7 4.6L18 9l-4.3 1.4L12 15l-1.7-4.6L6 9l4.3-1.4L12 3z"/></svg>'; }
   // redimensiona/quadra a foto p/ ~128px (base64 pequeno): plug and play
   function fileToAvatar(file,cb){ var img=new Image(),url=URL.createObjectURL(file);
     img.onload=function(){ var s=Math.min(img.width,img.height),c=document.createElement("canvas");c.width=c.height=128;
