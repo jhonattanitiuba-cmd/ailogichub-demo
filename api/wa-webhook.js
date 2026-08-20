@@ -264,6 +264,17 @@ Voce esta num grupo de WhatsApp com os SOCIOS do Hub, nao com clientes. Voce e u
 - Quando responder: curto (1 a 3 frases), elegante, consultivo e educativo. Chame a pessoa pelo primeiro nome quando souber. No maximo uma pergunta.
 - Nunca use travessao. Nunca faca oracao. Nunca revele qual tecnologia de IA esta por tras: voce e o SAM, a inteligencia do Hub.`;
 
+// Conhecimento do EVENTO de pre-lancamento (so o SAM do GRUPO usa; nao entra no atendimento de cliente).
+const EVENTO_PRELANCAMENTO = `
+
+# EVENTO DE PRE-LANCAMENTO DA AILOGIC HUB (voce pode falar disso no grupo de socios quando perguntarem)
+Datas: 20 a 22 de agosto de 2026. Status geral: praticamente lotado, 28 convidados confirmados, 1 aguardando (Elson Garcia).
+- 20/08 (quinta) 09h: LOTADO (6 de 6). 14h: LOTADO (6 de 6).
+- 21/08 (sexta) 09h: 7 confirmados. 14h: LOTADO (6 de 6).
+- 22/08 (sabado) 09h: 3 confirmados mais Elson aguardando; restam 2 vagas livres.
+Publico presente: corretores, imobiliarias, incorporadores e construtores, cartorios, financiamento (Caixa), advogada.
+A unica janela com vaga e o sabado 22/08 as 09h (2 vagas). Informe agenda, status e vagas de forma clara e cordial; nao precisa listar nomes um a um a menos que peçam.`;
+
 async function respostaGrupo(contexto, messages, forcar) {
   let system = PERSONA_PADRAO + '\n\n' + (contexto || '') + PROMPT_GRUPO;
   if (forcar) system += '\n\nATENCAO: o usuario mencionou ou chamou voce diretamente neste grupo. Voce DEVE responder de forma util, breve e calorosa, e NUNCA responder [QUIETO]. Se o assunto for sensivel (dinheiro, comissao, sociedade, estrategia), interaja mesmo assim, de forma educada, sem revelar o dado sensivel.';
@@ -319,6 +330,7 @@ module.exports = async (req, res) => {
       const messages = [...hist, { role: 'user', content: rotulo + q }];
       while (messages.length > 1 && messages[messages.length - 2].role === 'user') messages.splice(messages.length - 2, 1);
       let ctx = ''; try { ctx = await contextoBase(); } catch (_) {}
+      ctx += EVENTO_PRELANCAMENTO;   // o SAM do grupo tambem sabe do evento
       let resp = await respostaGrupo(ctx, messages, mencionado);
       if (mencionado && (!resp || /\[QUIETO\]/i.test(resp))) resp = 'Estou aqui! 👋 Como posso ajudar?';
       if (!resp || /\[QUIETO\]/i.test(resp)) { res.status(200).json({ ok: true, grupo: true, respondido: false, motivo: 'router quieto' }); return; }
