@@ -674,7 +674,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     Array.prototype.forEach.call(st.querySelectorAll(".wa-media"),function(el){
       var id=el.getAttribute("data-mid"),fm=el.getAttribute("data-fromme");
       fetch(API+"?action=media&jid="+encodeURIComponent(jid)+"&id="+encodeURIComponent(id)+"&fromMe="+fm,{cache:"force-cache"}).then(function(r){return r.ok?r.json():null;}).then(function(d){
-        if(d&&d.dataUrl){el.innerHTML='<img class="wa-img" src="'+d.dataUrl+'" alt="">';}else{el.innerHTML='<span class="wa-media-ph">🖼️ imagem indisponível</span>';}
+        if(d&&d.dataUrl){el.innerHTML='<img class="wa-img" src="'+d.dataUrl+'" alt="">';}else{el.innerHTML='<span class="wa-media-ph">imagem indisponível</span>';}
       }).catch(function(){el.innerHTML='<span class="wa-media-ph">imagem indisponível</span>';});
     });
     Array.prototype.forEach.call(st.querySelectorAll(".wa-audio"),function(el){
@@ -682,7 +682,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
         if(el.dataset.loaded)return; el.dataset.loaded="1"; el.textContent="carregando áudio…";
         var id=el.getAttribute("data-mid"),fm=el.getAttribute("data-fromme");
         fetch(API+"?action=media&jid="+encodeURIComponent(jid)+"&id="+encodeURIComponent(id)+"&fromMe="+fm,{cache:"force-cache"}).then(function(r){return r.ok?r.json():null;}).then(function(d){
-          if(d&&d.dataUrl){el.innerHTML='<audio controls src="'+d.dataUrl+'" style="width:220px;max-width:100%"></audio>';}else{el.textContent="🎧 áudio indisponível";}
+          if(d&&d.dataUrl){el.innerHTML='<audio controls src="'+d.dataUrl+'" style="width:220px;max-width:100%"></audio>';}else{el.textContent="áudio indisponível";}
         }).catch(function(){el.textContent="áudio indisponível";});
       });
     });
