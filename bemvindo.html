@@ -103,6 +103,13 @@ section+section{margin-top:26px}
 .st-nav{position:absolute;top:64px;bottom:130px;width:36%;z-index:2;background:none;border:0;cursor:pointer}
 .st-prev{left:0}.st-next{right:0}
 .categories{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start}.categories::-webkit-scrollbar{display:none}
+
+/* chat clean */
+.chat{display:flex;flex-direction:column}
+.chat-body{flex:1;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:10px}
+.chat-body .bubble{max-width:88%}
+.chat-input{padding:12px 16px;border-top:1px solid rgba(255,255,255,.1)}
+.sam-mini{width:42px;height:42px;border-radius:50%;object-fit:cover;border:1px solid rgba(57,207,255,.55);box-shadow:0 0 14px rgba(16,192,255,.25)}
 </style>
 </head>
 <body>
@@ -146,7 +153,7 @@ section+section{margin-top:26px}
 </div></section>
 </main>
 <footer class="footer"><div class="container footer-grid"><div><a class="brand" href="#"><!-- Substitua src="" abaixo pela URL/arquivo do logo oficial. Ao preencher o src, altere via CSS .logo-placeholder img{display:block} e remova/oculte o ::after. --><span class="logo-placeholder"><img src="" alt="Logo AiLogic Hub"></span><span class="brand-name">Logic Hub<small>Inteligência que Conecta</small></span></a><p style="margin-top:14px">O Hub da inteligência que conecta<br>o mercado imobiliário.</p><p>© 2026 AI Logic Hub.</p></div><div><h4>Explorar</h4><p><a href="#imoveis">Imóveis</a><br><a href="#imoveis">Lançamentos</a><br><a href="#imoveis">Alto padrão</a></p></div><div><h4>Participar</h4><p><a href="#parceiros">Para corretores</a><br><a href="#parceiros">Para imobiliárias</a><br><a href="#parceiros">Para incorporadoras</a></p></div><div><h4>Legal</h4><p>Privacidade e LGPD<br>Termos de uso</p></div><div><h4>Siga-nos</h4><div class="socials"><a href="#">◎</a><a href="#">in</a><a href="#">▶</a></div></div></div></footer>
-<div class="chat" id="samChat" role="dialog" aria-label="Conversa com o Sam"><div class="chat-head"><div><strong>Sam</strong><div class="online" style="margin-top:3px">Online</div></div><button class="close" id="closeChat" aria-label="Fechar">×</button></div><div class="chat-body"><div class="bubble" id="samBubble">Olá. Me conte o que você procura e eu transformo isso em uma curadoria objetiva, com poucas opções realmente compatíveis.</div><div class="chat-input"><input id="chatInput" placeholder="Ex.: Quero um apartamento nos Jardins..."><button id="sendChat" aria-label="Enviar"><svg class="icon"><use href="#i-send"/></svg></button></div></div></div>
+<div class="chat" id="samChat" role="dialog" aria-label="Conversa com o Sam"><div class="chat-head"><div style="display:flex;align-items:center;gap:11px"><img class="sam-mini" src="/assets/sam-avatar.png" alt="Sam"><div><strong>Sam</strong><div class="online" style="margin-top:3px">Online</div></div></div><button class="close" id="closeChat" aria-label="Fechar">×</button></div><div class="chat-body"><div class="bubble" id="samBubble">Olá. Me conte o que você procura e eu transformo isso em uma curadoria objetiva, com poucas opções realmente compatíveis.</div></div><div class="chat-input"><input id="chatInput" placeholder="Ex.: Quero um apartamento nos Jardins..."><button id="sendChat" aria-label="Enviar"><svg class="icon"><use href="#i-send"/></svg></button></div></div>
 <div class="toast" id="toast"></div>
 <script>
 const chat=document.getElementById('samChat');
