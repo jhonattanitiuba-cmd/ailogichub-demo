@@ -116,6 +116,18 @@ section+section{margin-top:26px}
 .bubble.typing span{width:7px;height:7px;border-radius:50%;background:#8aa0b8;display:inline-block;animation:tdot 1.2s infinite}
 .bubble.typing span:nth-child(2){animation-delay:.2s}.bubble.typing span:nth-child(3){animation-delay:.4s}
 @keyframes tdot{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+
+/* bemvindo fix5 */
+.chat{max-height:min(80vh,640px)}
+.chat.min{max-height:none}
+.chat.min .chat-body,.chat.min .chat-input{display:none}
+.chat-btns{display:flex;align-items:center;gap:2px}
+.chat .min{border:0;background:none;color:#fff;font-size:20px;line-height:1;cursor:pointer;padding:0 6px}
+.chat .min:hover,.chat .close:hover{opacity:.7}
+.footer a{cursor:pointer;transition:color .18s ease}
+.footer a:hover{color:#39a0ff}
+.footer .inst-bar{border-top:1px solid rgba(255,255,255,.08);margin-top:22px;padding-top:16px;display:flex;flex-wrap:wrap;gap:6px 24px;font-size:11px;color:#6f7b88}
+.foot-logo{height:34px;width:auto;display:block}
 </style>
 </head>
 <body>
@@ -158,8 +170,8 @@ section+section{margin-top:26px}
 <section class="cta-grid" id="parceiros"><article class="promo owner"><div class="promo-content"><div class="eyebrow">Para proprietários</div><h3>Seu imóvel diante de quem realmente procura.</h3><p>Apresente seu imóvel com inteligência e conecte-se a clientes qualificados.</p><button class="white-btn" onclick="toast('Cadastro de imóvel iniciado')">Anunciar meu imóvel&nbsp; <svg class="icon"><use href="#i-send"/></svg></button></div></article><article class="promo partner"><div class="promo-content"><div class="eyebrow">Para profissionais</div><h3>Você cuida da visita.<br>O Hub cuida da jornada.</h3><p>Mais tempo, mais conversão e uma estrutura completa para o seu negócio.</p><button class="white-btn" onclick="toast('Área de parceiros aberta')">Quero ser parceiro&nbsp; <svg class="icon"><use href="#i-send"/></svg></button></div></article></section>
 </div></section>
 </main>
-<footer class="footer"><div class="container footer-grid"><div><a class="brand" href="#"><!-- Substitua src="" abaixo pela URL/arquivo do logo oficial. Ao preencher o src, altere via CSS .logo-placeholder img{display:block} e remova/oculte o ::after. --><span class="logo-placeholder"><img src="" alt="Logo AiLogic Hub"></span><span class="brand-name">Logic Hub<small>Inteligência que Conecta</small></span></a><p style="margin-top:14px">O Hub da inteligência que conecta<br>o mercado imobiliário.</p><p>© 2026 AI Logic Hub.</p></div><div><h4>Explorar</h4><p><a href="#imoveis">Imóveis</a><br><a href="#imoveis">Lançamentos</a><br><a href="#imoveis">Alto padrão</a></p></div><div><h4>Participar</h4><p><a href="#parceiros">Para corretores</a><br><a href="#parceiros">Para imobiliárias</a><br><a href="#parceiros">Para incorporadoras</a></p></div><div><h4>Legal</h4><p>Privacidade e LGPD<br>Termos de uso</p></div><div><h4>Siga-nos</h4><div class="socials"><a href="#">◎</a><a href="#">in</a><a href="#">▶</a></div></div></div></footer>
-<div class="chat" id="samChat" role="dialog" aria-label="Conversa com o Sam"><div class="chat-head"><div style="display:flex;align-items:center;gap:11px"><img class="sam-mini" src="/assets/sam-avatar.png" alt="Sam"><div><strong>Sam</strong><div class="online" style="margin-top:3px">Online</div></div></div><button class="close" id="closeChat" aria-label="Fechar">×</button></div><div class="chat-body"><div class="bubble" id="samBubble">Olá. Me conte o que você procura e eu transformo isso em uma curadoria objetiva, com poucas opções realmente compatíveis.</div></div><div class="chat-input"><input id="chatInput" placeholder="Ex.: Quero um apartamento nos Jardins..."><button id="sendChat" aria-label="Enviar"><svg class="icon"><use href="#i-send"/></svg></button></div></div>
+<footer class="footer"><div class="container footer-grid"><div><a class="brand" href="#"><img class="foot-logo" src="/assets/logo-horizontal.png" alt="AILogic Hub"></a><p style="margin-top:14px">O Hub da inteligência que conecta<br>o mercado imobiliário.</p><p>© 2026 AILogic Hub.</p></div><div><h4>Explorar</h4><p><a href="#imoveis">Imóveis</a><br><a href="#imoveis">Lançamentos</a><br><a href="#imoveis">Alto padrão</a></p></div><div><h4>Participar</h4><p><a href="#parceiros">Para corretores</a><br><a href="#parceiros">Para imobiliárias</a><br><a href="#parceiros">Para incorporadoras</a></p></div><div><h4>Legal</h4><p><a href="#">Privacidade e LGPD</a><br><a href="#">Termos de uso</a></p></div><div><h4>Siga-nos</h4><div class="socials"><a href="#">◎</a><a href="#">in</a><a href="#">▶</a></div></div></div><div class="container inst-bar"><span>© 2026 AILogic Hub. Todos os direitos reservados.</span><span>Inteligência que conecta o mercado imobiliário.</span><span>Este canal é informativo. As negociações são conduzidas pelos parceiros credenciados do Hub.</span></div></footer>
+<div class="chat" id="samChat" role="dialog" aria-label="Conversa com o Sam"><div class="chat-head"><div style="display:flex;align-items:center;gap:11px"><img class="sam-mini" src="/assets/sam-avatar.png" alt="Sam"><div><strong>Sam</strong><div class="online" style="margin-top:3px">Online</div></div></div><div class="chat-btns"><button class="min" id="minChat" aria-label="Minimizar">—</button><button class="close" id="closeChat" aria-label="Fechar">×</button></div></div><div class="chat-body"><div class="bubble" id="samBubble">Olá. Me conte o que você procura e eu transformo isso em uma curadoria objetiva, com poucas opções realmente compatíveis.</div></div><div class="chat-input"><input id="chatInput" placeholder="Ex.: Quero um apartamento nos Jardins..."><button id="sendChat" aria-label="Enviar"><svg class="icon"><use href="#i-send"/></svg></button></div></div>
 <div class="toast" id="toast"></div>
 <script>
 const chat=document.getElementById('samChat');
@@ -204,8 +216,9 @@ var bar=box.querySelectorAll('.st-bar > i')[idx];if(bar){void bar.offsetWidth;ba
 Array.prototype.forEach.call(box.querySelectorAll('[data-a]'),function(b){b.addEventListener('click',function(e){e.stopPropagation();act(b.getAttribute('data-a'),p);});});}
 function next(){idx=(idx+1)%items.length;start();}
 function start(){render();clearTimeout(timer);timer=setTimeout(next,DUR);}
-fetch('/api/vitrine',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){items=((d&&d.rows)||[]).slice(0,8);if(!items.length){box.innerHTML='<div style="padding:40px;text-align:center;color:#8aa0b8">Curadoria em preparo.</div>';return;}start();}).catch(function(){});
+fetch('/api/vitrine',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){items=((d&&d.rows)||[]).filter(function(x){return (x.fotos&&x.fotos[0])||x.foto;}).slice(0,8);if(!items.length){box.innerHTML='<div style="padding:40px;text-align:center;color:#8aa0b8">Curadoria em preparo.</div>';return;}start();}).catch(function(){});
 })();
 (function(){if(!('IntersectionObserver' in window))return;var els=document.querySelectorAll('section');els.forEach(function(el){el.classList.add('reveal');});var io=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12,rootMargin:'0px 0px -8% 0px'});els.forEach(function(el){io.observe(el);});})();
 </script>
+<script>/* min-wire */(function(){var m=document.getElementById("minChat"),c=document.getElementById("samChat");if(m&&c)m.addEventListener("click",function(){c.classList.toggle("min");});})();</script>
 </body></html>
