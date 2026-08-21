@@ -62,7 +62,7 @@ a{color:inherit;text-decoration:none}button,input{font:inherit}button{cursor:poi
 
 /* header estilo /site */
 .header .container.nav{padding-top:15px;padding-bottom:15px}
-.brand img{height:36px;width:auto;object-fit:contain;display:block}
+.brand img{height:44px;width:auto;object-fit:contain;display:block}
 .brand{gap:0}
 
 /* avatar do Sam + bolinha piscando */
@@ -128,6 +128,9 @@ section+section{margin-top:26px}
 .footer a:hover{color:#39a0ff}
 .footer .inst-bar{border-top:1px solid rgba(255,255,255,.08);margin-top:22px;padding-top:16px;display:flex;flex-wrap:wrap;gap:6px 24px;font-size:11px;color:#6f7b88}
 .foot-logo{height:34px;width:auto;display:block}
+/* foot logo end */
+.foot-logo-end{display:flex;justify-content:center;padding-top:26px;margin-top:8px;border-top:1px solid rgba(255,255,255,.06)}
+.foot-logo-end img{height:64px;width:auto;opacity:.95}
 </style>
 </head>
 <body>
@@ -170,7 +173,7 @@ section+section{margin-top:26px}
 <section class="cta-grid" id="parceiros"><article class="promo owner"><div class="promo-content"><div class="eyebrow">Para proprietários</div><h3>Seu imóvel diante de quem realmente procura.</h3><p>Apresente seu imóvel com inteligência e conecte-se a clientes qualificados.</p><button class="white-btn" onclick="toast('Cadastro de imóvel iniciado')">Anunciar meu imóvel&nbsp; <svg class="icon"><use href="#i-send"/></svg></button></div></article><article class="promo partner"><div class="promo-content"><div class="eyebrow">Para profissionais</div><h3>Você cuida da visita.<br>O Hub cuida da jornada.</h3><p>Mais tempo, mais conversão e uma estrutura completa para o seu negócio.</p><button class="white-btn" onclick="toast('Área de parceiros aberta')">Quero ser parceiro&nbsp; <svg class="icon"><use href="#i-send"/></svg></button></div></article></section>
 </div></section>
 </main>
-<footer class="footer"><div class="container footer-grid"><div><a class="brand" href="#"><img class="foot-logo" src="/assets/logo-horizontal.png" alt="AILogic Hub"></a><p style="margin-top:14px">O Hub da inteligência que conecta<br>o mercado imobiliário.</p><p>© 2026 AILogic Hub.</p></div><div><h4>Explorar</h4><p><a href="#imoveis">Imóveis</a><br><a href="#imoveis">Lançamentos</a><br><a href="#imoveis">Alto padrão</a></p></div><div><h4>Participar</h4><p><a href="#parceiros">Para corretores</a><br><a href="#parceiros">Para imobiliárias</a><br><a href="#parceiros">Para incorporadoras</a></p></div><div><h4>Legal</h4><p><a href="#">Privacidade e LGPD</a><br><a href="#">Termos de uso</a></p></div><div><h4>Siga-nos</h4><div class="socials"><a href="#">◎</a><a href="#">in</a><a href="#">▶</a></div></div></div><div class="container inst-bar"><span>© 2026 AILogic Hub. Todos os direitos reservados.</span><span>Inteligência que conecta o mercado imobiliário.</span><span>Este canal é informativo. As negociações são conduzidas pelos parceiros credenciados do Hub.</span></div></footer>
+<footer class="footer"><div class="container footer-grid"><div><p style="margin-top:14px">O Hub da inteligência que conecta<br>o mercado imobiliário.</p><p>© 2026 AILogic Hub.</p></div><div><h4>Explorar</h4><p><a href="#imoveis">Imóveis</a><br><a href="#imoveis">Lançamentos</a><br><a href="#imoveis">Alto padrão</a></p></div><div><h4>Participar</h4><p><a href="#parceiros">Para corretores</a><br><a href="#parceiros">Para imobiliárias</a><br><a href="#parceiros">Para incorporadoras</a></p></div><div><h4>Legal</h4><p><a href="#">Privacidade e LGPD</a><br><a href="#">Termos de uso</a></p></div><div><h4>Siga-nos</h4><div class="socials"><a href="#">◎</a><a href="#">in</a><a href="#">▶</a></div></div></div><div class="container inst-bar"><span>© 2026 AILogic Hub. Todos os direitos reservados.</span><span>Inteligência que conecta o mercado imobiliário.</span><span>Este canal é informativo. As negociações são conduzidas pelos parceiros credenciados do Hub.</span></div><div class="container foot-logo-end"><img src="/assets/logo-horizontal.png" alt="AILogic Hub"></div></footer>
 <div class="chat" id="samChat" role="dialog" aria-label="Conversa com o Sam"><div class="chat-head"><div style="display:flex;align-items:center;gap:11px"><img class="sam-mini" src="/assets/sam-avatar.png" alt="Sam"><div><strong>Sam</strong><div class="online" style="margin-top:3px">Online</div></div></div><div class="chat-btns"><button class="min" id="minChat" aria-label="Minimizar">—</button><button class="close" id="closeChat" aria-label="Fechar">×</button></div></div><div class="chat-body"><div class="bubble" id="samBubble">Olá. Me conte o que você procura e eu transformo isso em uma curadoria objetiva, com poucas opções realmente compatíveis.</div></div><div class="chat-input"><input id="chatInput" placeholder="Ex.: Quero um apartamento nos Jardins..."><button id="sendChat" aria-label="Enviar"><svg class="icon"><use href="#i-send"/></svg></button></div></div>
 <div class="toast" id="toast"></div>
 <script>
