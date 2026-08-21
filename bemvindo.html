@@ -102,6 +102,7 @@ section+section{margin-top:26px}
 .st-cta button.primary{background:#0f8bff;border-color:#0f8bff}
 .st-nav{position:absolute;top:64px;bottom:130px;width:36%;z-index:2;background:none;border:0;cursor:pointer}
 .st-prev{left:0}.st-next{right:0}
+.categories{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start}.categories::-webkit-scrollbar{display:none}
 </style>
 </head>
 <body>
@@ -184,7 +185,7 @@ function openSam(p){try{document.getElementById('samChat').classList.add('open')
 function act(a,p){var cod=encodeURIComponent(p.codigo||'');if(a==='next'){next();}else if(a==='prev'){idx=(idx-1+items.length)%items.length;start();}else if(a==='save'){if(!getCli()){abrirCadastro(function(){toggleSave(p);});return;}toggleSave(p);}else if(a==='sam'){openSam(p);}else if(a==='share'){var u=location.origin+'/imovel?cod='+cod;try{if(navigator.clipboard)navigator.clipboard.writeText(u);}catch(e){}toast('Link copiado');}else if(a==='details'||a==='visit'){window.open('/imovel?cod='+cod,'_blank');}else if(a==='propose'){window.open('/contrato?cod='+cod,'_blank');}}
 function render(){var p=items[idx];if(!p)return;var foto=(p.fotos&&p.fotos[0])||p.foto||'';var loc=[p.bairro,p.cidade].filter(Boolean).join(' · ');var specs=[p.area?p.area+' m2':'',p.suites?p.suites+' suites':(p.quartos?p.quartos+' quartos':''),p.vagas?p.vagas+' vagas':''].filter(Boolean).join(' · ');var match=80+(hash(String(p.codigo||idx))%20);var on=saved.indexOf(String(p.codigo))>=0?'on':'';
 box.innerHTML='<div class="st-media" id="stMedia"></div><div class="st-bars">'+items.map(function(_,i){return '<div class="st-bar"><i style="width:'+(i<idx?100:0)+'%"></i></div>';}).join('')+'</div><div class="st-badge">'+match+'% MATCH</div><button class="st-nav st-prev" data-a="prev"></button><button class="st-nav st-next" data-a="next"></button><div class="st-rail"><button data-a="save" class="'+on+'"><svg class="icon"><use href="#i-heart"/></svg><span>Salvar</span></button><button data-a="sam"><svg class="icon"><use href="#i-chat"/></svg><span>Sam</span></button><button data-a="share"><svg class="icon"><use href="#i-share"/></svg><span>Compartilhar</span></button><button data-a="details"><svg class="icon"><use href="#i-details"/></svg><span>Detalhes</span></button></div><div class="st-info"><div class="st-loc">'+esc(loc)+'</div><div class="st-title">'+esc(p.titulo||('Imovel '+p.codigo))+'</div><div class="st-specs">'+esc(specs)+'</div><div class="st-price">'+brl(p.preco)+'</div><div class="st-cta"><button data-a="visit">Agendar visita</button><button data-a="propose" class="primary">Fazer proposta</button></div></div>';
-if(foto){document.getElementById('stMedia').style.backgroundImage="url('"+String(foto).replace(/["'()\]/g,'')+"')";}
+if(foto){document.getElementById('stMedia').style.backgroundImage="url('"+String(foto).replace(/["'()]/g,'')+"')";}
 var bar=box.querySelectorAll('.st-bar > i')[idx];if(bar){void bar.offsetWidth;bar.style.transition='width '+DUR+'ms linear';bar.style.width='100%';}
 Array.prototype.forEach.call(box.querySelectorAll('[data-a]'),function(b){b.addEventListener('click',function(e){e.stopPropagation();act(b.getAttribute('data-a'),p);});});}
 function next(){idx=(idx+1)%items.length;start();}
