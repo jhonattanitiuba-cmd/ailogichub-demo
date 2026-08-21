@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AI Logic Hub · Imóvel</title><link rel="icon" type="image/png" href="/assets/favicon.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<title>AILogic Hub · Imóvel</title><link rel="icon" type="image/png" href="/assets/favicon.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <style>
 :root{--ink:#0d1b2f;--blue:#0f8bff;--blue2:#0748bb;--ice:#f5f8fc;--line:#e3e9f0;--muted:#5b6b82;--night:#061326}
 *{box-sizing:border-box}body{margin:0;background:var(--ice);color:var(--ink);font-family:Inter,Montserrat,Arial,sans-serif;line-height:1.5}
@@ -47,15 +47,35 @@ input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;ba
 .ok.on{display:block}
 .foot{color:var(--muted);font-size:12px;text-align:center;padding:30px 0}
 @media(max-width:640px){.actions{grid-template-columns:1fr}.gal{aspect-ratio:4/3}}
+
+/* imovel social */
+.top .logo-h{height:30px;width:auto;object-fit:contain}
+.ctabar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:11px clamp(16px,4vw,40px);background:#050c17;border-bottom:1px solid rgba(255,255,255,.08)}
+.ctabar button{text-transform:uppercase;letter-spacing:.04em;font-weight:800;font-size:12px;padding:11px 16px;border-radius:999px;cursor:pointer;border:1px solid var(--blue);background:transparent;color:#cfe6ff;transition:.15s;font-family:inherit}
+.ctabar button:hover{background:var(--blue);color:#fff}
+.ctabar button[data-cta=proposta]{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;border-color:transparent}
+.ctabar .who{margin-left:auto;color:#8fb7e6;font-size:12px;font-weight:700}
+.btn{text-transform:uppercase;letter-spacing:.03em}
+.social{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 0}
+.social button{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 15px;font-weight:700;font-size:13px;cursor:pointer;color:var(--ink);transition:.15s;font-family:inherit}
+.social button:hover{border-color:var(--blue);color:var(--blue)}
+.social button.on{background:#ffe9ef;border-color:#ff4d6d;color:#ff4d6d}
+.social svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8}
+.inst{background:#050c17;color:#8f9aa6;padding:26px clamp(16px,4vw,40px);font-size:12px;line-height:1.7;border-top:1px solid rgba(255,255,255,.08)}
+.inst img{height:28px;width:auto;margin-bottom:10px}
+.inst b{color:#cfe0f2}
+@media(max-width:640px){.ctabar .who{width:100%;margin:4px 0 0}}
 </style>
 </head>
 <body>
-<header class="top"><img src="/assets/logo-ai.png" alt=""><b>AI Logic <span>Hub</span></b></header>
+<header class="top"><img class="logo-h" src="/assets/logo-horizontal.png" alt="AILogic Hub"></header>
+<div class="ctabar" id="ctabar"><button data-cta="duvidas">Tirar dúvidas</button><button data-cta="visita">Agendar visita</button><button data-cta="proposta">Fazer proposta</button><span class="who" id="who"></span></div>
 <div class="wrap" id="wrap"><p style="color:var(--muted)">Carregando imóvel...</p></div>
-<div class="foot">AI Logic Hub · Inteligência que conecta</div>
+<footer class="inst"><img src="/assets/logo-horizontal.png" alt="AILogic Hub"><div><b>AILogic Hub</b> · Inteligência que conecta o mercado imobiliário.</div><div>© 2026 AILogic Hub. Todos os direitos reservados.</div><div>Este canal é informativo. As negociações são conduzidas pelos parceiros credenciados do Hub.</div></footer>
 <script>
 (function(){
   var cod=new URLSearchParams(location.search).get('cod')||'';
+  function getCli(){try{return JSON.parse(localStorage.getItem('ail_cliente')||'null');}catch(e){return null;}}
   function brl(v){return v==null?'Sob consulta':'R$ '+Math.round(v).toLocaleString('pt-BR');}
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   fetch('/api/vitrine',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
@@ -77,8 +97,8 @@ input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;ba
     var gal=fotos.length?'<img id="big" src="'+esc(fotos[0])+'" alt="">':'<div class="ph">Foto em breve</div>';
     var th=fotos.length>1?'<div class="thumbs">'+fotos.map(function(f,i){return '<img class="'+(i===0?'on':'')+'" data-i="'+i+'" src="'+esc(f)+'">';}).join('')+'</div>':'';
     document.getElementById('wrap').innerHTML=
-      '<div class="gal">'+gal+'</div>'+th+
-      '<div class="head"><div><h1>'+esc(p.titulo||'Imóvel')+'</h1><div class="loc">📍 '+esc([p.bairro,p.cidade].filter(Boolean).join(', '))+'</div></div><div class="price">'+brl(p.preco)+'</div></div>'+
+      '<div class="gal">'+gal+'</div>'+th+'<div class="social"><button data-s="save"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-8.6C1 9 3 6 6 6c2 0 3 1 4 2 1-1 2-2 4-2 3 0 5 3 3.5 6.4C19.5 16.4 12 21 12 21z"/></svg>Salvar</button><button data-s="sam"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 3z"/></svg>Perguntar ao Sam</button><button data-s="share"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8 11l8-4M8 13l8 4"/></svg>Compartilhar</button></div>'+
+      '<div class="head"><div><h1>'+esc(p.titulo||'Imóvel')+'</h1><div class="loc">'+esc([p.bairro,p.cidade].filter(Boolean).join(', '))+'</div></div><div class="price">'+brl(p.preco)+'</div></div>'+
       '<div class="tags"><span class="tag">'+fin+'</span>'+(p.tipo?'<span class="tag">'+esc(p.tipo)+'</span>':'')+(p.codigo?'<span class="tag">Cód. '+esc(p.codigo)+'</span>':'')+'</div>'+
       '<div class="specs">'+facts.map(function(f){return '<div><span>'+f[0]+'</span>'+f[1]+'</div>';}).join('')+'</div>'+
       (p.descricao?'<p class="desc">'+esc(p.descricao)+'</p>':'')+
@@ -92,6 +112,7 @@ input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;ba
   }
 
   function wire(p,fotos){
+    var cli=getCli();var who=document.getElementById('who');if(cli&&who)who.textContent='Conectado: '+cli.nome;
     // galeria
     document.querySelectorAll('.thumbs img').forEach(function(t){t.addEventListener('click',function(){document.getElementById('big').src=t.src;document.querySelectorAll('.thumbs img').forEach(function(x){x.classList.toggle('on',x===t);});});});
     // paineis
@@ -109,6 +130,10 @@ input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;ba
     // blocos de horario
     var dias=['Amanhã','Depois'],horas=['09:00','11:00','14:00','16:00'],slots=document.getElementById('slots');
     dias.forEach(function(dia){horas.forEach(function(h){var s=document.createElement('button');s.className='slot';s.innerHTML=h+'<span>'+dia+'</span>';s.addEventListener('click',function(){document.querySelectorAll('.slot').forEach(function(x){x.classList.remove('on');});s.classList.add('on');var ok=document.getElementById('vok');ok.textContent='Visita solicitada para '+dia.toLowerCase()+' às '+h+'. Geramos sua ficha de visita assinada e a confirmação chega pelo WhatsApp.';ok.classList.add('on');var nm=((document.getElementById('pn')||{}).value||'').trim();var wp=((document.getElementById('pw')||{}).value||'').trim();var u='/ficha-visita?cod='+encodeURIComponent(cod||(p&&p.codigo)||'')+'&dia='+encodeURIComponent(dia)+'&hora='+encodeURIComponent(h)+(nm?'&cliente='+encodeURIComponent(nm):'')+(wp?'&whatsapp='+encodeURIComponent(wp):'');window.open(u,'_blank','noopener');});slots.appendChild(s);});});
+    var cli2=getCli();if(cli2){var pn=document.getElementById('pn'),pw=document.getElementById('pw');if(pn)pn.value=cli2.nome;if(pw)pw.value=cli2.whatsapp;}
+    var wa='https://wa.me/5511936238387?text='+encodeURIComponent('Quero tirar dúvidas sobre '+(p.titulo||'')+' ['+(p.codigo||cod)+']');
+    var cbar=document.getElementById('ctabar');if(cbar)cbar.querySelectorAll('[data-cta]').forEach(function(b){b.addEventListener('click',function(){var k=b.getAttribute('data-cta');if(k==='duvidas'){window.open(wa,'_blank','noopener');}else if(k==='visita'){pp.classList.remove('on');vp.classList.add('on');vp.scrollIntoView({behavior:'smooth',block:'center'});}else if(k==='proposta'){vp.classList.remove('on');pp.classList.add('on');pp.scrollIntoView({behavior:'smooth',block:'center'});}});});
+    document.querySelectorAll('.social [data-s]').forEach(function(b){b.addEventListener('click',function(){var k=b.getAttribute('data-s');if(k==='save'){b.classList.toggle('on');}else if(k==='sam'){window.open(wa,'_blank','noopener');}else if(k==='share'){var u=location.origin+'/imovel?cod='+encodeURIComponent(cod||(p&&p.codigo)||'');try{if(navigator.clipboard)navigator.clipboard.writeText(u);}catch(e){}var o=b.innerHTML;b.innerHTML='Link copiado';setTimeout(function(){b.innerHTML=o;},1600);}});});
   }
 })();
 </script>
