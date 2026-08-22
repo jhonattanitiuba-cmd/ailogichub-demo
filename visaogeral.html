@@ -129,6 +129,7 @@ tr:last-child td{border-bottom:0}td.strong{font-weight:700;color:var(--heading)}
     <article class="kpi"><h3><span class="kpi-ic" data-ic="whatsapp">◌</span>Conversas WhatsApp</h3><div class="value" data-k="conversas">·</div><small>espelhadas</small></article>
   </section>
 
+  <div id="iaInsight" style="margin:0 0 18px"></div>
   <section class="grid2">
     <div class="panel"><div class="panel-head"><h3>Funil geral</h3><span class="tag">por etapa</span></div><div class="funnel" id="funnel"><div class="empty">Carregando…</div></div></div>
     <div class="panel"><div class="panel-head"><h3>Origem dos leads</h3><span class="tag">distribuição real</span></div><div class="olist" id="origem"><div class="empty">Carregando…</div></div></div>
@@ -182,6 +183,7 @@ tr:last-child td{border-bottom:0}td.strong{font-weight:700;color:var(--heading)}
     kset('negocios',cards.length);
     kset('pipeline',brl(cards.reduce(function(s,c){return s+(Number(c.valor)||0);},0)));
     kset('conversas',chats.length);
+    try{ if(window.hubInsight) window.hubInsight({el:'#iaInsight',dados:{resumo:{leadsTotal:leadsTotal,leadsQualificados:(R.leadsQualificados||0),imoveisTotal:(R.imoveisTotal||0),imobiliarias:imobs,leadsPorFonte:(R.leadsPorFonte||[]),leadsPorStatus:(R.leadsPorStatus||[])},funil:{cards:cards}}}); }catch(_){}
 
     // perfil: admin/diretoria ve o funil GLOBAL do Hub; demais veem o funil do PROPRIO escopo (cards)
     var _p=''; try{ var _s=JSON.parse(localStorage.getItem('ailogic-auth')||'{}'); var _u=(_s&&_s.user)||(_s&&_s.currentSession&&_s.currentSession.user); _p=String((_u&&_u.user_metadata&&_u.user_metadata.perfil)||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }catch(_){}
