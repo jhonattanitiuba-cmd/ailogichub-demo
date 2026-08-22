@@ -390,6 +390,11 @@ main{width:100%;max-width:100%}
 .mapa-vivo{background:#061326}
 .mapa-vivo .leaflet-tile-pane{filter:sepia(1) hue-rotate(178deg) saturate(2.4) brightness(.72) contrast(1.02)}
 .leaflet-container{background:#061326!important}
+
+/* pin-logo - Sede com logo AI */
+.pin-logo{position:relative;width:44px;height:44px;display:block}
+.pin-logo img{width:44px;height:44px;object-fit:contain;border-radius:50%;position:relative;z-index:2;filter:drop-shadow(0 0 7px rgba(16,140,255,.7))}
+.pin-logo .pl-ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;box-shadow:0 0 0 0 rgba(57,160,255,.6);animation:mpulse 2.2s infinite;z-index:1}
 </style>
 </head>
 <body>
@@ -528,7 +533,7 @@ var map=L.map(el,{zoomControl:true,scrollWheelZoom:false,attributionControl:fals
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19}).addTo(map);
 var pts=[];
 function add(lat,lon,cls,label){L.marker([lat,lon],{icon:ic(cls)}).addTo(map).bindTooltip(label,{direction:'top'});pts.push([lat,lon]);}
-add(-23.55,-46.63,'sede','SP · Sede');
+L.marker([-23.55,-46.63],{icon:L.divIcon({className:'',html:'<span class="pin-logo"><span class="pl-ring"></span><img src="/assets/logo-ai.png" alt="AILogic"></span>',iconSize:[44,44],iconAnchor:[22,22]}),zIndexOffset:1000}).addTo(map).bindTooltip('SP · Sede',{direction:'top'});pts.push([-23.55,-46.63]);
 [['Estados Unidos',38.90,-77.03],['Itália',41.90,12.50],['Portugal',38.72,-9.14]].forEach(function(p){add(p[1],p[2],'polo','Polo · '+p[0]);});
 var estados=[['AC',-9.97,-67.81],['AL',-9.65,-35.73],['AP',0.03,-51.07],['AM',-3.10,-60.02],['BA',-12.97,-38.51],['CE',-3.72,-38.54],['DF',-15.79,-47.88],['ES',-20.32,-40.34],['GO',-16.68,-49.25],['MA',-2.53,-44.30],['MT',-15.60,-56.10],['MS',-20.44,-54.65],['MG',-19.92,-43.94],['PA',-1.46,-48.50],['PB',-7.12,-34.86],['PR',-25.43,-49.27],['PE',-8.05,-34.88],['PI',-5.09,-42.80],['RJ',-22.91,-43.20],['RN',-5.79,-35.21],['RS',-30.03,-51.23],['RO',-8.76,-63.90],['RR',2.82,-60.67],['SC',-27.60,-48.55],['SE',-10.91,-37.07],['TO',-10.18,-48.33]];
 estados.forEach(function(e){add(e[1],e[2],'br',e[0]);});
