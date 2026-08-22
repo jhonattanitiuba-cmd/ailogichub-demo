@@ -335,5 +335,17 @@ document.getElementById('forgotLink').addEventListener('click',async function(e)
   window.addEventListener('appinstalled',function(){ wrap.style.display='none'; });
 })();
 </script>
+
+<a class="samfab-login" href="https://wa.me/5511936238387" target="_blank" rel="noopener" aria-label="Falar com o Sam"><img src="/assets/sam-avatar.png" alt="Sam"><span class="dot"></span></a>
+<style>
+.samfab-login{position:fixed;right:22px;bottom:22px;z-index:9999;width:96px;height:96px;border-radius:50%;display:block;transition:transform .2s ease}
+.samfab-login:before{content:"";position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 63%,#1a72c8 84%,#0d4e92 95%,transparent);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 0);mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 0);animation:sfl 3s ease-in-out infinite;z-index:1}
+.samfab-login img{position:relative;z-index:2;width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid #06131f}
+.samfab-login .dot{position:absolute;z-index:3;right:8px;bottom:8px;width:12px;height:12px;border-radius:50%;background:#2ee370;border:2px solid #06131f;animation:sfd 1.1s ease-in-out infinite}
+.samfab-login:hover{transform:scale(1.07)}
+@keyframes sfl{0%{transform:rotate(0);opacity:0}6%{opacity:1}33%{transform:rotate(720deg);opacity:1}45%{opacity:0}100%{transform:rotate(720deg);opacity:0}}
+@keyframes sfd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+@media(max-width:600px){.samfab-login{width:76px;height:76px;right:14px;bottom:14px}}
+</style>
 </body>
 </html>
