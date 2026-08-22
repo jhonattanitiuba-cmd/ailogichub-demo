@@ -217,6 +217,19 @@ section+section{margin-top:60px}
 /* footer solido */
 .footer{background:#000108!important}
 .footer .inst-bar span{color:#7a8695}
+
+/* sam fab */
+.sam-fab{position:fixed;right:24px;bottom:24px;z-index:55;width:66px;height:66px;border-radius:50%;border:0;padding:0;cursor:pointer;background:transparent;transition:transform .2s ease,opacity .25s ease}
+.sam-fab:before{content:"";position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 52%,#45d2ff 78%,#15baf8 92%,transparent);animation:ringspin 2.6s linear infinite;z-index:1}
+.sam-fab:after{content:"";position:absolute;inset:1px;border-radius:50%;background:#06131f;z-index:1}
+.sam-fab img{position:relative;z-index:2;width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid #06131f}
+.sam-fab .fab-dot{position:absolute;z-index:3;right:4px;bottom:4px;width:14px;height:14px;border-radius:50%;background:#2ee370;border:2px solid #06131f}
+.sam-fab:hover{transform:scale(1.07)}
+.chat.open ~ .sam-fab{opacity:0;pointer-events:none;transform:scale(.6)}
+/* remove tracejado do avatar do bloco do Sam */
+.sam-photo-placeholder{border:none!important;background:none!important}
+.sam-photo-placeholder::after{display:none!important}
+@media(max-width:600px){.sam-fab{right:14px;bottom:14px;width:58px;height:58px}}
 </style>
 </head>
 <body>
@@ -344,4 +357,6 @@ fetch('/api/sam-web',{method:'POST',headers:{'Content-Type':'application/json'},
 (function(){var el=document.querySelector('[data-entrar]');if(!el)return;var cli=null;try{cli=JSON.parse(localStorage.getItem('ail_cliente')||'null');}catch(e){}var auth=false;try{auth=localStorage.getItem('ailogic_auth')==='1';}catch(e){}
 if(cli||auth){el.textContent='Minha área';el.setAttribute('href','/visaogeral');if(!document.getElementById('btnSair')){var out=document.createElement('a');out.id='btnSair';out.className='pill-btn';out.href='#';out.textContent='Sair';out.style.marginLeft='10px';out.addEventListener('click',function(ev){ev.preventDefault();try{localStorage.removeItem('ail_cliente');localStorage.removeItem('ailogic_auth');}catch(e){}location.reload();});el.parentNode.insertBefore(out,el.nextSibling);}}else{el.textContent='Entrar';el.setAttribute('href','/login');var b=document.getElementById('btnSair');if(b)b.remove();}})();
 </script>
+<button class="sam-fab" id="samFab" aria-label="Falar com o Sam"><img src="/assets/sam-avatar.png" alt="Sam"><span class="fab-dot"></span></button>
+<script>/* fab-wire */(function(){var f=document.getElementById("samFab"),c=document.getElementById("samChat");if(f&&c)f.addEventListener("click",function(){c.classList.remove("min");c.classList.add("open");});})();</script>
 </body></html>
