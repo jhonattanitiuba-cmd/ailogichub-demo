@@ -339,6 +339,6 @@ fetch('/api/vitrine',{cache:'no-store'}).then(function(r){return r.json();}).the
 fetch('/api/sam-web',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'resumo',messages:msgs})}).then(function(r){return r.json();}).then(function(d){if(d&&d.resumo){p.textContent=d.resumo;}}).catch(function(){});}catch(e){}})();
 /* 5) sessao conectada: Entrar -> /login, quando logado vira Minha area */
 (function(){var el=document.querySelector('[data-entrar]');if(!el)return;var cli=null;try{cli=JSON.parse(localStorage.getItem('ail_cliente')||'null');}catch(e){}var auth=false;try{auth=localStorage.getItem('ailogic_auth')==='1';}catch(e){}
-if(cli||auth){el.textContent=(cli&&cli.nome)?('Minha área · '+String(cli.nome).split(' ')[0]):'Minha área';el.setAttribute('href','/visaogeral');}else{el.setAttribute('href','/login');}})();
+if(cli||auth){el.textContent='Minha área';el.setAttribute('href','/visaogeral');if(!document.getElementById('btnSair')){var out=document.createElement('a');out.id='btnSair';out.className='pill-btn';out.href='#';out.textContent='Sair';out.style.marginLeft='10px';out.addEventListener('click',function(ev){ev.preventDefault();try{localStorage.removeItem('ail_cliente');localStorage.removeItem('ailogic_auth');}catch(e){}location.reload();});el.parentNode.insertBefore(out,el.nextSibling);}}else{el.textContent='Entrar';el.setAttribute('href','/login');var b=document.getElementById('btnSair');if(b)b.remove();}})();
 </script>
 </body></html>
