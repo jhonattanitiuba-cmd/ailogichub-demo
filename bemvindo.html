@@ -188,6 +188,32 @@ section+section{margin-top:60px}
 .rcard .rcurad img{width:17px;height:17px;border-radius:50%;object-fit:cover;border:1px solid rgba(57,207,255,.55);box-shadow:0 0 8px rgba(16,192,255,.35)}
 .reco-all{display:flex;justify-content:center;margin-top:32px}
 .reco-all .cta{text-decoration:none}
+
+/* fix11 */
+/* categorias em 1 linha */
+.categories{flex-wrap:nowrap!important;overflow-x:auto;justify-content:flex-start;scrollbar-width:none}
+.categories::-webkit-scrollbar{display:none}
+.category{flex:0 0 auto}
+.category:hover{border-color:var(--cyan);color:var(--cyan2);transform:translateY(-2px)}
+/* processo: icones brancos, titulos azuis, giro-tech no hover */
+.step .icon-circle{color:#fff;position:relative}
+.step .icon-circle svg{transition:transform .3s}
+.step .icon-circle:before{content:"";position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 58%,rgba(69,210,255,.95) 86%,transparent);opacity:0;transition:opacity .3s;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 0);mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 0)}
+.step:hover .icon-circle{border-color:rgba(69,210,255,.65);box-shadow:0 0 28px rgba(21,186,248,.42),inset 0 0 25px rgba(21,186,248,.1)}
+.step:hover .icon-circle:before{opacity:1;animation:ringspin 3s linear infinite}
+.step:hover .icon-circle svg{animation:techspin 3s ease-in-out infinite}
+@keyframes ringspin{to{transform:rotate(360deg)}}
+@keyframes techspin{0%{transform:rotate(0)}17%{transform:rotate(360deg)}34%{transform:rotate(720deg)}100%{transform:rotate(720deg)}}
+/* secao de imoveis reais: painel branco + titulos azuis */
+.reco{background:#f6f9fc;border-radius:28px;box-shadow:0 26px 70px rgba(3,12,24,.32);width:min(1280px,calc(100% - 40px));margin:40px auto;padding:48px 0 40px}
+.reco .container{width:min(1180px,calc(100% - 48px))}
+.reco .reco-head h2{color:#0f5fb0}
+.reco .reco-head p{color:#51637a}
+.reco .verified{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;font-size:13px;font-weight:700;color:#0d2a4a}
+.reco .verified .vseal{width:18px;height:18px;display:block}
+/* reveal por scroll com blur + zoom */
+.reveal{opacity:0;transform:translateY(26px) scale(.985);filter:blur(6px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1),filter .7s ease}
+.reveal.in{opacity:1;transform:none;filter:none}
 </style>
 </head>
 <body>
@@ -223,9 +249,9 @@ section+section{margin-top:60px}
 <article class="step"><div class="icon-circle"><svg class="icon"><use href="#i-calendar"/></svg></div><h3>Visita agendada</h3><p>Agenda para o parceiro com perfil confirmado.</p></article>
 <article class="step"><div class="icon-circle"><svg class="icon"><use href="#i-shield"/></svg></div><h3>Jornada completa</h3><p>Do primeiro contato às chaves.</p></article>
 </div>
-<div class="listing-head" id="imoveis"><h2>Imóveis selecionados para você</h2><p>Curadoria inteligente baseada no seu perfil.</p></div>
+<div class="listing-head" id="imoveis"><h2>A curadoria do Sam, em tempo real</h2><p>Assim o Sam mostra os imóveis, um a um, do jeito que você navega.</p></div>
 <div class="story-wrap"><div class="phone-story" id="story"></div></div>
-<section class="reco"><div class="container"><div class="reco-head"><h2>Imóveis selecionados para você</h2><p>Poucas opções, escolhidas por aderência. Curadoria, não catálogo.</p></div><div class="reco-grid" id="recoGrid"></div><div class="reco-all"><a href="/site#imoveis" class="cta">Ver todos os imóveis <svg class="icon"><use href="#i-send"/></svg></a></div></div></section>
+<section class="reco"><div class="container"><div class="reco-head"><h2>Imóveis selecionados para você</h2><p>Poucas opções, escolhidas por aderência. Curadoria, não catálogo.</p><div class="verified"><span>ailogichub.com.br</span><svg class="vseal" viewBox="0 0 24 24" aria-label="verificado"><path fill="#1d9bf0" d="M12 1.5l2.3 1.7 2.85-.28.94 2.71 2.49 1.42-.77 2.75.77 2.75-2.49 1.42-.94 2.71-2.85-.28L12 22.5l-2.3-1.87-2.85.28-.94-2.71-2.49-1.42.77-2.75-.77-2.75 2.49-1.42.94-2.71 2.85.28z"/><path fill="#fff" d="M10.6 14.5l-2.25-2.25 1.1-1.1 1.15 1.15 3.05-3.05 1.1 1.1z"/></svg></div></div><div class="reco-grid" id="recoGrid"></div><div class="reco-all"><a href="/site#imoveis" class="cta">Ver todos os imóveis <svg class="icon"><use href="#i-send"/></svg></a></div></div></section>
 <section class="sam-card"><div class="sam-person"><!-- Substitua src="" abaixo pela foto oficial do Sam. Ao preencher, altere via CSS .sam-photo-placeholder img{display:block} e remova/oculte o ::after. --><div class="sam-photo-placeholder"><img src="/assets/sam-avatar.png" alt="Foto do Sam"></div><div><h3>Sam</h3><div class="online">Online</div></div></div><div class="sam-copy"><p>Percebi que você prefere ambientes integrados, com muita luz natural e áreas de lazer completas. Quer ajustar algo na sua busca?</p><div class="chips"><button class="chip js-chat">Ver imóveis com vista</button><button class="chip js-chat">Até R$ 6 milhões</button><button class="chip js-chat">Mais opções como essas</button></div></div><div class="sam-scene"></div></section>
 <section class="journey-wrap"><div class="journey"><h2>Do interesse às chaves.</h2><p class="sub">Uma jornada única, conectada e segura.</p></div><div class="timeline"><div class="jstep"><div class="jico"><svg class="icon"><use href="#i-chat"/></svg></div><div class="jnum">01</div><h4>Conversa</h4><p>Sam entende sua necessidade e traduz em critérios, a qualquer hora.</p></div><div class="jstep"><div class="jico"><svg class="icon"><use href="#i-home"/></svg></div><div class="jnum">02</div><h4>Curadoria</h4><p>Até 3 imóveis realmente compatíveis, com foto e link. Curadoria, não catálogo.</p></div><div class="jstep"><div class="jico"><svg class="icon"><use href="#i-calendar"/></svg></div><div class="jnum">03</div><h4>Visita</h4><p>Agenda do parceiro e ficha de visita assinada que garante o atendimento.</p></div><div class="jstep"><div class="jico"><svg class="icon"><use href="#i-doc"/></svg></div><div class="jnum">04</div><h4>Proposta</h4><p>Proposta com valor legal e assinatura digital, sem retrabalho.</p></div><div class="jstep"><div class="jico"><svg class="icon"><use href="#i-shield"/></svg></div><div class="jnum">05</div><h4>Conclusão</h4><p>Jurídico desde o início, pagamento e entrega de chaves com segurança.</p></div></div></section>
 <section class="cta-grid" id="parceiros"><article class="promo owner"><div class="promo-content"><div class="eyebrow">Para proprietários</div><h3>Seu imóvel diante de quem realmente procura.</h3><p>Apresente seu imóvel com inteligência e conecte-se a clientes qualificados.</p><button class="white-btn" onclick="toast('Cadastro de imóvel iniciado')">Anunciar meu imóvel&nbsp; <svg class="icon"><use href="#i-send"/></svg></button></div></article><article class="promo partner"><div class="promo-content"><div class="eyebrow">Para profissionais</div><h3>Você cuida da visita.<br>O Hub cuida da jornada.</h3><p>Mais tempo, mais conversão e uma estrutura completa para o seu negócio.</p><button class="white-btn" onclick="toast('Área de parceiros aberta')">Quero ser parceiro&nbsp; <svg class="icon"><use href="#i-send"/></svg></button></div></article></section>
@@ -279,7 +305,7 @@ function next(){idx=(idx+1)%items.length;start();}
 function start(){render();clearTimeout(timer);timer=setTimeout(next,DUR);}
 fetch('/api/vitrine',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){items=((d&&d.rows)||[]).filter(function(x){return (x.fotos&&x.fotos[0])||x.foto;}).slice(0,8);if(!items.length){box.innerHTML='<div style="padding:40px;text-align:center;color:#8aa0b8">Curadoria em preparo.</div>';return;}start();}).catch(function(){});
 })();
-(function(){if(!('IntersectionObserver' in window))return;var els=document.querySelectorAll('section');els.forEach(function(el){el.classList.add('reveal');});var io=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12,rootMargin:'0px 0px -8% 0px'});els.forEach(function(el){io.observe(el);});})();
+(function(){if(!('IntersectionObserver' in window))return;var els=document.querySelectorAll('section');els.forEach(function(el){el.classList.add('reveal');});var io=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');}else{e.target.classList.remove('in');}});},{threshold:.12,rootMargin:'0px 0px -8% 0px'});els.forEach(function(el){io.observe(el);});})();
 </script>
 <script>/* min-wire */(function(){var m=document.getElementById("minChat"),c=document.getElementById("samChat");if(m&&c)m.addEventListener("click",function(){c.classList.toggle("min");});})();</script>
 <script>/* refino-js fix8 */
