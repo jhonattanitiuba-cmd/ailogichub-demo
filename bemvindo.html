@@ -379,6 +379,12 @@ html{scroll-snap-type:y mandatory;scroll-padding-top:54px}
 @keyframes mpulse{0%{box-shadow:0 0 0 0 rgba(57,160,255,.5)}70%{box-shadow:0 0 0 13px rgba(57,160,255,0)}100%{box-shadow:0 0 0 0 rgba(57,160,255,0)}}
 @keyframes mpulseg{0%{box-shadow:0 0 0 0 rgba(46,227,112,.5)}70%{box-shadow:0 0 0 14px rgba(46,227,112,0)}100%{box-shadow:0 0 0 0 rgba(46,227,112,0)}}
 @keyframes mpulsey{0%{box-shadow:0 0 0 0 rgba(255,207,63,.6)}70%{box-shadow:0 0 0 18px rgba(255,207,63,0)}100%{box-shadow:0 0 0 0 rgba(255,207,63,0)}}
+
+/* full-bleed - secoes de fora a fora, sem quadrado no meio */
+html,body{overflow-x:hidden}
+main{width:100%;max-width:100%}
+.hero,.section,.reco,.story-sec,.franquia,.sam-card,.journey-wrap,.cta-grid,.footer{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important;border-radius:0!important;box-shadow:none!important;box-sizing:border-box}
+.journey-wrap .timeline,.journey-wrap .journey{max-width:920px;margin-left:auto;margin-right:auto}
 </style>
 </head>
 <body>
