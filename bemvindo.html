@@ -287,6 +287,25 @@ section+section{margin-top:0}
 .step:hover .icon-circle:before{background:conic-gradient(from 0deg,transparent 0 63%,#1a72c8 84%,#0d4e92 95%,transparent)!important;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 0)!important;mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 0)!important;animation:techspin2 3s ease-in-out infinite!important}
 @media(max-width:600px){.sam-fab{width:104px!important;height:104px!important}}
 .nav-cta{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+
+/* top /site */
+.top{position:absolute;z-index:40;top:0;left:0;right:0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:11px clamp(20px,4vw,64px);color:#fff;background:rgba(0,1,8,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid rgba(80,150,255,.16)}
+.top .brand{display:flex;align-items:center;gap:10px;font-weight:650}
+.top .brand-logo{height:30px!important;width:auto;object-fit:contain;display:block}
+.top nav{display:flex;gap:30px;font-size:12px;color:#ffffffc9;justify-content:center}
+.top nav a{position:relative;color:#ffffffc9;transition:color .18s}
+.top nav a:hover{color:#fff}
+.top nav a::after{content:"";position:absolute;left:0;bottom:-6px;height:1px;width:0;background:linear-gradient(90deg,#0f8bff,#4cc6ff);transition:width .22s ease}
+.top nav a:hover::after{width:100%}
+.top .actions{justify-self:end;display:flex;align-items:center;gap:10px}
+.top .saved-head{background:transparent;border:0;color:#ffffffb8;font-size:10px;cursor:pointer}
+.top .talk{padding:11px 17px;border:0;border-radius:999px;background:#fff;color:#07111f;font-size:11px;font-weight:700;transition:transform .15s,box-shadow .15s;display:inline-flex;align-items:center;gap:8px}
+.top .talk:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(15,139,255,.45)}
+.top .btn-sair{width:34px;height:34px;padding:0!important;border-radius:50%;background:transparent!important;color:#fff!important;border:1px solid rgba(255,255,255,.3)!important;display:inline-grid;place-items:center}
+.top .hamb{display:none;background:transparent;border:0;color:#fff;font-size:24px;cursor:pointer}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(90,165,255,.55),transparent)}
+.top .nav-cta{display:flex;align-items:center;gap:8px}
+@media(max-width:900px){.top{grid-template-columns:1fr auto}.top nav{display:none;position:absolute;top:58px;left:14px;right:14px;padding:16px;background:#061326;flex-direction:column;border-radius:12px}.top nav.open{display:flex}.top .hamb{display:block}.top .saved-head{display:none}}
 </style>
 </head>
 <body>
@@ -310,7 +329,7 @@ section+section{margin-top:0}
   <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
 </svg>
 
-<header class="header"><div class="container nav"><a class="brand" href="#"><img src="/assets/logo-horizontal.png" alt="AILogic Hub"></a><nav class="nav-links"><a href="#imoveis">Imóveis</a><a href="#imoveis">Lançamentos</a><a href="#imoveis">Alto padrão</a><a href="#parceiros">Para parceiros</a><a href="#sobre">Sobre o Hub</a></nav><a class="pill-btn" data-entrar href="/login">Entrar</a></div></header>
+<header class="top"><a class="brand" href="#inicio"><img class="brand-logo" src="/assets/logo-horizontal.png" alt="AILogic Hub"></a><nav id="nav"><a href="#imoveis">Imóveis</a><a href="#imoveis">Lançamentos</a><a href="#imoveis">Alto padrão</a><a href="#parceiros">Para parceiros</a><a href="#sobre">Sobre o Hub</a></nav><div class="actions"><button class="saved-head" onclick="location.href='/login'">Salvos <span>0</span></button><a class="talk" data-entrar href="/login">Entrar</a><button class="hamb" aria-label="Abrir menu" onclick="document.querySelector('#nav').classList.toggle('open')">☰</button></div></header>
 <main>
 <section class="hero"><div class="hero-photo"></div><div class="container"><div class="hero-content"><div class="eyebrow">Inteligência imobiliária</div><h1>Encontre o<br>imóvel certo<br>para você.</h1><p class="lead">Conte ao Sam o que procura.<br>O Hub encontra as melhores opções.</p><div class="search-box"><input id="heroQuery" aria-label="Descreva o imóvel que procura" placeholder="Ex.: Apartamento com 3 quartos, varanda e 2 vagas próximo à Paulista..."><button class="cta js-chat">Conversar com o Sam <svg class="icon"><use href="#i-send"/></svg></button></div><div class="categories"><a class="category" href="#imoveis"><svg class="icon"><use href="#i-home"/></svg><span>Comprar</span></a><a class="category" href="#imoveis"><svg class="icon"><use href="#i-key"/></svg><span>Alugar</span></a><a class="category" href="#imoveis"><svg class="icon"><use href="#i-chart"/></svg><span>Investir</span></a><a class="category" href="#imoveis"><svg class="icon"><use href="#i-building"/></svg><span>Lançamentos</span></a><a class="category" href="#imoveis"><svg class="icon"><use href="#i-diamond"/></svg><span>Alto padrão</span></a></div></div></div></section>
 <section class="section" id="sobre"><div class="container">
