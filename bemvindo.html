@@ -306,6 +306,13 @@ section+section{margin-top:0}
 .top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(90,165,255,.55),transparent)}
 .top .nav-cta{display:flex;align-items:center;gap:8px}
 @media(max-width:900px){.top{grid-template-columns:1fr auto}.top nav{display:none;position:absolute;top:58px;left:14px;right:14px;padding:16px;background:#061326;flex-direction:column;border-radius:12px}.top nav.open{display:flex}.top .hamb{display:block}.top .saved-head{display:none}}
+
+/* story-sec */
+.story-sec{background:#f4f7fa;align-items:center}
+.story-sec .listing-head h2{color:#07111f}
+.story-sec .listing-head p{color:#5b6b82}
+.story-sec .story-wrap{min-height:auto;padding:22px 0 0}
+.phone-story{box-shadow:0 40px 90px rgba(3,12,24,.28)}
 </style>
 </head>
 <body>
@@ -341,7 +348,7 @@ section+section{margin-top:0}
 <article class="step"><div class="icon-circle"><svg class="icon"><use href="#i-calendar"/></svg></div><h3>Visita agendada</h3><p>Agenda para o parceiro com perfil confirmado.</p></article>
 <article class="step"><div class="icon-circle"><svg class="icon"><use href="#i-shield"/></svg></div><h3>Jornada completa</h3><p>Do primeiro contato às chaves.</p></article>
 </div>
-<div class="listing-head" id="imoveis"><h2>A curadoria do Sam, em tempo real</h2><p>Assim o Sam mostra os imóveis, um a um, do jeito que você navega.</p></div>
+</div></section><section class="section story-sec"><div class="container"><div class="listing-head" id="imoveis"><h2>A curadoria do Sam, em tempo real</h2><p>Assim o Sam mostra os imóveis, um a um, do jeito que você navega.</p></div>
 <div class="story-wrap"><div class="phone-story" id="story"></div></div>
 <section class="reco"><div class="container"><div class="reco-head"><h2>Imóveis selecionados para você</h2><p>Poucas opções, escolhidas por aderência. Curadoria, não catálogo.</p><div class="verified"><span>ailogichub.com.br</span><svg class="vseal" viewBox="0 0 24 24" aria-label="verificado"><path fill="#1d9bf0" d="M12 1.5l2.3 1.7 2.85-.28.94 2.71 2.49 1.42-.77 2.75.77 2.75-2.49 1.42-.94 2.71-2.85-.28L12 22.5l-2.3-1.87-2.85.28-.94-2.71-2.49-1.42.77-2.75-.77-2.75 2.49-1.42.94-2.71 2.85.28z"/><path fill="#fff" d="M10.6 14.5l-2.25-2.25 1.1-1.1 1.15 1.15 3.05-3.05 1.1 1.1z"/></svg></div></div><div class="reco-grid" id="recoGrid"></div><div class="reco-all"><a href="/site#imoveis" class="cta">Ver todos os imóveis <svg class="icon"><use href="#i-send"/></svg></a></div></div></section>
 <section class="sam-card"><div class="sam-person"><!-- Substitua src="" abaixo pela foto oficial do Sam. Ao preencher, altere via CSS .sam-photo-placeholder img{display:block} e remova/oculte o ::after. --><div class="sam-photo-placeholder"><img src="/assets/sam-avatar.png" alt="Foto do Sam"></div><div><h3>Sam</h3><div class="online">Online</div></div></div><div class="sam-copy"><p>Percebi que você prefere ambientes integrados, com muita luz natural e áreas de lazer completas. Quer ajustar algo na sua busca?</p><div class="chips"><button class="chip js-chat">Ver imóveis com vista</button><button class="chip js-chat">Até R$ 6 milhões</button><button class="chip js-chat">Mais opções como essas</button></div></div><div class="sam-scene"></div></section>
