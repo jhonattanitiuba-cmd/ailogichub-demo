@@ -111,6 +111,8 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     <article class="kpi"><h3>Ticket médio</h3><div class="value" data-k="ticket">·</div><small>valor médio por negócio</small></article>
   </section>
 
+  <div id="iaInsight" style="margin:0 0 18px"></div>
+
   <section style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
     <div class="panel"><div style="padding:13px 15px;border-bottom:1px solid var(--border)"><h3 style="margin:0;font-size:14px;color:var(--heading)">Planos e custo</h3></div>
       <div style="padding:14px 15px;display:grid;gap:10px">
@@ -232,6 +234,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     kset('receita',brl(receita));
     kset('ticket',comValor.length?brl(valor/comValor.length):'—');
     renderRows(negs);
+    try{ if(window.hubInsight) window.hubInsight({el:'#iaInsight',dados:{resumo:{imobiliarias:a[1]},funil:{cards:(negs||[]).map(function(n){return {valor:n.valor,etapa:(n.etapa_funil||n.etapa||'')};})}}}); }catch(_){}
   });
 
   var tt=document.getElementById('themeToggle');

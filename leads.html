@@ -111,6 +111,8 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     <article class="kpi"><h3>Distribuídos</h3><div class="value" data-k="distribuidos">·</div><small>com responsável</small></article>
   </section>
 
+  <div id="iaInsight" style="margin:0 0 18px"></div>
+
   <section class="panel">
     <div class="toolbar">
       <input class="inp search" id="q" placeholder="Buscar lead, telefone, interesse..." />
@@ -196,6 +198,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     var sel=document.getElementById('fStatus');
     Object.keys(sts).forEach(function(s){var o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});
     renderRows(leads);
+    try{ if(window.hubInsight){ var _fc={}; leads.forEach(function(l){var nm=fonteMap[l.fonte_id]||'Outros';_fc[nm]=(_fc[nm]||0)+1;}); window.hubInsight({el:'#iaInsight',dados:{resumo:{leadsTotal:leads.length,imobiliarias:a[1],leadsPorFonte:Object.keys(_fc).map(function(k){return {nome:k,c:_fc[k]};})}}}); } }catch(_){}
   });
 
   var tt=document.getElementById('themeToggle');

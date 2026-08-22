@@ -146,6 +146,8 @@ a{text-decoration:none;color:inherit}
     <article class="kpi"><h3>Fechados</h3><div class="value" data-k="fechados">·</div><small>etapa fechado</small></article>
   </section>
 
+  <div id="iaInsight" style="margin:0 0 18px"></div>
+
   <section class="board-wrap">
     <div class="kanban" id="kanban"><div class="empty">Carregando funil…</div></div>
     <aside class="side">
@@ -290,6 +292,7 @@ a{text-decoration:none;color:inherit}
       var etapas=(a[1]&&a[1].etapas)||(a[0]&&a[0].funil&&a[0].funil.etapas)||[];
       var cards=(a[1]&&a[1].cards)||[];
       render(etapas,cards);
+      try{ if(window.hubInsight) window.hubInsight({el:'#iaInsight',dados:{funil:{cards:(cards||[]).map(function(c){return {valor:c.valor,etapa:(c.etapa||'')};})}}}); }catch(_){}
     });
   }
 

@@ -107,6 +107,8 @@ td.strong{font-weight:700;color:var(--heading)}
     <article class="kpi"><h3>Contratos assinados</h3><div class="value" data-k="assin">·</div><small>com assinatura</small></article>
   </section>
 
+  <div id="iaInsight" style="margin:0 0 18px"></div>
+
   <section style="margin-bottom:16px;background:linear-gradient(135deg,rgba(11,102,255,.10),transparent);border:1px solid var(--border);border-radius:15px;padding:14px 16px;color:var(--heading);font-size:13px;line-height:1.5"><strong style="color:var(--blue)">Jurídico desde a proposta.</strong> O aceite jurídico entra no início da negociação, não só no contrato: análise de documentos, pesquisa e acompanhamento até a assinatura, com o advogado defendendo imobiliária, corretor e cliente. Contratos padronizados, com exceção para imóveis de valor agregado alto.</section>
 
   <section style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
@@ -221,7 +223,7 @@ td.strong{font-weight:700;color:var(--heading)}
       refreshKpis();applyFilter();fillNegSelect();
     });
     getJSON(JURI+'?action=advogados').then(function(x){if(x.ok){advs=(x.j.advogados)||[];fillAdvSelect();}});
-    getJSON(DATA+'?ent=negocios&action=list').then(function(x){if(x.ok){negs=(x.j.rows)||[];fillNegSelect();}});
+    getJSON(DATA+'?ent=negocios&action=list').then(function(x){if(x.ok){negs=(x.j.rows)||[];fillNegSelect();try{ if(window.hubInsight) window.hubInsight({el:'#iaInsight',dados:{funil:{cards:(negs||[]).map(function(n){return {valor:n.valor,etapa:(n.etapa_funil||n.etapa||'')};})}}}); }catch(_){}}});
   }
   load();
 

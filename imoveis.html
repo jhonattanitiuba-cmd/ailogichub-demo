@@ -108,6 +108,8 @@ td.strong{font-weight:700;color:var(--heading)}
     <article class="kpi"><h3>Valor total</h3><div class="value" data-k="valor">·</div><small>soma dos preços</small></article>
   </section>
 
+  <div id="iaInsight" style="margin:0 0 18px"></div>
+
   <section class="panel">
     <div class="toolbar">
       <input class="inp search" id="q" placeholder="Buscar título, cidade ou código..." />
@@ -278,6 +280,7 @@ td.strong{font-weight:700;color:var(--heading)}
       imoveis=a[0];imobs=a[1];imobMap={};imobs.forEach(function(i){imobMap[i.id]=i.nome;});
       imoveis.sort(function(x,y){return new Date(y.created_at||0)-new Date(x.created_at||0);});
       computeKpis();applyFilter();
+      try{ if(window.hubInsight) window.hubInsight({el:'#iaInsight',dados:{resumo:{imoveisTotal:(imoveis||[]).length,imobiliarias:imobs}}}); }catch(_){}
     });
   }
   load();
