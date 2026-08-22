@@ -5,6 +5,8 @@
     { "path": "/api/disparo", "schedule": "0 10 * * *" }
   ],
   "redirects": [
-    { "source": "/", "destination": "/visaogeral", "permanent": false }
+    { "source": "/", "destination": "/visaogeral", "permanent": false },
+    { "source": "/sejabemvindo", "destination": "/bemvindo", "permanent": false },
+    { "source": "/seja-bem-vindo", "destination": "/bemvindo", "permanent": false }
   ]
 }
