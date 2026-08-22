@@ -102,6 +102,7 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
   </header>
 
   <div id="board" style="display:none">
+    <div id="iaInsight" style="margin-bottom:18px"></div>
     <section class="kpis">
       <article class="kpi"><h3>Imóveis</h3><div class="value" data-k="imoveis">·</div><small><span data-k="disp">·</span> disponíveis</small></article>
       <article class="kpi"><h3>Valor do catálogo</h3><div class="value" data-k="valor">·</div><small>imóveis disponíveis</small></article>
@@ -178,6 +179,7 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
   }
 
   function analyze(imoveis,leads,negocios,imobs){
+    try{ if(window.hubInsight) window.hubInsight({el:"#iaInsight",dados:{resumo:{leadsTotal:leads.length,imoveisTotal:imoveis.length,imobiliarias:imobs},funil:{cards:(negocios||[]).map(function(n){return {valor:n.valor,etapa:(n.etapa_funil||n.etapa||"")};})}}}); }catch(_){}
     var disp=imoveis.filter(function(m){return /dispon/.test(low(m.status));});
     var valor=disp.reduce(function(s,m){return s+(Number(m.preco)||0);},0);
     var semFoto=imoveis.filter(function(m){var f=(m.fotos&&m.fotos.length)||m.foto;return !f;}).length;

@@ -854,3 +854,71 @@
   if(document.readyState!=='loading') init();
   else document.addEventListener('DOMContentLoaded', init);
 })();
+
+/* ===== Contexto por PERFIL DE ACESSO + Insight de IA (reusa /api/copilot) ===== */
+(function(){ 'use strict';
+  function esc(v){ return String(v==null?'':v).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+  function raw(){ try{ var s=JSON.parse(localStorage.getItem('ailogic-auth')||'{}'); var u=(s&&s.user)||(s&&s.currentSession&&s.currentSession.user); return String((u&&u.user_metadata&&u.user_metadata.perfil)||''); }catch(_){ return ''; } }
+  function key(){
+    var p=raw().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    if(!p) return 'gestor';
+    if(p.indexOf('admin')>=0||p.indexOf('diretor')>=0||p.indexOf('dono')>=0||p.indexOf('owner')>=0||p.indexOf('super')>=0) return 'admin';
+    if(p.indexOf('juridic')>=0||p.indexOf('advogad')>=0||p.indexOf('associad')>=0) return 'juridico';
+    if(p.indexOf('financeir')>=0) return 'financeiro';
+    if(p.indexOf('gestor')>=0||p.indexOf('imobili')>=0) return 'gestor';
+    if(p.indexOf('marketing')>=0) return 'marketing';
+    if(p.indexOf('corretor')>=0||p.indexOf('parceiro')>=0||p.indexOf('autonom')>=0||p.indexOf('comercial')>=0) return 'corretor';
+    if(p.indexOf('proprietar')>=0) return 'proprietario';
+    if(p.indexOf('anunciant')>=0) return 'anunciante';
+    if(p.indexOf('cliente')>=0) return 'cliente';
+    return 'gestor';
+  }
+  var CFG={
+    admin:{label:'Diretoria',escopo:'o Hub inteiro',foco:'gargalos do Hub, ranking de imobiliarias e o pipeline total, onde os negocios travam (visita x proposta)'},
+    gestor:{label:'Imobiliaria',escopo:'sua imobiliaria',foco:'a performance da sua equipe, o funil da imobiliaria e onde os leads param'},
+    corretor:{label:'Corretor',escopo:'seus negocios',foco:'seus leads parados, proximas visitas e os negocios com maior chance de fechar'},
+    juridico:{label:'Juridico',escopo:'seus casos',foco:'os casos atribuidos, contratos a assinar e documentos pendentes'},
+    financeiro:{label:'Financeiro',escopo:'o financeiro',foco:'repasses a fazer, comissao, RLOR e negocios prontos para pagamento'},
+    marketing:{label:'Marketing',escopo:'a captacao',foco:'origem dos leads, quais fontes convertem e onde investir'},
+    proprietario:{label:'Proprietario',escopo:'seus imoveis',foco:'a exposicao dos seus imoveis e o interesse recebido'},
+    anunciante:{label:'Anunciante',escopo:'seus anuncios',foco:'o desempenho dos seus anuncios e leads gerados'},
+    cliente:{label:'Cliente',escopo:'sua jornada',foco:'seus imoveis salvos, visitas e proximos passos'}
+  };
+  function perfil(){ var k=key(); var c=CFG[k]||CFG.gestor; return { key:k, label:c.label, escopo:c.escopo, foco:c.foco }; }
+  window.hubPerfil=perfil;
+
+  var STYLED=false;
+  function ensureCss(){ if(STYLED) return; STYLED=true;
+    var css=[
+      '.ia-card{border:1px solid var(--border,#e6ebf3);border-radius:16px;background:var(--panel,#fff);overflow:hidden;position:relative}',
+      '.ia-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#0a66ff,#4cc6ff)}',
+      '.ia-h{display:flex;align-items:center;gap:9px;padding:14px 16px 8px;font-weight:800;font-size:13px;letter-spacing:.2px;color:var(--heading,#0b1830)}',
+      '.ia-h .ia-dot{width:9px;height:9px;border-radius:50%;background:#0a66ff;box-shadow:0 0 0 0 rgba(10,102,255,.5);animation:iapulse 1.8s infinite}',
+      '@keyframes iapulse{0%{box-shadow:0 0 0 0 rgba(10,102,255,.45)}70%{box-shadow:0 0 0 8px rgba(10,102,255,0)}100%{box-shadow:0 0 0 0 rgba(10,102,255,0)}}',
+      '.ia-body{padding:2px 16px 16px;color:var(--text,#33465f);font-size:13.5px;line-height:1.5}',
+      '.ia-body.ia-load{color:var(--muted,#7c8aa0)}',
+      '.ia-li{padding:8px 0 8px 20px;position:relative;border-top:1px solid var(--border,#eef1f6)}',
+      '.ia-li:first-child{border-top:0}',
+      '.ia-li:before{content:"";position:absolute;left:2px;top:14px;width:7px;height:7px;border-radius:50%;background:#0a66ff}'
+    ].join('');
+    var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
+  }
+
+  // hubInsight({el, dados, prompt?, foco?}) -> chama /api/copilot (autenticado via auth.js) e renderiza um card por perfil
+  function hubInsight(opts){
+    opts=opts||{}; ensureCss();
+    var el=typeof opts.el==='string'?document.querySelector(opts.el):opts.el; if(!el) return;
+    var p=perfil();
+    var prompt=opts.prompt||('Voce esta no painel do perfil '+p.label+'. Com base SOMENTE nos numeros da plataforma abaixo, me de 2 ou 3 insights curtos e acionaveis sobre '+(opts.foco||p.foco)+'. Uma frase por linha, direta e util, comecando com um verbo. Nao invente numeros; se faltar dado, sugira o que abrir. Sem introducao.');
+    el.innerHTML='<div class="ia-card"><div class="ia-h"><span class="ia-dot"></span>Insight da IA, '+esc(p.label)+'</div><div class="ia-body ia-load">Analisando os dados da sua operacao...</div></div>';
+    var body=el.querySelector('.ia-body');
+    fetch('/api/copilot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}],dados:opts.dados||{}})})
+      .then(function(r){return r.json();}).then(function(d){
+        var t=String((d&&d.reply)||'').trim(); if(!t){ body.classList.remove('ia-load'); body.textContent='Ainda nao ha dados suficientes para um insight. Cadastre leads, imoveis e negocios.'; return; }
+        var lines=t.split(/\n+/).map(function(l){return l.replace(/^[\s\-•\d.\)]+/,'').trim();}).filter(Boolean);
+        body.classList.remove('ia-load');
+        body.innerHTML = lines.length>1 ? lines.map(function(l){return '<div class="ia-li">'+esc(l)+'</div>';}).join('') : ('<div style="padding-top:6px">'+esc(t)+'</div>');
+      }).catch(function(){ body.classList.remove('ia-load'); body.textContent='Nao foi possivel gerar o insight agora. Tente recarregar.'; });
+  }
+  window.hubInsight=hubInsight;
+})();
