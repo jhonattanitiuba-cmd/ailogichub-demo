@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 :root{--bg:#020b13;--bg2:#06131f;--panel:#071724;--text:#f7f9fb;--muted:#aeb8c4;--cyan:#15baf8;--cyan2:#45d2ff;--white:#f6f7f8;--dark:#07111b;--shadow:0 24px 80px rgba(0,0,0,.36)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--text);background:radial-gradient(900px 500px at 72% 7%,rgba(0,116,175,.17),transparent 60%),linear-gradient(180deg,#020a12 0%,#03101a 65%,#02101a 100%);font-family:"Montserrat",Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}
@@ -355,6 +357,28 @@ html{scroll-snap-type:y mandatory;scroll-padding-top:54px}
 .story-sec{background:#eef3f8!important}
 .reco{background:#ffffff!important;border-top:1px solid #e3e9f0}
 .journey-wrap{border-top:1px solid #e3e9f0}
+
+/* franquia map */
+.franquia{background:#061326}
+.franquia .fr-head{text-align:center;margin-bottom:24px}
+.franquia .fr-eyebrow{color:#2bc9ff;font-size:12px;font-weight:800;letter-spacing:.18em;margin-bottom:12px}
+.franquia h2{font-size:clamp(30px,4vw,46px);margin:0 0 10px;font-weight:700;letter-spacing:-.02em;color:#fff}
+.franquia p{color:#b4c2d0;max-width:740px;margin:0 auto;font-size:16px}
+.mapa-vivo{height:56vh;min-height:400px;width:100%;border-radius:18px;overflow:hidden;border:1px solid rgba(90,165,255,.22);box-shadow:0 30px 70px rgba(0,0,0,.5)}
+.leaflet-container{background:#061326;font-family:inherit}
+.leaflet-tooltip{background:#0a1a2e;border:1px solid rgba(90,165,255,.4);color:#dbe6f2;font-weight:700;font-size:11px;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.leaflet-tooltip:before{display:none}
+.polos{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:22px}
+.polo-badge{padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:#dbe6f2;font-size:12px;font-weight:700}
+.polo-badge.sede{border-color:#ffcf3f;color:#ffcf3f}
+.polo-badge.br{border-color:#39a0ff;color:#8fc4ff}
+.pin{position:relative;width:22px;height:22px}
+.pin i{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;background:#39a0ff;animation:mpulse 2s infinite}
+.pin.polo i{width:12px;height:12px;background:#2ee370;animation:mpulseg 2s infinite}
+.pin.sede i{width:16px;height:16px;background:#ffcf3f;animation:mpulsey 2s infinite}
+@keyframes mpulse{0%{box-shadow:0 0 0 0 rgba(57,160,255,.5)}70%{box-shadow:0 0 0 13px rgba(57,160,255,0)}100%{box-shadow:0 0 0 0 rgba(57,160,255,0)}}
+@keyframes mpulseg{0%{box-shadow:0 0 0 0 rgba(46,227,112,.5)}70%{box-shadow:0 0 0 14px rgba(46,227,112,0)}100%{box-shadow:0 0 0 0 rgba(46,227,112,0)}}
+@keyframes mpulsey{0%{box-shadow:0 0 0 0 rgba(255,207,63,.6)}70%{box-shadow:0 0 0 18px rgba(255,207,63,0)}100%{box-shadow:0 0 0 0 rgba(255,207,63,0)}}
 </style>
 </head>
 <body>
@@ -393,7 +417,7 @@ html{scroll-snap-type:y mandatory;scroll-padding-top:54px}
 </div></section><section class="section story-sec"><div class="container"><div class="listing-head" id="imoveis"><h2>A curadoria do Sam, em tempo real</h2><p>Assim o Sam mostra os imóveis, um a um, do jeito que você navega.</p></div>
 <div class="story-wrap"><div class="phone-story" id="story"></div></div>
 <section class="reco"><div class="container"><div class="reco-head"><h2>Imóveis selecionados para você</h2><p>Poucas opções, escolhidas por aderência. Curadoria, não catálogo.</p><div class="verified"><span>ailogichub.com.br</span><svg class="vseal" viewBox="0 0 24 24" aria-label="verificado"><path fill="#1d9bf0" d="M12 1.5l2.3 1.7 2.85-.28.94 2.71 2.49 1.42-.77 2.75.77 2.75-2.49 1.42-.94 2.71-2.85-.28L12 22.5l-2.3-1.87-2.85.28-.94-2.71-2.49-1.42.77-2.75-.77-2.75 2.49-1.42.94-2.71 2.85.28z"/><path fill="#fff" d="M10.6 14.5l-2.25-2.25 1.1-1.1 1.15 1.15 3.05-3.05 1.1 1.1z"/></svg></div></div><div class="reco-grid" id="recoGrid"></div><div class="reco-all"><a href="/site#imoveis" class="cta">Ver todos os imóveis <svg class="icon"><use href="#i-send"/></svg></a></div></div></section>
-<section class="sam-card"><div class="sam-person"><!-- Substitua src="" abaixo pela foto oficial do Sam. Ao preencher, altere via CSS .sam-photo-placeholder img{display:block} e remova/oculte o ::after. --><div class="sam-photo-placeholder"><img src="/assets/sam-avatar.png" alt="Foto do Sam"></div><div><h3>Sam</h3><div class="online">Online</div></div></div><div class="sam-copy"><p>Percebi que você prefere ambientes integrados, com muita luz natural e áreas de lazer completas. Quer ajustar algo na sua busca?</p><div class="chips"><button class="chip js-chat">Ver imóveis com vista</button><button class="chip js-chat">Até R$ 6 milhões</button><button class="chip js-chat">Mais opções como essas</button></div></div><div class="sam-scene"></div></section>
+<section class="section franquia" id="franquia"><div class="container"><div class="fr-head"><div class="fr-eyebrow">FRANQUIA DIGITAL</div><h2>Somos uma franquia digital.</h2><p>Fazemos a logística da informação, do produto, dos clientes e dos associados.</p></div><div id="mapaVivo" class="mapa-vivo"></div><div class="polos"><span class="polo-badge sede">SP · Sede</span><span class="polo-badge polo">Estados Unidos</span><span class="polo-badge polo">Itália</span><span class="polo-badge polo">Portugal</span><span class="polo-badge br">Brasil · todos os estados</span></div></div></section>
 <section class="journey-wrap"><div class="journey"><h2>Do interesse, às chaves.</h2><p class="sub">Uma jornada única, conectada e segura.</p></div><div class="timeline"><div class="jstep"><div class="jico"><svg class="icon"><use href="#i-chat"/></svg></div><div class="jnum">01</div><h4>Conversa</h4><p>Sam entende sua necessidade e traduz em critérios, a qualquer hora.</p></div><div class="jstep"><div class="jico"><svg class="icon"><use href="#i-home"/></svg></div><div class="jnum">02</div><h4>Curadoria</h4><p>Até 3 imóveis realmente compatíveis, com foto e link. Curadoria, não catálogo.</p></div><div class="jstep"><div class="jico"><svg class="icon"><use href="#i-calendar"/></svg></div><div class="jnum">03</div><h4>Visita</h4><p>Agenda do parceiro e ficha de visita assinada que garante o atendimento.</p></div><div class="jstep"><div class="jico"><svg class="icon"><use href="#i-doc"/></svg></div><div class="jnum">04</div><h4>Proposta</h4><p>Proposta com valor legal e assinatura digital, sem retrabalho.</p></div><div class="jstep"><div class="jico"><svg class="icon"><use href="#i-shield"/></svg></div><div class="jnum">05</div><h4>Conclusão</h4><p>Jurídico desde o início, pagamento e entrega de chaves com segurança.</p></div></div></section>
 <section class="cta-grid" id="parceiros"><article class="promo owner"><div class="promo-content"><div class="eyebrow">Para proprietários</div><h3>Seu imóvel diante de quem realmente procura.</h3><p>Apresente seu imóvel com inteligência e conecte-se a clientes qualificados.</p><button class="white-btn" onclick="toast('Cadastro de imóvel iniciado')">Anunciar meu imóvel&nbsp; <svg class="icon"><use href="#i-send"/></svg></button></div></article><article class="promo partner"><div class="promo-content"><div class="eyebrow">Para profissionais</div><h3>Você cuida da visita.<br>O Hub cuida da jornada.</h3><p>Mais tempo, mais conversão e uma estrutura completa para o seu negócio.</p><button class="white-btn" onclick="toast('Área de parceiros aberta')">Quero ser parceiro&nbsp; <svg class="icon"><use href="#i-send"/></svg></button></div></article></section>
 </div></section>
@@ -485,4 +509,21 @@ if(cli||auth){el.textContent='Minha área';el.setAttribute('href','/visaogeral')
 <button class="sam-fab" id="samFab" aria-label="Falar com o Sam"><img src="/assets/sam-avatar.png" alt="Sam"><span class="fab-dot"></span></button>
 <script>/* fab-wire */(function(){var f=document.getElementById("samFab"),c=document.getElementById("samChat");if(f&&c)f.addEventListener("click",function(){c.classList.remove("min");c.classList.add("open");});})();</script>
 <script>/* focus-phone */(function(){var ph=document.getElementById("story"),sec=ph&&ph.closest(".story-sec");if(ph&&sec){ph.addEventListener("mouseenter",function(){sec.classList.add("focus-phone");});ph.addEventListener("mouseleave",function(){sec.classList.remove("focus-phone");});}})();</script>
+<script>/* mapa-vivo-js */
+(function(){
+if(!window.L)return;var el=document.getElementById('mapaVivo');if(!el)return;
+function ic(cls){return L.divIcon({className:'',html:'<span class="pin '+cls+'"><i></i></span>',iconSize:[22,22],iconAnchor:[11,11]});}
+var map=L.map(el,{zoomControl:true,scrollWheelZoom:false,attributionControl:false,worldCopyJump:true}).setView([18,-35],2);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19}).addTo(map);
+var pts=[];
+function add(lat,lon,cls,label){L.marker([lat,lon],{icon:ic(cls)}).addTo(map).bindTooltip(label,{direction:'top'});pts.push([lat,lon]);}
+add(-23.55,-46.63,'sede','SP · Sede');
+[['Estados Unidos',38.90,-77.03],['Itália',41.90,12.50],['Portugal',38.72,-9.14]].forEach(function(p){add(p[1],p[2],'polo','Polo · '+p[0]);});
+var estados=[['AC',-9.97,-67.81],['AL',-9.65,-35.73],['AP',0.03,-51.07],['AM',-3.10,-60.02],['BA',-12.97,-38.51],['CE',-3.72,-38.54],['DF',-15.79,-47.88],['ES',-20.32,-40.34],['GO',-16.68,-49.25],['MA',-2.53,-44.30],['MT',-15.60,-56.10],['MS',-20.44,-54.65],['MG',-19.92,-43.94],['PA',-1.46,-48.50],['PB',-7.12,-34.86],['PR',-25.43,-49.27],['PE',-8.05,-34.88],['PI',-5.09,-42.80],['RJ',-22.91,-43.20],['RN',-5.79,-35.21],['RS',-30.03,-51.23],['RO',-8.76,-63.90],['RR',2.82,-60.67],['SC',-27.60,-48.55],['SE',-10.91,-37.07],['TO',-10.18,-48.33]];
+estados.forEach(function(e){add(e[1],e[2],'br',e[0]);});
+function fit(){try{map.invalidateSize();map.fitBounds(pts,{padding:[45,45]});}catch(e){}}
+setTimeout(fit,500);window.addEventListener('load',fit);
+if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting)fit();});},{threshold:.2});io.observe(el);}
+})();
+</script>
 </body></html>
