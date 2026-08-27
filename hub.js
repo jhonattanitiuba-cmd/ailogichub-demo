@@ -623,7 +623,12 @@
         :(p.indexOf('proprietar')>=0)?'Proprietário'
         :(p.indexOf('anunciant')>=0)?'Anunciante'
         :(p.indexOf('cliente')>=0)?'Cliente':'Bem-vindo';
-      var hello=document.getElementById('hubHello'); if(hello) hello.textContent='Olá, '+nice;
+      var hello=document.getElementById('hubHello');
+      if(hello){
+        var _nm=''; try{ var _s2=JSON.parse(localStorage.getItem('ailogic-auth')||'{}'); var _u2=(_s2&&_s2.user)||(_s2&&_s2.currentSession&&_s2.currentSession.user); _nm=String((_u2&&_u2.user_metadata&&_u2.user_metadata.nome)||''); }catch(_){}
+        var _first=(_nm.trim().split(/\s+/)[0]||'');
+        hello.textContent = _first ? ('Olá, '+_first) : ('Olá, '+nice);
+      }
       var isAdmin=p.indexOf('admin')>=0||p.indexOf('diretor')>=0||p.indexOf('dono')>=0||p.indexOf('owner')>=0||p.indexOf('super')>=0;
       if(isAdmin) return;
       var hideBox=function(el){ if(el){ var b=el.closest('.panel')||el.closest('section')||el; if(b) b.style.display='none'; } };
