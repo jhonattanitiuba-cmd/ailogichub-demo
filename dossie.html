@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<title>Dossiê de Marketing</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#eaeff7; --surface:#ffffff; --surface-2:#f4f8fd;
+  --ink:#213247; --heading:#08111f; --muted:#5a6b83;
+  --border:#e1e8f2; --accent:#0f8bff; --accent-deep:#0b4fd1; --accent-soft:#e7f1ff;
+  --band:#000108; --band-ink:#eaf2ff; --band-mut:#8fa6c9;
+  --good:#1f9d63; --good-s:#e6f5ec; --warn:#d98a09; --warn-s:#fbf1de; --stop:#e5484d; --stop-s:#fdecec;
+  --shadow:0 1px 2px rgba(10,30,60,.05),0 12px 30px rgba(10,30,60,.06);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#050c17; --surface:#0b1a2d; --surface-2:#0e2035; --ink:#c8d6e8; --heading:#f1f7ff; --muted:#8398b6;
+  --border:#1a2c45; --accent:#3aa4ff; --accent-deep:#2384ea; --accent-soft:#10294a;
+  --band:#000108; --band-ink:#eaf2ff; --band-mut:#7d95bb;
+  --good:#54c98b; --good-s:#0f2a1d; --warn:#f2b13c; --warn-s:#2a2113; --stop:#ff6b6f; --stop-s:#2a1518;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 16px 34px rgba(0,0,0,.34);
+}}
+:root[data-theme="dark"]{
+  --bg:#050c17; --surface:#0b1a2d; --surface-2:#0e2035; --ink:#c8d6e8; --heading:#f1f7ff; --muted:#8398b6;
+  --border:#1a2c45; --accent:#3aa4ff; --accent-deep:#2384ea; --accent-soft:#10294a;
+  --band:#000108; --band-ink:#eaf2ff; --band-mut:#7d95bb;
+  --good:#54c98b; --good-s:#0f2a1d; --warn:#f2b13c; --warn-s:#2a2113; --stop:#ff6b6f; --stop-s:#2a1518;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 16px 34px rgba(0,0,0,.34);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;font-size:15px;line-height:1.58;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding:0 clamp(16px,4vw,28px) 60px}
+h1,h2,h3,h4{font-family:"Archivo","IBM Plex Sans",sans-serif;color:var(--heading);text-wrap:balance;margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+a{color:var(--accent-deep)}
+
+.band{background:var(--band);color:var(--band-ink)}
+.band-in{max-width:900px;margin:0 auto;padding:24px clamp(16px,4vw,28px) 30px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand .mark{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;flex:0 0 36px;background:linear-gradient(150deg,#0f8bff,#0b4fd1);box-shadow:0 6px 18px rgba(15,139,255,.4)}
+.brand .mark svg{width:20px;height:20px}
+.brand b{font-family:"Archivo";font-weight:800;font-size:16px;color:#fff}
+.brand b span{color:#4cc6ff}
+.brand small{display:block;color:var(--band-mut);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;margin-top:1px}
+.cover h1{font-size:clamp(30px,6vw,50px);font-weight:800;letter-spacing:-.03em;line-height:1.02;color:#fff;margin-top:26px}
+.cover p.sub{margin:12px 0 0;color:var(--band-mut);max-width:52ch;font-size:15px}
+.cover .meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px}
+.cover .meta span{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--band-mut);border:1px solid rgba(120,170,255,.2);border-radius:999px;padding:5px 11px}
+.cover .meta b{color:#cfe2ff;font-weight:600}
+
+section{margin-top:40px;scroll-margin-top:16px}
+.s-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
+.s-head .num{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:13px;color:var(--accent)}
+.s-head h2{font-size:21px;font-weight:800;letter-spacing:-.015em}
+.s-head .rule{flex:1;height:1px;background:var(--border);align-self:center}
+p{margin:0 0 12px}
+.lead{font-size:15.5px;color:var(--ink)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:15px;box-shadow:var(--shadow);padding:clamp(16px,2.5vw,22px)}
+
+/* sumario */
+.toc{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:6px}
+.toc a{display:flex;align-items:center;gap:14px;padding:11px 14px;border-radius:11px;text-decoration:none;color:var(--ink)}
+.toc a:hover{background:var(--accent-soft)}
+.toc .n{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:12px;color:var(--accent);width:26px}
+.toc .t{font-weight:600;color:var(--heading)}
+.toc .d{margin-left:auto;color:var(--muted);font-size:12.5px;text-align:right}
+@media(max-width:560px){.toc .d{display:none}}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.mini{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:15px 16px;box-shadow:var(--shadow)}
+.mini h4{font-size:14.5px;font-weight:700;margin-bottom:5px}
+.mini p{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
+.mini .tagp{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+
+ul.clean{margin:0;padding:0;list-style:none;display:grid;gap:9px}
+ul.clean li{position:relative;padding-left:22px;font-size:14px;line-height:1.5}
+ul.clean li:before{content:"";position:absolute;left:3px;top:8px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+ul.clean li b{color:var(--heading);font-weight:600}
+
+.quotes{display:grid;gap:10px}
+.quote{border-left:3px solid var(--accent);background:var(--surface);border:1px solid var(--border);border-left-width:3px;border-radius:0 12px 12px 0;padding:12px 16px;font-size:14.5px;color:var(--heading);font-weight:600;box-shadow:var(--shadow)}
+
+/* jornada */
+.journey{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.jstep{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px;box-shadow:var(--shadow)}
+.jstep .jn{font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:12px;color:var(--accent)}
+.jstep h4{font-size:13.5px;margin:5px 0 3px}
+.jstep p{margin:0;font-size:11.5px;color:var(--muted);line-height:1.4}
+@media(max-width:640px){.journey{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+
+/* modelo comercial destaque */
+.money{display:flex;flex-wrap:wrap;gap:12px}
+.money .box{flex:1;min-width:150px;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:15px;text-align:center;box-shadow:var(--shadow)}
+.money .box .v{font-family:"Archivo";font-weight:800;font-size:26px;color:var(--accent)}
+.money .box .l{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* palette */
+.pal{display:flex;gap:10px;flex-wrap:wrap}
+.sw{border:1px solid var(--border);border-radius:11px;overflow:hidden;width:118px;background:var(--surface)}
+.sw .c{height:52px}
+.sw .m{padding:7px 9px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted)}
+.sw .m b{display:block;color:var(--heading);font-size:11px;font-family:"IBM Plex Sans"}
+
+/* do / dont */
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.rbox{border-radius:13px;padding:15px 16px;border:1px solid var(--border)}
+.rbox.do{background:var(--good-s);border-color:color-mix(in srgb,var(--good) 30%,transparent)}
+.rbox.dont{background:var(--stop-s);border-color:color-mix(in srgb,var(--stop) 30%,transparent)}
+.rbox h4{font-size:14px;margin-bottom:9px}
+.rbox.do h4{color:var(--good)} .rbox.dont h4{color:var(--stop)}
+.rbox ul{margin:0;padding:0;list-style:none;display:grid;gap:7px}
+.rbox li{font-size:13px;line-height:1.45;padding-left:18px;position:relative}
+.rbox li:before{position:absolute;left:0;top:0;font-weight:800}
+.rbox.do li:before{content:"+";color:var(--good)} .rbox.dont li:before{content:"–";color:var(--stop)}
+@media(max-width:560px){.rules{grid-template-columns:1fr}}
+
+footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;color:var(--muted);font-size:12px}
+.mono.sm{font-size:11.5px}
+
+@media print{
+  :root{--bg:#fff;--surface:#fff;--surface-2:#fff;--shadow:none;--border:#d7dfea}
+  body{background:#fff}
+  .band{background:#000108 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sw .c,.money .box .v,.brand .mark{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  section{margin-top:24px;break-inside:avoid}
+  .card,.mini,.jstep,.quote,.rbox,.toc,.money .box{break-inside:avoid}
+  a{color:var(--heading);text-decoration:none}
+}
+</style>
+</head>
+<body>
+
+<header class="band">
+  <div class="band-in cover">
+    <div class="brand">
+      <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9l8-5 8 5v11"/><path d="M9 20v-6h6v6"/></svg></span>
+      <div><b>AILogic <span>Hub</span></b><small>Inteligência que conecta</small></div>
+    </div>
+    <p class="eyebrow" style="color:#4cc6ff;margin-top:24px">Dossiê de marketing · Onboarding</p>
+    <h1>Tudo sobre o Hub, num lugar só</h1>
+    <p class="sub">Contexto, posicionamento, marca, mensagens, canais e a direção de marketing para o lançamento. Material de apresentação e referência.</p>
+    <div class="meta">
+      <span><b>Produto:</b> AILogic Hub</span>
+      <span><b>Setor:</b> Tecnologia imobiliária</span>
+      <span><b>Fase:</b> Pré-lançamento</span>
+      <span><b>Uso:</b> Interno · confidencial</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="s-head"><span class="num">00</span><h2>Sumário</h2><span class="rule"></span></div>
+    <nav class="toc">
+      <a href="#s1"><span class="n">01</span><span class="t">Resumo executivo</span><span class="d">o essencial em um minuto</span></a>
+      <a href="#s2"><span class="n">02</span><span class="t">O que é o AILogic Hub</span><span class="d">posicionamento</span></a>
+      <a href="#s3"><span class="n">03</span><span class="t">Público e personas</span><span class="d">para quem falamos</span></a>
+      <a href="#s4"><span class="n">04</span><span class="t">Marca e identidade</span><span class="d">cores, logo, tom</span></a>
+      <a href="#s5"><span class="n">05</span><span class="t">Mensagens-chave</span><span class="d">a copy oficial</span></a>
+      <a href="#s6"><span class="n">06</span><span class="t">O Sam, curador de IA</span><span class="d">a cereja do bolo</span></a>
+      <a href="#s7"><span class="n">07</span><span class="t">Jornada do cliente</span><span class="d">do interesse às chaves</span></a>
+      <a href="#s8"><span class="n">08</span><span class="t">Modelo comercial</span><span class="d">como o Hub ganha</span></a>
+      <a href="#s9"><span class="n">09</span><span class="t">Canais</span><span class="d">onde estamos</span></a>
+      <a href="#s10"><span class="n">10</span><span class="t">Intenções de marketing</span><span class="d">objetivos e tom</span></a>
+      <a href="#s11"><span class="n">11</span><span class="t">Ativos existentes</span><span class="d">o que já temos no ar</span></a>
+      <a href="#s12"><span class="n">12</span><span class="t">O que produzir</span><span class="d">entregas da frente</span></a>
+      <a href="#s13"><span class="n">13</span><span class="t">Regras de ouro</span><span class="d">o que fazer e evitar</span></a>
+    </nav>
+  </section>
+
+  <section id="s1">
+    <div class="s-head"><span class="num">01</span><h2>Resumo executivo</h2><span class="rule"></span></div>
+    <div class="card">
+      <p class="lead">O <b>AILogic Hub</b> é a infraestrutura de inteligência que conecta o mercado imobiliário: clientes, imobiliárias, corretores, incorporadoras e construtoras. <b>Não é uma imobiliária</b>, é a camada que liga todos os players do primeiro contato ao fechamento, com um curador de IA (o Sam) no centro da experiência.</p>
+      <p>Estamos em <b>pré-lançamento</b>, com meta de subir em poucos dias. A frente de marketing entra para construir a divulgação, o conteúdo, os vídeos explicativos e o dia do lançamento, sempre sob a bandeira <b>"Inteligência que conecta"</b>. Este documento reúne tudo que você precisa para falar a língua do Hub com precisão.</p>
+    </div>
+  </section>
+
+  <section id="s2">
+    <div class="s-head"><span class="num">02</span><h2>O que é o AILogic Hub</h2><span class="rule"></span></div>
+    <div class="quotes">
+      <div class="quote">Não somos uma imobiliária. Somos a infraestrutura que conecta tudo.</div>
+      <div class="quote">O mercado tem tudo, menos conexão. É o que o Uber fez no transporte, aplicado aos imóveis.</div>
+      <div class="quote">Raramente o gargalo é o imóvel. O processo é o gargalo, e é ele que a gente resolve.</div>
+    </div>
+    <div class="grid2" style="margin-top:13px">
+      <div class="mini"><span class="tagp">A dor de hoje</span><p>Jornada quebrada: triagem manual, qualificação frágil, visita sem aderência, negociação dispersa, jurídico entrando tarde e o cliente recomeçando do zero a cada etapa.</p></div>
+      <div class="mini"><span class="tagp">A virada</span><p>O parceiro no centro: a visita é o momento do fechamento. O Hub cuida da tecnologia, do jurídico e da burocracia; a visita é do corretor.</p></div>
+    </div>
+  </section>
+
+  <section id="s3">
+    <div class="s-head"><span class="num">03</span><h2>Público e personas</h2><span class="rule"></span></div>
+    <div class="grid3">
+      <div class="mini"><h4>Cliente final</h4><p>Quer comprar, alugar ou investir. Cansado de buscar em portais com mil imóveis. Ganha curadoria, não busca.</p></div>
+      <div class="mini"><h4>Corretor / parceiro</h4><p>Recebe cliente qualificado e visita pronta. Foca no fechamento. Carteira continua dele, sem mensalidade.</p></div>
+      <div class="mini"><h4>Imobiliária</h4><p>Produtividade e controle. Reduz custo: sem jurídico próprio, sem CRM, sem cadastro manual.</p></div>
+      <div class="mini"><h4>Incorporadora / construtora</h4><p>Portfólio conectado à demanda. O Hub entrega contrato assinado, recebe e repassa.</p></div>
+      <div class="mini"><h4>Proprietário</h4><p>Seu imóvel diante de quem realmente procura, sem ser incomodado por propostas fora da faixa.</p></div>
+      <div class="mini"><h4>Indicador (rede)</h4><p>Quem indica cliente ou imóvel também ganha. É uma rede, nunca uma pirâmide.</p></div>
+    </div>
+  </section>
+
+  <section id="s4">
+    <div class="s-head"><span class="num">04</span><h2>Marca e identidade</h2><span class="rule"></span></div>
+    <div class="grid2">
+      <div class="mini"><span class="tagp">Nome</span><p><b>AILogic Hub</b>, sempre com o "AI" junto a "Logic" (marca patenteada). Nunca "AI Logic Hub", "Ailogic" ou "AiLogic".</p></div>
+      <div class="mini"><span class="tagp">Tagline</span><p><b>Inteligência que conecta.</b> É a assinatura da marca em todas as peças.</p></div>
+    </div>
+    <div class="card" style="margin-top:13px">
+      <span class="tagp" style="font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:11px">Paleta</span>
+      <div class="pal">
+        <div class="sw"><div class="c" style="background:#0F8BFF"></div><div class="m"><b>Azul principal</b>#0F8BFF</div></div>
+        <div class="sw"><div class="c" style="background:#000108"></div><div class="m"><b>Navy / fundo</b>#000108</div></div>
+        <div class="sw"><div class="c" style="background:#4CC6FF"></div><div class="m"><b>Ciano</b>#4CC6FF</div></div>
+        <div class="sw"><div class="c" style="background:#F4F7FA;border-bottom:1px solid #e1e8f2"></div><div class="m"><b>Branco-gelo</b>#F4F7FA</div></div>
+      </div>
+      <p style="margin:14px 0 0;font-size:13px;color:var(--muted)"><b style="color:var(--heading)">Logo:</b> o mark "Ai" (ícone quadrado) para avatar e favicon; a versão horizontal para cabeçalhos. Cabeçalho e rodapé sempre no navy <span class="mono">#000108</span>.</p>
+    </div>
+  </section>
+
+  <section id="s5">
+    <div class="s-head"><span class="num">05</span><h2>Mensagens-chave</h2><span class="rule"></span></div>
+    <p style="color:var(--muted);font-size:13.5px">A copy oficial. Use estas frases como base de campanhas, posts e roteiros.</p>
+    <div class="quotes">
+      <div class="quote">Você não precisa procurar. Precisa ser melhor compreendido.</div>
+      <div class="quote">Sempre 3 imóveis, curadoria de verdade.</div>
+      <div class="quote">Tecnologia nossa, jurídico nosso, burocracia nossa. A visita é sua.</div>
+      <div class="quote">O Hub só ganha no sucesso do negócio.</div>
+      <div class="quote">Quanto maior o Hub, melhor ele fica. Um parceiro em cada cidade.</div>
+    </div>
+  </section>
+
+  <section id="s6">
+    <div class="s-head"><span class="num">06</span><h2>O Sam, curador de IA</h2><span class="rule"></span></div>
+    <div class="card">
+      <p class="lead">O <b>Sam</b> é o curador digital do Hub, a cereja do bolo. Atende 24 horas por dia, no site e no WhatsApp, por texto ou áudio.</p>
+      <ul class="clean">
+        <li>É <b>consultivo</b>: faz as perguntas certas ("quer 2 dormitórios, mas tem 3 filhos?") e entende a necessidade por trás do pedido.</li>
+        <li>Apresenta <b>sempre 3 imóveis</b> realmente compatíveis, com foto e link. Nunca 4, 5 ou 10. Se não fechar, manda mais 3.</li>
+        <li>Valida o orçamento antes de sugerir a visita. Nada de visita improdutiva.</li>
+        <li>Registra tudo e faz a <b>passagem de bastão</b> para o corretor com perfil e resumo prontos.</li>
+        <li>Aprende com o tempo: cada conversa vira dado e melhora a curadoria.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="s7">
+    <div class="s-head"><span class="num">07</span><h2>Jornada do cliente</h2><span class="rule"></span></div>
+    <div class="journey">
+      <div class="jstep"><div class="jn">01</div><h4>Conversa</h4><p>O Sam entende a necessidade, 24 por 7.</p></div>
+      <div class="jstep"><div class="jn">02</div><h4>Curadoria</h4><p>Até 3 imóveis compatíveis, com foto e link.</p></div>
+      <div class="jstep"><div class="jn">03</div><h4>Visita</h4><p>Agenda do parceiro e ficha de visita assinada.</p></div>
+      <div class="jstep"><div class="jn">04</div><h4>Proposta</h4><p>Com valor legal e assinatura digital.</p></div>
+      <div class="jstep"><div class="jn">05</div><h4>Conclusão</h4><p>Jurídico, pagamento e entrega de chaves.</p></div>
+    </div>
+  </section>
+
+  <section id="s8">
+    <div class="s-head"><span class="num">08</span><h2>Modelo comercial</h2><span class="rule"></span></div>
+    <div class="money">
+      <div class="box"><div class="v">50/50</div><div class="l">Modelo Fifty: divisão do líquido, só em negócio fechado</div></div>
+      <div class="box"><div class="v">R$ 60<span style="font-size:14px">/mês</span></div><div class="l">Único custo fixo (a linha de WhatsApp)</div></div>
+      <div class="box"><div class="v">R$ 0</div><div class="l">Sem mensalidade, sem carência, carteira continua do parceiro</div></div>
+    </div>
+    <ul class="clean" style="margin-top:14px">
+      <li><b>Rede de indicação:</b> quem capta o imóvel e quem indica o cliente também ganham. Sempre "rede", nunca "pirâmide".</li>
+      <li><b>Planos de destaque</b> (opcionais): super destaque em portais e padronização de fotos.</li>
+      <li><b>CAC do parceiro tende a zero</b>, e o efeito rede faz o Hub melhorar quanto mais gente entra.</li>
+    </ul>
+  </section>
+
+  <section id="s9">
+    <div class="s-head"><span class="num">09</span><h2>Canais</h2><span class="rule"></span></div>
+    <div class="grid3">
+      <div class="mini"><span class="tagp">Site</span><p>ailogichub.app e ailogichub.com.br. Site cliente-first: divulga o imóvel, não a imobiliária. Poucos imóveis, sem filtros, só o curador.</p></div>
+      <div class="mini"><span class="tagp">WhatsApp</span><p>O Sam atende por lá, com número exclusivo por parceiro. Curadoria com foto e link, texto ou áudio.</p></div>
+      <div class="mini"><span class="tagp">Redes sociais</span><p>Instagram e afins: construção de marca, prova social e conteúdo educativo do posicionamento.</p></div>
+      <div class="mini"><span class="tagp">E-mail corporativo</span><p>Domínio @ailogichub.com.br (Google Workspace) para comunicação oficial e institucional.</p></div>
+      <div class="mini"><span class="tagp">Portais e tráfego</span><p>Zap e mídia paga: sempre divulgando o imóvel. Captação com CAC baixo alimentando o Hub.</p></div>
+      <div class="mini"><span class="tagp">Vídeos e tutoriais</span><p>Materiais explicativos por público, para orientar clientes e parceiros no lançamento.</p></div>
+    </div>
+  </section>
+
+  <section id="s10">
+    <div class="s-head"><span class="num">10</span><h2>Intenções de marketing</h2><span class="rule"></span></div>
+    <div class="grid2">
+      <div class="mini"><span class="tagp">Objetivos</span><p>Posicionar o Hub como <b>infraestrutura</b> (não imobiliária); captar clientes e parceiros; sustentar o efeito rede; meta de um parceiro por cidade.</p></div>
+      <div class="mini"><span class="tagp">Tom de voz</span><p>Consultivo, premium e humano. Elegante e sensível às pessoas. Nada de pressão ou promessa vazia.</p></div>
+      <div class="mini"><span class="tagp">Prioridade agora</span><p>Preparar o <b>lançamento</b>: conteúdo do dia, calendário inicial e as peças de captação de parceiros.</p></div>
+      <div class="mini"><span class="tagp">Métrica-guia</span><p>Qualidade da conexão e do negócio fechado, não volume de anúncios. Marca reconhecida por "Inteligência que conecta".</p></div>
+    </div>
+  </section>
+
+  <section id="s11">
+    <div class="s-head"><span class="num">11</span><h2>Ativos existentes</h2><span class="rule"></span></div>
+    <ul class="clean">
+      <li><b>Site no ar:</b> versão pública e a landing premium, com o inbox do Sam integrado.</li>
+      <li><b>Sam ativo</b> no WhatsApp e no site, com a mesma persona nos dois canais.</li>
+      <li><b>Hub interno</b> (painéis por perfil) funcionando com dados reais.</li>
+      <li><b>Identidade</b> pronta: logo, paleta, tipografia e favicon.</li>
+      <li><b>E-mail corporativo</b> @ailogichub.com.br (domínio verificado no Google Workspace).</li>
+      <li><b>Base de conteúdo:</b> pitch, deck oficial e transcrições das apresentações.</li>
+    </ul>
+  </section>
+
+  <section id="s12">
+    <div class="s-head"><span class="num">12</span><h2>O que produzir</h2><span class="rule"></span></div>
+    <div class="grid3">
+      <div class="mini"><h4>Plano de divulgação</h4><p>Estratégia e calendário de conteúdo dos primeiros dias.</p></div>
+      <div class="mini"><h4>Criativos</h4><p>Posts, stories e reels na identidade do Hub, com as mensagens-chave.</p></div>
+      <div class="mini"><h4>Vídeos explicativos</h4><p>Tutoriais por público: cliente, corretor e imobiliária, e o pitch de parceria.</p></div>
+      <div class="mini"><h4>Dia do lançamento</h4><p>Peças e sequência de publicação para o go-live.</p></div>
+      <div class="mini"><h4>Gestão de redes</h4><p>Publicação, comunidade e resposta, mantendo o tom consultivo.</p></div>
+      <div class="mini"><h4>Captação de parceiros</h4><p>Material B2B para atrair imobiliárias e corretores para a rede.</p></div>
+    </div>
+  </section>
+
+  <section id="s13">
+    <div class="s-head"><span class="num">13</span><h2>Regras de ouro</h2><span class="rule"></span></div>
+    <div class="rules">
+      <div class="rbox do">
+        <h4>Sempre</h4>
+        <ul>
+          <li>Escrever <b>AILogic Hub</b> (AI junto) e usar a tagline "Inteligência que conecta".</li>
+          <li>Azul <b>#0F8BFF</b>, navy <b>#000108</b> no cabeçalho e rodapé.</li>
+          <li>Texto revisado e acentuado, tom consultivo e humano.</li>
+          <li>Falar "rede", "portfólio", "seleção", "curadoria".</li>
+          <li>Divulgar o <b>imóvel</b>, com o parceiro no centro.</li>
+        </ul>
+      </div>
+      <div class="rbox dont">
+        <h4>Nunca</h4>
+        <ul>
+          <li>Usar <b>travessão</b> (traço longo) nem emoji genérico nas peças.</li>
+          <li>Citar o motor de IA ou qualquer marca de tecnologia (white-label).</li>
+          <li>Chamar o Hub de "imobiliária".</li>
+          <li>Usar "pirâmide" ou "estoque".</li>
+          <li>Prometer resultado com pressão ou exagero.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="mono sm">AILogic Hub · Inteligência que conecta</span>
+    <span class="mono sm">Dossiê de marketing · uso interno e confidencial</span>
+  </footer>
+</div>
+
+</body>
+</html>

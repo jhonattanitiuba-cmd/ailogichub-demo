@@ -5,6 +5,7 @@
     { "path": "/api/disparo", "schedule": "0 10 * * *" }
   ],
   "redirects": [
+    { "source": "/", "has": [{ "type": "host", "value": "marketing.ailogichub.com.br" }], "destination": "/dossie", "permanent": false },
     { "source": "/", "has": [{ "type": "host", "value": "ailogichub.com.br" }], "destination": "/bemvindo", "permanent": false },
     { "source": "/", "has": [{ "type": "host", "value": "www.ailogichub.com.br" }], "destination": "/bemvindo", "permanent": false },
     { "source": "/", "destination": "/visaogeral", "permanent": false },
