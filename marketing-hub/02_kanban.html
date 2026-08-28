@@ -109,4 +109,12 @@ a.nav-btn{text-decoration:none;display:inline-flex;align-items:center;justify-co
     t.textContent=msg;t.style.display='block';clearTimeout(window.__mktToast);window.__mktToast=setTimeout(()=>t.style.display='none',2600);
   }
 })();
-</script></body></html>
+</script><script>(function(){
+  var NOME=(function(){try{return localStorage.getItem("mkt_nome")}catch(e){return null}})()||"Raphaela Andrade";
+  var PRIMEIRO=NOME.trim().split(/s+/)[0];
+  var h1=document.querySelector(".header h1");
+  if(h1 && !document.querySelector(".ola-mkt")){var g=document.createElement("div");g.className="eyebrow ola-mkt";g.textContent="Ola, "+PRIMEIRO;g.style.cssText="color:#1768ff;margin-bottom:6px";h1.parentNode.insertBefore(g,h1);}
+  var f=document.querySelector(".sidebar .foot");
+  if(f){f.innerHTML="<b>"+NOME+"</b><br><span style=\"opacity:.75\">Marketing</span>";}
+  document.querySelectorAll("select[data-global=\"responsavel\"] option").forEach(function(o){ if(o.value==="rafaela"){o.value="raphaela";o.textContent=NOME;} });
+})();</script></body></html>
