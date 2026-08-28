@@ -10,6 +10,8 @@
     { "source": "/", "has": [{ "type": "host", "value": "www.ailogichub.com.br" }], "destination": "/bemvindo", "permanent": false },
     { "source": "/", "destination": "/visaogeral", "permanent": false },
     { "source": "/entrar", "destination": "/login", "permanent": false },
+    { "source": "/marketing", "destination": "/marketing-hub", "permanent": false },
+    { "source": "/painel-marketing", "destination": "/marketing-hub", "permanent": false },
     { "source": "/sejabemvindo", "destination": "/bemvindo", "permanent": false },
     { "source": "/seja-bem-vindo", "destination": "/bemvindo", "permanent": false }
   ]

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>Calendário Editorial</title><style>
+:root{
+  --navy:#12275c; --blue:#1768ff; --bg:#f4f7fc; --card:#fff;
+  --text:#17244d; --muted:#74819f; --line:#dfe6f2;
+  --green:#20b879; --amber:#f2ab22; --red:#e65555; --purple:#785fda; --pink:#dc4c93; --cyan:#32a7e8;
+  --soft-blue:#eaf2ff; --soft-green:#e9f8f0; --soft-amber:#fff4de;
+  --soft-red:#ffe8e7; --soft-purple:#f1edff; --soft-gray:#eff3f8; --soft-pink:#fff0f7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--text)}
+button,input,select,textarea{font:inherit}
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+.sidebar{background:linear-gradient(180deg,#17316e 0%,#102251 100%);color:#fff;padding:20px 17px;display:flex;flex-direction:column}
+.brand{background:linear-gradient(135deg,#1678ff,#3aa7f5);border-radius:18px;padding:16px;text-align:center;margin-bottom:24px}
+.logo{width:58px;height:58px;border-radius:13px;margin:0 auto 9px;background:linear-gradient(145deg,#091b38,#0a70cc);display:grid;place-items:center;font-weight:900;font-size:24px}
+.brand b{display:block;font-size:18px}.brand small{font-size:11px;color:#eef6ff}
+.section{font-size:9px;letter-spacing:1.2px;color:#8fa4d3;margin:12px 10px 4px;text-transform:uppercase}
+.nav{display:flex;flex-direction:column;gap:5px}.item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;font-size:12.5px;color:#d7e2fb}
+.active{background:#294b9e;border:1px solid #4b8cff;color:#fff;font-weight:700}.spacer{margin-top:auto}.foot{padding:12px 4px;color:#cbd5ec;font-size:12px;border-top:1px solid rgba(255,255,255,.12)}
+.main{padding:22px 20px 34px}.header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.header h1{margin:0;font-size:28px;letter-spacing:-.4px}
+.header p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.45;max-width:1050px}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:0;border-radius:10px;padding:10px 13px;font-size:11px;font-weight:800}.btn.primary{background:#1768ff;color:#fff}.btn.light{background:#fff;border:1px solid var(--line);color:var(--text)}
+.btn.green{background:#e8f8f0;color:#148859;border:1px solid #c6ecd9}.btn.amber{background:#fff7e5;color:#966600;border:1px solid #f0d9ab}
+.filters{display:flex;gap:7px;flex-wrap:wrap;background:#fff;border:1px solid #e1e7f0;border-radius:13px;padding:10px 11px;margin:14px 0}
+.filter{border:1px solid #dfe6f1;background:#f9fbff;border-radius:8px;padding:7px 9px;font-size:9.5px;color:#52627f}.clear{margin-left:auto;color:#1768ff;font-weight:900;font-size:9px;align-self:center}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:16px 0}.kpi{background:#fff;border:1px solid #e2e8f2;border-radius:14px;padding:12px 13px}
+.kpi.primary{background:linear-gradient(135deg,#3155b8,#294394);color:#fff}.kpi .label{font-size:10px;font-weight:700;color:#6f7c99}.kpi.primary .label{color:#eef3ff}
+.kpi .value{font-size:22px;font-weight:800;margin:7px 0 4px}.kpi .sub{font-size:8.6px;color:#8e9ab3}.kpi.primary .sub{color:#c8d4f3}
+.insight{background:#fff;border:1px solid #e1e7f1;border-left:4px solid var(--blue);border-radius:13px;padding:13px 15px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.insight b{font-size:13px}.insight p{margin:4px 0 0;font-size:11px;color:#465575;line-height:1.45}.insight .mini{font-size:10px;color:#1768ff;font-weight:800;white-space:nowrap}
+.grid2{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:#fff;border:1px solid #e1e7f0;border-radius:15px;overflow:hidden}
+.head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #e7ecf4}.head h3{margin:0;font-size:13px}.head span{font-size:8.5px;color:#7d8aa4}.body{padding:12px 14px}
+.metric-list .line{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #edf1f6}.metric-list .line:last-child{border-bottom:0}
+.metric-list b{font-size:10px}.metric-list small{display:block;color:#7d8aa2;font-size:8px;margin-top:2px}.metric-list strong{font-size:10px}
+.tags,.pills{display:flex;gap:6px;flex-wrap:wrap}.tag,.pill{display:inline-flex;padding:5px 8px;border-radius:8px;font-size:8px;font-weight:800}
+.t-blue{background:var(--soft-blue);color:#1768ff}.t-green{background:var(--soft-green);color:#17875b}.t-amber{background:var(--soft-amber);color:#956200}.t-red{background:var(--soft-red);color:#b23e35}.t-purple{background:var(--soft-purple);color:#6849c9}.t-pink{background:var(--soft-pink);color:#b93978}.t-gray{background:var(--soft-gray);color:#66728d}
+.rows .row{display:grid;grid-template-columns:190px 1fr 70px;gap:8px;align-items:center;margin:10px 0}.rows .row span{font-size:9px}
+.bar{height:9px;background:#edf1f7;border-radius:999px;overflow:hidden}.bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#2b68e8,#59a2f2)}.rows b{font-size:9px;text-align:right}
+.table-wrap{margin-top:14px;background:#fff;border:1px solid #e1e7f0;border-radius:15px;overflow:hidden}.tabs{display:flex;gap:6px;padding:10px 12px 0;flex-wrap:wrap}
+.tab{padding:8px 10px;border-radius:8px 8px 0 0;font-size:9px;font-weight:800;color:#6d7892;background:#f4f7fb;border:1px solid #e2e8f2;border-bottom:0}.tab.on{background:#edf4ff;color:#1768ff}
+.toolbar{display:grid;grid-template-columns:1fr repeat(4,150px);gap:8px;padding:12px;border-bottom:1px solid #e7ecf4}.toolbar input,.toolbar select{border:1px solid #dce4f1;border-radius:9px;background:#fbfcff;padding:10px 11px;font-size:10px;color:#566581}
+table{width:100%;border-collapse:collapse;font-size:9.6px}th{background:#fbfcff;color:#6d7b98;text-align:left;padding:10px;border-bottom:1px solid #e6ebf4;font-size:8.5px}td{padding:10px;border-bottom:1px solid #edf1f6;vertical-align:top}
+.note{margin-top:14px;background:#edf4ff;border:1px solid #d7e5ff;border-radius:12px;padding:11px 13px;font-size:10.5px;color:#415274}.note b{color:#173f98}
+.board{display:grid;grid-template-columns:repeat(7,250px);gap:10px;min-width:max-content}.board-wrap{overflow:auto;padding-bottom:5px}.stage{background:#f7f9fd;border:1px solid #e4eaf3;border-radius:12px;min-height:420px}
+.stage h4{margin:0;padding:10px;border-bottom:1px solid #e5ebf4;background:#fff;border-radius:12px 12px 0 0;font-size:10px}.task{background:#fff;border:1px solid #e1e7ef;border-radius:10px;padding:9px;margin:8px}.task b{font-size:9.5px}.task p{font-size:8px;color:#70809a;line-height:1.35}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid #e7ecf4;border-radius:11px;overflow:hidden}.dow{padding:7px;background:#fbfcff;font-size:7.8px;font-weight:900;color:#63718d;border-right:1px solid #edf1f6}
+.day{min-height:95px;padding:7px;border-right:1px solid #edf1f6;border-top:1px solid #edf1f6}.event{font-size:7.4px;line-height:1.25;border-left:3px solid #1768ff;padding:4px 5px;margin-top:5px;border-radius:5px;background:#edf4ff}
+.asset-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.asset{background:#fff;border:1px solid #e2e8f2;border-radius:12px;overflow:hidden}.thumb{height:115px;background:linear-gradient(135deg,#dbe7fb,#edf3fd);display:grid;place-items:center;font-size:12px;color:#52678f}.asset .cap{padding:9px}.asset b{font-size:9.5px}.asset p{font-size:8px;color:#71809a}
+@media(max-width:1600px){.kpis{grid-template-columns:repeat(3,1fr)}}@media(max-width:1280px){.app{grid-template-columns:215px 1fr}.grid2,.grid3,.asset-grid,.toolbar{grid-template-columns:1fr}}
+
+a.item{color:#d7e2fb;text-decoration:none}
+a.item.active{color:#fff}
+a.nav-btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.rule-chip{display:inline-flex;align-items:center;gap:6px;background:#eef5ff;border:1px solid #d8e6ff;color:#245aaf;border-radius:999px;padding:6px 9px;font-size:8.5px;font-weight:800;margin-top:8px}
+.rule-dot{width:7px;height:7px;border-radius:50%;background:#20b879}
+.global-context{display:flex;gap:7px;flex-wrap:wrap;background:#fff;border:1px solid #e2e8f2;border-radius:13px;padding:9px 11px;margin:12px 0}
+.global-context label{font-size:8px;color:#72809b;display:flex;flex-direction:column;gap:3px}
+.global-context select{border:1px solid #dfe6f2;border-radius:8px;background:#fbfcff;color:#52627f;padding:6px 8px;font-size:9px;min-width:128px}
+.global-context .rule-link{margin-left:auto;align-self:flex-end;color:#1768ff;text-decoration:none;font-size:9px;font-weight:900;padding:7px 4px}
+.action-toast{position:fixed;right:24px;bottom:24px;background:#11295e;color:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 14px 36px rgba(21,45,95,.22);z-index:9999;font-size:10px;max-width:320px;display:none}
+</style></head>
+<body><div class="app"><aside class="sidebar"><div class="brand"><div class="logo">Ai</div><b>AILogic Hub</b><small>Inteligência que conecta</small></div><div class="section">Operação</div><div class="nav"><a class="item" href="01_visao_geral.html">⌂ Visão Geral</a></div><div class="section">Conteúdo &amp; Marca</div><div class="nav"><a class="item" href="02_kanban.html">▣ Kanban de Marketing</a><a class="item active" href="03_calendario_editorial.html">□ Calendário Editorial</a><a class="item" href="04_biblioteca_criativos.html">◈ Biblioteca de Criativos</a><a class="item" href="05_aprovacoes.html">✓ Aprovações</a></div><div class="section">Canais &amp; Distribuição</div><div class="nav"><a class="item" href="06_redes_sociais.html">◉ Redes Sociais</a><a class="item" href="07_impulsionamentos.html">▥ Impulsionamentos</a><a class="item" href="08_site_landing_pages.html">◎ Site &amp; Landing Pages</a><a class="item" href="09_portais_vitrines.html">◫ Portais &amp; Vitrines</a><a class="item" href="10_email_whatsapp.html">✉ E-mail &amp; WhatsApp</a></div><div class="section">Inteligência</div><div class="nav"><a class="item" href="11_atribuicao_utms.html">⌁ Atribuição &amp; UTMs</a><a class="item" href="12_seo_conteudo.html">◍ SEO &amp; Conteúdo</a><a class="item" href="13_social_listening.html">✦ Social Listening</a><a class="item" href="14_relatorios_marketing.html">▥ Relatórios</a></div><div class="section">Gestão</div><div class="nav"><a class="item" href="15_orcamento_roas.html">＄ Orçamento &amp; ROAS</a><a class="item" href="16_integracoes_pixels.html">⚙ Integrações &amp; Pixels</a></div><div class="spacer"></div><div class="foot">Marketing</div></aside><main class="main"><div id="top"></div><div class="header"><div><h1>Calendário Editorial</h1><p>Planejamento visual de publicações, campanhas, disparos, aprovações e ações do marketing.</p><div class="rule-chip"><span class="rule-dot"></span>Regra transversal MKT-360 ativa</div></div><div class="actions"><button class="btn light" onclick='MarketingUI.action("Hoje")'>Hoje</button><a class="btn green nav-btn" href="03_calendario_editorial.html">Agendar publicação</a><button class="btn primary" onclick='MarketingUI.action("+ Novo evento")'>+ Novo evento</button></div></div>
+<div aria-label="Contexto transversal do Marketing" class="global-context">
+<label>Período
+<select data-global="periodo">
+<option value="7d">7 dias</option><option value="30d">30 dias</option><option value="90d">90 dias</option><option value="mes">Este mês</option><option value="ano">Este ano</option>
+</select></label>
+<label>Canal
+<select data-global="canal">
+<option value="todos">Todos</option><option value="instagram">Instagram</option><option value="facebook">Facebook</option><option value="tiktok">TikTok</option><option value="linkedin">LinkedIn</option><option value="youtube">YouTube</option><option value="site">Site</option><option value="portais">Portais</option>
+</select></label>
+<label>Campanha
+<select data-global="campanha">
+<option value="todas">Todas</option><option value="parceiros">Parceiros</option><option value="imoveis">Imóveis</option><option value="institucional">Institucional</option>
+</select></label>
+<label>Responsável
+<select data-global="responsavel">
+<option value="todos">Todos</option><option value="marketing">Marketing</option><option value="rafaela">Rafaela</option><option value="jhonattan">Jhonattan</option><option value="alessandro">Alessandro</option>
+</select></label>
+<a class="rule-link" href="00_regra_transversal_marketing.html">Regra transversal ↗</a>
+</div>
+<section class="kpis"><div class="kpi primary"><div class="label">Publicações semana</div><div class="value">18</div><div class="sub">todos os canais</div></div><div class="kpi"><div class="label">Campanhas</div><div class="value">5</div><div class="sub">ativas</div></div><div class="kpi"><div class="label">Stories</div><div class="value">21</div><div class="sub">programados</div></div><div class="kpi"><div class="label">Vídeos</div><div class="value">7</div><div class="sub">reels/shorts</div></div><div class="kpi"><div class="label">Aprovações</div><div class="value">4</div><div class="sub">pendentes</div></div><div class="kpi"><div class="label">Conflitos</div><div class="value">2</div><div class="sub">horários</div></div></section><div class="insight"><div><b>● Insight da IA, Marketing</b><p>O calendário deve mostrar produção, publicação, campanha, impulsionamento, evento, disparo de e-mail/WhatsApp e vencimento de aprovação.</p></div><div class="mini">Ver detalhes →</div></div><section class="card"><div class="head"><h3>Calendário Editorial</h3><span>Agosto / Setembro 2026</span></div><div class="body"><div class="calendar"><div class="dow">SEG</div><div class="dow">TER</div><div class="dow">QUA</div><div class="dow">QUI</div><div class="dow">SEX</div><div class="dow">SÁB</div><div class="dow">DOM</div><div class="day"><b>1</b><div class="event">Reel imóvel</div></div><div class="day"><b>2</b><div class="event">Carrossel parceiro</div></div><div class="day"><b>3</b><div class="event">LinkedIn institucional</div></div><div class="day"><b>4</b><div class="event">Stories campanha</div></div><div class="day"><b>5</b><div class="event">Reel Hub</div><div class="event">Meta Ads</div></div><div class="day"><b>6</b><div class="event">YouTube Short</div></div><div class="day"><b>7</b><div class="event">Resumo semanal</div></div><div class="day"><b>8</b><div class="event">Reel imóvel</div></div><div class="day"><b>9</b><div class="event">Carrossel parceiro</div></div><div class="day"><b>10</b><div class="event">LinkedIn institucional</div></div><div class="day"><b>11</b><div class="event">Stories campanha</div></div><div class="day"><b>12</b><div class="event">Reel Hub</div><div class="event">Meta Ads</div></div><div class="day"><b>13</b><div class="event">YouTube Short</div></div><div class="day"><b>14</b><div class="event">Resumo semanal</div></div><div class="day"><b>15</b><div class="event">Reel imóvel</div></div><div class="day"><b>16</b><div class="event">Carrossel parceiro</div></div><div class="day"><b>17</b><div class="event">LinkedIn institucional</div></div><div class="day"><b>18</b><div class="event">Stories campanha</div></div><div class="day"><b>19</b><div class="event">Reel Hub</div><div class="event">Meta Ads</div></div><div class="day"><b>20</b><div class="event">YouTube Short</div></div><div class="day"><b>21</b><div class="event">Resumo semanal</div></div><div class="day"><b>22</b><div class="event">Reel imóvel</div></div><div class="day"><b>23</b><div class="event">Carrossel parceiro</div></div><div class="day"><b>24</b><div class="event">LinkedIn institucional</div></div><div class="day"><b>25</b><div class="event">Stories campanha</div></div><div class="day"><b>26</b><div class="event">Reel Hub</div><div class="event">Meta Ads</div></div><div class="day"><b>27</b><div class="event">YouTube Short</div></div><div class="day"><b>28</b><div class="event">Resumo semanal</div></div><div class="day"><b>29</b><div class="event">Reel imóvel</div></div><div class="day"><b>30</b><div class="event">Carrossel parceiro</div></div><div class="day"><b>31</b><div class="event">LinkedIn institucional</div></div><div class="day"><b>32</b><div class="event">Stories campanha</div></div><div class="day"><b>33</b><div class="event">Reel Hub</div><div class="event">Meta Ads</div></div><div class="day"><b>34</b><div class="event">YouTube Short</div></div><div class="day"><b>35</b><div class="event">Resumo semanal</div></div></div></div></section></main></div><script>
+(function(){
+  const KEY='ailogic_marketing_global_context_v1';
+  const defaults={periodo:'30d',canal:'todos',campanha:'todas',responsavel:'todos'};
+  function load(){
+    try{return Object.assign({},defaults,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){return {...defaults}}
+  }
+  function save(obj){ localStorage.setItem(KEY,JSON.stringify(obj)); }
+  const ctx=load();
+  document.querySelectorAll('[data-global]').forEach(el=>{
+    const k=el.getAttribute('data-global');
+    if(ctx[k]!==undefined) el.value=ctx[k];
+    el.addEventListener('change',()=>{
+      const next=load(); next[k]=el.value; save(next);
+      document.querySelectorAll('[data-global="'+k+'"]').forEach(x=>{ if(x!==el) x.value=el.value; });
+      toast('Contexto transversal atualizado: '+k+' = '+el.options[el.selectedIndex].text);
+    });
+  });
+  window.MarketingUI={
+    action:function(label){toast(label+' — ação operacional simulada neste protótipo.');},
+    resetContext:function(){localStorage.removeItem(KEY);location.reload();}
+  };
+  function toast(msg){
+    let t=document.querySelector('.action-toast');
+    if(!t){t=document.createElement('div');t.className='action-toast';document.body.appendChild(t);}
+    t.textContent=msg;t.style.display='block';clearTimeout(window.__mktToast);window.__mktToast=setTimeout(()=>t.style.display='none',2600);
+  }
+})();
+</script></body></html>
