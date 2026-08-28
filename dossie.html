@@ -11,21 +11,22 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
 <style>
 :root{
-  --bg:#eaeff7; --surface:#ffffff; --surface-2:#f4f8fd;
+  --bg:#ffffff; --surface:#ffffff; --surface-2:#f4f8fd;
   --ink:#213247; --heading:#08111f; --muted:#5a6b83;
   --border:#e1e8f2; --accent:#0f8bff; --accent-deep:#0b4fd1; --accent-soft:#e7f1ff;
   --band:#000108; --band-ink:#eaf2ff; --band-mut:#8fa6c9;
   --good:#1f9d63; --good-s:#e6f5ec; --warn:#d98a09; --warn-s:#fbf1de; --stop:#e5484d; --stop-s:#fdecec;
   --shadow:0 1px 2px rgba(10,30,60,.05),0 12px 30px rgba(10,30,60,.06);
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+@media (min-width:999999px){ :root{
   --bg:#050c17; --surface:#0b1a2d; --surface-2:#0e2035; --ink:#c8d6e8; --heading:#f1f7ff; --muted:#8398b6;
   --border:#1a2c45; --accent:#3aa4ff; --accent-deep:#2384ea; --accent-soft:#10294a;
   --band:#000108; --band-ink:#eaf2ff; --band-mut:#7d95bb;
   --good:#54c98b; --good-s:#0f2a1d; --warn:#f2b13c; --warn-s:#2a2113; --stop:#ff6b6f; --stop-s:#2a1518;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 16px 34px rgba(0,0,0,.34);
 }}
-:root[data-theme="dark"]{
+
+:root[data-theme="neverdark"]{
   --bg:#050c17; --surface:#0b1a2d; --surface-2:#0e2035; --ink:#c8d6e8; --heading:#f1f7ff; --muted:#8398b6;
   --border:#1a2c45; --accent:#3aa4ff; --accent-deep:#2384ea; --accent-soft:#10294a;
   --band:#000108; --band-ink:#eaf2ff; --band-mut:#7d95bb;
@@ -133,25 +134,31 @@ footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--border);displ
   .card,.mini,.jstep,.quote,.rbox,.toc,.money .box{break-inside:avoid}
   a{color:var(--heading);text-decoration:none}
 }
+
+/* capa branca */
+.cover-w{max-width:900px;margin:0 auto;padding:40px clamp(16px,4vw,28px) 6px}
+.cover-w .logo-off{height:96px;width:auto;max-width:100%;display:block;margin:0 0 24px;border-radius:12px;box-shadow:0 14px 34px rgba(6,20,40,.22)}
+.cover-w .eyebrow{margin:0 0 4px}
+.cover-w h1{font-size:clamp(30px,6vw,50px);font-weight:800;letter-spacing:-.03em;line-height:1.02;color:var(--heading);margin-top:10px}
+.cover-w .sub{margin:12px 0 0;color:var(--muted);max-width:56ch;font-size:15px}
+.cover-w .meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px}
+.cover-w .meta span{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:5px 11px;background:var(--surface-2)}
+.cover-w .meta b{color:var(--heading);font-weight:600}
+@media print{.cover-w .logo-off{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-shadow:none}}
 </style>
 </head>
 <body>
 
-<header class="band">
-  <div class="band-in cover">
-    <div class="brand">
-      <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9l8-5 8 5v11"/><path d="M9 20v-6h6v6"/></svg></span>
-      <div><b>AILogic <span>Hub</span></b><small>Inteligência que conecta</small></div>
-    </div>
-    <p class="eyebrow" style="color:#4cc6ff;margin-top:24px">Dossiê de marketing · Onboarding</p>
-    <h1>Tudo sobre o Hub, num lugar só</h1>
-    <p class="sub">Contexto, posicionamento, marca, mensagens, canais e a direção de marketing para o lançamento. Material de apresentação e referência.</p>
-    <div class="meta">
-      <span><b>Produto:</b> AILogic Hub</span>
-      <span><b>Setor:</b> Tecnologia imobiliária</span>
-      <span><b>Fase:</b> Pré-lançamento</span>
-      <span><b>Uso:</b> Interno · confidencial</span>
-    </div>
+<header class="cover-w">
+  <img class="logo-off" src="/assets/logo-horizontal.png" alt="AILogic Hub">
+  <p class="eyebrow">Dossiê de marketing · Onboarding</p>
+  <h1>Tudo sobre o Hub, num lugar só</h1>
+  <p class="sub">Contexto, posicionamento, marca, mensagens, canais e a direção de marketing para o lançamento. Material de apresentação e referência.</p>
+  <div class="meta">
+    <span><b>Produto:</b> AILogic Hub</span>
+    <span><b>Setor:</b> Tecnologia imobiliária</span>
+    <span><b>Fase:</b> Pré-lançamento</span>
+    <span><b>Uso:</b> Interno, confidencial</span>
   </div>
 </header>
 
