@@ -74,8 +74,18 @@ body{margin:0;background:radial-gradient(1200px 820px at 50% 38%,#123262 0%,#0a1
     tip.style.opacity='0'; setTimeout(function(){ tip.textContent='Tudo pronto'; tip.style.opacity='1'; var s=document.getElementById('sub'); if(s) s.textContent='Abrindo seu painel'; },160);
   }).catch(function(){});
 
-  // tempo FIXO de 10s -> entra na Visão Geral (dados já em cache)
-  setTimeout(function(){ clearInterval(rot); location.replace('/visaogeral'); }, 10000);
+  // destino por perfil: marketing tem area dedicada
+  function _destino(){
+    try{
+      var s=JSON.parse(localStorage.getItem('ailogic-auth')||'{}');
+      var u=(s&&s.user)||(s&&s.currentSession&&s.currentSession.user);
+      var p=String((u&&u.user_metadata&&u.user_metadata.perfil)||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+      if(p==='marketing') return '/marketing';
+    }catch(_){}
+    return '/visaogeral';
+  }
+  // tempo FIXO de 10s -> entra no painel do perfil (dados já em cache)
+  setTimeout(function(){ clearInterval(rot); location.replace(_destino()); }, 10000);
 })();
 </script>
 </body>
