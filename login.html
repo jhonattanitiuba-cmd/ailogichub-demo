@@ -130,12 +130,6 @@ body.leaving .formside{transform:translateX(24px);transition:transform .42s ease
           <option value="juridico@ailogichub.app" label="HUB · Jurídico"></option>
           <option value="financeiro@ailogichub.app" label="HUB · Financeiro"></option>
           <option value="marketing@ailogichub.app" label="HUB · Marketing"></option>
-          <option value="imobiliaria@ailogichub.app" label="🔵 Público · Imobiliária"></option>
-          <option value="corretor@ailogichub.app" label="🔵 Público · Corretor"></option>
-          <option value="autonomo@ailogichub.app" label="🔵 Público · Corretor autônomo"></option>
-          <option value="proprietario@ailogichub.app" label="🔵 Público · Proprietário"></option>
-          <option value="anunciante@ailogichub.app" label="🔵 Público · Anunciante"></option>
-          <option value="cliente@ailogichub.app" label="🔵 Público · Cliente"></option>
         </datalist></div></div>
       <div class="field f2"><label for="pass">Senha</label>
         <div class="inp"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V8a6 6 0 0 1 12 0v2"/><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M12 15v2"/></svg></span>
@@ -202,7 +196,7 @@ document.getElementById('form').addEventListener('submit',async function(e){
   var email=document.getElementById('email'), pass=document.getElementById('pass'), clr=document.getElementById('clrEmail');
   if(!email||!pass) return;
   var DEMO_PASS='AiLogicHub@2026';
-  var DEMO=['diretoria','comercial','comercial-rep','imobiliaria','corretor','autonomo','juridico','financeiro','marketing','proprietario','anunciante','cliente'].map(function(x){return x+'@ailogichub.app';});
+  var DEMO=['diretoria','comercial','comercial-rep','juridico','financeiro','marketing'].map(function(x){return x+'@ailogichub.app';});
   function onEmail(){
     var v=email.value.trim().toLowerCase();
     if(clr) clr.style.display=v?'grid':'none';
