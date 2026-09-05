@@ -1,0 +1,9 @@
+# Arquivos internos que NAO devem ser servidos publicamente pela Vercel.
+# Nao afeta as funcoes serverless em api/ (nao listadas) nem os assets do app.
+_demo/
+_db/
+docs/
+*.sql
+*.md
+_v1_index_backup.html
+hub-config.example.js

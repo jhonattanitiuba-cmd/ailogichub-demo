@@ -191,16 +191,13 @@ document.getElementById('form').addEventListener('submit',async function(e){
 </script>
 
 <script>
-/* ---- Demo: logins pre-carregados por grupo -> preenche a senha padrao ao escolher ---- */
+/* ---- Limpar e-mail + mostrar/ocultar senha ---- */
 (function(){
   var email=document.getElementById('email'), pass=document.getElementById('pass'), clr=document.getElementById('clrEmail');
   if(!email||!pass) return;
-  var DEMO_PASS='AiLogicHub@2026';
-  var DEMO=['diretoria','comercial','comercial-rep','juridico','financeiro','marketing'].map(function(x){return x+'@ailogichub.app';});
   function onEmail(){
     var v=email.value.trim().toLowerCase();
     if(clr) clr.style.display=v?'grid':'none';
-    if(DEMO.indexOf(v)>=0) pass.value=DEMO_PASS;   // login demo -> preenche senha; e-mail novo NAO
   }
   email.addEventListener('input',onEmail); email.addEventListener('change',onEmail);
   if(clr) clr.addEventListener('click',function(){ email.value=''; pass.value=''; clr.style.display='none'; email.focus(); });

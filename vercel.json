@@ -2,17 +2,105 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "crons": [
-    { "path": "/api/disparo", "schedule": "0 10 * * *" }
+    {
+      "path": "/api/disparo",
+      "schedule": "0 10 * * *"
+    }
   ],
   "redirects": [
-    { "source": "/", "has": [{ "type": "host", "value": "marketing.ailogichub.com.br" }], "destination": "/dossie", "permanent": false },
-    { "source": "/", "has": [{ "type": "host", "value": "ailogichub.com.br" }], "destination": "/bemvindo", "permanent": false },
-    { "source": "/", "has": [{ "type": "host", "value": "www.ailogichub.com.br" }], "destination": "/bemvindo", "permanent": false },
-    { "source": "/", "destination": "/visaogeral", "permanent": false },
-    { "source": "/entrar", "destination": "/login", "permanent": false },
-    { "source": "/marketing", "destination": "/marketing-hub", "permanent": false },
-    { "source": "/painel-marketing", "destination": "/marketing-hub", "permanent": false },
-    { "source": "/sejabemvindo", "destination": "/bemvindo", "permanent": false },
-    { "source": "/seja-bem-vindo", "destination": "/bemvindo", "permanent": false }
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "marketing.ailogichub.com.br"
+        }
+      ],
+      "destination": "/dossie",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "ailogichub.com.br"
+        }
+      ],
+      "destination": "/bemvindo",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.ailogichub.com.br"
+        }
+      ],
+      "destination": "/bemvindo",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "destination": "/visaogeral",
+      "permanent": false
+    },
+    {
+      "source": "/entrar",
+      "destination": "/login",
+      "permanent": false
+    },
+    {
+      "source": "/marketing",
+      "destination": "/marketing-hub",
+      "permanent": false
+    },
+    {
+      "source": "/painel-marketing",
+      "destination": "/marketing-hub",
+      "permanent": false
+    },
+    {
+      "source": "/sejabemvindo",
+      "destination": "/bemvindo",
+      "permanent": false
+    },
+    {
+      "source": "/seja-bem-vindo",
+      "destination": "/bemvindo",
+      "permanent": false
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+        },
+        {
+          "key": "Content-Security-Policy-Report-Only",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src 'self'; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+        }
+      ]
+    }
   ]
 }
