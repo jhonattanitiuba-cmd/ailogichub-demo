@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Logic Hub — Curadoria inteligente de imóveis com o Sam</title>
+<meta name="description" content="Conte ao Sam o que você procura. A AI Logic Hub conecta perfil, imóvel e oportunidade com curadoria inteligente e atendimento premium — do primeiro contato às chaves.">
+<meta name="theme-color" content="#050910">
+<link rel="canonical" href="https://ailogichub.com.br/">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+
+<!-- Open Graph / compartilhamento (WhatsApp, redes) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI Logic Hub">
+<meta property="og:title" content="AI Logic Hub — Curadoria inteligente de imóveis">
+<meta property="og:description" content="Conte ao Sam o que você procura. Curadoria de verdade: até 3 imóveis escolhidos a dedo, com atendimento do interesse às chaves.">
+<meta property="og:url" content="https://ailogichub.com.br/">
+<meta property="og:image" content="https://ailogichub.com.br/assets/hero-1.webp">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI Logic Hub — Curadoria inteligente de imóveis">
+<meta name="twitter:description" content="Conte ao Sam o que você procura. Curadoria de verdade, do interesse às chaves.">
+<meta name="twitter:image" content="https://ailogichub.com.br/assets/hero-1.webp">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "RealEstateAgent",
+  "name": "AI Logic Hub",
+  "url": "https://ailogichub.com.br/",
+  "logo": "https://ailogichub.com.br/assets/logo-horizontal.png",
+  "image": "https://ailogichub.com.br/assets/hero-1.webp",
+  "description": "Plataforma de curadoria imobiliária inteligente. O Sam conecta perfil, imóvel e oportunidade e conduz o cliente do primeiro contato às chaves.",
+  "areaServed": "BR",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer support",
+    "url": "https://wa.me/5511936238387",
+    "availableLanguage": "Portuguese"
+  }
+}
+</script>
+
+<style>
+:root{
+  --bg:#050910;
+  --bg-2:#08101c;
+  --surface:rgba(255,255,255,.045);
+  --surface-2:rgba(255,255,255,.07);
+  --line:rgba(255,255,255,.12);
+  --line-strong:rgba(255,255,255,.22);
+  --white:#ffffff;
+  --text:rgba(255,255,255,.94);
+  --muted:rgba(255,255,255,.66);
+  --muted-2:rgba(255,255,255,.50);
+  --brand:#2ea2ff;
+  --brand-strong:#1877ff;
+  --brand-soft:rgba(46,162,255,.14);
+  --cyan:#7fe0ff;
+  --ok:#2ec38b;
+  --ink:#07101c;
+  --shadow-lg:0 30px 90px rgba(0,0,0,.55);
+  --shadow-md:0 18px 48px rgba(0,0,0,.34);
+  --r-sm:14px;
+  --r-md:20px;
+  --r-lg:28px;
+  --r-pill:999px;
+  --maxw:1220px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer}
+img{max-width:100%;display:block}
+h1,h2,h3{margin:0;letter-spacing:-.02em;text-wrap:balance}
+p{margin:0}
+:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:6px}
+.container{width:min(var(--maxw),calc(100% - 44px));margin-inline:auto}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip{position:fixed;left:14px;top:-60px;z-index:100;background:#fff;color:#07101c;padding:10px 16px;border-radius:10px;font-weight:700;transition:top .2s}
+.skip:focus{top:14px}
+
+/* ---------- HEADER ---------- */
+.header{position:sticky;top:0;z-index:40;height:74px;display:flex;align-items:center;
+  background:rgba(5,8,14,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line)}
+.header .container{display:flex;align-items:center;gap:26px}
+.logo{display:inline-flex;align-items:baseline;gap:2px;font-weight:800;letter-spacing:-.04em;line-height:1;font-size:24px}
+.logo .ai{background:linear-gradient(120deg,#0b6dff,#8edfff 55%,#fff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo .logic{color:#f6f9ff}
+.logo .hub{color:var(--brand)}
+.nav{display:flex;gap:30px;margin-left:12px}
+.nav a{font-size:15px;color:var(--muted);font-weight:500;transition:color .18s}
+.nav a:hover{color:var(--white)}
+.nav .nav-cta{display:none}
+.header-actions{margin-left:auto;display:flex;align-items:center;gap:18px}
+.login{font-size:15px;font-weight:600;color:var(--text)}
+.login:hover{color:var(--brand)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:var(--r-pill);
+  font-weight:700;border:1px solid transparent;transition:transform .2s,box-shadow .2s,background .2s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px)}
+.btn-light{height:46px;padding:0 22px;background:#fff;color:var(--ink);box-shadow:0 14px 34px rgba(0,0,0,.24)}
+.btn-brand{height:46px;padding:0 22px;background:linear-gradient(135deg,var(--brand),var(--brand-strong));color:#fff;box-shadow:0 14px 34px rgba(24,119,255,.32)}
+.btn-ghost{height:46px;padding:0 22px;background:var(--surface);color:var(--text);border-color:var(--line-strong)}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn-lg{height:56px;padding:0 30px;font-size:16px}
+.hamb{display:none;width:44px;height:44px;border-radius:12px;background:var(--surface);border:1px solid var(--line);
+  color:#fff;align-items:center;justify-content:center;margin-left:auto}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;isolation:isolate;min-height:min(760px,calc(100svh - 74px));display:flex;align-items:center;overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:-3;background:#07101b}
+.hero-slide{position:absolute;inset:0;opacity:0;background-size:cover;background-position:center;
+  transform:scale(1.04);transition:opacity 1.4s ease,transform 8s ease;filter:saturate(1.03) contrast(1.02)}
+.hero-slide.active{opacity:1;transform:scale(1)}
+.hero-veil{position:absolute;inset:0;z-index:-2;background:
+  linear-gradient(95deg,rgba(3,7,14,.94) 0%,rgba(4,9,17,.82) 34%,rgba(4,9,18,.42) 62%,rgba(4,9,18,.30) 100%),
+  linear-gradient(180deg,rgba(4,7,14,.55) 0%,rgba(4,7,14,.10) 40%,rgba(4,7,14,.78) 100%)}
+.hero .container{padding-block:clamp(56px,8vh,104px);width:min(var(--maxw),calc(100% - 44px))}
+.eyebrow{display:inline-flex;align-items:center;gap:14px;color:var(--cyan);font-size:12px;font-weight:800;
+  letter-spacing:.28em;text-transform:uppercase;margin-bottom:26px}
+.eyebrow::after{content:"";width:64px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--brand),transparent)}
+.hero h1{max-width:16ch;font-size:clamp(40px,6vw,84px);line-height:1.02;letter-spacing:-.035em;font-weight:800;
+  color:#fff;text-shadow:0 20px 70px rgba(0,0,0,.45)}
+.hero h1 .accent{background:linear-gradient(100deg,#38b6ff,#1677ff 55%,#8fe0ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.subcopy{max-width:60ch;margin-top:26px;color:var(--text);font-size:clamp(17px,1.5vw,21px);line-height:1.5;text-shadow:0 8px 30px rgba(0,0,0,.5)}
+.hero-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+
+/* search */
+.search-wrap{margin-top:40px;width:min(920px,100%)}
+.search{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
+  background:rgba(255,255,255,.96);border-radius:22px;padding:12px 12px 12px 20px;
+  box-shadow:0 24px 70px rgba(0,0,0,.4)}
+.search-field{position:relative;display:grid;grid-template-columns:30px 1fr;align-items:center;min-width:0}
+.search-field svg{color:#0b1526;opacity:.85}
+.search-field input{width:100%;border:0;outline:0;background:transparent;color:#091426;
+  font-size:clamp(16px,1.4vw,20px);font-weight:500;padding:16px 8px 16px 0}
+.search-field input::placeholder{color:rgba(6,17,35,.42)}
+.search .btn-brand{border-radius:16px;height:58px;padding:0 26px}
+.search-hint{margin-top:12px;color:var(--muted);font-size:13.5px;display:flex;align-items:center;gap:8px}
+.search-hint b{color:var(--text)}
+.quick{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.chip{border:1px solid var(--line-strong);background:var(--surface);color:var(--text);
+  border-radius:var(--r-pill);padding:9px 16px;font-size:14px;font-weight:600;transition:.18s}
+.chip:hover{background:var(--surface-2);border-color:var(--brand);color:#fff}
+
+/* trust strip */
+.trust{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
+.trust .container{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-block:34px}
+.stat .n{font-size:clamp(26px,3vw,38px);font-weight:800;letter-spacing:-.03em;color:#fff}
+.stat .n span{color:var(--brand)}
+.stat .l{margin-top:6px;color:var(--muted);font-size:14px;line-height:1.4}
+
+/* ---------- SECTIONS ---------- */
+section[id]{scroll-margin-top:88px}
+.block{padding-block:clamp(64px,9vh,112px)}
+.head{max-width:720px;margin-bottom:44px}
+.tag{color:var(--brand);font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase}
+.head h2{margin-top:14px;font-size:clamp(28px,3.6vw,46px);line-height:1.08;color:#fff}
+.head p{margin-top:16px;color:var(--muted);font-size:clamp(16px,1.3vw,18px);line-height:1.55}
+
+/* listings grid */
+.grid-listings{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;
+  transition:transform .22s,border-color .22s,box-shadow .22s;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-4px);border-color:var(--line-strong);box-shadow:var(--shadow-md)}
+.card-img{aspect-ratio:16/11;background-size:cover;background-position:center;position:relative}
+.card-badge{position:absolute;top:14px;left:14px;background:rgba(5,9,16,.78);backdrop-filter:blur(8px);
+  border:1px solid var(--line);color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;padding:7px 12px;border-radius:var(--r-pill)}
+.card-b{padding:20px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card-b .loc{color:var(--muted);font-size:13px;font-weight:600;letter-spacing:.02em}
+.card-b h3{font-size:18px;line-height:1.3;color:#fff;font-weight:700}
+.card-facts{display:flex;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:13.5px;margin-top:2px}
+.card-foot{margin-top:auto;padding-top:14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line)}
+.price{font-size:20px;font-weight:800;color:#fff;letter-spacing:-.02em}
+.card-foot .go{color:var(--brand);font-weight:700;font-size:14px;display:inline-flex;gap:6px;align-items:center}
+.listings-cta{margin-top:36px;display:flex;justify-content:center}
+
+/* journey */
+.journey{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;counter-reset:step}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:24px 20px;position:relative}
+.step .num{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-weight:800;
+  background:var(--brand-soft);color:var(--cyan);border:1px solid rgba(46,162,255,.3);margin-bottom:16px}
+.step h3{font-size:17px;color:#fff;margin-bottom:8px}
+.step p{color:var(--muted);font-size:14px;line-height:1.5}
+
+/* partners split */
+.split{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center;
+  background:linear-gradient(135deg,rgba(24,119,255,.10),rgba(46,162,255,.04));
+  border:1px solid var(--line);border-radius:var(--r-lg);padding:clamp(28px,4vw,52px)}
+.split h2{font-size:clamp(26px,3.2vw,40px);line-height:1.1;color:#fff}
+.split p{margin-top:16px;color:var(--muted);font-size:16px;line-height:1.55}
+.split ul{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:12px}
+.split li{display:flex;gap:12px;align-items:flex-start;color:var(--text);font-size:15px}
+.split li svg{flex:none;margin-top:2px;color:var(--ok)}
+.split-cta{margin-top:28px;display:flex;flex-wrap:wrap;gap:12px}
+.split-aside{background:rgba(5,9,16,.5);border:1px solid var(--line);border-radius:var(--r-md);padding:28px}
+.split-aside .q{font-size:19px;line-height:1.45;color:#fff;font-weight:600}
+.split-aside .who{margin-top:18px;color:var(--muted);font-size:14px}
+.split-aside .who b{color:#fff;display:block}
+
+/* about */
+.about{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center}
+.about .lead{font-size:clamp(20px,2.2vw,28px);line-height:1.35;color:#fff;font-weight:600}
+.about p{color:var(--muted);margin-top:18px;line-height:1.6;font-size:16px}
+.about-points{display:grid;gap:16px}
+.about-points .pt{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:20px}
+.about-points h3{color:#fff;font-size:16px;margin-bottom:6px}
+.about-points p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+
+/* ---------- FOOTER ---------- */
+.footer{border-top:1px solid var(--line);background:var(--bg-2);padding-block:52px 30px}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px}
+.footer .logo{font-size:22px;margin-bottom:14px}
+.footer .about-f{color:var(--muted);font-size:14px;line-height:1.6;max-width:34ch}
+.footer h4{color:#fff;font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 16px}
+.footer .col a,.footer .col button{display:block;color:var(--muted);font-size:14.5px;margin-bottom:12px;
+  background:0;border:0;padding:0;text-align:left}
+.footer .col a:hover,.footer .col button:hover{color:#fff}
+.footer-bottom{margin-top:40px;padding-top:24px;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;color:var(--muted-2);font-size:13px}
+
+/* ---------- SAM CHAT WIDGET ---------- */
+.sam-fab{position:fixed;right:clamp(18px,3vw,32px);bottom:calc(clamp(18px,3vw,32px) + env(safe-area-inset-bottom));
+  z-index:60;display:flex;align-items:flex-end;gap:12px}
+.sam-bubble{margin-bottom:20px;max-width:170px;padding:12px 16px;border-radius:20px 20px 6px 20px;
+  background:rgba(7,15,27,.82);color:#fff;border:1px solid var(--line-strong);font-weight:600;font-size:14px;
+  line-height:1.25;box-shadow:var(--shadow-md);backdrop-filter:blur(14px)}
+.sam-open{position:relative;width:118px;height:118px;border-radius:50%;border:2px solid rgba(46,162,255,.85);
+  background:radial-gradient(circle at 50% 38%,rgba(46,162,255,.24),rgba(3,8,15,.9) 66%);padding:0;overflow:hidden;
+  box-shadow:0 0 0 8px rgba(46,162,255,.08),0 0 30px rgba(46,162,255,.45),0 20px 50px rgba(0,0,0,.45);
+  transition:transform .22s}
+.sam-open:hover{transform:scale(1.04)}
+.sam-open img{width:118%;height:118%;object-fit:cover;object-position:center 26%}
+.sam-open .status{position:absolute;right:8px;bottom:9px;width:22px;height:22px;border-radius:50%;
+  background:var(--ok);border:4px solid rgba(255,255,255,.92);box-shadow:0 0 16px rgba(46,195,139,.8)}
+
+.sam-panel{position:fixed;right:clamp(18px,3vw,32px);bottom:calc(clamp(18px,3vw,32px) + env(safe-area-inset-bottom));
+  z-index:70;width:min(390px,calc(100vw - 28px));height:min(620px,calc(100svh - 40px));
+  display:flex;flex-direction:column;background:#0a1320;border:1px solid var(--line-strong);
+  border-radius:22px;overflow:hidden;box-shadow:var(--shadow-lg);
+  opacity:0;transform:translateY(16px) scale(.98);pointer-events:none;transition:opacity .22s,transform .22s}
+.sam-panel.open{opacity:1;transform:none;pointer-events:auto}
+.sam-hd{display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.03)}
+.sam-hd img{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:center 26%;border:1.5px solid rgba(46,162,255,.7)}
+.sam-hd .n{font-weight:700;color:#fff;font-size:15px}
+.sam-hd .s{font-size:12.5px;color:var(--ok);display:flex;align-items:center;gap:6px}
+.sam-hd .s::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.sam-close{margin-left:auto;width:36px;height:36px;border-radius:10px;background:var(--surface);border:1px solid var(--line);color:#fff;display:grid;place-items:center}
+.sam-close:hover{background:var(--surface-2)}
+.sam-msgs{flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:82%;padding:11px 15px;border-radius:16px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word}
+.msg.sam{align-self:flex-start;background:var(--surface-2);color:var(--text);border-bottom-left-radius:5px}
+.msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--brand),var(--brand-strong));color:#fff;border-bottom-right-radius:5px}
+.msg.typing{display:flex;gap:4px;align-items:center;padding:14px 16px}
+.msg.typing span{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:bounce 1s infinite}
+.msg.typing span:nth-child(2){animation-delay:.15s}.msg.typing span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+.sam-sugs{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 8px}
+.sam-sugs button{border:1px solid var(--line-strong);background:var(--surface);color:var(--text);
+  border-radius:var(--r-pill);padding:8px 13px;font-size:13px;font-weight:600}
+.sam-sugs button:hover{border-color:var(--brand);color:#fff}
+.sam-input{display:flex;gap:10px;padding:14px 16px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(255,255,255,.02)}
+.sam-input input{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:14px;color:#fff;
+  padding:13px 15px;font-size:14.5px;outline:0}
+.sam-input input:focus{border-color:var(--brand)}
+.sam-input button{width:48px;height:48px;flex:none;border-radius:14px;border:0;
+  background:linear-gradient(135deg,var(--brand),var(--brand-strong));color:#fff;display:grid;place-items:center}
+.sam-wa{padding:0 16px 14px;text-align:center}
+.sam-wa a{color:var(--muted);font-size:12.5px}
+.sam-wa a b{color:var(--cyan)}
+
+.slide-dots{position:fixed;left:clamp(20px,4vw,40px);bottom:26px;z-index:20;display:flex;gap:8px}
+.slide-dots button{width:32px;height:3px;border:0;padding:0;border-radius:2px;background:rgba(255,255,255,.26)}
+.slide-dots button[aria-current="true"]{background:var(--brand)}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);z-index:90;
+  background:#0a1320;border:1px solid var(--line-strong);color:#fff;padding:13px 20px;border-radius:14px;
+  font-size:14px;box-shadow:var(--shadow-md);opacity:0;pointer-events:none;transition:.25s}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:1080px){
+  .grid-listings{grid-template-columns:repeat(2,1fr)}
+  .journey{grid-template-columns:repeat(2,1fr)}
+  .split,.about{grid-template-columns:1fr;gap:28px}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:760px){
+  .nav,.header-actions .login,.header-actions .btn-brand{display:none}
+  .hamb{display:flex}
+  .header-actions{gap:10px}
+  .trust .container{grid-template-columns:1fr 1fr;gap:20px}
+  .slide-dots{display:none}
+  .sam-bubble{display:none}
+  .sam-open{width:76px;height:76px}
+  .sam-open .status{width:16px;height:16px;border-width:3px}
+  .nav.open{display:flex;position:absolute;top:74px;left:0;right:0;flex-direction:column;gap:0;margin:0;
+    background:rgba(6,10,18,.98);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);padding:8px 22px}
+  .nav.open a{padding:15px 2px;border-bottom:1px solid var(--line);font-size:16px;color:var(--text)}
+  .nav.open .nav-cta{display:block;font-weight:700}
+  .nav.open .nav-cta-brand{color:var(--brand);border-bottom:0}
+}
+@media (max-width:560px){
+  .grid-listings{grid-template-columns:1fr}
+  .journey{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr}
+  .search{grid-template-columns:1fr;gap:10px;padding:14px}
+  .search .btn-brand{width:100%;height:52px}
+  .hero-cta{gap:10px}.hero-cta .btn{width:100%}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#imoveis">Ir para o conteúdo</a>
+
+<header class="header">
+  <div class="container">
+    <a class="logo" href="/" aria-label="AI Logic Hub — início"><span class="ai">AI</span><span class="logic">Logic</span><span class="hub">Hub</span></a>
+    <nav class="nav" id="nav" aria-label="Navegação principal">
+      <a href="#imoveis">Imóveis</a>
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#parceiros">Para parceiros</a>
+      <a href="#sobre">Sobre o Hub</a>
+      <a class="nav-cta" href="/login">Entrar</a>
+      <a class="nav-cta nav-cta-brand" href="#parceiros">Quero fazer parte →</a>
+    </nav>
+    <div class="header-actions">
+      <a class="login" href="/login">Entrar</a>
+      <a class="btn btn-brand" href="#parceiros">Quero fazer parte <span aria-hidden="true">→</span></a>
+      <button class="hamb" id="hamb" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero" aria-label="Apresentação">
+    <div class="hero-bg" aria-hidden="true">
+      <div class="hero-slide active" style="background-image:url('/assets/hero-1.webp')"></div>
+      <div class="hero-slide" style="background-image:url('/assets/hero-2.webp')"></div>
+      <div class="hero-slide" style="background-image:url('/assets/hero-3.webp')"></div>
+    </div>
+    <div class="hero-veil" aria-hidden="true"></div>
+    <div class="container">
+      <p class="eyebrow">Inteligência imobiliária 360</p>
+      <h1>O imóvel certo para você, com <span class="accent">curadoria inteligente.</span></h1>
+      <p class="subcopy">Conte ao Sam o que procura. Ele entende o seu momento e apresenta <b>até 3 imóveis escolhidos a dedo</b> — e conduz você do primeiro contato às chaves.</p>
+
+      <div class="search-wrap">
+        <form class="search" id="heroSearch" autocomplete="off" role="search" aria-label="Buscar imóvel com o Sam">
+          <label class="search-field">
+            <span class="sr-only">Descreva o imóvel que procura</span>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10.8 18.1a7.3 7.3 0 1 1 0-14.6 7.3 7.3 0 0 1 0 14.6Z" stroke="currentColor" stroke-width="2"/><path d="m16.3 16.3 4.2 4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input id="heroQuery" type="text" placeholder="Ex.: apartamento 3 quartos com varanda perto da Paulista" aria-label="Descreva o imóvel que procura">
+          </label>
+          <button class="btn btn-brand" type="submit">Iniciar curadoria <span aria-hidden="true">→</span></button>
+        </form>
+        <p class="search-hint"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/><path d="M12 8v5l3 2"/></svg> O <b>Sam</b> responde na hora, 24 por 7. No WhatsApp ele entende até áudio.</p>
+        <div class="quick" role="group" aria-label="Buscas rápidas">
+          <button class="chip" type="button" data-q="Quero comprar um imóvel">Quero comprar</button>
+          <button class="chip" type="button" data-q="Quero alugar um imóvel">Quero alugar</button>
+          <button class="chip" type="button" data-q="Quero investir em imóveis">Quero investir</button>
+          <button class="chip" type="button" data-q="Quero ver imóveis de alto padrão">Alto padrão</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST -->
+  <section class="trust" aria-label="Números">
+    <div class="container">
+      <div class="stat"><div class="n">até <span>3</span></div><div class="l">imóveis por curadoria, escolhidos a dedo — nunca uma lista infinita</div></div>
+      <div class="stat"><div class="n"><span>24</span>/7</div><div class="l">o Sam atende a qualquer hora, por chat e WhatsApp</div></div>
+      <div class="stat"><div class="n"><span>1</span> jornada</div><div class="l">da conversa à assinatura, tudo conectado e acompanhado</div></div>
+      <div class="stat"><div class="n"><span>0</span> burocracia</div><div class="l">jurídico, proposta e chaves com segurança, sem retrabalho</div></div>
+    </div>
+  </section>
+
+  <!-- IMÓVEIS / CURADORIA -->
+  <section id="imoveis" class="block">
+    <div class="container">
+      <div class="head">
+        <span class="tag">Curadoria em destaque</span>
+        <h2>Imóveis selecionados por aderência ao seu momento.</h2>
+        <p>Poucas opções, escolhidas com inteligência. Curadoria de verdade, não catálogo. Uma amostra do que o Sam apresenta quando entende o que importa para você.</p>
+      </div>
+      <div class="grid-listings" id="recoGrid">
+        <!-- cards de amostra; podem ser alimentados por /api/vitrine -->
+        <article class="card">
+          <div class="card-img" style="background-image:url('/assets/hero-1.webp')"><span class="card-badge">Alto padrão</span></div>
+          <div class="card-b">
+            <span class="loc">Vila Nova Conceição · São Paulo</span>
+            <h3>Amplitude e luz no coração da cidade</h3>
+            <div class="card-facts"><span>212 m²</span><span>3 suítes</span><span>4 vagas</span></div>
+            <div class="card-foot"><span class="price">R$ 4.850.000</span><span class="go">Ver imóvel →</span></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="card-img" style="background-image:url('/assets/hero-2.webp')"><span class="card-badge">Pronto para morar</span></div>
+          <div class="card-b">
+            <span class="loc">Pinheiros · São Paulo</span>
+            <h3>Cobertura com varanda e vista aberta</h3>
+            <div class="card-facts"><span>148 m²</span><span>3 quartos</span><span>2 vagas</span></div>
+            <div class="card-foot"><span class="price">R$ 2.190.000</span><span class="go">Ver imóvel →</span></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="card-img" style="background-image:url('/assets/hero-3.webp')"><span class="card-badge">Investimento</span></div>
+          <div class="card-b">
+            <span class="loc">Itaim Bibi · São Paulo</span>
+            <h3>Studio com alta liquidez e locação</h3>
+            <div class="card-facts"><span>42 m²</span><span>1 quarto</span><span>1 vaga</span></div>
+            <div class="card-foot"><span class="price">R$ 780.000</span><span class="go">Ver imóvel →</span></div>
+          </div>
+        </article>
+      </div>
+      <div class="listings-cta">
+        <button class="btn btn-ghost btn-lg" type="button" data-sam="Quero ver a curadoria completa de imóveis">Ver a curadoria completa com o Sam <span aria-hidden="true">→</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMO FUNCIONA -->
+  <section id="como-funciona" class="block" style="background:rgba(255,255,255,.02);border-block:1px solid var(--line)">
+    <div class="container">
+      <div class="head">
+        <span class="tag">Como funciona</span>
+        <h2>Do interesse, às chaves.</h2>
+        <p>Uma jornada única, conectada e segura. Você explica, o Sam entende e o Hub conduz cada etapa.</p>
+      </div>
+      <div class="journey">
+        <div class="step"><div class="num">01</div><h3>Conversa</h3><p>O Sam entende sua necessidade e traduz em critérios reais, a qualquer hora.</p></div>
+        <div class="step"><div class="num">02</div><h3>Curadoria</h3><p>Até 3 imóveis realmente compatíveis, com foto e link. Curadoria, não catálogo.</p></div>
+        <div class="step"><div class="num">03</div><h3>Visita</h3><p>Agenda com o parceiro e ficha de visita assinada, que garante o atendimento.</p></div>
+        <div class="step"><div class="num">04</div><h3>Proposta</h3><p>Proposta com valor legal e assinatura digital, sem idas e vindas.</p></div>
+        <div class="step"><div class="num">05</div><h3>Conclusão</h3><p>Jurídico desde o início, pagamento e entrega de chaves com segurança.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARA PARCEIROS -->
+  <section id="parceiros" class="block">
+    <div class="container">
+      <div class="split">
+        <div>
+          <span class="tag">Para parceiros</span>
+          <h2>Sua carteira continua sua. O Hub cuida do resto.</h2>
+          <p>Imobiliárias, corretores, incorporadoras e investidores: o AI Logic Hub conecta o cliente ao imóvel e faz a passagem de bastão sem tirar a titularidade da sua carteira. O parceiro que atende a visita é sempre valorizado.</p>
+          <ul>
+            <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> A carteira e a relação continuam com você.</li>
+            <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Jurídico, contratos e curadoria por conta do Hub.</li>
+            <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Atendimento do Sam 24 por 7, gerando visitas qualificadas.</li>
+            <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Um único custo: a ativação do número de WhatsApp.</li>
+          </ul>
+          <div class="split-cta">
+            <a class="btn btn-brand btn-lg" href="https://wa.me/5511936238387?text=Ol%C3%A1%2C%20quero%20ser%20parceiro%20do%20AI%20Logic%20Hub." target="_blank" rel="noopener">Falar com o time <span aria-hidden="true">→</span></a>
+            <a class="btn btn-ghost btn-lg" href="/login">Já sou parceiro</a>
+          </div>
+        </div>
+        <aside class="split-aside">
+          <p class="q">“Raramente o gargalo é o imóvel. O gargalo é o processo — e é exatamente isso que o Hub resolve.”</p>
+          <div class="who"><b>AI Logic Hub</b> Infraestrutura que conecta cliente, imobiliária e corretor.</div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOBRE -->
+  <section id="sobre" class="block" style="background:rgba(255,255,255,.02);border-top:1px solid var(--line)">
+    <div class="container">
+      <div class="about">
+        <div>
+          <span class="tag">Sobre o Hub</span>
+          <p class="lead">O AI Logic Hub não é uma imobiliária. É a infraestrutura inteligente que conecta pessoas, imóveis e oportunidades.</p>
+          <p>O mercado tem tudo, menos conexão. Nós unimos busca, curadoria, visita, proposta e documentação numa jornada única — com o Sam conduzindo e cada parceiro valorizado. A pessoa não precisa procurar: precisa ser melhor compreendida.</p>
+        </div>
+        <div class="about-points">
+          <div class="pt"><h3>Curadoria consultiva</h3><p>O Sam faz as perguntas certas e transforma a conversa em critério, sem interrogatório e sem burocracia.</p></div>
+          <div class="pt"><h3>Processo conectado</h3><p>Da primeira mensagem à assinatura, cada etapa fala com a próxima. Nada se perde no caminho.</p></div>
+          <div class="pt"><h3>Segurança desde o início</h3><p>Jurídico, proposta com valor legal e assinatura digital garantem tranquilidade para todos os lados.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div>
+        <div class="logo"><span class="ai">AI</span><span class="logic">Logic</span><span class="hub">Hub</span></div>
+        <p class="about-f">Você explica. O Sam entende. O Hub encontra. Curadoria inteligente de imóveis, do primeiro contato às chaves.</p>
+      </div>
+      <div class="col">
+        <h4>Explorar</h4>
+        <a href="#imoveis">Imóveis</a>
+        <a href="#como-funciona">Como funciona</a>
+        <button type="button" data-sam="Quero ver imóveis de alto padrão">Alto padrão</button>
+      </div>
+      <div class="col">
+        <h4>Participar</h4>
+        <a href="#parceiros">Para parceiros</a>
+        <a href="https://wa.me/5511936238387?text=Ol%C3%A1%2C%20quero%20anunciar%20meu%20im%C3%B3vel." target="_blank" rel="noopener">Anuncie seu imóvel</a>
+        <a href="/login">Entrar</a>
+      </div>
+      <div class="col">
+        <h4>Contato</h4>
+        <a href="https://wa.me/5511936238387" target="_blank" rel="noopener">WhatsApp do Sam</a>
+        <a href="#legal">Privacidade e LGPD</a>
+        <a href="#legal">Termos de uso</a>
+      </div>
+    </div>
+    <div class="footer-bottom" id="legal">
+      <span>© <span id="year">2026</span> AI Logic Hub. Todos os direitos reservados.</span>
+      <span>Preços e disponibilidade sujeitos a confirmação. Estimativas não garantem retorno.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- SLIDE DOTS -->
+<div class="slide-dots" id="slideDots" role="group" aria-label="Selecionar imagem de fundo">
+  <button type="button" aria-label="Imagem 1" aria-current="true"></button>
+  <button type="button" aria-label="Imagem 2"></button>
+  <button type="button" aria-label="Imagem 3"></button>
+</div>
+
+<!-- SAM FAB -->
+<div class="sam-fab" id="samFab">
+  <div class="sam-bubble" aria-hidden="true">Converse com o Sam</div>
+  <button class="sam-open" id="samOpen" aria-label="Abrir conversa com o Sam" aria-expanded="false" aria-controls="samPanel">
+    <picture>
+      <source type="image/webp" srcset="/assets/sam-avatar-320.webp 1x, /assets/sam-avatar-320@2x.webp 2x">
+      <img src="/assets/sam-avatar-320.png" alt="Sam, assistente do AI Logic Hub" width="118" height="118">
+    </picture>
+    <span class="status" aria-hidden="true"></span>
+  </button>
+</div>
+
+<!-- SAM PANEL -->
+<div class="sam-panel" id="samPanel" role="dialog" aria-modal="false" aria-label="Conversa com o Sam" aria-hidden="true">
+  <div class="sam-hd">
+    <picture>
+      <source type="image/webp" srcset="/assets/sam-avatar-320.webp">
+      <img src="/assets/sam-avatar-320.png" alt="" width="44" height="44">
+    </picture>
+    <div><div class="n">Sam</div><div class="s" id="samStatus">online agora</div></div>
+    <button class="sam-close" id="samClose" aria-label="Fechar conversa">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="sam-msgs" id="samMsgs" aria-live="polite"></div>
+  <div class="sam-sugs" id="samSugs"></div>
+  <form class="sam-input" id="samForm">
+    <label class="sr-only" for="samInput">Escreva sua mensagem para o Sam</label>
+    <input id="samInput" type="text" placeholder="Escreva sua mensagem..." autocomplete="off">
+    <button type="submit" aria-label="Enviar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z"/></svg>
+    </button>
+  </form>
+  <p class="sam-wa"><a href="https://wa.me/5511936238387" target="_blank" rel="noopener">Prefere WhatsApp? <b>Fale com o Sam por lá →</b></a></p>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var $ = function(s,r){return (r||document).querySelector(s);};
+  var $$ = function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+
+  /* ano do rodapé */
+  try{ $('#year').textContent = new Date().getFullYear(); }catch(e){}
+
+  /* ---------- Carrossel de fundo ---------- */
+  (function(){
+    var slides = $$('.hero-slide'), dots = $$('#slideDots button');
+    if(slides.length < 2) return;
+    var i = 0, timer = null;
+    function go(n){
+      n = (n + slides.length) % slides.length;
+      slides[i].classList.remove('active'); if(dots[i]) dots[i].setAttribute('aria-current','false');
+      i = n;
+      slides[i].classList.add('active'); if(dots[i]) dots[i].setAttribute('aria-current','true');
+    }
+    function start(){ if(reduce || timer) return; timer = setInterval(function(){ go(i+1); }, 6500); }
+    function stop(){ if(timer){ clearInterval(timer); timer = null; } }
+    dots.forEach(function(d,idx){ d.addEventListener('click', function(){ stop(); go(idx); start(); }); });
+    document.addEventListener('visibilitychange', function(){ document.hidden ? stop() : start(); });
+    start();
+  })();
+
+  /* ---------- Menu mobile ---------- */
+  (function(){
+    var hamb = $('#hamb'), nav = $('#nav');
+    if(!hamb || !nav) return;
+    hamb.addEventListener('click', function(){
+      var open = nav.classList.toggle('open');
+      hamb.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    nav.addEventListener('click', function(e){
+      if(e.target.tagName === 'A'){ nav.classList.remove('open'); hamb.setAttribute('aria-expanded','false'); }
+    });
+  })();
+
+  /* ---------- Toast ---------- */
+  var toastEl = $('#toast'), toastT = null;
+  function toast(msg){
+    if(!toastEl) return;
+    toastEl.textContent = msg; toastEl.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('show'); }, 3200);
+  }
+
+  /* ---------- Widget do Sam ---------- */
+  var panel = $('#samPanel'), fab = $('#samFab'), openBtn = $('#samOpen'), closeBtn = $('#samClose');
+  var msgsEl = $('#samMsgs'), sugsEl = $('#samSugs'), form = $('#samForm'), input = $('#samInput'), statusEl = $('#samStatus');
+  var history = [];
+  var started = false;
+  var lastFocus = null;
+
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  function bubble(role, text){
+    var d = document.createElement('div');
+    d.className = 'msg ' + (role === 'me' ? 'me' : 'sam');
+    d.textContent = text;
+    msgsEl.appendChild(d);
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+    return d;
+  }
+  function typingOn(){
+    var d = document.createElement('div');
+    d.className = 'msg sam typing'; d.id = 'samTyping';
+    d.innerHTML = '<span></span><span></span><span></span>';
+    msgsEl.appendChild(d); msgsEl.scrollTop = msgsEl.scrollHeight;
+  }
+  function typingOff(){ var t = $('#samTyping'); if(t) t.remove(); }
+
+  function setSugs(list){
+    sugsEl.innerHTML = '';
+    (list || []).slice(0,3).forEach(function(s){
+      var b = document.createElement('button');
+      b.type = 'button'; b.textContent = s;
+      b.addEventListener('click', function(){ send(s); });
+      sugsEl.appendChild(b);
+    });
+  }
+
+  function openPanel(prefill){
+    if(panel.classList.contains('open')) { if(prefill){ input.value = prefill; } input.focus(); return; }
+    lastFocus = document.activeElement;
+    panel.classList.add('open'); panel.setAttribute('aria-hidden','false');
+    openBtn.setAttribute('aria-expanded','true');
+    fab.style.display = 'none';
+    if(!started){
+      started = true;
+      bubble('sam', 'Oi! Eu sou o Sam, curador do AI Logic Hub. Me conta o que você procura — pode ser por bairro, valor ou o que é indispensável pra você.');
+      setSugs(['Quero comprar','Quero alugar','Quero investir']);
+    }
+    if(prefill){ input.value = prefill; }
+    setTimeout(function(){ input.focus(); }, 60);
+  }
+  function closePanel(){
+    panel.classList.remove('open'); panel.setAttribute('aria-hidden','true');
+    openBtn.setAttribute('aria-expanded','false');
+    fab.style.display = 'flex';
+    if(lastFocus && lastFocus.focus){ lastFocus.focus(); } else { openBtn.focus(); }
+  }
+
+  openBtn.addEventListener('click', function(){ openPanel(); });
+  closeBtn.addEventListener('click', closePanel);
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && panel.classList.contains('open')) closePanel(); });
+
+  function send(text){
+    text = (text || '').trim();
+    if(!text) return;
+    if(!panel.classList.contains('open')) openPanel();
+    bubble('me', text);
+    history.push({ role:'user', content:text });
+    input.value = '';
+    setSugs([]);
+    typingOn();
+    if(statusEl) statusEl.textContent = 'digitando...';
+
+    fetch('/api/sam-web', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ messages: history })
+    })
+    .then(function(r){ if(!r.ok) throw new Error('http'); return r.json(); })
+    .then(function(d){
+      typingOff();
+      if(statusEl) statusEl.textContent = 'online agora';
+      var reply = (d && d.reply) || 'Me conta um pouco mais que eu organizo as melhores opções pra você.';
+      history.push({ role:'assistant', content:reply });
+      bubble('sam', reply);
+      var sug = (d && d.sugestoes) || (d && d.sugs) || [];
+      if(sug && sug.length) setSugs(sug);
+      else setSugs(['Ver mais opções','Agendar visita','Falar no WhatsApp']);
+    })
+    .catch(function(){
+      typingOff();
+      if(statusEl) statusEl.textContent = 'online agora';
+      bubble('sam', 'Tive uma instabilidade rápida aqui. Você pode tentar de novo, ou falar comigo direto no WhatsApp que eu te atendo na hora.');
+      setSugs(['Tentar de novo','Falar no WhatsApp']);
+    });
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var v = input.value.trim();
+    if(v === 'Falar no WhatsApp'){ window.open('https://wa.me/5511936238387', '_blank', 'noopener'); return; }
+    send(v);
+  });
+
+  /* sugestão "Falar no WhatsApp" via clique também abre o WhatsApp */
+  sugsEl.addEventListener('click', function(e){
+    if(e.target.tagName === 'BUTTON' && /whatsapp/i.test(e.target.textContent)){
+      window.open('https://wa.me/5511936238387', '_blank', 'noopener');
+    }
+  });
+
+  /* ---------- Busca do hero abre o Sam ---------- */
+  var heroForm = $('#heroSearch'), heroQuery = $('#heroQuery');
+  if(heroForm){
+    heroForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var q = (heroQuery && heroQuery.value || '').trim();
+      openPanel();
+      if(q) send(q);
+    });
+  }
+  /* chips e botões data-q / data-sam */
+  $$('[data-q]').forEach(function(b){
+    b.addEventListener('click', function(){ if(heroQuery) heroQuery.value = b.getAttribute('data-q'); openPanel(); send(b.getAttribute('data-q')); });
+  });
+  $$('[data-sam]').forEach(function(b){
+    b.addEventListener('click', function(){ openPanel(); send(b.getAttribute('data-sam')); });
+  });
+
+  /* ---------- Cards de imóvel: por enquanto abrem o Sam (produção: /api/vitrine + /imovel) ---------- */
+  $$('#recoGrid .card').forEach(function(c){
+    c.style.cursor = 'pointer';
+    c.addEventListener('click', function(){
+      var t = $('h3', c);
+      openPanel();
+      send('Quero saber mais sobre: ' + (t ? t.textContent : 'este imóvel'));
+    });
+  });
+})();
+</script>
+</body>
+</html>
