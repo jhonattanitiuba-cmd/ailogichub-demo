@@ -173,6 +173,7 @@
   window.hubAuth = {
     client: client,
     token: readToken,
+    homeFor: homeFor,
     async signIn(email, password) {
       var c = client(); if (!c) throw new Error('config ausente');
       var r = await c.auth.signInWithPassword({ email: email, password: password });
@@ -226,22 +227,28 @@
     if (p.indexOf('proprietar') >= 0) return 'proprietario';
     if (p.indexOf('anunciant') >= 0) return 'anunciante';
     if (p.indexOf('cliente') >= 0) return 'cliente';
+    if (p.indexOf('suporte') >= 0 || p.indexOf('support') >= 0) return 'suporte';
     return 'tenant';
   }
   // whitelist de telas por perfil (visaogeral sempre incluida; o slug 'juridico'
   // (modulo da Diretoria, item 04) fica fora das listas nao-admin -> so admin ve).
+  // MATRIZ CONFIRMADA (visao por perfil). visaogeral sempre incluida pros perfis internos.
   var MENU = {
-    gestor: ['corretores', 'pessoas', 'leads', 'funil', 'locacao', 'imoveis', 'captacao', 'mapa', 'agenda', 'whatsapp', 'emails', 'assinaturas', 'credito', 'financeiro', 'relatorios', 'anuncios', 'site', 'marketing', 'suporte'],
-    comercial: ['leads', 'funil', 'locacao', 'pessoas', 'imoveis', 'captacao', 'mapa', 'agenda', 'whatsapp', 'emails', 'relatorios'],
+    gestor: ['corretores', 'pessoas', 'leads', 'funil', 'imoveis', 'locacao', 'captacao', 'mapa', 'agenda', 'whatsapp', 'emails', 'assinaturas', 'credito', 'financeiro', 'anuncios', 'relatorios', 'insights', 'site', 'suporte'],
+    comercial: ['leads', 'funil', 'pessoas', 'imoveis', 'locacao', 'captacao', 'mapa', 'agenda', 'whatsapp', 'emails', 'relatorios'],
     corretor: ['leads', 'funil', 'pessoas', 'imoveis', 'agenda', 'whatsapp', 'mapa'],
-    juridico: ['pessoas', 'leads', 'funil', 'assinaturas', 'relatorios', 'suporte'],
-    financeiro: ['financeiro', 'credito', 'parceria', 'relatorios', 'assinaturas'],
-    marketing: ['site', 'vitrine', 'anuncios', 'captacao', 'marketing', 'insights', 'mapa'],
+    juridico: ['juridico', 'assinaturas', 'funil', 'pessoas', 'leads', 'relatorios', 'suporte'],
+    financeiro: ['financeiro', 'credito', 'assinaturas', 'relatorios'],
+    marketing: ['marketing', 'site', 'anuncios', 'insights', 'mapa'],
     proprietario: ['imoveis', 'funil', 'assinaturas', 'relatorios'],
     anunciante: ['imoveis', 'anuncios', 'captacao'],
     cliente: ['imoveis', 'agenda', 'assinaturas'],
-    tenant: ['leads', 'funil', 'imoveis', 'agenda', 'whatsapp']
+    suporte: ['suporte', 'relatorios'],
+    tenant: ['leads', 'funil', 'imoveis', 'agenda']
   };
+  // tela-home por perfil (onde a pessoa cai ao entrar / para onde o bloqueio redireciona)
+  var HOME = { admin:'visaogeral', gestor:'visaogeral', comercial:'leads', corretor:'leads', juridico:'juridico', financeiro:'financeiro', marketing:'marketing', proprietario:'imoveis', anunciante:'imoveis', cliente:'imoveis', suporte:'suporte', tenant:'visaogeral' };
+  function homeFor(perfil) { return HOME[_menuKey(perfil)] || 'visaogeral'; }
   // conjunto de telas permitidas para um perfil (null = admin -> ve tudo). visaogeral sempre incluida.
   function _allowSet(perfil) {
     var key = _menuKey(perfil);
@@ -274,7 +281,7 @@
       if (!document.querySelector('.sidebar')) return;                 // so no shell do app (paginas publicas/login nao tem)
       var A = _allowSet(perfil); if (!A) return;                       // admin ve tudo
       var slug = (location.pathname.split('/').pop().split('?')[0] || 'visaogeral').replace(/\.html$/, '') || 'visaogeral';
-      if (GUARDED[slug] && !A[slug]) location.replace('/visaogeral');
+      if (GUARDED[slug] && !A[slug]) location.replace('/' + homeFor(perfil));
     } catch (_) {}
   }
   // aplica as permissoes: perfil confiavel do servidor (/api/me) -> menu + bloqueio de acesso.

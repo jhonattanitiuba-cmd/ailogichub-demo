@@ -82,8 +82,10 @@ body{margin:0;background:radial-gradient(1200px 820px at 50% 38%,#123262 0%,#0a1
     try{
       var s=JSON.parse(localStorage.getItem('ailogic-auth')||'{}');
       var u=(s&&s.user)||(s&&s.currentSession&&s.currentSession.user);
-      var p=String((u&&u.user_metadata&&u.user_metadata.perfil)||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-      if(p==='marketing') return '/marketing';
+      var p=String((u&&u.user_metadata&&u.user_metadata.perfil)||'');
+      if(window.hubAuth&&window.hubAuth.homeFor){ return '/'+window.hubAuth.homeFor(p); }
+      var pn=p.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+      if(pn==='marketing') return '/marketing';
     }catch(_){}
     return '/visaogeral';
   }
