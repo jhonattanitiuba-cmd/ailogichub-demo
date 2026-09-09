@@ -357,6 +357,10 @@ async function respostaGrupo(contexto, messages, forcar) {
 
 module.exports = async (req, res) => {
   try {
+    // SEGURANCA: se WA_WEBHOOK_SECRET estiver definido, exige token na URL (?token=) ou header x-webhook-token.
+    // Enforce-if-present: sem o env definido, comportamento inalterado (nao quebra a entrada de mensagens).
+    const _WHSEC = process.env.WA_WEBHOOK_SECRET || '';
+    if (_WHSEC) { const _t = (req.query && (req.query.token || req.query.secret)) || req.headers['x-webhook-token'] || ''; if (String(_t) !== _WHSEC) { res.status(401).json({ error: 'unauthorized' }); return; } }
     let body = req.body; if (typeof body === 'string') { try { body = JSON.parse(body); } catch (_) { body = {}; } }
     body = body || {};
     const event = body.event || body.type || '';

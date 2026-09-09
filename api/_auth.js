@@ -73,8 +73,8 @@ async function getUser(req) {
 async function resolveScope(user) {
   const meta = (user && user.user_metadata) || {};
   const email = (user && user.email) || null;
-  let perfil = meta.perfil || null;
-  let imobiliariaId = meta.imobiliaria_id || null;
+  let perfil = null;              // SEGURANCA: perfil NUNCA vem do user_metadata (cliente controla) — so da tabela usuarios ou founder
+  let imobiliariaId = null;       // SEGURANCA: idem — escopo de tenant so vem da tabela usuarios
   let usuarioId = null, nome = meta.nome || null, extra = null;
   try {
     if (DB_URL && user && user.id) {

@@ -2,7 +2,7 @@
 // Colunas escalares populadas + coluna `extra jsonb` com os campos do formulário.
 // Segredo DB_URL em env var da Vercel.
 const { db } = require('./_db');
-const { requireAuth, isLawyerRole, isSelfRole } = require('./_auth');
+const { requireAuth, isLawyerRole, isSelfRole, isAdminRole } = require('./_auth');
 // entidades com responsavel_id -> corretor/autonomo (self) ve so os proprios
 const SELF_ENT = { leads: 1, negocios: 1, agenda: 1 };
 const { cacheGet, cacheSet, cacheDel } = require('./_cache');
@@ -101,7 +101,8 @@ function imovOut(r) {
   }, e);
 }
 function corOut(r) {
-  const e = r.extra || {};
+  const e = Object.assign({}, r.extra || {});
+  delete e.senha; delete e.password; delete e.pass;  // SEGURANCA: nunca devolver credenciais gravadas em extra
   return Object.assign({
     id: r.id, imobiliaria_id: r.imobiliaria_id, nome: r.nome, email: r.email,
     telefone: r.telefone, creci: r.creci, perfil: r.perfil, status: (r.ativo ? 'Ativo' : 'Inativo'),
@@ -301,7 +302,7 @@ module.exports = async (req, res) => {
         res.status(200).json({ row: atividadeOut(r.rows[0]) }); return;
       }
       const o = body;
-      const extra = { ...o }; delete extra.id;
+      const extra = { ...o }; delete extra.id; delete extra.senha; delete extra.password; delete extra.pass;  // SEGURANCA: credenciais nunca vao para o jsonb extra
 
       if (ent === 'imobiliarias') {
         if (!o.nome) { res.status(400).json({ error: 'nome obrigatorio' }); return; }
@@ -322,7 +323,11 @@ module.exports = async (req, res) => {
       if (ent === 'corretores') {
         if (!o.nome) { res.status(400).json({ error: 'nome obrigatorio' }); return; }
         const ativo = o.status !== 'Inativo' && o.status !== 'Pausado';
-        const perfil = o.perfil || 'corretor';
+        let perfil = o.perfil || 'corretor';
+        // SEGURANCA: nao-admin nunca atribui papel de nivel Hub (admin/diretor/dono/owner/super)
+        if (!user.isAdmin && isAdminRole(perfil)) { res.status(403).json({ error: 'perfil nao permitido para o seu nivel de acesso' }); return; }
+        // SEGURANCA: ninguem promove a propria conta (evita auto-escalonamento de perfil)
+        if (!user.isAdmin && o.id && user.usuarioId && String(o.id) === String(user.usuarioId)) { perfil = user.perfil || perfil; }
         const imob = o.imobiliaria_id || null;
         // Garante que o valor de perfil exista no enum perfil_usuario (idempotente).
         // Whitelist estrita: valor de enum nao aceita placeholder, entao validamos antes.

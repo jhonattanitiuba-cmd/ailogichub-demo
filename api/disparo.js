@@ -35,6 +35,10 @@ module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   try {
     if (!EVO_BASE || !EVO_KEY || !DB_URL) { res.status(500).json({ error: 'env ausente' }); return; }
+    // SEGURANCA: se CRON_SECRET estiver definido, exige Authorization: Bearer <CRON_SECRET> (a Vercel envia no cron) ou ?key=<CRON_SECRET>.
+    // Enforce-if-present: sem o env definido, comportamento inalterado (nao quebra o cron atual).
+    const _CS = process.env.CRON_SECRET || '';
+    if (_CS) { const _a = req.headers.authorization || ''; const _k = (req.query && req.query.key) || ''; if (_a !== 'Bearer ' + _CS && String(_k) !== _CS) { res.status(401).json({ error: 'nao autorizado' }); return; } }
     const dry = req.query && (req.query.dry === '1' || req.query.dry === 'true');
     const row = (await db('select disparo_inicial_enviado from canais_whatsapp where instancia=$1', [INSTANCE])).rows[0] || {};
     if (row.disparo_inicial_enviado) { res.status(200).json({ ok: true, skipped: 'ja enviado' }); return; }

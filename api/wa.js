@@ -384,8 +384,10 @@ module.exports = async (req, res) => {
       if (!jid || !id) { res.status(400).json({ error: 'jid e id obrigatorios' }); return; }
       const mr = await evo('/chat/getBase64FromMediaMessage/' + INSTANCE, 'POST', { message: { key: { id, remoteJid: jid, fromMe } } });
       const b64 = mr.body && (mr.body.base64 || mr.body.media || mr.body.buffer);
-      const mime = (mr.body && (mr.body.mimetype || mr.body.mime)) || 'application/octet-stream';
-      if (!b64) { res.status(404).json({ error: 'sem midia' }); return; }
+      const mimeRaw = (mr.body && (mr.body.mimetype || mr.body.mime)) || 'application/octet-stream';
+      // SEGURANCA: mimetype vem da mensagem do remetente (nao confiavel) -> allowlist + so o tipo base (sem params)
+      const mime = /^(image\/(jpeg|png|webp|gif)|audio\/(ogg|mpeg|mp4|aac|opus|webm)|video\/mp4|application\/pdf)(;.*)?$/i.test(mimeRaw) ? mimeRaw.split(';')[0].toLowerCase() : 'application/octet-stream';
+      if (!b64 || !/^[A-Za-z0-9+/=\s]+$/.test(String(b64))) { res.status(404).json({ error: 'sem midia' }); return; }
       res.status(200).json({ dataUrl: 'data:' + mime + ';base64,' + b64, mime });
       return;
     }
