@@ -15,7 +15,7 @@
 :root{--bg:#04122b;--blue:#0b66ff;--blue2:#3bb0ff;--text:#dfe9ff;--muted:#8aa6d6;--font:Montserrat,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:radial-gradient(1200px 820px at 50% 38%,#123262 0%,#0a1f42 46%,#04122b 100%);color:var(--text);font-family:var(--font);display:flex;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;padding:24px;overflow:hidden}
+body{margin:0;background:radial-gradient(1200px 820px at 50% 38%,#123262 0%,#0a1f42 46%,#04122b 100%);color:var(--text);font-family:var(--font);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;padding:24px;overflow:hidden}
 /* brilho azul de fundo, discreto */
 .aura{position:fixed;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(59,150,255,.22),rgba(59,150,255,0) 68%);filter:blur(20px);top:34%;left:50%;transform:translate(-50%,-50%);animation:breathe 3.4s ease-in-out infinite;pointer-events:none}
 @keyframes breathe{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(.94)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}}
@@ -33,6 +33,7 @@ body{margin:0;background:radial-gradient(1200px 820px at 50% 38%,#123262 0%,#0a1
 </head>
 <body>
   <div class="aura"></div>
+  <img src="/assets/logo-horizontal.png" alt="AILogic Hub" style="width:min(300px,72vw);height:auto;margin-bottom:26px;filter:drop-shadow(0 6px 20px rgba(0,0,0,.45))">
   <div class="load">
     <div class="msg" id="tip">Sincronizando sua operação</div>
     <div class="saber"></div>

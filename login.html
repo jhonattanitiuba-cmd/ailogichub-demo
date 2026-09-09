@@ -28,7 +28,7 @@ body.leaving{opacity:0;transform:scale(.985);pointer-events:none}
 body.leaving .brandside{transform:translateX(-24px);transition:transform .42s ease}
 body.leaving .formside{transform:translateX(24px);transition:transform .42s ease}
 /* painel esquerdo (marca) */
-.brandside{position:relative;background:#000108;color:#e8eefb;padding:58px 62px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.brandside{position:relative;background:#000108 url('/assets/wallpaper-login.webp') center/cover no-repeat;color:#e8eefb;padding:58px 62px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
 .glow{position:absolute;border-radius:50%;filter:blur(80px);z-index:3;mix-blend-mode:screen;pointer-events:none}
 .g1{width:470px;height:470px;background:#2b7dff;top:-150px;right:-140px;animation:float1 9s ease-in-out infinite}
 .g2{width:400px;height:400px;background:#1e6bff;bottom:-180px;left:-130px;animation:float2 11s ease-in-out infinite}
@@ -113,7 +113,7 @@ body.leaving .formside{transform:translateX(24px);transition:transform .42s ease
 <body>
   <section class="brandside">
     <div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div>
-    <div class="bs-top"><img class="brandlogo" src="/assets/logo-perfil.png" alt="AI Logic Hub"></div>
+    <div class="bs-top" style="display:none"><img class="brandlogo" src="/assets/logo-perfil.png" alt="AI Logic Hub"></div>
   </section>
 
   <section class="formside">
