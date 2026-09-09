@@ -242,19 +242,54 @@
     cliente: ['imoveis', 'agenda', 'assinaturas'],
     tenant: ['leads', 'funil', 'imoveis', 'agenda', 'whatsapp']
   };
+  // conjunto de telas permitidas para um perfil (null = admin -> ve tudo). visaogeral sempre incluida.
+  function _allowSet(perfil) {
+    var key = _menuKey(perfil);
+    if (key === 'admin') return null;
+    var list = MENU[key] || MENU.tenant;
+    var A = { visaogeral: 1 };
+    for (var j = 0; j < list.length; j++) A[list[j]] = 1;
+    return A;
+  }
+  // esconde da sidebar as telas que o perfil nao pode ver. Reaplicavel: primeiro reseta o que
+  // NOS escondemos (data-perm-hidden) para reavaliar com o perfil confiavel do servidor.
   function restrictMenu(perfil) {
     try {
-      var key = _menuKey(perfil);
-      if (key === 'admin') return; // admin/diretoria veem tudo (inclui modulo Juridico)
-      var list = MENU[key] || MENU.tenant;
-      var ALLOW = { visaogeral: 1 };
-      for (var j = 0; j < list.length; j++) ALLOW[list[j]] = 1;
       var nav = document.querySelectorAll('.nav-item');
+      for (var k = 0; k < nav.length; k++) { if (nav[k].getAttribute('data-perm-hidden')) { nav[k].style.display = ''; nav[k].removeAttribute('data-perm-hidden'); } }
+      var A = _allowSet(perfil);
+      if (!A) return; // admin/diretoria veem tudo
       for (var i = 0; i < nav.length; i++) {
         var h = (nav[i].getAttribute('href') || '').split('/').pop().split('?')[0].replace(/\.html$/, '');
-        if (h && !ALLOW[h]) nav[i].style.display = 'none';
+        if (h && !A[h]) { nav[i].style.display = 'none'; nav[i].setAttribute('data-perm-hidden', '1'); }
       }
     } catch (_) {}
+  }
+  // modulos de topo (sidebar) sujeitos a bloqueio de acesso direto. Slugs contextuais/detalhe
+  // (imovel, contrato, ficha-visita, vitrine, manual, parceria...) NAO entram aqui -> fluxo normal.
+  var GUARDED = { imobiliarias:1, corretores:1, pessoas:1, leads:1, funil:1, agenda:1, whatsapp:1, emails:1, imoveis:1, mapa:1, assinaturas:1, juridico:1, anuncios:1, credito:1, locacao:1, relatorios:1, insights:1, integracoes:1, site:1, financeiro:1, suporte:1, administrador:1, 'config-ia':1, arquitetura:1, marketing:1 };
+  // bloqueia acesso direto (URL/link) a uma tela que o perfil nao pode ver -> manda pra Visao Geral.
+  function guardScreen(perfil) {
+    try {
+      if (!document.querySelector('.sidebar')) return;                 // so no shell do app (paginas publicas/login nao tem)
+      var A = _allowSet(perfil); if (!A) return;                       // admin ve tudo
+      var slug = (location.pathname.split('/').pop().split('?')[0] || 'visaogeral').replace(/\.html$/, '') || 'visaogeral';
+      if (GUARDED[slug] && !A[slug]) location.replace('/visaogeral');
+    } catch (_) {}
+  }
+  // aplica as permissoes: perfil confiavel do servidor (/api/me) -> menu + bloqueio de acesso.
+  function applyPerms() {
+    if (!document.querySelector('.sidebar')) return;                   // paginas sem shell nao tem menu a restringir
+    try { restrictMenu(perfilAtual()); } catch (_) {}                  // passe imediato (metadata local): so esconde menu, nao redireciona
+    var done = false;
+    // trusted=true (perfil veio do servidor) -> pode bloquear acesso; trusted=false (fallback) -> so esconde menu, sem redirecionar
+    function apply(perfil, trusted) { if (done) return; done = true; try { restrictMenu(perfil); } catch (_) {} if (trusted) { try { guardScreen(perfil); } catch (_) {} } }
+    try {
+      fetch('/api/me', { cache: 'no-store' })
+        .then(function (r) { return r && r.ok ? r.json() : null; })
+        .then(function (j) { if (j) apply(j.isAdmin ? 'admin' : (j.perfil || ''), true); else apply(perfilAtual(), false); })
+        .catch(function () { apply(perfilAtual(), false); });
+    } catch (_) { apply(perfilAtual(), false); }
   }
   // REV2 item 07 — upload/substituição da foto do usuário.
   // Redimensiona no canvas (256px, quadrado) e persiste em user_metadata.avatar_url
@@ -348,7 +383,7 @@
         paintAv(document.querySelector('.hub-user-av'));
         // REV2 item 07 — clique no avatar troca a foto (upload persistente)
         wireAvatarUpload(email, function (dataUrl) { foto = dataUrl; apply(); });
-        restrictMenu(perfil);
+        // restricao de menu centralizada em applyPerms() (perfil confiavel do servidor)
       }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
       else apply();
@@ -397,4 +432,5 @@
   // roda o gate assim que possível (fora da tela de login)
   guard();
   paintUser();
+  if (document.readyState !== 'loading') applyPerms(); else document.addEventListener('DOMContentLoaded', applyPerms);
 })();
