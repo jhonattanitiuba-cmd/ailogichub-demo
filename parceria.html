@@ -55,6 +55,7 @@ h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
     </div>
     <div class="hp"><label>Não preencha<input id="website" tabindex="-1" autocomplete="off"></label></div>
 
+    <label class="consent" style="display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:#5a6b86;margin:2px 0 14px;text-align:left;line-height:1.5"><input type="checkbox" id="consent" style="margin-top:3px;flex:none"> <span>Li e concordo com a <a href="/privacidade" target="_blank" rel="noopener">Politica de Privacidade</a> e autorizo o uso dos meus dados para este cadastro e contato, conforme a LGPD.</span></label>
     <button class="btn" type="submit" id="send">Enviar cadastro</button>
     <div class="err" id="err"></div>
     <a class="link" href="/login">Já tenho acesso, entrar</a>
@@ -82,6 +83,7 @@ h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
     if(!resp){ err.textContent='Informe o nome do responsável.'; return; }
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent='Informe um e-mail válido.'; return; }
     if(tel.replace(/\D/g,'').length<10){ err.textContent='Informe um WhatsApp válido com DDD.'; return; }
+    if(!document.getElementById('consent').checked){ err.textContent='Para continuar, aceite a Política de Privacidade.'; return; }
     var b=document.getElementById('send'); b.disabled=true; b.textContent='Enviando...';
     fetch('/api/parceria',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({nome:imob,creci:val('creci'),cidade:cidade,responsavel:resp,email:email,telefone:tel})})
