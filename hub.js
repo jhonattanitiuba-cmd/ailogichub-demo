@@ -651,7 +651,20 @@
     }catch(_){}
   }
   try{ window.hubGateDash=gateDashboard; }catch(_){}
-  function run(){ try{ ensureViewport(); markScr(); ensureCss(); replaceIconHosts(); cleanText(); active(); setupCollapse(); setupLogout(); setupDock(); cascadeSidebar(); revealContent(document.querySelector('.main'), 'entry'); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); standardizeButtons(); watchButtons(); markStatusPills(); setupPullRefresh(); setupFab(); loadBegin(); gateDashboard(); setTimeout(gateDashboard,400); window.addEventListener('resize', onResize); window.addEventListener('orientationchange', onResize); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
+  /* ---------- Em Breve: atalho da galeria de telas na sidebar (full load, fora do SPA) ---------- */
+  function injectEmBreve(){
+    var side=document.querySelector('.sidebar'); if(!side) return;
+    if(side.querySelector('a[data-embreve]')) return;
+    if(/\/embreve(\.html)?$/.test(location.pathname)) return;
+    var a=document.createElement('a');
+    a.className='nav-item'; a.setAttribute('data-embreve','1'); a.href='/embreve';
+    a.innerHTML='<span class="ico">\u2726</span>Em Breve';
+    a.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); location.href='/embreve'; });
+    var sec=document.createElement('div'); sec.className='section-title'; sec.textContent='Laboratorio';
+    var prof=side.querySelector('.profile');
+    if(prof){ side.insertBefore(sec, prof); side.insertBefore(a, prof); } else { side.appendChild(sec); side.appendChild(a); }
+  }
+  function run(){ try{ ensureViewport(); markScr(); ensureCss(); replaceIconHosts(); cleanText(); injectEmBreve(); active(); setupCollapse(); setupLogout(); setupDock(); cascadeSidebar(); revealContent(document.querySelector('.main'), 'entry'); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); standardizeButtons(); watchButtons(); markStatusPills(); setupPullRefresh(); setupFab(); loadBegin(); gateDashboard(); setTimeout(gateDashboard,400); window.addEventListener('resize', onResize); window.addEventListener('orientationchange', onResize); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
 
