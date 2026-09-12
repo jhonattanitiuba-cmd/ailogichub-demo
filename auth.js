@@ -289,14 +289,22 @@
     if (!document.querySelector('.sidebar')) return;                   // paginas sem shell nao tem menu a restringir
     try { restrictMenu(perfilAtual()); } catch (_) {}                  // passe imediato (metadata local): so esconde menu, nao redireciona
     var done = false;
-    // trusted=true (perfil veio do servidor) -> pode bloquear acesso; trusted=false (fallback) -> so esconde menu, sem redirecionar
-    function apply(perfil, trusted) { if (done) return; done = true; try { restrictMenu(perfil); } catch (_) {} if (trusted) { try { guardScreen(perfil); } catch (_) {} } }
+    // trusted=true (perfil veio do servidor) -> bloqueia acesso direto sempre.
+    // fallback (servidor indisponivel) -> bloqueia SO quando ha um perfil local conhecido,
+    // para nunca prender quem esta sem perfil no metadata; se nao ha, mantem so o menu escondido.
+    function apply(perfil, trusted) {
+      if (done) return; done = true;
+      try { restrictMenu(perfil); } catch (_) {}
+      if (trusted || (perfil && String(perfil).trim())) { try { guardScreen(perfil); } catch (_) {} }
+    }
+    function fromServer(j) { apply(j.isAdmin ? 'admin' : (j.perfil || ''), true); }
+    function me() { return fetch('/api/me', { cache: 'no-store' }).then(function (r) { return r && r.ok ? r.json() : null; }); }
+    function fallback() { apply(perfilAtual(), false); }
+    // uma nova tentativa apos possivel blip de rede antes de cair no fallback local
+    function retry() { setTimeout(function () { me().then(function (j2) { j2 ? fromServer(j2) : fallback(); }).catch(fallback); }, 800); }
     try {
-      fetch('/api/me', { cache: 'no-store' })
-        .then(function (r) { return r && r.ok ? r.json() : null; })
-        .then(function (j) { if (j) apply(j.isAdmin ? 'admin' : (j.perfil || ''), true); else apply(perfilAtual(), false); })
-        .catch(function () { apply(perfilAtual(), false); });
-    } catch (_) { apply(perfilAtual(), false); }
+      me().then(function (j) { if (j) fromServer(j); else retry(); }).catch(retry);
+    } catch (_) { fallback(); }
   }
   // REV2 item 07 — upload/substituição da foto do usuário.
   // Redimensiona no canvas (256px, quadrado) e persiste em user_metadata.avatar_url
