@@ -527,7 +527,8 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   <div class="drawer-panel">
     <h3><span class="agent-ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 3l1.7 4.6L18 9l-4.3 1.4L12 15l-1.7-4.6L6 9l4.3-1.4L12 3z"/></svg></span> Treinar o agente (Sam)</h3>
     <p>Edite a persona/base de conhecimento. Vale para as próximas conversas.</p>
-    <div style="margin-bottom:14px"><span class="switch" id="iaGlobalSwitch"><span class="track"></span> IA ativa no canal</span></div>
+    <div style="margin-bottom:10px"><span class="switch" id="iaGlobalSwitch"><span class="track"></span> IA ativa no canal</span></div>
+    <div style="margin-bottom:14px"><span class="switch" id="iaPublicaSwitch"><span class="track"></span> Atendimento público (responder qualquer número)</span><div style="font-size:11px;color:var(--muted,#8a97ab);margin-top:4px">Somente admin. Ligado = go-live para clientes reais. Desligado = a IA não responde números novos automaticamente.</div></div>
     <textarea id="treinoPersona" placeholder="Persona / instruções do agente..."></textarea>
     <div class="agent-foto-sec">
       <div class="agent-foto-prev" id="agentFotoPrev"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.7 4.6L18 9l-4.3 1.4L12 15l-1.7-4.6L6 9l4.3-1.4L12 3z"/></svg></div>
@@ -827,7 +828,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   document.addEventListener("click",function(){if(ddT)ddT.classList.remove("open");});
 
   // ===== treinar o agente (drawer) =====
-  var drawer=$("drawerTreino"),iaGlobalOn=true,toolImoveisOn=true;
+  var drawer=$("drawerTreino"),iaGlobalOn=true,toolImoveisOn=true,iaPublicaOn=false;
   function setAgentFotoPreview(){ var p=$("agentFotoPrev"); if(p) p.innerHTML=agentFoto?'<img src="'+esc(agentFoto)+'" alt="">':'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.7 4.6L18 9l-4.3 1.4L12 15l-1.7-4.6L6 9l4.3-1.4L12 3z"/></svg>'; }
   // redimensiona/quadra a foto p/ ~128px (base64 pequeno): plug and play
   function fileToAvatar(file,cb){ var img=new Image(),url=URL.createObjectURL(file);
@@ -838,6 +839,7 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
     $("treinoPersona").value=(d&&d.ia_persona)||"";
     iaGlobalOn=!(d&&d.ia_ativa===false);$("iaGlobalSwitch").classList.toggle("on",iaGlobalOn);
     var tools=(d&&d.ia_tools)||{};toolImoveisOn=(tools.oferecer_imoveis!==false);$("toolImoveis").classList.toggle("on",toolImoveisOn);
+    var al=(d&&d.ia_allowlist);iaPublicaOn=Array.isArray(al)&&al.indexOf("*")>=0;$("iaPublicaSwitch").classList.toggle("on",iaPublicaOn);
     agentFoto=tools.agente_foto||"";setAgentFotoPreview();
   }).catch(function(){}); }
   function closeTreino(){drawer.classList.remove("open");}
@@ -846,9 +848,10 @@ body{margin:0;font-family:var(--font);color:var(--text)}a{text-decoration:none;c
   drawer.addEventListener("click",function(e){if(e.target===drawer)closeTreino();});
   $("iaGlobalSwitch").addEventListener("click",function(){iaGlobalOn=!iaGlobalOn;this.classList.toggle("on",iaGlobalOn);});
   $("toolImoveis").addEventListener("click",function(){toolImoveisOn=!toolImoveisOn;this.classList.toggle("on",toolImoveisOn);});
+  $("iaPublicaSwitch").addEventListener("click",function(){iaPublicaOn=!iaPublicaOn;this.classList.toggle("on",iaPublicaOn);});
   $("agentFotoInput").addEventListener("change",function(e){var f=e.target.files&&e.target.files[0];if(!f)return;fileToAvatar(f,function(d){if(d){agentFoto=d;setAgentFotoPreview();}});e.target.value="";});
   $("agentFotoClear").addEventListener("click",function(){agentFoto="";setAgentFotoPreview();});
-  $("treinoSave").addEventListener("click",function(){var btn=$("treinoSave");btn.disabled=true;btn.textContent="Salvando…";fetch(API+"?action=config-save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ia_persona:$("treinoPersona").value,ia_ativa:iaGlobalOn,ia_tools:{oferecer_imoveis:toolImoveisOn,agente_foto:agentFoto||""}})}).then(function(){btn.disabled=false;btn.textContent="Salvar";closeTreino();try{if(curJid)openChat(curJid);}catch(_){}}).catch(function(){btn.disabled=false;btn.textContent="Salvar";});});
+  $("treinoSave").addEventListener("click",function(){var btn=$("treinoSave");btn.disabled=true;btn.textContent="Salvando…";fetch(API+"?action=config-save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ia_persona:$("treinoPersona").value,ia_ativa:iaGlobalOn,ia_publica:iaPublicaOn,ia_tools:{oferecer_imoveis:toolImoveisOn,agente_foto:agentFoto||""}})}).then(function(){btn.disabled=false;btn.textContent="Salvar";closeTreino();try{if(curJid)openChat(curJid);}catch(_){}}).catch(function(){btn.disabled=false;btn.textContent="Salvar";});});
   // carrega a foto do agente já no load (p/ os avatares das mensagens enviadas)
   fetch(API+"?action=config",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){var t=(d&&d.ia_tools)||{};if(t.agente_foto){agentFoto=t.agente_foto;}}).catch(function(){});
 

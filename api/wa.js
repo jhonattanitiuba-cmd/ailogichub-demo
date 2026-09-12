@@ -173,17 +173,21 @@ module.exports = async (req, res) => {
       res.status(200).json(r.rows[0] || {});
       return;
     }
-    // ---- CONFIG DA IA: salvar (persona/ativa/tools) ----
+    // ---- CONFIG DA IA: salvar (persona/ativa/tools/atendimento publico) ----
     if (action === 'config-save') {
       let b = req.body; if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
       b = b || {};
+      // atendimento publico (allowlist): SO admin pode abrir/fechar o canal para qualquer numero.
+      // true => responde todos ('*'); false => nao responde automaticamente ninguem novo ([]).
+      const setPublica = (typeof b.ia_publica === 'boolean' && user.isAdmin) ? (b.ia_publica ? '["*"]' : '[]') : null;
       await db(`update canais_whatsapp set
           ia_ativa = coalesce($1, ia_ativa),
           ia_persona = coalesce($2, ia_persona),
           ia_tools = coalesce($3::jsonb, ia_tools),
+          ia_allowlist = coalesce($4::jsonb, ia_allowlist),
           updated_at = now()
-        where instancia=$4`,
-        [typeof b.ia_ativa === 'boolean' ? b.ia_ativa : null, (b.ia_persona != null ? String(b.ia_persona) : null), (b.ia_tools != null ? JSON.stringify(b.ia_tools) : null), INSTANCE]);
+        where instancia=$5`,
+        [typeof b.ia_ativa === 'boolean' ? b.ia_ativa : null, (b.ia_persona != null ? String(b.ia_persona) : null), (b.ia_tools != null ? JSON.stringify(b.ia_tools) : null), setPublica, INSTANCE]);
       res.status(200).json({ ok: true });
       return;
     }
