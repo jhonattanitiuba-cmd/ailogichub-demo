@@ -22,6 +22,23 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 7 - Documentação: análise da CSP e manual do time
+
+Commit: (esta rodada, só documentos, sem mudança de código nem de produção)
+
+- docs/ANALISE_CSP.md: diagnóstico completo para ativar a CSP em modo de bloqueio sem quebrar tela.
+  Varredura das telas servidas em produção: o único bloqueador real é o Leaflet (mapa) carregado
+  do unpkg em bemvindo.html; o resto ou é backup fora do deploy ou já passa. Traz a correção
+  necessária (trocar o Leaflet para o cdn.jsdelivr, que já é liberado), a política proposta e o
+  plano de ativação com reversão. Nada foi ligado: a CSP segue em Report-Only.
+- docs/MANUAL_TIME_GOLIVE.md: manual dos itens que dependem do time (fora de código): a
+  SUPABASE_SERVICE_ROLE_KEY no Vercel, o SMTP do Supabase, a política de backup e a escolha do
+  provedor de assinatura digital. Cada um com o porquê, o passo a passo, como validar e um checklist.
+
+Entregues também como PDF apresentável para repasse ao time.
+
+---
+
 ## Rodada 6 - Segurança: guardScreen sem fail-open
 
 Commit: b07f318
