@@ -22,6 +22,26 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 6 - Segurança: guardScreen sem fail-open
+
+Commit: b07f318
+
+- auth.js (applyPerms): quando o /api/me falha, faz uma nova tentativa após 800ms (blip de rede) e,
+  no fallback real, passa a bloquear o acesso direto por URL usando o perfil local, mas somente
+  quando há um perfil conhecido no metadata. Sem perfil local, mantém o comportamento antigo
+  (só esconde o menu, não redireciona) para nunca prender um admin sem perfil no metadata.
+- Fecha a brecha em que, com o /api/me indisponível, o shell de uma tela fora do escopo abria
+  por URL. Os dados já eram protegidos pelo RBAC do servidor; isto alinha o shell da interface.
+- Redireciona sempre para a home do perfil (não entra em loop, pois a home está no escopo).
+
+Validação: testado com navegador nos quatro cenários (servidor ok bloqueia; servidor falha com
+perfil local bloqueia; servidor falha sem perfil local não prende; tela permitida permanece).
+
+Observação: a CSP em modo enforce (o outro item de segurança) ficou para uma janela de teste
+dedicada, por ser a de maior risco de quebrar scripts inline das telas.
+
+---
+
 ## Rodada 5 - Higiene de segurança (parte 2): rate limit no cadastro público
 
 Commit: 1f75254
@@ -119,8 +139,6 @@ página de LGPD e privacidade com consentimento, e endpoint /api/health para mon
 
 ## Backlog (pendente, por risco)
 
-- Médio, precisa janela de teste: guardScreen sem fail-open em auth.js (hoje, se /api/me falha,
-  o menu some mas a tela abre por URL direta; os dados seguem protegidos pelo RBAC do servidor).
 - Maior risco, não recomendado em cima do go-live: ativar a CSP em modo enforce (vercel.json),
   hoje em modo de relato. Pode quebrar scripts inline; exige testar página a página.
 - Congelado para pós go-live: unificação funil e negócios com fechado_em e histórico (P0-10).
