@@ -174,8 +174,7 @@ async function imoveisDisponiveis(limite) {
   try {
     const r = (await db(`select codigo, tipo, finalidade, cidade, bairro, quartos, vagas, area_util, preco
       from imoveis where deleted_at is null and (status is null or lower(status::text) in ('disponivel','disponível','ativo','publicado'))
-      and ((lower(finalidade::text)='venda' and preco>=700000) or (lower(finalidade::text) in ('locacao','temporada') and preco>=4000))
-      order by preco desc limit $1`, [limite || 12])).rows;
+      order by preco desc nulls last limit $1`, [limite || 12])).rows;
     if (!r.length) return '';
     const linhas = r.map(i => {
       const preco = i.preco != null ? ('R$ ' + Number(i.preco).toLocaleString('pt-BR')) : 's/ valor';

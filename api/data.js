@@ -297,8 +297,11 @@ module.exports = async (req, res) => {
           res.status(200).json({ row: atividadeOut(r.rows[0]) }); return;
         }
         if (!o.imobiliaria_id) { res.status(400).json({ error: 'imobiliaria_id obrigatorio' }); return; }
+        // corretor/autonomo (self): se nao informar responsavel, assume a si mesmo,
+        // senao o proprio compromisso some da lista dele (filtrada por responsavel_id).
+        const respAg = o.responsavel_id || ((!user.isAdmin && isSelfRole(user.perfil) && user.usuarioId) ? user.usuarioId : null);
         const r = await db(`insert into atividades(imobiliaria_id,titulo,tipo,inicio,fim,concluida,lead_id,negocio_id,responsavel_id) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *`,
-          [o.imobiliaria_id, o.titulo, o.tipo || null, ini, fim, concl, o.lead_id || null, o.negocio_id || null, o.responsavel_id || null]);
+          [o.imobiliaria_id, o.titulo, o.tipo || null, ini, fim, concl, o.lead_id || null, o.negocio_id || null, respAg]);
         res.status(200).json({ row: atividadeOut(r.rows[0]) }); return;
       }
       const o = body;

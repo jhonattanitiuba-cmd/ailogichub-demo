@@ -118,9 +118,9 @@ input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;ba
       '<div class="specs">'+facts.map(function(f){return '<div><span>'+f[0]+'</span>'+f[1]+'</div>';}).join('')+'</div>'+
       (p.descricao?'<p class="desc">'+esc(p.descricao)+'</p>':'')+
       '<div class="actions"><button class="btn p" id="bp">Fazer proposta e assinatura</button><button class="btn v" id="bv">Agendar uma visita</button></div>'+
-      '<div class="panel" id="pp"><h3>Proposta e assinatura digital</h3><div class="sub">Preencha e o Hub gera o documento para assinatura digital via Google.</div>'+
+      '<div class="panel" id="pp"><h3>Proposta e assinatura digital</h3><div class="sub">Preencha e o Hub gera o contrato timbrado para você conferir. A proposta segue com o nosso time pelo WhatsApp.</div>'+
         '<label>Seu nome</label><input id="pn" placeholder="Nome completo"><label>WhatsApp</label><input id="pw" placeholder="(11) 90000-0000"><label>Valor da sua proposta</label><input id="pv" placeholder="R$">'+
-        '<button class="btn p" style="margin-top:14px" id="penv">Gerar proposta e contrato</button><div class="ok" id="pok">Proposta registrada. Abrimos o contrato timbrado do Hub para conferência e, na sequência, você recebe o link de assinatura digital por WhatsApp.</div></div>'+
+        '<button class="btn p" style="margin-top:14px" id="penv">Gerar proposta e contrato</button><div class="err" id="perr" style="display:none;color:#c0392b;font-size:13px;margin-top:10px">Informe seu nome e WhatsApp para gerarmos o contrato.</div><div class="ok" id="pok">Geramos o contrato timbrado do Hub em uma nova aba para você conferir. Para concluir a proposta, envie os dados ao nosso time: <a id="pwa" target="_blank" rel="noopener" style="color:#0a7d43;text-decoration:underline">enviar proposta pelo WhatsApp</a>.</div></div>'+
       '<div class="panel" id="vp"><h3>Agende uma visita</h3><div class="sub">Escolha um horário disponível. A confirmação chega no seu WhatsApp.</div><div class="slots" id="slots"></div>'+
         '<div class="ok" id="vok"></div></div>';
     wire(p,fotos);
@@ -135,11 +135,18 @@ input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;ba
     document.getElementById('bp').addEventListener('click',function(){vp.classList.remove('on');pp.classList.toggle('on');pp.scrollIntoView({behavior:'smooth',block:'center'});});
     document.getElementById('bv').addEventListener('click',function(){pp.classList.remove('on');vp.classList.toggle('on');vp.scrollIntoView({behavior:'smooth',block:'center'});});
     document.getElementById('penv').addEventListener('click',function(){
-      document.getElementById('pok').classList.add('on');
       var nm=(document.getElementById('pn').value||'').trim();
       var wp=(document.getElementById('pw').value||'').trim();
       var vl=(document.getElementById('pv').value||'').replace(/[^\d]/g,'');
-      var u='/contrato?cod='+encodeURIComponent(cod||(p&&p.codigo)||'')+(nm?'&cliente='+encodeURIComponent(nm):'')+(wp?'&whatsapp='+encodeURIComponent(wp):'')+(vl?'&valor='+encodeURIComponent(vl):'');
+      var perr=document.getElementById('perr'),pok=document.getElementById('pok');
+      if(!nm||!wp){ pok.classList.remove('on'); if(perr)perr.style.display='block'; return; }
+      if(perr)perr.style.display='none';
+      var codi=cod||(p&&p.codigo)||'';
+      // handoff real: a proposta chega ao time pelo WhatsApp (nada e gravado automaticamente ainda)
+      var msg='Ola! Quero fazer uma proposta para '+((p&&p.titulo)||'o imovel')+' ['+codi+'].'+(vl?(' Valor: R$ '+Number(vl).toLocaleString('pt-BR')+'.'):'')+' Meu nome: '+nm+'.';
+      var pwa=document.getElementById('pwa'); if(pwa)pwa.href='https://wa.me/5511936238387?text='+encodeURIComponent(msg);
+      pok.classList.add('on');
+      var u='/contrato?cod='+encodeURIComponent(codi)+(nm?'&cliente='+encodeURIComponent(nm):'')+(wp?'&whatsapp='+encodeURIComponent(wp):'')+(vl?'&valor='+encodeURIComponent(vl):'');
       window.open(u,'_blank','noopener');
     });
     // blocos de horario
