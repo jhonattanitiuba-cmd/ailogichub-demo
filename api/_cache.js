@@ -38,4 +38,14 @@ async function cacheDel() {   // apaga uma ou mais chaves (invalidacao apos muta
   const keys = [].slice.call(arguments).filter(Boolean);
   try { if (keys.length) await c.del(keys); } catch (_) {}
 }
-module.exports = { cacheGet, cacheSet, cacheDel };
+// rate limit atomico (INCR + EXPIRE na 1a vez). DEGRADACAO SEGURA: sem Redis pronto
+// ou em qualquer erro, retorna allowed=true (fail-open) para nunca barrar usuario legitimo.
+async function rateAllow(key, limit, windowSec) {
+  const c = ready(); if (!c) return { allowed: true, off: true };
+  try {
+    const n = await c.incr(key);
+    if (n === 1) { try { await c.expire(key, windowSec || 600); } catch (_) {} }
+    return { allowed: n <= (limit || 5), count: n };
+  } catch (_) { return { allowed: true, off: true }; }
+}
+module.exports = { cacheGet, cacheSet, cacheDel, rateAllow };

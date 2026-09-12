@@ -3,6 +3,7 @@
 // (ativo=false, extra.pendente=true) para o administrador aprovar depois.
 // Nao concede acesso: o login do responsavel so e criado na aprovacao.
 const { db } = require('./_db');
+const { rateAllow } = require('./_cache');
 const DB_URL = process.env.DB_URL || '';
 
 function slugify(s) {
@@ -18,6 +19,14 @@ module.exports = async (req, res) => {
   if (req.method && req.method !== 'POST') { res.status(405).json({ error: 'metodo nao permitido' }); return; }
   if (!DB_URL) { res.status(500).json({ error: 'backend nao configurado' }); return; }
   try {
+    // anti-spam por IP (fail-open: sem Redis, nao bloqueia). Max 5 envios por 10 min.
+    const xff = String((req.headers && req.headers['x-forwarded-for']) || '').split(',')[0].trim();
+    const ip = xff || (req.socket && req.socket.remoteAddress) || '';
+    if (ip) {
+      const rl = await rateAllow('rl:parceria:' + ip, 5, 600);
+      if (!rl.allowed) { res.status(429).json({ error: 'Muitas tentativas. Aguarde alguns minutos e tente novamente.' }); return; }
+    }
+
     let b = req.body; if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
     b = b || {};
 
@@ -60,6 +69,7 @@ module.exports = async (req, res) => {
 
     res.status(200).json({ ok: true });
   } catch (e) {
+    console.error('[parceria]', (e && e.stack) || e);
     res.status(500).json({ error: 'Nao foi possivel registrar agora. Tente novamente em instantes.' });
   }
 };
