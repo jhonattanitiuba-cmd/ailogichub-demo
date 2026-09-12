@@ -241,6 +241,72 @@ async function transferirParaHumano(remoteJid) {
   } catch (_) { return false; }
 }
 
+// ===== CRM: lead automatico a partir do WhatsApp =====
+// O WhatsApp e um canal CENTRAL do Hub: os leads nascem numa imobiliaria "Hub"
+// e o time roteia para a imobiliaria certa pelo inbox (acao "vincular" em wa.js).
+// Resolucao da Hub: env HUB_IMOBILIARIA_ID -> imobiliaria com extra.hub=true -> a mais antiga.
+let _hubImobId = null, _hubImobTs = 0;
+async function imobiliariaHub() {
+  const now = Date.now();
+  if (_hubImobId !== null && (now - _hubImobTs) < 300000) return _hubImobId;
+  let id = null;
+  try {
+    if (process.env.HUB_IMOBILIARIA_ID) id = process.env.HUB_IMOBILIARIA_ID;
+    if (!id) { const r = await db("select id from imobiliarias where deleted_at is null and coalesce((extra->>'hub')::boolean,false)=true order by created_at limit 1"); id = (r.rows[0] || {}).id; }
+    if (!id) { const r = await db('select id from imobiliarias where deleted_at is null order by created_at limit 1'); id = (r.rows[0] || {}).id; }
+  } catch (_) {}
+  _hubImobId = id || null; _hubImobTs = now;
+  return _hubImobId;
+}
+// cria/vincula o lead da conversa (idempotente por telefone dentro da imobiliaria Hub)
+async function garantirLead(remoteJid, telefone, pushName) {
+  try {
+    const at = await db('select lead_id from ia_atendimento where remote_jid=$1', [remoteJid]);
+    if (at.rows[0] && at.rows[0].lead_id) return at.rows[0].lead_id;
+    const imobId = await imobiliariaHub();
+    if (!imobId) return null;
+    const tel = String(telefone || '').replace(/\D/g, '') || null;
+    let leadId = null;
+    if (tel) {
+      const ex = await db("select id from leads where imobiliaria_id=$1 and deleted_at is null and regexp_replace(coalesce(telefone,''),'\\D','','g')=$2 limit 1", [imobId, tel]);
+      leadId = (ex.rows[0] || {}).id;
+    }
+    if (!leadId) {
+      const nome = String(pushName || '').trim() || (tel ? ('WhatsApp ' + tel) : 'Contato WhatsApp');
+      const ins = await db(`insert into leads(imobiliaria_id,nome,telefone,status,extra)
+        values($1,$2,$3,'novo',jsonb_build_object('origem','whatsapp','remote_jid',$4::text)) returning id`,
+        [imobId, nome, tel, remoteJid]);
+      leadId = (ins.rows[0] || {}).id;
+    }
+    if (leadId) {
+      await db(`insert into ia_atendimento (remote_jid, lead_id, atualizado_em) values ($1,$2,now())
+        on conflict (remote_jid) do update set lead_id=coalesce(ia_atendimento.lead_id,$2), atualizado_em=now()`, [remoteJid, leadId]);
+    }
+    return leadId;
+  } catch (_) { return null; }
+}
+// enriquece o lead conforme a conversa avanca (sem custo de IA extra): interesse + score por sinais
+async function enriquecerLead(leadId, msgUser) {
+  if (!leadId) return;
+  try {
+    const s = String(msgUser || '').trim();
+    const low = s.toLowerCase();
+    const sets = ['ultimo_contato=now()'];
+    const params = [];
+    if (s.length > 3) { params.push(s.slice(0, 240)); sets.push("interesse=coalesce(nullif(interesse,''),$" + params.length + ')'); }
+    let sc = 20;
+    if (/alug|loca[çc]/.test(low)) sc += 15;
+    if (/compr|venda|financ/.test(low)) sc += 20;
+    if (/\br\$|\d{2,}\s*mil|\d{3,}/.test(low)) sc += 20;
+    if (/bairro|regi[aã]o|zona|centro|jardim|vila/.test(low)) sc += 15;
+    if (/\bvisit|agendar|ver o im[oó]ve/.test(low)) sc += 20;
+    if (sc > 100) sc = 100;
+    params.push(sc); sets.push('score=greatest(coalesce(score,0),$' + params.length + ')');
+    params.push(leadId);
+    await db('update leads set ' + sets.join(', ') + ' where id=$' + params.length, params);
+  } catch (_) {}
+}
+
 // remove travessão e emojis (cara de bot) e normaliza
 function limparBot(t) {
   if (!t) return t;
@@ -428,6 +494,11 @@ module.exports = async (req, res) => {
 
     // toda mensagem de entrada conta como nao-lida no inbox
     await marcarEntrada(remoteJid);
+
+    // CRM: garante o lead desta conversa (canal central -> imobiliaria Hub) e enriquece.
+    // Assim o funil para de nascer vazio: todo contato do WhatsApp vira lead vinculado.
+    const leadId = await garantirLead(remoteJid, senderNum, data.pushName);
+    await enriquecerLead(leadId, msgUser);
 
     // se um humano assumiu esta conversa (IA pausada), a IA NAO responde: so registra
     const atend = await getAtendimento(remoteJid);
