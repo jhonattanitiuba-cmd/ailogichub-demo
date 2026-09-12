@@ -558,6 +558,7 @@ module.exports = async (req, res) => {
     if (isAudio && ELEVEN_KEY && ELEVEN_VOICE) await responderComVoz(remoteJid, resposta);
     res.status(200).json({ ok: true, respondido: true, transferido: querTransferir, motor: ANTHROPIC_KEY ? 'claude' : (OPENAI_KEY ? 'openai' : 'basico'), turns: messages.length });
   } catch (e) {
-    res.status(200).json({ ok: false, erro: String((e && e.message) || e) });
+    console.error('[wa-webhook]', (e && e.stack) || e);
+    res.status(200).json({ ok: false, erro: 'erro interno' });
   }
 };

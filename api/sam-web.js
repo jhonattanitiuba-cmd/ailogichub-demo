@@ -113,6 +113,7 @@ module.exports = async (req, res) => {
     }
     res.status(200).json({ reply, sugestoes });
   } catch (e) {
+    console.error('[sam-web]', (e && e.stack) || e);
     res.status(200).json({ reply: 'Tive um instante de instabilidade. Pode repetir, por favor?' });
   }
 };

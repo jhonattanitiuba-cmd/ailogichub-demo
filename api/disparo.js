@@ -57,6 +57,7 @@ module.exports = async (req, res) => {
     }
     res.status(200).json({ ok: true, enviado: resultados });
   } catch (e) {
-    res.status(200).json({ ok: false, erro: String((e && e.message) || e) });
+    console.error('[disparo]', (e && e.stack) || e);
+    res.status(200).json({ ok: false, erro: 'erro interno' });
   }
 };

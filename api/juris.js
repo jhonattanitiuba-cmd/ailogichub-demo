@@ -180,5 +180,5 @@ module.exports = async (req, res) => {
     }
 
     res.status(400).json({ error: 'action invalida' });
-  } catch (e) { res.status(500).json({ error: 'erro', detalhe: String((e && e.message) || e) }); }
+  } catch (e) { console.error('[juris]', (e && e.stack) || e); res.status(500).json({ error: 'Erro interno. Tente novamente.' }); }
 };

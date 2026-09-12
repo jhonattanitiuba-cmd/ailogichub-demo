@@ -45,6 +45,7 @@ module.exports = async (req, res) => {
     );
     res.status(200).json({ rows: r.rows.map(pubOut) });
   } catch (e) {
+    console.error('[vitrine]', (e && e.stack) || e);
     res.status(200).json({ rows: [], error: 'indisponivel' });
   }
 };

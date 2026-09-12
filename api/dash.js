@@ -158,5 +158,5 @@ module.exports = async (req, res) => {
 
     const r = await db("select dados from hub_dashboard where chave='principal'");
     res.status(200).json(r.rows[0] ? r.rows[0].dados : {});
-  } catch (e) { res.status(500).json({ error: String((e && e.message) || e) }); }
+  } catch (e) { console.error('[dash]', (e && e.stack) || e); res.status(500).json({ error: 'Erro interno. Tente novamente.' }); }
 };

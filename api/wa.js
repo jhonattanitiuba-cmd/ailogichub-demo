@@ -446,6 +446,7 @@ module.exports = async (req, res) => {
     }
     res.status(200).json({ status, numero, perfil, instancia: INSTANCE, state });
   } catch (e) {
-    res.status(500).json({ error: String((e && e.message) || e) });
+    console.error('[wa]', (e && e.stack) || e);
+    res.status(500).json({ error: 'Erro interno. Tente novamente.' });
   }
 };

@@ -399,6 +399,7 @@ module.exports = async (req, res) => {
 
     res.status(400).json({ error: 'action invalida' });
   } catch (e) {
-    res.status(500).json({ error: String((e && e.message) || e) });
+    console.error('[data]', (e && e.stack) || e);
+    res.status(500).json({ error: 'Erro interno. Tente novamente.' });
   }
 };

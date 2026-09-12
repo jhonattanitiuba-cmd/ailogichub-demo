@@ -51,6 +51,7 @@ module.exports = async (req, res) => {
     const reply = String((j && j.content && j.content[0] && j.content[0].text) || 'Deixa eu organizar isso, pode repetir?').replace(/\s*[—–]\s*/g, ', ').trim();
     res.status(200).json({ reply });
   } catch (e) {
+    console.error('[copilot]', (e && e.stack) || e);
     res.status(200).json({ reply: 'Tive um instante de instabilidade, pode repetir?' });
   }
 };
