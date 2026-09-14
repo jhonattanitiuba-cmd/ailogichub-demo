@@ -22,6 +22,32 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 12 - INCIDENTE: deploys falhando (limite de 12 funcoes no Hobby)
+
+Commit: (esta rodada)
+
+Sintoma: app inteiro mostrando 0 (funil, pessoas, dashboard) e 401 em todas as APIs. Causa raiz
+achada nos Deployments da Vercel: "No more than 12 Serverless Functions can be added to a Deployment
+on the Hobby plan". O projeto chegou a 16 funcoes, entao TODO deploy falhava e o site ficou preso
+num deploy antigo (varias entregas recentes nao estavam no ar de fato).
+
+Correcao (reduzir de 16 para 12, sem perder nada que o usuario usa):
+- api/persona.js -> api/_persona.js (era modulo compartilhado, nao rota; sai da contagem). require
+  atualizado em wa-webhook.js.
+- Removido api/disparo.js (cron legado de broadcast fixo) + bloco crons do vercel.json.
+- Removido api/health.js (healthcheck de uptime; re-adicionar quando subir para Pro).
+- Removido api/authcheck.js; o diagnostico de rede/cert foi dobrado em /api/config?diag=1.
+- Mantidas as 12 rotas usadas: config, copilot, dash, data, juris, me, parceria, proposta,
+  sam-web, vitrine, wa, wa-webhook.
+
+Recomendacao: subir para o plano Vercel Pro (limite muito maior) para nao precisar cortar funcoes e
+re-adicionar health/disparo. Enquanto isso, o Hobby fica exatamente no limite (12).
+
+Observacao: o 401 sera reavaliado assim que o deploy passar, ja que o site estava preso em codigo
+antigo. Diagnostico de rede/cert disponivel em /api/config?diag=1.
+
+---
+
 ## Rodada 11 - Unificacao do funil, Fase 2 (propagacao ao financeiro, inerte ate o backfill)
 
 Commit: (esta rodada)

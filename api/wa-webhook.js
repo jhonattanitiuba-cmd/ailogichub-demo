@@ -3,7 +3,7 @@
 // e responde com Claude (fallback básico sem chave). MODO TESTE: só responde a allowlist.
 // env: EVO_BASE, EVO_KEY, WA_INSTANCE, DB_URL, ANTHROPIC_API_KEY
 const { db } = require('./_db');
-const { PERSONA_SAM } = require('./persona');
+const { PERSONA_SAM } = require('./_persona');
 
 const EVO_BASE = (process.env.EVO_BASE || '').replace(/\/$/, '');
 const EVO_KEY  = process.env.EVO_KEY || '';
