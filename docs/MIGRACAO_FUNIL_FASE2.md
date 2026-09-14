@@ -58,6 +58,9 @@ Dos 36 cards, cerca de 9 casam por codigo (Passo 0); apenas esses serao vinculad
 sem vinculo e nao propagam (seguro).
 
 ```sql
+-- 0) garante a coluna (o codigo tambem cria em runtime no 1o move; aqui garantimos antes do backfill)
+alter table funil_negocios add column if not exists negocio_id uuid;
+
 -- backfill do vinculo por imovel (melhor esforco): casa card e negocio da mesma imobiliaria
 -- pelo codigo do imovel. Subconsulta correlacionada (o UPDATE ... FROM do Postgres nao deixa
 -- referenciar a tabela alvo dentro do JOIN). Determinista: pega o negocio mais recente.
