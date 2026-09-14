@@ -22,6 +22,29 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 9 - Tela de propostas (gestao pelo time)
+
+Commit: (esta rodada)
+
+- propostas.html (nova tela): lista as propostas recebidas (site e futuramente WhatsApp), com KPIs
+  (total, novas, em andamento, fechadas), busca, filtro por status, troca de status inline e link
+  de WhatsApp por linha. Mesmo padrao visual das demais telas.
+- api/proposta.js: novas acoes autenticadas, alem do submit publico:
+  - action=list (GET): lista as propostas escopadas por imobiliaria (admin ve todas), via requireAuth.
+  - action=status (POST): atualiza o status (nova, em_andamento, fechada, descartada), com escopo por
+    imobiliaria. Cria a tabela sob demanda se ainda nao existir.
+- auth.js: 'propostas' adicionada a matriz de menu (gestor, comercial, corretor; admin ve tudo) e ao
+  conjunto GUARDED (bloqueio de acesso direto por URL para quem nao pode ver).
+- hub.js: injeta o item "Propostas" na sidebar de todas as telas (como Marketing 360 e Em Breve),
+  gated pelo restrictMenu.
+
+Validação: testado no navegador. Tela renderiza, KPIs e troca de status funcionam (POST correto);
+o item de menu aparece para admin e gestor e fica escondido para financeiro (gating correto). A
+leitura/escrita no banco segue o padrao ja usado (requireAuth + escopo por imobiliaria) e sera
+confirmada de ponta a ponta no ambiente com banco.
+
+---
+
 ## Rodada 8 - P0-07: proposta do site vira registro e lead no CRM
 
 Commit: (esta rodada)

@@ -234,9 +234,9 @@
   // (modulo da Diretoria, item 04) fica fora das listas nao-admin -> so admin ve).
   // MATRIZ CONFIRMADA (visao por perfil). visaogeral sempre incluida pros perfis internos.
   var MENU = {
-    gestor: ['corretores', 'pessoas', 'leads', 'funil', 'imoveis', 'locacao', 'captacao', 'mapa', 'agenda', 'whatsapp', 'emails', 'assinaturas', 'credito', 'financeiro', 'anuncios', 'relatorios', 'insights', 'site', 'suporte'],
-    comercial: ['leads', 'funil', 'pessoas', 'imoveis', 'locacao', 'captacao', 'mapa', 'agenda', 'whatsapp', 'emails', 'relatorios'],
-    corretor: ['leads', 'funil', 'pessoas', 'imoveis', 'agenda', 'whatsapp', 'mapa'],
+    gestor: ['corretores', 'pessoas', 'leads', 'propostas', 'funil', 'imoveis', 'locacao', 'captacao', 'mapa', 'agenda', 'whatsapp', 'emails', 'assinaturas', 'credito', 'financeiro', 'anuncios', 'relatorios', 'insights', 'site', 'suporte'],
+    comercial: ['leads', 'propostas', 'funil', 'pessoas', 'imoveis', 'locacao', 'captacao', 'mapa', 'agenda', 'whatsapp', 'emails', 'relatorios'],
+    corretor: ['leads', 'propostas', 'funil', 'pessoas', 'imoveis', 'agenda', 'whatsapp', 'mapa'],
     juridico: ['juridico', 'assinaturas', 'funil', 'pessoas', 'leads', 'relatorios', 'suporte'],
     financeiro: ['financeiro', 'credito', 'assinaturas', 'relatorios'],
     marketing: ['marketing', 'site', 'anuncios', 'insights', 'mapa'],
@@ -274,7 +274,7 @@
   }
   // modulos de topo (sidebar) sujeitos a bloqueio de acesso direto. Slugs contextuais/detalhe
   // (imovel, contrato, ficha-visita, vitrine, manual, parceria...) NAO entram aqui -> fluxo normal.
-  var GUARDED = { imobiliarias:1, corretores:1, pessoas:1, leads:1, funil:1, agenda:1, whatsapp:1, emails:1, imoveis:1, mapa:1, assinaturas:1, juridico:1, anuncios:1, credito:1, locacao:1, relatorios:1, insights:1, integracoes:1, site:1, financeiro:1, suporte:1, administrador:1, 'config-ia':1, arquitetura:1, marketing:1 };
+  var GUARDED = { imobiliarias:1, corretores:1, pessoas:1, leads:1, propostas:1, funil:1, agenda:1, whatsapp:1, emails:1, imoveis:1, mapa:1, assinaturas:1, juridico:1, anuncios:1, credito:1, locacao:1, relatorios:1, insights:1, integracoes:1, site:1, financeiro:1, suporte:1, administrador:1, 'config-ia':1, arquitetura:1, marketing:1 };
   // bloqueia acesso direto (URL/link) a uma tela que o perfil nao pode ver -> manda pra Visao Geral.
   function guardScreen(perfil) {
     try {

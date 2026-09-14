@@ -662,6 +662,7 @@
       a.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); location.href=href; });
       if(prof){ side.insertBefore(a, prof); } else { side.appendChild(a); }
     }
+    add('data-propostas','/propostas','\u25A4','Propostas');     // gated (gestor/comercial/corretor/admin) pelo restrictMenu
     add('data-mkt360','/marketing','\u25CD','Marketing 360');   // gated (marketing/admin) pelo restrictMenu
     if(!/\/embreve(\.html)?$/.test(location.pathname)) add('data-embreve','/embreve','\u2726','Em Breve');
   }

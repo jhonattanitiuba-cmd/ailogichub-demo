@@ -6,6 +6,7 @@
 // Nada aqui concede acesso nem gera contrato assinado: e captacao de proposta + lead.
 const { db } = require('./_db');
 const { rateAllow } = require('./_cache');
+const { requireAuth } = require('./_auth');
 const DB_URL = process.env.DB_URL || '';
 const clip = (s, n) => String(s == null ? '' : s).trim().slice(0, n);
 
@@ -57,9 +58,36 @@ async function garantirLead(imobId, nome, telefone, interesse) {
 module.exports = async (req, res) => {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
-  if (req.method && req.method !== 'POST') { res.status(405).json({ error: 'metodo nao permitido' }); return; }
   if (!DB_URL) { res.status(500).json({ error: 'backend nao configurado' }); return; }
+  const action = (req.query && req.query.action) || '';
   try {
+    // ---- LISTAR (autenticado): propostas escopadas por imobiliaria (admin ve todas) ----
+    if (action === 'list') {
+      const user = await requireAuth(req, res); if (!user) return;
+      await ensurePropostas();
+      const params = []; let where = '';
+      if (!user.isAdmin) { if (!user.imobiliariaId) { res.status(200).json({ rows: [] }); return; } params.push(user.imobiliariaId); where = 'where imobiliaria_id=$1'; }
+      const r = await db('select id, imovel_codigo, cliente, whatsapp, valor, status, lead_id, created_at from propostas ' + where + ' order by created_at desc limit 500', params);
+      res.status(200).json({ rows: r.rows }); return;
+    }
+    // ---- ATUALIZAR STATUS (autenticado) ----
+    if (action === 'status') {
+      if (req.method !== 'POST') { res.status(405).json({ error: 'metodo nao permitido' }); return; }
+      const user = await requireAuth(req, res); if (!user) return;
+      let sb = req.body; if (typeof sb === 'string') { try { sb = JSON.parse(sb); } catch (_) { sb = {}; } } sb = sb || {};
+      const id = parseInt(sb.id, 10);
+      const ALLOWED = ['nova', 'em_andamento', 'fechada', 'descartada'];
+      const status = String(sb.status || '').trim();
+      if (!id || ALLOWED.indexOf(status) < 0) { res.status(400).json({ error: 'dados invalidos' }); return; }
+      await ensurePropostas();
+      const params = [status, id]; let scope = '';
+      if (!user.isAdmin) { if (!user.imobiliariaId) { res.status(403).json({ error: 'sem permissao' }); return; } params.push(user.imobiliariaId); scope = ' and imobiliaria_id=$3'; }
+      const r = await db('update propostas set status=$1 where id=$2' + scope + ' returning id', params);
+      if (!r.rows[0]) { res.status(404).json({ error: 'proposta nao encontrada' }); return; }
+      res.status(200).json({ ok: true }); return;
+    }
+    // ---- SUBMETER PROPOSTA (publico, sem autenticacao) ----
+    if (req.method && req.method !== 'POST') { res.status(405).json({ error: 'metodo nao permitido' }); return; }
     // anti-spam por IP (fail-open: sem Redis, nao bloqueia). Max 8 propostas por 10 min.
     const xff = String((req.headers && req.headers['x-forwarded-for']) || '').split(',')[0].trim();
     const ip = xff || (req.socket && req.socket.remoteAddress) || '';
