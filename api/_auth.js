@@ -63,7 +63,18 @@ async function getUser(req) {
     const r = await fetch(SUPABASE_URL + '/auth/v1/user', {
       headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + token }
     });
-    if (!r.ok) { console.error('[auth] getUser: GoTrue rejeitou o token', { status: r.status, url: SUPABASE_URL }); return null; }
+    if (!r.ok) {
+      let body = ''; try { body = (await r.text()).slice(0, 220); } catch (_) {}
+      let claims = null; try { const p = token.split('.')[1]; claims = JSON.parse(Buffer.from(p.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8')); } catch (_) {}
+      const now = Math.floor(Date.now() / 1000);
+      console.error('[auth] getUser: GoTrue rejeitou o token', {
+        status: r.status, gotrue_body: body,
+        token_iss: claims && claims.iss, token_aud: claims && claims.aud,
+        token_exp: claims && claims.exp, agora: now,
+        expirado: (claims && claims.exp) ? (claims.exp < now) : null
+      });
+      return null;
+    }
     return await r.json();
   } catch (e) { console.error('[auth] getUser: falha ao validar (rede/cert?)', String((e && e.message) || e), 'url=' + SUPABASE_URL); return null; }
 }
