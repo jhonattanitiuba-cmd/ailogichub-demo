@@ -22,6 +22,29 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 10 - Unificacao do funil, Fase 1 (historico + fechado_em no card)
+
+Commit: (esta rodada)
+
+- api/dash.js: a acao move do funil passa a, alem de trocar a etapa:
+  - garantir (aditivo, idempotente) a coluna funil_negocios.fechado_em e a tabela funil_historico
+    (create/alter if not exists);
+  - marcar fechado_em ao entrar numa etapa fechada (ganho), mantendo o primeiro carimbo, e limpar
+    ao sair dela;
+  - registrar o historico da movimentacao (etapa de/para, autor, quando), sem nunca quebrar o move.
+  - nova acao historico (autenticada, escopada por imobiliaria) para ler a trilha de um card.
+- Nao toca em negocios nem no financeiro. Etapa fechada = chave que comeca com "fechad" ou "ganho";
+  "perdido" nao conta como fechado.
+
+Esta e a metade segura da unificacao. A Fase 2 (ligar o funil aos negocios e alimentar
+comissao/financeiro) exige migracao de banco e vai num documento separado para rodar no Supabase e
+validar antes de ligar.
+
+Validação: syntax check; a escrita segue o padrao aditivo ja usado (create/alter if not exists),
+a ser confirmada de ponta a ponta no ambiente com banco.
+
+---
+
 ## Rodada 9 - Tela de propostas (gestao pelo time)
 
 Commit: (esta rodada)

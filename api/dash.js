@@ -16,6 +16,17 @@ const DEFAULT_ETAPAS = [
   { key: 'perdido', nome: 'Perdido' }
 ];
 async function ensureFunilConfig() { try { await db("create table if not exists funil_config(scope text primary key, etapas jsonb not null default '[]', updated_at timestamptz not null default now())"); } catch (_) {} }
+// Fase 1 da unificacao do funil: coluna de fechamento no card + tabela de historico de etapas.
+// Aditivo e idempotente (create/alter if not exists); nao toca em negocios nem no financeiro.
+let _funilExtras = false;
+async function ensureFunilExtras() {
+  if (_funilExtras) return;
+  try { await db('alter table funil_negocios add column if not exists fechado_em timestamptz'); } catch (_) {}
+  try { await db('create table if not exists funil_historico(id bigserial primary key, card_id text, imobiliaria_id text, etapa_de text, etapa_para text, autor_id text, autor_nome text, criado_em timestamptz not null default now())'); } catch (_) {}
+  _funilExtras = true;
+}
+// etapa que representa negocio FECHADO (ganho). "perdido" nao conta como fechado.
+function etapaFechada(k) { return /^(fechad|ganho)/i.test(String(k || '')); }
 async function loadEtapas(scope, isAdmin) {
   let et = null;
   try {
@@ -45,8 +56,33 @@ module.exports = async (req, res) => {
           if (!chk.rows[0]) { res.status(403).json({ error: 'sem permissao sobre este registro' }); return; }
         }
       }
-      await db('update funil_negocios set etapa=$1 where id=$2', [etapa, id]);
-      res.status(200).json({ ok: true });
+      await ensureFunilExtras();
+      // etapa anterior (para o historico) e escopo do card
+      let etapaDe = null, cardImob = null;
+      try { const cur = await db('select etapa, imobiliaria_id from funil_negocios where id=$1', [id]); if (cur.rows[0]) { etapaDe = cur.rows[0].etapa; cardImob = cur.rows[0].imobiliaria_id; } } catch (_) {}
+      const won = etapaFechada(etapa);
+      // marca fechado_em ao entrar em etapa fechada (mantem o 1o carimbo); limpa se sair dela
+      await db('update funil_negocios set etapa=$1, fechado_em = case when $3 then coalesce(fechado_em, now()) else null end where id=$2', [etapa, id, won]);
+      // registra o historico (de/para, autor, quando). Nunca quebra o move.
+      try {
+        await db('insert into funil_historico(card_id, imobiliaria_id, etapa_de, etapa_para, autor_id, autor_nome) values($1,$2,$3,$4,$5,$6)',
+          [String(id), cardImob != null ? String(cardImob) : null, etapaDe, etapa, user.usuarioId != null ? String(user.usuarioId) : null, user.nome || null]);
+      } catch (_) {}
+      res.status(200).json({ ok: true, fechado: won });
+      return;
+    }
+    // historico de etapas de um card (auditoria da movimentacao)
+    if (action === 'historico') {
+      await ensureFunilExtras();
+      const id = (req.query && req.query.id) || '';
+      if (!id) { res.status(400).json({ error: 'id obrigatorio' }); return; }
+      if (!user.isAdmin) {
+        if (!user.imobiliariaId) { res.status(200).json({ rows: [] }); return; }
+        const chk = await db('select 1 from funil_negocios where id=$1 and imobiliaria_id=$2', [id, user.imobiliariaId]);
+        if (!chk.rows[0]) { res.status(403).json({ error: 'sem permissao sobre este registro' }); return; }
+      }
+      const r = await db('select etapa_de, etapa_para, autor_nome, criado_em from funil_historico where card_id=$1 order by criado_em desc limit 200', [String(id)]);
+      res.status(200).json({ rows: r.rows });
       return;
     }
     if (action === 'etapas_save') {
