@@ -42,6 +42,10 @@ Commit: (esta rodada)
 Validação: syntax check; escrita nao destrutiva (coalesce) e escopada, so atualiza negocio existente
 ja vinculado. A validacao ponta a ponta acontece apos o backfill, no ambiente com banco.
 
+Ativacao: backfill rodado no Supabase em 14/09/2026, 9 cards vinculados (dos 36). A propagacao ao
+financeiro dispara quando um desses cards for movido para Fechado. Reversao: update funil_negocios
+set negocio_id = null.
+
 ---
 
 ## Rodada 10 - Unificacao do funil, Fase 1 (historico + fechado_em no card)
