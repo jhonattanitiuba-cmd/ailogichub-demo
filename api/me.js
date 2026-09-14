@@ -16,30 +16,41 @@ async function diagToken(req, res) {
   const h = (req.headers && (req.headers.authorization || req.headers.Authorization)) || '';
   const m = /^Bearer\s+(.+)$/i.exec(h);
   const token = m ? m[1].trim() : null;
-  const out = { supabase_url_host: (function () { try { return new URL(url).host; } catch (_) { return null; } })(), anon_key_set: !!anon, token_present: !!token };
+  const b64url = function (s) { try { return JSON.parse(Buffer.from(String(s).replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8')); } catch (_) { return null; } };
+  const anonClaims = anon ? b64url((anon.split('.')[1] || '')) : null;
+  const out = {
+    supabase_url_host: (function () { try { return new URL(url).host; } catch (_) { return null; } })(),
+    anon_key_set: !!anon, token_present: !!token,
+    anon_key: anonClaims ? { iss: anonClaims.iss || null, ref: anonClaims.ref || null, role: anonClaims.role || null } : null
+  };
   if (!token) { res.status(200).json(out); return; }
-  // claims (parte 2 do JWT), sem validar assinatura, so para inspecao
-  try {
-    const p = token.split('.')[1];
-    const claims = JSON.parse(Buffer.from(p.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8'));
+  const parts = token.split('.');
+  // header (parte 1): revela o algoritmo de assinatura (HS256 simetrico vs ES256/RS256 assimetrico) e a chave (kid)
+  const header = b64url(parts[0] || '');
+  out.jwt_header = header ? { alg: header.alg || null, kid: header.kid || null, typ: header.typ || null } : null;
+  // claims (parte 2), sem validar assinatura, so para inspecao
+  const claims = b64url(parts[1] || '');
+  if (claims) {
     const now = Math.floor(Date.now() / 1000);
     out.claims = {
       iss: claims.iss || null, aud: claims.aud || null, role: claims.role || null,
+      ref: claims.ref || null, sub: claims.sub || null,
       exp: claims.exp || null, iat: claims.iat || null,
       expirado: claims.exp ? (claims.exp < now) : null,
       exp_em_min: claims.exp ? Math.round((claims.exp - now) / 60) : null,
       email: claims.email || null
     };
-  } catch (e) { out.claims_error = String((e && e.message) || e); }
-  // valida no GoTrue exatamente como o _auth.js faz
+  } else { out.claims_error = 'nao decodificou'; }
+  // Teste A: /user COM apikey + Authorization (exatamente como o _auth.js faz hoje)
   try {
     const r = await fetch(url + '/auth/v1/user', { headers: { apikey: anon, Authorization: 'Bearer ' + token } });
-    out.gotrue_status = r.status;
-    out.gotrue_body = (await r.text()).slice(0, 300);
-  } catch (e) {
-    out.gotrue_error = String((e && e.message) || e);
-    out.gotrue_error_code = (e && e.cause && (e.cause.code || e.cause.message)) ? String(e.cause.code || e.cause.message) : null;
-  }
+    out.teste_A_com_apikey = { status: r.status, body: (await r.text()).slice(0, 300) };
+  } catch (e) { out.teste_A_com_apikey = { erro: String((e && e.message) || e) }; }
+  // Teste B: /user SO com Authorization (sem apikey) -> isola se a anon key e a causa do "Bad request"
+  try {
+    const r = await fetch(url + '/auth/v1/user', { headers: { Authorization: 'Bearer ' + token } });
+    out.teste_B_sem_apikey = { status: r.status, body: (await r.text()).slice(0, 300) };
+  } catch (e) { out.teste_B_sem_apikey = { erro: String((e && e.message) || e) }; }
   res.status(200).json(out);
 }
 
