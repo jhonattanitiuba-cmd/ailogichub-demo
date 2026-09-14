@@ -142,7 +142,9 @@ input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;ba
       if(!nm||!wp){ pok.classList.remove('on'); if(perr)perr.style.display='block'; return; }
       if(perr)perr.style.display='none';
       var codi=cod||(p&&p.codigo)||'';
-      // handoff real: a proposta chega ao time pelo WhatsApp (nada e gravado automaticamente ainda)
+      // registra a proposta e gera lead no CRM (nao bloqueante: se falhar, segue o handoff normal)
+      try{ fetch('/api/proposta',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cod:codi,cliente:nm,whatsapp:wp,valor:vl})}).catch(function(){}); }catch(e){}
+      // handoff real: a proposta tambem chega ao time pelo WhatsApp
       var msg='Ola! Quero fazer uma proposta para '+((p&&p.titulo)||'o imovel')+' ['+codi+'].'+(vl?(' Valor: R$ '+Number(vl).toLocaleString('pt-BR')+'.'):'')+' Meu nome: '+nm+'.';
       var pwa=document.getElementById('pwa'); if(pwa)pwa.href='https://wa.me/5511936238387?text='+encodeURIComponent(msg);
       pok.classList.add('on');

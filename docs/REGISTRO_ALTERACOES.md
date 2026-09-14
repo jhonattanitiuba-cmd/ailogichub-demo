@@ -22,6 +22,26 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 8 - P0-07: proposta do site vira registro e lead no CRM
+
+Commit: (esta rodada)
+
+- api/proposta.js (novo endpoint público): recebe a proposta feita na página do imóvel e
+  (1) registra numa tabela propostas (criada sob demanda, create table if not exists) e
+  (2) gera ou vincula um lead na imobiliária Hub central (mesmo critério do WhatsApp, dedupe por
+  telefone, origem proposta-site), para o funil não nascer vazio também pelo canal do site.
+  Tem rate limit por IP (fail-open) e não concede acesso nem gera contrato assinado.
+- imovel.html: o botão "Gerar proposta e contrato" passa a enviar a proposta ao endpoint de forma
+  não bloqueante. Se o registro falhar, o fluxo atual segue igual (abre o contrato e o link de
+  WhatsApp), então nada quebra para o cliente.
+
+Validação: fluxo do front testado no navegador nos dois casos (endpoint ok e endpoint com erro):
+em ambos o contrato abre e a mensagem honesta aparece; o envio é não bloqueante. A escrita no
+banco segue o mesmo padrão já provado (parceria.js e o lead do WhatsApp) e será confirmada de
+ponta a ponta no ambiente com banco.
+
+---
+
 ## Rodada 7 - Documentação: análise da CSP e manual do time
 
 Commit: (esta rodada, só documentos, sem mudança de código nem de produção)
