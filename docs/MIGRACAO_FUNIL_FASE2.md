@@ -34,11 +34,12 @@ select column_name, data_type from information_schema.columns
 where table_name = 'funil_negocios' order by ordinal_position;
 
 -- quantos cards do funil casam com um imovel pelo codigo (mede a qualidade do vinculo)
+-- obs: funil_negocios NAO tem deleted_at (nao e soft-delete), por isso sem esse filtro
 select count(*) total_cards,
   count(*) filter (where exists (
     select 1 from imoveis i where i.imobiliaria_id = f.imobiliaria_id
       and upper(i.codigo) = upper(f.imovel_codigo))) casam_por_codigo
-from funil_negocios f where f.deleted_at is null;
+from funil_negocios f;
 ```
 
 Com o retorno, eu fixo no código o rótulo de etapa fechada (por exemplo GANHO ou FECHAMENTO) e
@@ -59,12 +60,12 @@ alter table negocios add column if not exists fechado_em timestamptz;
 
 -- 3) backfill do vinculo por imovel (melhor esforco): casa card e negocio da mesma
 --    imobiliaria pelo codigo do imovel. Deixa null quando nao houver casamento seguro.
+-- obs: funil_negocios NAO tem deleted_at (nao e soft-delete), por isso sem esse filtro no card
 update funil_negocios f
 set negocio_id = n.id
 from imoveis i
 join negocios n on n.imovel_id = i.id and n.imobiliaria_id = f.imobiliaria_id and n.deleted_at is null
 where f.negocio_id is null
-  and f.deleted_at is null
   and i.imobiliaria_id = f.imobiliaria_id
   and upper(i.codigo) = upper(f.imovel_codigo);
 ```
