@@ -47,20 +47,20 @@ confirmo a regra de comissão.
 
 ---
 
-## Passo 1: migração (aditiva, reversível)
+## Passo 1: backfill (o unico passo manual, e o que ATIVA a propagacao)
 
-Só adiciona colunas e faz backfill do vínculo. Não apaga nem altera dado existente.
+Confirmado no Passo 0: `negocios.fechado_em` e `negocios.comissao` ja existem, e o enum tem `GANHO`.
+A coluna `funil_negocios.negocio_id` ja e criada automaticamente pelo codigo (aditivo, em runtime),
+entao NAO precisa criar coluna na mao. O unico passo manual e o backfill abaixo, que liga os cards
+existentes aos negocios. Enquanto ele nao roda, a propagacao fica inerte (nada toca o financeiro).
+
+Dos 36 cards, cerca de 9 casam por codigo (Passo 0); apenas esses serao vinculados. Os demais ficam
+sem vinculo e nao propagam (seguro).
 
 ```sql
--- 1) vinculo card -> negocio
-alter table funil_negocios add column if not exists negocio_id uuid;
-
--- 2) data de fechamento no negocio (se ainda nao existir)
-alter table negocios add column if not exists fechado_em timestamptz;
-
--- 3) backfill do vinculo por imovel (melhor esforco): casa card e negocio da mesma
---    imobiliaria pelo codigo do imovel. Deixa null quando nao houver casamento seguro.
--- obs: funil_negocios NAO tem deleted_at (nao e soft-delete), por isso sem esse filtro no card
+-- backfill do vinculo por imovel (melhor esforco): casa card e negocio da mesma imobiliaria
+-- pelo codigo do imovel. Deixa null quando nao houver casamento seguro.
+-- obs: funil_negocios NAO tem deleted_at (nao e soft-delete), por isso sem esse filtro no card.
 update funil_negocios f
 set negocio_id = n.id
 from imoveis i
@@ -68,56 +68,57 @@ join negocios n on n.imovel_id = i.id and n.imobiliaria_id = f.imobiliaria_id an
 where f.negocio_id is null
   and i.imobiliaria_id = f.imobiliaria_id
   and upper(i.codigo) = upper(f.imovel_codigo);
+
+-- conferir quantos ficaram vinculados
+select count(*) vinculados from funil_negocios where negocio_id is not null;
 ```
 
-Observação: o backfill é melhor esforço. Cards sem imóvel cadastrado, ou com mais de um negócio no
-mesmo imóvel, ficam com `negocio_id` nulo e simplesmente não propagam para o financeiro (seguro).
-
-Reversão (se preciso): `alter table funil_negocios drop column negocio_id;` e
-`alter table negocios drop column fechado_em;` (as colunas são aditivas; remover volta ao estado
-anterior sem perda do dado original).
+Reversao (se quiser desativar a propagacao): `update funil_negocios set negocio_id = null;`
+(zera os vinculos; a propagacao volta a ficar inerte). A coluna pode ser mantida sem problema.
 
 ---
 
-## Passo 2: código (eu aplico depois que a migração estiver no ar e validada)
+## Passo 2: código (JA NO AR, inerte ate o backfill)
 
-Na ação `move` do `api/dash.js`, quando o card entra em etapa fechada (ganho) E tem `negocio_id`:
+Ja implantado no `api/dash.js` (acao move): quando o card entra em etapa fechada (ganho) E tem
+`negocio_id`, propaga para o negocio, sem quebrar o move (envolto em try/catch):
 
 ```js
-// pseudocodigo do que sera adicionado apos o update do card:
 if (won && negocioId) {
   await db(
-    "update negocios set etapa_funil = $1::negocio_etapa, fechado_em = coalesce(fechado_em, now()), " +
-    "comissao = coalesce(comissao, round(coalesce(valor,0) * 0.05)), updated_at = now() where id = $2",
-    [ETAPA_FECHADA_ENUM, negocioId]
+    "update negocios set etapa_funil='GANHO'::negocio_etapa, fechado_em=coalesce(fechado_em, now()), " +
+    "comissao=coalesce(comissao, round(coalesce(valor,0)*0.05)), updated_at=now() " +
+    "where id=$2 and deleted_at is null returning id",
+    ['GANHO', negocioId]
   );
 }
 ```
 
-Onde `ETAPA_FECHADA_ENUM` é o rótulo confirmado no Passo 0 (por exemplo 'GANHO'). A comissão usa 5%
-como padrão apenas quando estiver vazia; se vocês já têm uma regra, eu troco por ela.
+A comissão usa 5% como padrão apenas quando estiver vazia (coalesce); se voces ja tem uma regra, eu
+troco. A etapa vira GANHO e a data de fechamento e carimbada uma vez (coalesce). Nao cria nem apaga
+negocio, so atualiza um existente ja vinculado.
 
-Nada disso remove o `funil_negocios`: o board segue funcionando como hoje; ganhamos a propagação para
-o financeiro nos cards que têm vínculo.
+Nada disso remove o `funil_negocios`: o board segue funcionando como hoje; ganhamos a propagacao para
+o financeiro nos cards que tem vinculo.
 
-Fora de escopo desta fase (próximos passos, se quiserem): fazer os leads novos (WhatsApp e site)
-nascerem também como card no funil, e a unificação total (board lendo direto de negocios). São
-maiores e merecem fase própria.
+Fora de escopo desta fase (proximos passos, se quiserem): fazer os leads novos (WhatsApp e site)
+nascerem tambem como card no funil, e a unificacao total (board lendo direto de negocios). Sao
+maiores e merecem fase propria.
 
 ---
 
-## Passo 3: validação (antes e depois de ligar)
+## Passo 3: validação
 
-1. Rodar o Passo 0 e o Passo 1 no Supabase. Conferir que as colunas foram criadas e quantos cards
-   receberam `negocio_id` (a query de contagem do Passo 0 ajuda a estimar).
-2. Me enviar os rótulos do enum e a contagem. Eu fixo o `ETAPA_FECHADA_ENUM` e faço deploy do código.
-3. Teste ponta a ponta num card com vínculo: mover para Fechado no funil e conferir no financeiro que
-   o negócio aparece como fechado, com data e comissão.
-4. Teste num card sem vínculo: mover para Fechado e confirmar que nada quebra (apenas não propaga).
+1. Rodar o backfill do Passo 1 no Supabase e conferir a contagem de `vinculados`.
+2. Teste ponta a ponta num card com vínculo: mover para Fechado no funil e conferir no financeiro que
+   o negócio aparece como GANHO, com data de fechamento e comissão.
+3. Teste num card sem vínculo: mover para Fechado e confirmar que nada quebra (apenas não propaga).
 
 ---
 
 ## Estado
 
-- Fase 1: no ar (histórico de etapas + fechado_em no card). Não depende de nada disto.
-- Fase 2: aguardando rodar o Passo 0 e o Passo 1 no Supabase para eu concluir o Passo 2.
+- Fase 1: no ar (histórico de etapas + fechado_em no card).
+- Fase 2 (código): no ar, porém INERTE (a coluna negocio_id existe mas está nula em todos os cards).
+- Ativação: rodar o backfill do Passo 1 no Supabase. A partir daí, fechar um card vinculado propaga
+  para o financeiro. Para desativar, `update funil_negocios set negocio_id = null;`.

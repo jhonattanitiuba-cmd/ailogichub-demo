@@ -22,6 +22,28 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 11 - Unificacao do funil, Fase 2 (propagacao ao financeiro, inerte ate o backfill)
+
+Commit: (esta rodada)
+
+- Inspecao do banco (Supabase) confirmou: enum negocio_etapa = LEAD, CONTATO, VISITA, PROPOSTA,
+  NEGOCIACAO, FECHAMENTO, GANHO, PERDIDO (ganho = GANHO); negocios ja tem fechado_em e comissao;
+  funil_negocios nao tem deleted_at; 9 de 36 cards casam com imovel por codigo.
+- api/dash.js: ensureFunilExtras passa a criar tambem a coluna funil_negocios.negocio_id (aditivo).
+  Na acao move, quando o card e ganho E tem negocio_id, propaga para o negocio:
+  etapa_funil=GANHO, fechado_em (coalesce), comissao (coalesce, 5% default), escopado por id e
+  deleted_at, dentro de try/catch (nunca quebra o move). Resposta inclui { fechado, propagado }.
+- Fica INERTE ate o backfill preencher negocio_id (nenhum card tem vinculo por padrao). O backfill
+  e o interruptor de ativacao, roda no Supabase (docs/MIGRACAO_FUNIL_FASE2.md, Passo 1). Reversao:
+  update funil_negocios set negocio_id = null.
+- docs/MIGRACAO_FUNIL_FASE2.md: atualizado para a realidade confirmada (so o backfill e manual;
+  fechado_em ja existe; coluna criada pelo codigo; GANHO fixado no codigo).
+
+Validação: syntax check; escrita nao destrutiva (coalesce) e escopada, so atualiza negocio existente
+ja vinculado. A validacao ponta a ponta acontece apos o backfill, no ambiente com banco.
+
+---
+
 ## Rodada 10 - Unificacao do funil, Fase 1 (historico + fechado_em no card)
 
 Commit: (esta rodada)
