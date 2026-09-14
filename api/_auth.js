@@ -57,15 +57,15 @@ function bearer(req) {
 // valida o token no GoTrue e retorna o usuário do Supabase (ou null)
 async function getUser(req) {
   try {
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) { console.error('[auth] getUser: env ausente', { hasUrl: !!SUPABASE_URL, hasAnon: !!SUPABASE_ANON_KEY }); return null; }
     const token = bearer(req);
-    if (!token) return null;
+    if (!token) return null;   // requisicao sem token e fluxo normal (nao loga)
     const r = await fetch(SUPABASE_URL + '/auth/v1/user', {
       headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + token }
     });
-    if (!r.ok) return null;
+    if (!r.ok) { console.error('[auth] getUser: GoTrue rejeitou o token', { status: r.status, url: SUPABASE_URL }); return null; }
     return await r.json();
-  } catch (_) { return null; }
+  } catch (e) { console.error('[auth] getUser: falha ao validar (rede/cert?)', String((e && e.message) || e), 'url=' + SUPABASE_URL); return null; }
 }
 
 // resolve perfil + imobiliaria_id a partir da tabela usuarios (fonte de
