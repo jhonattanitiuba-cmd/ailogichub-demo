@@ -25,6 +25,29 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 14 - Validacao da Fase 2 do funil (propagacao de fechamento para negocios)
+
+Objetivo: confirmar, com dados reais, que ao mover um card vinculado para a etapa "Fechado"
+o negocio correspondente (tabela negocios) e marcado como GANHO.
+
+Verificacoes feitas no banco (Supabase):
+- enum negocio_etapa contem: LEAD, CONTATO, VISITA, PROPOSTA, NEGOCIACAO, FECHAMENTO, GANHO,
+  PERDIDO. Confirma que o rotulo GANHO usado no codigo (ENUM_GANHO) e valido.
+- Rodado o UPDATE exato que api/dash.js executa na acao move (card -> Fechado, com negocio_id),
+  no negocio de teste 4b8304fd (card do Bruno Dias, 5aff6c6c): retornou etapa_funil=GANHO,
+  comissao mantida em 90000.00 (coalesce nao sobrescreve valor existente) e fechado_em carimbado.
+  Resultado conforme esperado.
+- Teste revertido em seguida (negocio de volta para CONTATO, card para qualif_ia): base limpa.
+
+Conclusao: a logica de propagacao esta correta contra o schema real. O disparo automatico
+(o app chamar esse UPDATE quando o card entra em Fechado) esta implementado e revisado em codigo
+(api/dash.js, acao move, campos won && negocio_id). Teste ponta a ponta pela interface (arrastar o
+card e ver propagado:true no request move) fica disponivel para conferencia visual quando desejado.
+
+Nenhuma alteracao de codigo nesta rodada (so validacao). Sem commit de codigo.
+
+---
+
 ## Rodada 13 - INCIDENTE: 401 em massa (o /auth/v1/user do provedor recusava tokens validos)
 
 Contexto: mesmo apos resolver a Rodada 12 (deploys voltaram a subir), o sistema continuou
