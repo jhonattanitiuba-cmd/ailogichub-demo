@@ -14,11 +14,49 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
   atendimento do Sam no WhatsApp com geração de lead, curadoria com estoque real,
   proposta honesta no site, agenda do corretor corrigida, switch de atendimento público,
   higiene de erros (500 sem vazamento mais logs) e rate limit no cadastro público.
+- Autenticação: o backend valida o access_token LOCALMENTE (HS256, via segredo JWT),
+  sem depender do /auth/v1/user do provedor (que estava devolvendo 400). Depende da
+  env var SUPABASE_JWT_SECRET configurada na Vercel (Production e Preview).
 - Chave do go-live (a virar quando decidir abrir para o público): no painel WhatsApp,
   botão Treinar, ligar "Atendimento público (responder qualquer número)" e Salvar.
 - Congelado para depois do go-live: unificação funil e negócios (P0-10, item 05).
 - Depende de configuração do time (fora do código): SUPABASE_SERVICE_ROLE_KEY, SMTP do Supabase,
   política de backup do Postgres (item 06); decisão do provedor de assinatura digital (item 07).
+
+---
+
+## Rodada 13 - INCIDENTE: 401 em massa (o /auth/v1/user do provedor recusava tokens validos)
+
+Contexto: mesmo apos resolver a Rodada 12 (deploys voltaram a subir), o sistema continuou
+mostrando 0 em tudo e 401 em todas as APIs.
+
+Diagnostico (ferramenta temporaria criada e depois removida):
+- Pagina /diag.html + /api/me?diag=token + /api/config?diag=1 mostraram, no navegador do usuario:
+  servidor alcanca o GoTrue (health 200), anon key valida (settings 200), o cliente ENVIA o
+  Authorization: Bearer, o token esta valido (nao expirado, sub/email/aud/role corretos, HS256),
+  MAS o /auth/v1/user do Supabase self-hosted (cloudfy) responde HTTP 400 "Bad request" para
+  esse token valido. Removendo a apikey da chamada o 400 persistia, entao a anon key nao era a causa.
+- Conclusao: o endpoint /auth/v1/user do provedor esta quebrado para validar token. Como o
+  backend validava TODA requisicao batendo nesse endpoint, tudo caia em 401.
+
+Correcao (api/_auth.js):
+- Validacao LOCAL do access_token (HS256) usando crypto nativo (createHmac + timingSafeEqual),
+  a partir do segredo JWT em SUPABASE_JWT_SECRET (aceita tambem GOTRUE_JWT_SECRET / JWT_SECRET).
+  Confere assinatura, exp e sub; monta o user ({id, email, user_metadata}) para o resolveScope.
+- getUser tenta a verificacao local primeiro; se ha segredo e a assinatura nao bate, recusa; se
+  nao ha segredo, cai no fallback antigo (/auth/v1/user). Sem dependencia nova (so crypto).
+- Ganho extra: sem uma chamada de rede por requisicao, autenticacao ficou mais rapida.
+- Acao do time (fora do codigo, ja feita): adicionar SUPABASE_JWT_SECRET nas env vars da Vercel
+  (Production e Preview) com o "JWT Secret" do Supabase, e redeploy.
+
+Limpeza (esta rodada, apos confirmar o sistema no ar):
+- Removidos os diagnosticos temporarios: diag.html, o branch ?diag=token de api/me.js e o
+  branch ?diag=1 de api/config.js. Mantida a correcao real e o log de recusa em _auth.js.
+
+Verificacao: funil voltou a exibir 36 negocios e R$ 24.349.000 em pipeline; contatos e dashboard
+carregando. Confirmado pelo usuario ("deu certo").
+
+Arquivos: api/_auth.js (correcao), api/me.js e api/config.js (limpeza), diag.html (removido).
 
 ---
 
