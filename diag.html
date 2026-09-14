@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Diagnostico de acesso</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px; }
+    .wrap { max-width: 760px; margin: 0 auto; }
+    h1 { font-size: 18px; margin: 0 0 4px; }
+    p.sub { color: #94a3b8; margin: 0 0 16px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 16px; margin: 12px 0; }
+    .k { color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    pre { background: #0b1220; border: 1px solid #334155; border-radius: 8px; padding: 12px; overflow: auto; white-space: pre-wrap; word-break: break-word; font-size: 12px; }
+    .ok { color: #4ade80; } .bad { color: #f87171; } .warn { color: #fbbf24; }
+    button { background: #2563eb; color: #fff; border: 0; border-radius: 8px; padding: 10px 16px; font-size: 14px; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: default; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Diagnostico de acesso</h1>
+    <p class="sub">Abra esta pagina JA LOGADO no sistema. Ela mostra por que as chamadas retornam 401. Nenhum dado sensivel e exibido.</p>
+
+    <div class="row">
+      <button id="run">Rodar diagnostico</button>
+      <span id="status" class="k"></span>
+    </div>
+
+    <div class="card">
+      <div class="k">Resumo</div>
+      <div id="resumo">Clique em "Rodar diagnostico".</div>
+    </div>
+
+    <div class="card">
+      <div class="k">Detalhe tecnico</div>
+      <pre id="out">(vazio)</pre>
+    </div>
+  </div>
+
+  <script>
+    var STORAGE_KEY = 'ailogic-auth';
+    var out = document.getElementById('out');
+    var resumo = document.getElementById('resumo');
+    var status = document.getElementById('status');
+
+    function readSession() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { erro: 'Nenhuma sessao no navegador (localStorage vazio). Faca login primeiro.' };
+        var s = JSON.parse(raw);
+        var tok = s && (s.access_token || (s.currentSession && s.currentSession.access_token));
+        var exp = s && (s.expires_at || (s.currentSession && s.currentSession.expires_at));
+        return { token: tok || null, expires_at: exp || null };
+      } catch (e) { return { erro: 'Falha ao ler a sessao: ' + (e && e.message ? e.message : e) }; }
+    }
+
+    function pinta(res) {
+      var linhas = [];
+      var cls = 'ok';
+      if (res.gotrue_status === 200) {
+        linhas.push('<span class="ok">GoTrue aceitou o token (200). O acesso deveria funcionar.</span>');
+      } else if (res.gotrue_status) {
+        cls = 'bad';
+        linhas.push('<span class="bad">GoTrue RECUSOU o token: HTTP ' + res.gotrue_status + '.</span>');
+        if (res.claims) {
+          if (res.claims.expirado === true) linhas.push('<span class="bad">Causa provavel: token EXPIRADO (venceu ha ' + Math.abs(res.claims.exp_em_min) + ' min).</span>');
+          else if (res.claims.expirado === false) linhas.push('<span class="warn">Token ainda valido por ' + res.claims.exp_em_min + ' min -> a recusa NAO e por expiracao. Provavel divergencia de segredo JWT ou issuer/aud entre o token e este GoTrue.</span>');
+        }
+        if (res.gotrue_body) linhas.push('<span class="k">Resposta do GoTrue:</span> ' + String(res.gotrue_body).replace(/</g,'&lt;'));
+      } else if (res.gotrue_error) {
+        cls = 'bad';
+        linhas.push('<span class="bad">Servidor nao conseguiu falar com o GoTrue: ' + res.gotrue_error + (res.gotrue_error_code ? ' (' + res.gotrue_error_code + ')' : '') + '</span>');
+      }
+      if (res.claims) {
+        linhas.push('<span class="k">iss:</span> ' + (res.claims.iss || '-') + ' &nbsp; <span class="k">aud:</span> ' + (res.claims.aud || '-') + ' &nbsp; <span class="k">role:</span> ' + (res.claims.role || '-'));
+      }
+      resumo.innerHTML = '<div style="line-height:1.7">' + linhas.join('<br>') + '</div>';
+    }
+
+    document.getElementById('run').addEventListener('click', function () {
+      status.textContent = 'lendo sessao...';
+      var sess = readSession();
+      if (sess.erro || !sess.token) {
+        resumo.innerHTML = '<span class="bad">' + (sess.erro || 'Sessao sem access_token. Faca login e tente de novo.') + '</span>';
+        out.textContent = JSON.stringify(sess, null, 2);
+        status.textContent = '';
+        return;
+      }
+      status.textContent = 'consultando GoTrue...';
+      // XMLHttpRequest cru: NAO passa pelo interceptor de fetch do auth.js
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/api/me?diag=token', true);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + sess.token);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState !== 4) return;
+        status.textContent = '';
+        var res;
+        try { res = JSON.parse(xhr.responseText); } catch (_) { res = { http: xhr.status, raw: xhr.responseText }; }
+        out.textContent = JSON.stringify(res, null, 2);
+        try { pinta(res); } catch (e) { resumo.textContent = 'Concluido. Veja o detalhe abaixo.'; }
+      };
+      xhr.send();
+    });
+  </script>
+</body>
+</html>
