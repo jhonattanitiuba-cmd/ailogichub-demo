@@ -59,15 +59,27 @@ sem vinculo e nao propagam (seguro).
 
 ```sql
 -- backfill do vinculo por imovel (melhor esforco): casa card e negocio da mesma imobiliaria
--- pelo codigo do imovel. Deixa null quando nao houver casamento seguro.
--- obs: funil_negocios NAO tem deleted_at (nao e soft-delete), por isso sem esse filtro no card.
+-- pelo codigo do imovel. Subconsulta correlacionada (o UPDATE ... FROM do Postgres nao deixa
+-- referenciar a tabela alvo dentro do JOIN). Determinista: pega o negocio mais recente.
+-- obs: funil_negocios NAO tem deleted_at (nao e soft-delete).
 update funil_negocios f
-set negocio_id = n.id
-from imoveis i
-join negocios n on n.imovel_id = i.id and n.imobiliaria_id = f.imobiliaria_id and n.deleted_at is null
+set negocio_id = (
+  select n.id from negocios n
+  join imoveis i on i.id = n.imovel_id
+  where n.imobiliaria_id = f.imobiliaria_id
+    and n.deleted_at is null
+    and upper(i.codigo) = upper(f.imovel_codigo)
+  order by n.created_at desc
+  limit 1
+)
 where f.negocio_id is null
-  and i.imobiliaria_id = f.imobiliaria_id
-  and upper(i.codigo) = upper(f.imovel_codigo);
+  and exists (
+    select 1 from negocios n
+    join imoveis i on i.id = n.imovel_id
+    where n.imobiliaria_id = f.imobiliaria_id
+      and n.deleted_at is null
+      and upper(i.codigo) = upper(f.imovel_codigo)
+  );
 
 -- conferir quantos ficaram vinculados
 select count(*) vinculados from funil_negocios where negocio_id is not null;
