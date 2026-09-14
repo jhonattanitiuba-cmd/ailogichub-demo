@@ -20,10 +20,18 @@ module.exports = async (req, res) => {
     try {
       const r = await fetch(url + '/auth/v1/health', { headers: anon ? { apikey: anon } : {} });
       out.health_status = r.status;
-      out.health_body = (await r.text()).slice(0, 160);
+      out.health_body = (await r.text()).slice(0, 120);
     } catch (e) {
       out.health_error = String((e && e.message) || e);
       out.health_error_code = (e && e.cause && (e.cause.code || e.cause.message)) ? String(e.cause.code || e.cause.message) : null;
+    }
+    // /auth/v1/settings EXIGE a apikey: se 200, a anon key bate com este GoTrue; se 401, a chave nao bate.
+    try {
+      const s = await fetch(url + '/auth/v1/settings', { headers: { apikey: anon } });
+      out.settings_status = s.status;
+      out.settings_body = (await s.text()).slice(0, 120);
+    } catch (e) {
+      out.settings_error = String((e && e.message) || e);
     }
     res.status(200).json(out);
     return;
