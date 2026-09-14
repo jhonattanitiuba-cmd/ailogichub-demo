@@ -74,6 +74,12 @@
       } else if (A.erro) {
         linhas.push('<span class="bad">Servidor nao conseguiu falar com o GoTrue: ' + esc(A.erro) + '</span>');
       }
+      // verificacao local (o novo caminho)
+      if (res.local_verify) {
+        if (res.local_verify.ok) linhas.push('<span class="ok">Verificacao LOCAL do token: OK. O acesso vai funcionar por este caminho (sem depender do /user do provedor).</span>');
+        else if (!res.jwt_secret_set || res.local_verify.reason === 'sem_segredo') linhas.push('<span class="warn">Verificacao local ainda NAO ativa: falta configurar o segredo JWT no Vercel (SUPABASE_JWT_SECRET).</span>');
+        else linhas.push('<span class="bad">Verificacao local falhou: ' + esc(res.local_verify.reason) + (res.local_verify.reason === 'assinatura' ? ' (o segredo configurado nao bate com o do token).' : '') + '</span>');
+      }
       // assinatura do token
       if (res.jwt_header) {
         var alg = res.jwt_header.alg || '-';

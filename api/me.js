@@ -2,7 +2,7 @@
 // Usado pelo front para (a) restringir o menu por perfil e (b) bloquear acesso direto
 // a telas que o perfil nao pode ver. A isolacao por imobiliaria continua sendo feita
 // no escopo das queries (api/_auth.js). Este endpoint nunca confia no user_metadata.
-const { requireAuth } = require('./_auth');
+const { requireAuth, localVerify } = require('./_auth');
 
 // Diagnostico temporario (/api/me?diag=token): NAO passa pelo requireAuth.
 // Le o Bearer enviado pelo navegador, decodifica os claims (sem validar assinatura),
@@ -41,6 +41,10 @@ async function diagToken(req, res) {
       email: claims.email || null
     };
   } else { out.claims_error = 'nao decodificou'; }
+  // Verificacao LOCAL (HS256) com o segredo configurado no backend (nunca exposto)
+  out.jwt_secret_set = !!(process.env.SUPABASE_JWT_SECRET || process.env.GOTRUE_JWT_SECRET || process.env.JWT_SECRET);
+  try { var lv = localVerify(token); out.local_verify = { ok: lv.ok, reason: lv.reason }; }
+  catch (e) { out.local_verify = { erro: String((e && e.message) || e) }; }
   // Teste A: /user COM apikey + Authorization (exatamente como o _auth.js faz hoje)
   try {
     const r = await fetch(url + '/auth/v1/user', { headers: { apikey: anon, Authorization: 'Bearer ' + token } });

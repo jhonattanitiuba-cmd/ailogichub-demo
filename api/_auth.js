@@ -9,7 +9,42 @@ const crypto = require('crypto');
 function tokenHash(t) { try { return crypto.createHash('sha256').update(String(t)).digest('hex').slice(0, 32); } catch (_) { return null; } }
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// Segredo JWT do GoTrue (mesmo que gerou a anon key). Quando presente, validamos o
+// token LOCALMENTE (HS256) sem depender do /auth/v1/user do provedor — mais rapido e
+// resiliente. Nao vai para o cliente (so backend). Aceita alguns nomes comuns de env.
+const JWT_SECRET = process.env.SUPABASE_JWT_SECRET || process.env.GOTRUE_JWT_SECRET || process.env.JWT_SECRET || '';
 const DB_URL = process.env.DB_URL || '';
+
+// base64url -> objeto JSON (sem validar assinatura)
+function decodeJwtPart(part) {
+  try { return JSON.parse(Buffer.from(String(part).replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8')); }
+  catch (_) { return null; }
+}
+// Verificacao LOCAL do access_token (HS256) usando o segredo do GoTrue.
+// Retorna { ok, reason, user }. user tem o formato que resolveScope espera.
+function localVerify(token) {
+  if (!JWT_SECRET) return { ok: false, reason: 'sem_segredo' };
+  try {
+    const parts = String(token || '').split('.');
+    if (parts.length !== 3) return { ok: false, reason: 'formato' };
+    const header = decodeJwtPart(parts[0]);
+    if (!header || String(header.alg).toUpperCase() !== 'HS256') return { ok: false, reason: 'alg_' + (header && header.alg) };
+    const data = parts[0] + '.' + parts[1];
+    const expected = crypto.createHmac('sha256', JWT_SECRET).update(data).digest('base64')
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const got = parts[2];
+    // comparacao em tempo constante
+    const a = Buffer.from(expected), b = Buffer.from(got);
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return { ok: false, reason: 'assinatura' };
+    const claims = decodeJwtPart(parts[1]);
+    if (!claims) return { ok: false, reason: 'claims' };
+    const now = Math.floor(Date.now() / 1000);
+    if (claims.exp && claims.exp < now) return { ok: false, reason: 'expirado' };
+    if (!claims.sub) return { ok: false, reason: 'sem_sub' };
+    const user = { id: claims.sub, email: claims.email || null, user_metadata: claims.user_metadata || {}, aud: claims.aud || null, role: claims.role || null };
+    return { ok: true, reason: 'ok', user: user };
+  } catch (e) { return { ok: false, reason: 'erro:' + String((e && e.message) || e) }; }
+}
 
 // perfis com acesso total (veem todas as imobiliárias)
 const ADMIN_ROLES = ['admin', 'administrador', 'diretor', 'diretoria', 'dono', 'owner', 'super'];
@@ -60,6 +95,17 @@ async function getUser(req) {
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) { console.error('[auth] getUser: env ausente', { hasUrl: !!SUPABASE_URL, hasAnon: !!SUPABASE_ANON_KEY }); return null; }
     const token = bearer(req);
     if (!token) return null;   // requisicao sem token e fluxo normal (nao loga)
+    // 1) validacao LOCAL (HS256) quando ha segredo: rapida e independente do /user do provedor.
+    const lv = localVerify(token);
+    if (lv.ok) return lv.user;
+    if (JWT_SECRET && lv.reason !== 'sem_segredo') {
+      // segredo configurado mas o token nao passou -> loga o motivo e NAO tenta o /user
+      // (evita mascarar um segredo errado com o endpoint quebrado). So expirado/assinatura chegam aqui.
+      console.error('[auth] getUser: verificacao local falhou', { reason: lv.reason });
+      // segue para o fallback abaixo apenas se NAO for erro de assinatura (pode ser divergencia de config)
+      if (lv.reason === 'assinatura') return null;
+    }
+    // 2) fallback: valida no GoTrue /auth/v1/user (comportamento original)
     const r = await fetch(SUPABASE_URL + '/auth/v1/user', {
       headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + token }
     });
@@ -138,4 +184,4 @@ async function requireAuth(req, res) {
   return scope;
 }
 
-module.exports = { getUser, requireAuth, isAdminRole, isLawyerRole, isSelfRole, negociosDoAdvogado, departamentoDe };
+module.exports = { getUser, requireAuth, isAdminRole, isLawyerRole, isSelfRole, negociosDoAdvogado, departamentoDe, localVerify };
