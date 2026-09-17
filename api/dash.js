@@ -64,8 +64,11 @@ module.exports = async (req, res) => {
       let etapaDe = null, cardImob = null, negocioId = null;
       try { const cur = await db('select etapa, imobiliaria_id, negocio_id from funil_negocios where id=$1', [id]); if (cur.rows[0]) { etapaDe = cur.rows[0].etapa; cardImob = cur.rows[0].imobiliaria_id; negocioId = cur.rows[0].negocio_id; } } catch (_) {}
       const won = etapaFechada(etapa);
-      // marca fechado_em ao entrar em etapa fechada (mantem o 1o carimbo); limpa se sair dela
-      await db('update funil_negocios set etapa=$1, fechado_em = case when $3 then coalesce(fechado_em, now()) else null end where id=$2', [etapa, id, won]);
+      const perdido = /^(perdid|recus)/i.test(String(etapa || ''));
+      const motivo = perdido ? (body.motivo ? String(body.motivo).slice(0, 200) : null) : null;
+      // marca fechado_em ao entrar em etapa fechada (mantem o 1o carimbo); limpa se sair dela.
+      // grava o motivo ao entrar em Perdido/Recusado; limpa ao sair dessa etapa.
+      await db('update funil_negocios set etapa=$1, fechado_em = case when $3 then coalesce(fechado_em, now()) else null end, motivo_perda = case when $4 then $5 else null end where id=$2', [etapa, id, won, perdido, motivo]);
       // registra o historico (de/para, autor, quando). Nunca quebra o move.
       try {
         await db('insert into funil_historico(card_id, imobiliaria_id, etapa_de, etapa_para, autor_id, autor_nome) values($1,$2,$3,$4,$5,$6)',

@@ -25,6 +25,21 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 17 - Bloco 1: motivo de perda detalhado no funil
+
+Ao mover um card para Perdido/Recusado, o funil agora pede o motivo (lista padrao:
+Preco fora do perfil, Comprou com concorrente, Desistiu, Sem credito, Imovel indisponivel,
+Localizacao, Cliente nao respondeu, Fora do perfil de renda, Outro, com campo de detalhe).
+O motivo alimenta o painel "Motivos de perda" e o relatorio.
+
+- funil.html: seletor askMotivo() no drop em etapa perdida; envia body.motivo no move.
+- api/dash.js (move): grava funil_negocios.motivo_perda ao entrar em Perdido/Recusado e limpa
+  ao sair dessa etapa. Sanitiza para 200 chars.
+Testado com Playwright (drag para Perdido abre o seletor; move carrega o motivo escolhido).
+Deploy: precisa promover em producao.
+
+---
+
 ## Rodada 16 - Bloco 1: metricas no ranking, gargalo do funil e valor minimo do imovel
 
 Tres itens do Bloco 1, todos testados com Playwright (sem erro de pagina).

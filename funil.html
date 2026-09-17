@@ -177,6 +177,24 @@ a{text-decoration:none;color:inherit}
   function money(v){return v!=null&&v!==''?brl(Number(v)):'a definir';}
   function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
   var dragId=null, dealsById={}, justDragged=false, modal=document.getElementById('dealModal');
+  // motivos padrao de perda (para relatorio consistente). "Outro" abre campo livre.
+  var MOTIVOS_PERDA=['Preço fora do perfil','Comprou com concorrente','Desistiu da compra','Sem crédito aprovado','Imóvel indisponível','Localização não atende','Cliente não respondeu','Fora do perfil de renda','Outro'];
+  function askMotivo(cb){
+    var ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:rgba(3,8,20,.62);display:grid;place-items:center;z-index:130;padding:20px';
+    var opts=MOTIVOS_PERDA.map(function(m){return '<option>'+m+'</option>';}).join('');
+    ov.innerHTML='<div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;max-width:420px;width:100%;padding:18px 20px;box-shadow:var(--shadow)">'
+      +'<h3 style="margin:0 0 4px;color:var(--heading);font-size:17px">Motivo da perda</h3>'
+      +'<p style="margin:0 0 12px;color:var(--muted);font-size:12.5px">Selecione o motivo para registrar no relatório de perdas.</p>'
+      +'<select id="mpSel" style="width:100%;height:40px;border:1px solid var(--border2);border-radius:11px;padding:0 12px;font:inherit;font-size:13px;color:var(--text);background:var(--panel2)">'+opts+'</select>'
+      +'<input id="mpTxt" placeholder="Detalhe (opcional)" style="width:100%;height:40px;border:1px solid var(--border2);border-radius:11px;padding:0 12px;font:inherit;font-size:13px;color:var(--text);background:var(--panel2);margin-top:8px">'
+      +'<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px"><button class="btn" id="mpCancel">Cancelar</button><button class="btn primary" id="mpOk">Registrar</button></div></div>';
+    document.body.appendChild(ov);
+    function done(v){try{document.body.removeChild(ov);}catch(_){}cb(v);}
+    ov.querySelector('#mpCancel').onclick=function(){done(null);};
+    ov.addEventListener('click',function(e){if(e.target===ov)done(null);});
+    ov.querySelector('#mpOk').onclick=function(){var s=ov.querySelector('#mpSel').value;var t=ov.querySelector('#mpTxt').value.trim();done(t?(s+' ('+t+')'):s);};
+  }
   function fld(label,val,full){return '<div class="mcell'+(full?' full':'')+'"><label>'+label+'</label><strong>'+esc(val==null||val===''?'—':val)+'</strong></div>';}
   function lnkCell(label,href,texto){return '<div class="mcell full"><label>'+label+'</label><strong><a href="'+href+'" style="color:var(--accent,#0b66ff);text-decoration:none;font-weight:800">'+esc(texto)+'</a></strong></div>';}
   function openDeal(c){ if(!c) return;
@@ -289,7 +307,11 @@ a{text-decoration:none;color:inherit}
         var etapa=body.getAttribute('data-etapa'),id=dragId;if(!id)return;
         var el=K.querySelector('.kcard[data-id="'+(window.CSS&&CSS.escape?CSS.escape(id):id)+'"]');
         if(el&&el.parentNode!==body)body.insertBefore(el,body.firstChild);
-        fetch('/api/dash?action=move',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id,etapa:etapa})}).then(function(r){if(!r.ok)throw 0;}).catch(function(){setTimeout(load,600);});
+        function doMove(motivo){fetch('/api/dash?action=move',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id,etapa:etapa,motivo:motivo||null})}).then(function(r){if(!r.ok)throw 0;setTimeout(load,300);}).catch(function(){setTimeout(load,600);});}
+        // ao entrar em Perdido/Recusado, pede o motivo (lista padrao) para o relatorio
+        var lbl=_etLabel(etapa,etapa);
+        if(/perdid|recus/i.test(etapa)||/perdid|recus/i.test(lbl)){ askMotivo(function(m){ if(m===null){ load(); return; } doMove(m); }); }
+        else { doMove(null); }
       });
     });
   }
