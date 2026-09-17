@@ -8,6 +8,24 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 22 - Correcao do funil do Hub (sequencia definida pelo cliente)
+
+O cliente corrigiu a sequencia do Hub. Novo funil do Hub (admin):
+Atendimento, Envio de imoveis, Visita, Proposta, Documentacao, Contrato, Pagamentos,
+Finalizacao, Pesquisa, e Perdido (mantida no fim para negocios perdidos + seletor de motivo).
+
+- api/dash.js: DEFAULT_ETAPAS_HUB reescrito com essa sequencia. "Finalizacao" usa a chave
+  'fechado' (continua refletindo no financeiro/ganho). "Pesquisa" e etapa nova (pos-venda).
+- funil.html: KPI "Fechados" passa a contar a etapa de fechamento por rotulo (finaliz) e pela
+  chave 'fechado'; ETLBL ganhou 'pesquisa'.
+Testado com Playwright (10 colunas na ordem certa; KPI Fechados conta Finalizacao).
+Deploy: subido para producao.
+
+Observacao: o funil da imobiliaria segue como estava (termina em Fechado/Perdido, sem Pesquisa).
+A confirmar com o cliente se a visao da imobiliaria deve ficar igual a do Hub.
+
+---
+
 ## Rodada 21 - Funil com duas visoes (Hub x imobiliaria), conforme a ata
 
 A ata define duas sequencias de funil. Implementadas como padroes por perfil (ainda editaveis

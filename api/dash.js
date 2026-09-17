@@ -20,20 +20,16 @@ const DEFAULT_ETAPAS = [
 // possivel (novo, atendimento, qualif_ia, distribuido, visita, proposta, documentacao, fechado, perdido)
 // para nao perder cards; chaves novas nascem como colunas vazias.
 const DEFAULT_ETAPAS_HUB = [
-  { key: 'novo', nome: 'Novo lead' },
-  { key: 'qualif_ia', nome: 'Qualificação por IA' },
-  { key: 'qualificado', nome: 'Lead qualificado' },
-  { key: 'distribuido', nome: 'Distribuído' },
-  { key: 'atendimento', nome: 'Aceito em atendimento' },
+  { key: 'atendimento', nome: 'Atendimento' },
+  { key: 'distribuido', nome: 'Envio de imóveis' },
   { key: 'visita', nome: 'Visita' },
-  { key: 'reuniao', nome: 'Reunião' },
   { key: 'proposta', nome: 'Proposta' },
-  { key: 'negociacao', nome: 'Negociação' },
   { key: 'documentacao', nome: 'Documentação' },
   { key: 'contrato', nome: 'Contrato' },
-  { key: 'fechado', nome: 'Fechado' },
-  { key: 'posvenda', nome: 'Pós-venda' },
-  { key: 'perdido', nome: 'Pedido recusado' }
+  { key: 'pagamentos', nome: 'Pagamentos' },
+  { key: 'fechado', nome: 'Finalização' },   // etapa de fechamento (reflete no financeiro)
+  { key: 'pesquisa', nome: 'Pesquisa' },
+  { key: 'perdido', nome: 'Perdido' }         // mantida para negocios perdidos + seletor de motivo
 ];
 const DEFAULT_ETAPAS_IMOB = [
   { key: 'atendimento', nome: 'Atendimento' },

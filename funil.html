@@ -249,7 +249,7 @@ a{text-decoration:none;color:inherit}
 
   // rotulo de etapa (Revisao 3: nao ha "Distribuido" antes da visita; a etapa e "Envio de imoveis")
   // rotulos amigaveis por chave (fallback quando a coluna vem so com a chave crua, ex.: etapa anexada)
-  var ETLBL={novo:'Novo lead',qualif_ia:'Qualificação por IA',qualificado:'Lead qualificado',distribuido:'Envio de imóveis',atendimento:'Atendimento',visita:'Visita',reuniao:'Reunião',proposta:'Proposta',negociacao:'Negociação',documentacao:'Documentação',contrato:'Contrato',pagamentos:'Pagamentos',fechado:'Fechado',posvenda:'Pós-venda',perdido:'Perdido'};
+  var ETLBL={novo:'Novo lead',qualif_ia:'Qualificação por IA',qualificado:'Lead qualificado',distribuido:'Envio de imóveis',atendimento:'Atendimento',visita:'Visita',reuniao:'Reunião',proposta:'Proposta',negociacao:'Negociação',documentacao:'Documentação',contrato:'Contrato',pagamentos:'Pagamentos',fechado:'Fechado',posvenda:'Pós-venda',pesquisa:'Pesquisa',perdido:'Perdido'};
   // o rotulo enviado pelo servidor (por visao: Hub x imobiliaria) tem prioridade; se vier so a chave, usa o ETLBL
   function _etLabel(key,nome){ return (nome&&nome!==key)?nome:(ETLBL[key]||nome||key); }
   function render(etapas,cards){
@@ -272,7 +272,7 @@ a{text-decoration:none;color:inherit}
     function cat(c){return String(nome[c.etapa]||c.etapa||'');}
     var visitas=cards.filter(function(c){return /visit/i.test(cat(c));}).length;
     var propostas=cards.filter(function(c){return /propost/i.test(cat(c));}).length;
-    var fechados=cards.filter(function(c){return /fechad|vend/i.test(cat(c));}).length;
+    var fechados=cards.filter(function(c){return /fechad|vend|finaliz/i.test(cat(c))||c.etapa==='fechado';}).length;
     var perdidos=cards.filter(function(c){return /perdid|recus/i.test(cat(c))||c.motivo_perda;}).length;
     var atencao=cards.filter(function(c){return /aten/i.test(c.sla||'');}).length;
     kset('total',total);kset('pipeline',sum?brl(sum):'—');kset('visitas',visitas);kset('propostas',propostas);kset('fechados',fechados);
