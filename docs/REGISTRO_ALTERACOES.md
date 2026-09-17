@@ -8,6 +8,31 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 23 - Funil: quatro visoes definitivas por perfil (sequencias exatas do cliente)
+
+Sequencias fechadas pelo cliente (exatas, sem adicionar nem tirar):
+- Diretoria (9): Atendimento, Envio de imoveis, Visita, Proposta, Documentacao, Contrato,
+  Pagamentos, Fechamento, Pesquisa.
+- Imobiliaria e Corretor (7, mesma): Atendimento, Envio de imoveis, Proposta, Documentacao,
+  Contrato, Pagamentos, Fechamento. (sem Visita e sem Pesquisa)
+- Juridico (6): Proposta assinada, Documentacao, Contrato, Pagamentos, Fechamento,
+  Assinatura de escritura.
+
+Implementacao (api/dash.js): DEFAULT_ETAPAS_HUB/IMOB/JURIDICO; loadEtapas(scope, view) escolhe
+por view; a acao funil calcula view = hub|juridico|imob (juridico usa o escopo dos negocios
+atribuidos ao advogado). "Fechamento" usa a chave 'fechado' (reflete no financeiro/ganho).
+funil.html: ETLBL ganhou proposta_assinada e escritura. Testado com Playwright (9/7/6 colunas
+na ordem certa). Deploy: subido para producao.
+
+Pendencias sinalizadas ao cliente:
+- Nenhuma visao tem coluna "Perdido": sem ela nao ha como marcar negocio perdido nem usar o
+  seletor de motivo de perda. Aguardando decisao (manter/como tratar perdas).
+- Imobiliaria/Corretor sem a etapa "Visita" (conforme enviado); a confirmar se e intencional.
+- Juridico "ativa apos proposta assinada": as etapas ja estao certas; o gatilho de so entrar
+  apos a assinatura vem junto da integracao de assinatura digital.
+
+---
+
 ## Rodada 22 - Correcao do funil do Hub (sequencia definida pelo cliente)
 
 O cliente corrigiu a sequencia do Hub. Novo funil do Hub (admin):

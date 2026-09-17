@@ -249,7 +249,7 @@ a{text-decoration:none;color:inherit}
 
   // rotulo de etapa (Revisao 3: nao ha "Distribuido" antes da visita; a etapa e "Envio de imoveis")
   // rotulos amigaveis por chave (fallback quando a coluna vem so com a chave crua, ex.: etapa anexada)
-  var ETLBL={novo:'Novo lead',qualif_ia:'Qualificação por IA',qualificado:'Lead qualificado',distribuido:'Envio de imóveis',atendimento:'Atendimento',visita:'Visita',reuniao:'Reunião',proposta:'Proposta',negociacao:'Negociação',documentacao:'Documentação',contrato:'Contrato',pagamentos:'Pagamentos',fechado:'Fechado',posvenda:'Pós-venda',pesquisa:'Pesquisa',perdido:'Perdido'};
+  var ETLBL={novo:'Novo lead',qualif_ia:'Qualificação por IA',qualificado:'Lead qualificado',distribuido:'Envio de imóveis',atendimento:'Atendimento',visita:'Visita',reuniao:'Reunião',proposta:'Proposta',negociacao:'Negociação',documentacao:'Documentação',contrato:'Contrato',pagamentos:'Pagamentos',fechado:'Fechamento',posvenda:'Pós-venda',pesquisa:'Pesquisa',proposta_assinada:'Proposta assinada',escritura:'Assinatura de escritura',perdido:'Perdido'};
   // o rotulo enviado pelo servidor (por visao: Hub x imobiliaria) tem prioridade; se vier so a chave, usa o ETLBL
   function _etLabel(key,nome){ return (nome&&nome!==key)?nome:(ETLBL[key]||nome||key); }
   function render(etapas,cards){

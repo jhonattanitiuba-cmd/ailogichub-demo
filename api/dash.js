@@ -19,7 +19,8 @@ const DEFAULT_ETAPAS = [
 // a imobiliaria ve o funil operacional dela. Chaves reaproveitadas dos cards existentes quando
 // possivel (novo, atendimento, qualif_ia, distribuido, visita, proposta, documentacao, fechado, perdido)
 // para nao perder cards; chaves novas nascem como colunas vazias.
-const DEFAULT_ETAPAS_HUB = [
+// Sequencias definidas pelo cliente (exatas). "Fechamento" usa a chave 'fechado' (reflete no financeiro).
+const DEFAULT_ETAPAS_HUB = [ // Diretoria
   { key: 'atendimento', nome: 'Atendimento' },
   { key: 'distribuido', nome: 'Envio de imóveis' },
   { key: 'visita', nome: 'Visita' },
@@ -27,20 +28,25 @@ const DEFAULT_ETAPAS_HUB = [
   { key: 'documentacao', nome: 'Documentação' },
   { key: 'contrato', nome: 'Contrato' },
   { key: 'pagamentos', nome: 'Pagamentos' },
-  { key: 'fechado', nome: 'Finalização' },   // etapa de fechamento (reflete no financeiro)
-  { key: 'pesquisa', nome: 'Pesquisa' },
-  { key: 'perdido', nome: 'Perdido' }         // mantida para negocios perdidos + seletor de motivo
+  { key: 'fechado', nome: 'Fechamento' },
+  { key: 'pesquisa', nome: 'Pesquisa' }
 ];
-const DEFAULT_ETAPAS_IMOB = [
+const DEFAULT_ETAPAS_IMOB = [ // Imobiliaria e Corretor (mesma sequencia)
   { key: 'atendimento', nome: 'Atendimento' },
   { key: 'distribuido', nome: 'Envio de imóveis' },
-  { key: 'visita', nome: 'Visita' },
   { key: 'proposta', nome: 'Proposta' },
   { key: 'documentacao', nome: 'Documentação' },
   { key: 'contrato', nome: 'Contrato' },
   { key: 'pagamentos', nome: 'Pagamentos' },
-  { key: 'fechado', nome: 'Fechado' },
-  { key: 'perdido', nome: 'Perdido' }
+  { key: 'fechado', nome: 'Fechamento' }
+];
+const DEFAULT_ETAPAS_JURIDICO = [ // Juridico (ativa apos a proposta assinada)
+  { key: 'proposta_assinada', nome: 'Proposta assinada' },
+  { key: 'documentacao', nome: 'Documentação' },
+  { key: 'contrato', nome: 'Contrato' },
+  { key: 'pagamentos', nome: 'Pagamentos' },
+  { key: 'fechado', nome: 'Fechamento' },
+  { key: 'escritura', nome: 'Assinatura de escritura' }
 ];
 async function ensureFunilConfig() { try { await db("create table if not exists funil_config(scope text primary key, etapas jsonb not null default '[]', updated_at timestamptz not null default now())"); } catch (_) {} }
 // Fase 1 da unificacao do funil: coluna de fechamento no card + tabela de historico de etapas.
@@ -57,14 +63,14 @@ async function ensureFunilExtras() {
 function etapaFechada(k) { return /^(fechad|ganho)/i.test(String(k || '')); }
 // rotulo do enum negocio_etapa para negocio ganho (confirmado no banco: LEAD..GANHO,PERDIDO)
 const ENUM_GANHO = 'GANHO';
-async function loadEtapas(scope, isAdmin) {
+async function loadEtapas(scope, view) {
   let et = null;
   try {
     if (scope) { const r = await db('select etapas from funil_config where scope=$1', [scope]); if (r.rows[0] && Array.isArray(r.rows[0].etapas) && r.rows[0].etapas.length) et = r.rows[0].etapas; }
   } catch (_) {}
   if (et) return et.slice();
-  // sem customizacao salva: escolhe a visao padrao pelo perfil (Hub para a Diretoria, imobiliaria para os demais)
-  const base = isAdmin ? DEFAULT_ETAPAS_HUB : DEFAULT_ETAPAS_IMOB;
+  // sem customizacao salva: escolhe a visao padrao pelo perfil (Diretoria=Hub, Juridico, imobiliaria/corretor=Imob)
+  const base = view === 'hub' ? DEFAULT_ETAPAS_HUB : (view === 'juridico' ? DEFAULT_ETAPAS_JURIDICO : DEFAULT_ETAPAS_IMOB);
   return base.map((e, i) => ({ key: e.key, nome: e.nome, ordem: i, hidden: false }));
 }
 module.exports = async (req, res) => {
@@ -164,9 +170,10 @@ module.exports = async (req, res) => {
       const params = (!user.isAdmin) ? [lawyer ? user.usuarioId : user.imobiliariaId] : [];
       const r = await db('select id, imob_nome, lead_nome, imovel_desc, imovel_codigo, corretor_nome, valor, etapa, origem, tentativas, sla, status_label, ultimo_contato, motivo_perda from funil_negocios' + scope + ' order by criado_em', params);
       const fout = { cards: r.rows.map(x => ({ ...x, valor: x.valor != null ? Number(x.valor) : null })) };
-      // etapas configuraveis (nome/ordem) + garante coluna para toda etapa presente nos cards
-      const escopoEt = user.isAdmin ? 'global' : (user.imobiliariaId || null);
-      const etapas = await loadEtapas(escopoEt, user.isAdmin);
+      // etapas configuraveis (nome/ordem) por visao + garante coluna para toda etapa presente nos cards
+      const view = user.isAdmin ? 'hub' : (lawyer ? 'juridico' : 'imob');
+      const escopoEt = user.isAdmin ? 'global' : (lawyer ? 'juridico' : (user.imobiliariaId || null));
+      const etapas = await loadEtapas(escopoEt, view);
       const known = {}; etapas.forEach(e => { known[e.key] = 1; });
       const vis = {};
       r.rows.forEach(x => { const k = x.etapa; if (k && !known[k] && !vis[k]) { vis[k] = 1; etapas.push({ key: k, nome: k, ordem: etapas.length, hidden: false }); } });
