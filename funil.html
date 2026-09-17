@@ -154,6 +154,7 @@ a{text-decoration:none;color:inherit}
       <section class="panel"><div class="panel-head"><h3>Resumo operacional</h3></div><div class="side-list" id="resumoOp"><div class="empty">·</div></div></section>
       <section class="panel"><div class="panel-head"><h3>Ranking por imobiliária</h3></div><div id="ranking"><div class="empty">·</div></div></section>
       <section class="panel"><div class="panel-head"><h3>Motivos de perda</h3></div><div class="side-list" id="motivos"><div class="empty">·</div></div></section>
+      <section class="panel"><div class="panel-head"><h3>Gargalo do funil</h3></div><div class="side-list" id="gargalo"><div class="empty">·</div></div></section>
       <section class="panel"><div class="panel-head"><h3>Próximas ações</h3></div><div class="note">Em breve, as próximas ações virão da tabela de atividades (Agenda).</div></section>
     </aside>
   </section>
@@ -258,12 +259,21 @@ a{text-decoration:none;color:inherit}
       +'<div class="side-row"><strong>Com atenção (SLA)</strong><div class="count orange">'+atencao+'</div></div>'
       +'<div class="side-row"><strong>Fechados</strong><div class="count green">'+fechados+'</div></div>'
       +'<div class="side-row"><strong>Perdidos / recusados</strong><div class="count red">'+perdidos+'</div></div>';
-    var byImob={}; cards.forEach(function(c){var k=c.imob_nome||'—';(byImob[k]=byImob[k]||{n:0,v:0}).n++;byImob[k].v+=(Number(c.valor)||0);});
-    var rank=Object.keys(byImob).map(function(k){return {nome:k,n:byImob[k].n,v:byImob[k].v};}).sort(function(a,b){return b.n-a.n;}).slice(0,5);
-    document.getElementById('ranking').innerHTML=rank.length?rank.map(function(r,i){return '<div class="rank"><div class="pos">'+(i+1)+'</div><div><strong>'+esc(r.nome)+'</strong><span>'+r.n+' negócios'+(r.v?' · '+brl(r.v):'')+'</span></div></div>';}).join(''):'<div class="empty">Sem dados.</div>';
+    // ranking com metricas vinculadas: valor movimentado, negocios, fechados, visitas e atendimentos por imobiliaria
+    var byImob={}; cards.forEach(function(c){var k=c.imob_nome||'—';var o=(byImob[k]=byImob[k]||{n:0,v:0,f:0,vi:0,at:0});o.n++;o.v+=(Number(c.valor)||0);var ct=cat(c);if(/fechad|vend/i.test(ct))o.f++;if(/visit/i.test(ct))o.vi++;if(/aten/i.test(ct))o.at++;});
+    var rank=Object.keys(byImob).map(function(k){return {nome:k,n:byImob[k].n,v:byImob[k].v,f:byImob[k].f,vi:byImob[k].vi,at:byImob[k].at};}).sort(function(a,b){return (b.v-a.v)||(b.f-a.f)||(b.n-a.n);}).slice(0,5);
+    document.getElementById('ranking').innerHTML=rank.length?rank.map(function(r,i){return '<div class="rank"><div class="pos">'+(i+1)+'</div><div><strong>'+esc(r.nome)+'</strong><span>'+(r.v?brl(r.v):'—')+' · '+r.n+' neg · '+r.f+' fech · '+r.vi+' vis · '+r.at+' atend</span></div></div>';}).join(''):'<div class="empty">Sem dados.</div>';
     var byMot={}; cards.forEach(function(c){if(c.motivo_perda)byMot[c.motivo_perda]=(byMot[c.motivo_perda]||0)+1;});
     var mot=Object.keys(byMot).map(function(k){return {m:k,n:byMot[k]};}).sort(function(a,b){return b.n-a.n;});
     document.getElementById('motivos').innerHTML=mot.length?mot.map(function(x){return '<div class="side-row"><strong>'+esc(x.m)+'</strong><div class="count red">'+x.n+'</div></div>';}).join(''):'<div class="empty" style="padding:16px">Nenhuma perda registrada.</div>';
+    // gargalo do funil: concentracao por etapa e a maior queda entre etapas consecutivas (onde os negocios travam)
+    var ordem=(etapas||[]).map(function(e){return {key:e.key,nome:_etLabel(e.key,e.nome)};}).filter(function(e){return !/perdid|recus/i.test(e.nome);});
+    var cont={}; cards.forEach(function(c){cont[c.etapa]=(cont[c.etapa]||0)+1;});
+    var piorDrop=0, piorIdx=-1;
+    for(var gi=1;gi<ordem.length;gi++){var prev=cont[ordem[gi-1].key]||0, cur=cont[ordem[gi].key]||0; if(prev>0){var drop=1-(cur/prev); if(drop>piorDrop){piorDrop=drop;piorIdx=gi;}}}
+    var gHtml=ordem.map(function(e,i){var cn=cont[e.key]||0; var flag=(i===piorIdx&&piorDrop>0)?' <span style="color:var(--red);font-weight:800">gargalo</span>':''; return '<div class="side-row"><strong>'+esc(e.nome)+flag+'</strong><div class="count'+(i===piorIdx&&piorDrop>0?' red':'')+'">'+cn+'</div></div>';}).join('');
+    if(piorIdx>0&&piorDrop>0){gHtml+='<div class="note" style="margin-top:6px">Maior queda: de '+esc(ordem[piorIdx-1].nome)+' para '+esc(ordem[piorIdx].nome)+' ('+Math.round(piorDrop*100)+'% menos). Concentre esforço aqui.</div>';}
+    document.getElementById('gargalo').innerHTML=ordem.length?gHtml:'<div class="empty" style="padding:16px">Sem etapas para analisar.</div>';
   }
 
   function wireDnD(){

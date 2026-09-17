@@ -136,6 +136,7 @@ td.strong{font-weight:700;color:var(--heading)}
       <label>Status<select id="f_status"><option>Disponível</option><option>Reservado</option><option>Vendido</option><option>Locado</option><option>Inativo</option></select></label>
     </div>
     <div class="fg3"><label>Preço (R$)<input id="f_preco" type="number" min="0"></label><label>Área (m²)<input id="f_area" type="number" min="0"></label><label>Vagas<input id="f_vagas" type="number" min="0"></label></div>
+    <label>Valor mínimo aceito pelo proprietário (R$)<input id="f_valor_min" type="number" min="0" placeholder="Piso para a negociação (opcional). A IA não fecha abaixo deste valor."></label>
     <div class="fg3"><label>Quartos<input id="f_quartos" type="number" min="0"></label><label>Suítes<input id="f_suites" type="number" min="0"></label><label>Banheiros<input id="f_banheiros" type="number" min="0"></label></div>
     <div class="fg2"><label>Cidade<input id="f_cidade"></label><label>Bairro<input id="f_bairro"></label></div>
     <label>Endereço<input id="f_endereco"></label>
@@ -204,7 +205,7 @@ td.strong{font-weight:700;color:var(--heading)}
   function fld(l,v,full){return '<div class="mcell'+(full?' full':'')+'"><label>'+l+'</label><strong>'+esc(v==null||v===''?'—':v)+'</strong></div>';}
   function openDetail(m){curDetail=m;
     $('dTit').textContent=m.titulo||'Imóvel';
-    $('dGrid').innerHTML=fld('Tipo',cap(m.tipo))+fld('Finalidade',cap(m.finalidade))+fld('Preço',brl(m.preco))+fld('Área',m.area?m.area+' m²':'—')+fld('Quartos',m.quartos)+fld('Suítes',m.suites)+fld('Banheiros',m.banheiros)+fld('Vagas',m.vagas)+fld('Cidade',m.cidade)+fld('Bairro',m.bairro)+fld('Endereço',m.endereco,true)+fld('Status',cap(m.status))+fld('Imobiliária',imobMap[m.imobiliaria_id])+(m.descricao?fld('Descrição',m.descricao,true):'');
+    $('dGrid').innerHTML=fld('Tipo',cap(m.tipo))+fld('Finalidade',cap(m.finalidade))+fld('Preço',brl(m.preco))+fld('Valor mínimo',m.valor_minimo!=null?brl(m.valor_minimo):'—')+fld('Área',m.area?m.area+' m²':'—')+fld('Quartos',m.quartos)+fld('Suítes',m.suites)+fld('Banheiros',m.banheiros)+fld('Vagas',m.vagas)+fld('Cidade',m.cidade)+fld('Bairro',m.bairro)+fld('Endereço',m.endereco,true)+fld('Status',cap(m.status))+fld('Imobiliária',imobMap[m.imobiliaria_id])+(m.descricao?fld('Descrição',m.descricao,true):'');
     dm.classList.add('open');
   }
   $('dClose').addEventListener('click',function(){dm.classList.remove('open');});
@@ -222,6 +223,7 @@ td.strong{font-weight:700;color:var(--heading)}
     if(m.imobiliaria_id)$('f_imob').value=m.imobiliaria_id;
     selVal($('f_tipo'),m.tipo);selVal($('f_fin'),m.finalidade);selVal($('f_status'),m.status);
     $('f_preco').value=m.preco!=null?m.preco:'';$('f_area').value=m.area!=null?m.area:'';$('f_vagas').value=m.vagas!=null?m.vagas:'';
+    $('f_valor_min').value=m.valor_minimo!=null?m.valor_minimo:'';
     $('f_quartos').value=m.quartos!=null?m.quartos:'';$('f_suites').value=m.suites!=null?m.suites:'';$('f_banheiros').value=m.banheiros!=null?m.banheiros:'';
     $('f_cidade').value=m.cidade||'';$('f_bairro').value=m.bairro||'';$('f_endereco').value=m.endereco||'';$('f_desc').value=m.descricao||'';
     $('f_foto').value=m.foto||'';$('f_fotos').value=(Array.isArray(m.fotos)?m.fotos:[]).join('\n');
@@ -241,7 +243,7 @@ td.strong{font-weight:700;color:var(--heading)}
     if(capa&&fotos.indexOf(capa)<0)fotos.unshift(capa);
     var o={titulo:$('f_titulo').value.trim(),imobiliaria_id:$('f_imob').value,codigo:$('f_codigo').value.trim(),
       tipo:$('f_tipo').value,finalidade:$('f_fin').value,status:$('f_status').value,
-      preco:num('f_preco'),area:num('f_area'),vagas:num('f_vagas'),quartos:num('f_quartos'),suites:num('f_suites'),banheiros:num('f_banheiros'),
+      preco:num('f_preco'),valor_minimo:num('f_valor_min'),area:num('f_area'),vagas:num('f_vagas'),quartos:num('f_quartos'),suites:num('f_suites'),banheiros:num('f_banheiros'),
       cidade:$('f_cidade').value.trim(),bairro:$('f_bairro').value.trim(),endereco:$('f_endereco').value.trim(),descricao:$('f_desc').value.trim(),
       foto:capa,fotos:fotos};
     if(!o.titulo){$('fErr').textContent='Informe o título.';return;}

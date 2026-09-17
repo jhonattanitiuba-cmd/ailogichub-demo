@@ -25,6 +25,28 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 16 - Bloco 1: metricas no ranking, gargalo do funil e valor minimo do imovel
+
+Tres itens do Bloco 1, todos testados com Playwright (sem erro de pagina).
+
+1) Metricas no ranking (funil.html, computePanels): o Ranking por imobiliaria passa a mostrar,
+   por imobiliaria, o valor movimentado, numero de negocios, fechados, visitas e atendimentos,
+   ordenado por valor (depois fechados, depois numero). Calculo no cliente a partir dos cards.
+
+2) Gargalo do funil (funil.html): novo painel "Gargalo do funil" que mostra a concentracao de
+   negocios por etapa e aponta a maior queda entre etapas consecutivas (onde os negocios travam),
+   com nota explicando de qual etapa para qual e o percentual. Ajuda a gerar leitura de gargalo
+   sem depender de relatorio externo.
+
+3) Valor minimo do imovel (imoveis.html + api/data.js): campo "Valor minimo aceito pelo
+   proprietario" no cadastro do imovel. Persiste no jsonb extra (sem migracao de banco) e volta
+   pelo imovOut; aparece no detalhe. E o piso para a futura negociacao da IA (Bloco 2).
+
+Arquivos: funil.html, imoveis.html. (data.js ja gravava o extra; nada a mudar la.)
+Deploy: precisa promover em producao.
+
+---
+
 ## Rodada 15 - Bloco 1 do roadmap: seguranca juridica (protecao do contato do lead)
 
 Origem: reuniao de 15/09. Regra do cliente: imobiliaria e corretor NAO podem ver telefone,
