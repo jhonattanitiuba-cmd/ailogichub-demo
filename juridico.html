@@ -140,6 +140,7 @@ td.strong{font-weight:700;color:var(--heading)}
     <div class="table-wrap">
       <table><thead><tr><th>Advogado</th><th>Negócio</th><th>Imobiliária</th><th>Valor</th><th>Comissão</th><th>Honorário</th><th>Assinatura</th><th>Ações</th></tr></thead>
       <tbody id="rows"><tr><td colspan="8" class="empty">Carregando…</td></tr></tbody></table>
+  <input type="file" id="fileAssin" accept="application/pdf" style="display:none">
     </div>
   </section>
 </main>
@@ -167,11 +168,30 @@ td.strong{font-weight:700;color:var(--heading)}
     tb.innerHTML=list.map(function(c,ix){
       var neg=(c.lead_nome||'—')+(c.imovel?(' · '+c.imovel):'');
       var honor=(c.honorario_pct!=null?c.honorario_pct+'%':'—')+(c.ganho!=null?(' ('+brl(c.ganho)+')'):'');
+      var verLink=c.url_assinado?'<a href="'+esc(c.url_assinado)+'" target="_blank" rel="noopener" style="color:#0f9d58;font-weight:700;font-size:12px;text-decoration:underline;margin-right:8px">Ver assinado</a>':'';
+      var btnAnexar='<button data-a="anexar" style="background:var(--blue);color:#fff;border:0;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;margin-right:8px">'+(c.url_assinado?'Substituir':'Anexar assinado')+'</button>';
       return '<tr data-i="'+ix+'"><td class="strong">'+esc(c.advogado_nome||'—')+'</td><td>'+esc(neg)+'</td><td>'+esc(c.imob_nome||'—')+'</td><td>'+brl(c.valor)+'</td><td>'+brl(c.comissao)+'</td><td>'+esc(honor)+'</td><td>'+assinBadge(c)+'</td>'
-        +'<td><div class="act"><button class="del" data-a="rm">Remover advogado</button></div></td></tr>';
+        +'<td><div class="act">'+verLink+btnAnexar+'<button class="del" data-a="rm">Remover advogado</button></div></td></tr>';
     }).join('');
     Array.prototype.forEach.call(tb.querySelectorAll('[data-a="rm"]'),function(b){b.addEventListener('click',function(){var c=list[+b.closest('tr').getAttribute('data-i')];desatribuir(c);});});
+    Array.prototype.forEach.call(tb.querySelectorAll('[data-a="anexar"]'),function(b){b.addEventListener('click',function(){var c=list[+b.closest('tr').getAttribute('data-i')];anexarAssinado(c);});});
   }
+  // Fase 1 da assinatura: anexa o PDF assinado (ex.: pela assinatura do Google) ao caso
+  var _pendingNeg=null;
+  function anexarAssinado(c){ if(!c||!c.negocio_id){alert('Este caso ainda nao tem negocio vinculado.');return;} _pendingNeg=c.negocio_id; var fi=$('fileAssin'); fi.value=''; fi.click(); }
+  (function(){ var fi=$('fileAssin'); if(!fi)return; fi.addEventListener('change',function(){
+    var f=this.files&&this.files[0]; if(!f||!_pendingNeg)return;
+    if(f.type!=='application/pdf'){alert('Envie um arquivo PDF (o contrato assinado).');return;}
+    if(f.size>12*1024*1024){alert('PDF muito grande (maximo 12MB).');return;}
+    var rd=new FileReader();
+    rd.onload=function(){
+      fetch(JURI+'?action=anexar_assinado',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({negocioId:_pendingNeg,dataBase64:rd.result})})
+        .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+        .then(function(x){ if(x.ok){ load(); } else { alert('Nao foi possivel anexar: '+((x.j&&x.j.error)||'erro')); } })
+        .catch(function(){ alert('Falha ao enviar o arquivo.'); });
+    };
+    rd.readAsDataURL(f);
+  }); })();
   function applyFilter(){var q=$('q').value.trim().toLowerCase();renderRows(casos.filter(function(c){return !q||((c.advogado_nome||'')+' '+(c.lead_nome||'')+' '+(c.imovel||'')).toLowerCase().indexOf(q)>=0;}));}
   $('q').addEventListener('input',applyFilter);
 

@@ -135,6 +135,30 @@ Arquivos: imovel.html, api/proposta.js, propostas.html.
 
 ---
 
+## Rodada 25 - Bloco 2: Fase 1 da assinatura (anexar contrato assinado no Hub)
+
+Permite fechar o ciclo de assinatura usando a assinatura do Google (ou qualquer PDF assinado),
+sem contratar provedor pago agora.
+
+- api/juris.js: nova acao anexar_assinado. Recebe o PDF assinado (base64), sobe para o Supabase
+  Storage (bucket imoveis, caminho contratos/<negocioId>/<rand>.pdf) e faz upsert em contratos
+  (status_assinatura='assinado', assinado_em=now, url_assinado). Permissao: diretoria ou o
+  advogado do caso. casos passou a devolver url_assinado.
+- juridico.html: botao "Anexar assinado" por caso (vira "Substituir" quando ja ha um), link
+  "Ver assinado" e o badge muda para Assinado. Upload por seletor de PDF (max 12MB).
+Testado com Playwright (botao dispara o seletor; POST leva negocioId + PDF; sem erros).
+Deploy: subido para producao.
+
+Fluxo (Fase 1): o Hub gera o contrato -> a pessoa envia para assinatura pelo Google Drive ->
+volta assinado -> anexa aqui no caso do juridico -> fica registrado como Assinado com o PDF.
+
+Ponto de atencao (hardening futuro, LGPD): hoje o PDF vai para o bucket publico (caminho
+aleatorio, dificil de adivinhar, mas sem controle de acesso). Para contratos assinados o ideal
+e um bucket privado com URL assinada de curta duracao. Recomendado migrar quando priorizarmos
+seguranca de documentos.
+
+---
+
 ## Estado atual (resumo rápido)
 
 - No ar (produção, branch main): login e permissões por perfil, cadastro de imóveis,

@@ -5,6 +5,8 @@ const { db } = require('./_db');
 const { requireAuth, isLawyerRole } = require('./_auth');
 const { cacheDel } = require('./_cache');
 const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
+const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
 
 // DDL idempotente (padrão do projeto: "... if not exists")
 let _ddlOk = false;
@@ -108,6 +110,45 @@ module.exports = async (req, res) => {
       res.status(200).json({ ok: true, negocio_id: negocioId, resumo_gerado: !!resumo, motor: OPENAI_KEY ? 'openai' : 'template' }); return;
     }
 
+    // ---- ANEXAR CONTRATO ASSINADO (Fase 1 da assinatura) ----
+    // Recebe o PDF assinado (ex.: pela assinatura do Google), guarda no Storage,
+    // registra a url no contrato do negocio e marca como assinado. Admin ou o advogado do caso.
+    if (action === 'anexar_assinado') {
+      const negocioId = b.negocioId;
+      if (!negocioId) { res.status(400).json({ error: 'negocioId' }); return; }
+      if (!admin) {
+        if (!user.usuarioId) { res.status(403).json({ error: 'sem permissao' }); return; }
+        const chk = await db('select 1 from negocio_advogado where negocio_id=$1 and advogado_id=$2', [negocioId, user.usuarioId]);
+        if (!chk.rows[0]) { res.status(403).json({ error: 'sem permissao sobre este caso' }); return; }
+      }
+      if (!SUPABASE_URL || !SERVICE_KEY) { res.status(500).json({ error: 'armazenamento indisponivel' }); return; }
+      const raw = String(b.dataBase64 || '');
+      if (!/^data:application\/pdf;base64,/.test(raw) && !/^[A-Za-z0-9+/=]+$/.test(raw)) { res.status(400).json({ error: 'envie um PDF' }); return; }
+      const b64 = raw.replace(/^data:[^;]+;base64,/, '');
+      const buf = Buffer.from(b64, 'base64');
+      if (!buf.length) { res.status(400).json({ error: 'arquivo vazio' }); return; }
+      if (buf.length > 12 * 1024 * 1024) { res.status(413).json({ error: 'PDF muito grande (max 12MB)' }); return; }
+      const path = 'contratos/' + String(negocioId) + '/' + Math.random().toString(36).slice(2, 10) + '.pdf';
+      const up = await fetch(SUPABASE_URL + '/storage/v1/object/imoveis/' + path, {
+        method: 'POST', headers: { apikey: SERVICE_KEY, Authorization: 'Bearer ' + SERVICE_KEY, 'Content-Type': 'application/pdf', 'x-upsert': 'true' }, body: buf
+      });
+      if (!up.ok) { const t = await up.text().catch(() => ''); console.error('[juris] upload assinado falhou', t.slice(0, 200)); res.status(502).json({ error: 'falha ao subir o arquivo' }); return; }
+      const url = SUPABASE_URL + '/storage/v1/object/public/imoveis/' + path;
+      // upsert do contrato do negocio: marca assinado + guarda a url
+      try {
+        const ex = await db('select id from contratos where negocio_id=$1 order by created_at limit 1', [negocioId]);
+        if (ex.rows[0]) {
+          await db("update contratos set status_assinatura='assinado', assinado_em=now(), url_assinado=$2 where id=$1", [ex.rows[0].id, url]);
+        } else {
+          const imob = await db('select imobiliaria_id from negocios where id=$1', [negocioId]);
+          const imobId = (imob.rows[0] || {}).imobiliaria_id || null;
+          await db("insert into contratos(imobiliaria_id, negocio_id, status_assinatura, assinado_em, url_assinado) values($1,$2,'assinado',now(),$3)", [imobId, negocioId, url]);
+        }
+      } catch (e) { console.error('[juris] registrar contrato assinado', String((e && e.message) || e)); res.status(500).json({ error: 'nao foi possivel registrar' }); return; }
+      try { const adv = await db('select advogado_id from negocio_advogado where negocio_id=$1', [negocioId]); (adv.rows || []).forEach(a => invalidaAdv(a.advogado_id)); } catch (_) {}
+      res.status(200).json({ ok: true, url: url }); return;
+    }
+
     // ---- DAR ANDAMENTO (advogado, só nos casos dele) ----
     if (action === 'andamento') {
       const negocioId = b.negocioId, etapa = b.etapa;
@@ -153,7 +194,7 @@ module.exports = async (req, res) => {
           u.nome advogado_nome, u.email advogado_email,
           n.valor, n.comissao, n.etapa_funil, n.fechado_em,
           l.nome lead_nome, im.titulo imovel, ib.nome imob_nome,
-          c.id contrato_id, c.status_assinatura, c.assinado_em
+          c.id contrato_id, c.status_assinatura, c.assinado_em, c.url_assinado
         from negocio_advogado na
           left join usuarios u on u.id=na.advogado_id
           left join negocios n on n.id=na.negocio_id
@@ -167,7 +208,7 @@ module.exports = async (req, res) => {
         honorario_pct: x.honorario_pct != null ? Number(x.honorario_pct) : null,
         valor: x.valor != null ? Number(x.valor) : null, comissao: x.comissao != null ? Number(x.comissao) : null,
         etapa: x.etapa_funil, fechado_em: x.fechado_em, lead_nome: x.lead_nome, imovel: x.imovel, imob_nome: x.imob_nome,
-        contrato_id: x.contrato_id, status_assinatura: x.status_assinatura, assinado_em: x.assinado_em,
+        contrato_id: x.contrato_id, status_assinatura: x.status_assinatura, assinado_em: x.assinado_em, url_assinado: x.url_assinado,
         ganho: (x.comissao != null && x.honorario_pct != null) ? Number(x.comissao) * Number(x.honorario_pct) / 100 : null
       })) }); return;
     }
