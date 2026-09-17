@@ -25,6 +25,41 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 15 - Bloco 1 do roadmap: seguranca juridica (protecao do contato do lead)
+
+Origem: reuniao de 15/09. Regra do cliente: imobiliaria e corretor NAO podem ver telefone,
+e-mail ou documento do lead antes da visita (ou do contrato). Risco de processo e de bloqueio
+no WhatsApp por contato direto indevido. Foi o primeiro item priorizado do Bloco 1.
+
+Parte A - restricao de contato no backend (api/data.js):
+- Constante REVELAR_CONTATO_EM (env, padrao 'visita'; alternativa 'contrato').
+- maskContato(): zera telefone/e-mail e remove campos sensiveis do jsonb extra; marca
+  contato_restrito=true e contato_libera_em.
+- leadsLiberadosSet() (uma consulta) e podeRevelarContato(leadId): a "porta" e a VISITA
+  registrada (atividade tipo visita concluida ou ja passada) ou, no modo 'contrato', um
+  contrato assinado do negocio do lead.
+- list de leads para nao-admin mascara cada lead que ainda nao passou pela porta. As respostas
+  de save e assign de lead tambem mascaram. A diretoria (isAdmin), operadora do Hub, ve tudo.
+- Ponto unico: a tela Pessoas e Contatos tambem e montada a partir de leads, entao fica
+  protegida junto. O funil (dash) nao serve telefone, entao nao vazava.
+- Ao salvar/concluir uma visita (agenda), invalida o cache de leads para liberar na hora.
+
+Parte B - guarda na persona do Sam (api/_persona.js):
+- Regra critica: nunca compartilhar telefone/e-mail/documento do cliente com corretor,
+  imobiliaria ou terceiros antes da visita; se pedirem o contato pelo WhatsApp, recusar com
+  educacao e avisar do risco de bloqueio e de LGPD, orientando a seguir pelo Hub.
+
+Front (aviso claro, sem vazar dado): leads.html e pessoas.html mostram "Restrito ate a visita"
+no lugar do telefone/e-mail quando contato_restrito. Testado com Playwright (label aparece no
+lead restrito, contato do lead liberado continua visivel, sem erro de pagina).
+
+Deploy: precisa promover em producao. Config opcional na Vercel: REVELAR_CONTATO_EM='contrato'
+para liberar so apos o contrato assinado (padrao atual: apos a visita).
+
+Arquivos: api/data.js, api/_persona.js, leads.html, pessoas.html.
+
+---
+
 ## Rodada 14 - Validacao da Fase 2 do funil (propagacao de fechamento para negocios)
 
 Objetivo: confirmar, com dados reais, que ao mover um card vinculado para a etapa "Fechado"

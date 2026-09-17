@@ -5,6 +5,11 @@ const { db } = require('./_db');
 const { requireAuth, isLawyerRole, isSelfRole, isAdminRole } = require('./_auth');
 // entidades com responsavel_id -> corretor/autonomo (self) ve so os proprios
 const SELF_ENT = { leads: 1, negocios: 1, agenda: 1 };
+// SEGURANCA JURIDICA (Bloco 1): imobiliaria e corretor NAO veem telefone/e-mail/documento
+// do lead antes da "porta" de liberacao. Padrao: liberar apos a VISITA registrada.
+// Trocavel para 'contrato' (liberar so apos contrato assinado) via env REVELAR_CONTATO_EM.
+// A diretoria (isAdmin), operadora do Hub, sempre ve.
+const REVELAR_CONTATO_EM = (process.env.REVELAR_CONTATO_EM || 'visita').toLowerCase();
 const { cacheGet, cacheSet, cacheDel } = require('./_cache');
 const DB_URL = process.env.DB_URL || '';
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
@@ -118,6 +123,42 @@ function leadOut(r) {
     interesse: r.interesse, motivo_perda: r.motivo_perda, ultimo_contato: r.ultimo_contato, created_at: r.created_at
   }, e);
 }
+// remove os dados de contato do lead do que vai para o cliente (imobiliaria/corretor)
+// ate a porta de liberacao. Mantem o restante (nome, interesse, status) para o trabalho.
+// telefone e email ficam presentes como null (o front espera o campo); os demais
+// campos sensiveis que possam vir do jsonb `extra` sao removidos por completo.
+const CONTATO_EXTRA_KEYS = ['whatsapp', 'celular', 'fone', 'telefone2', 'email2', 'e_mail', 'cpf', 'rg', 'documento', 'doc'];
+function maskContato(o) {
+  o.telefone = null; o.email = null;
+  CONTATO_EXTRA_KEYS.forEach(function (k) { if (k in o) delete o[k]; });
+  o.contato_restrito = true;   // sinaliza para a tela mostrar "liberado apos a visita"
+  o.contato_libera_em = REVELAR_CONTATO_EM;
+  return o;
+}
+// conjunto de lead_ids que ja passaram pela porta (visita realizada OU contrato assinado).
+// Uma consulta so; o teste de pertinencia depois e O(1). Nunca quebra a listagem.
+async function leadsLiberadosSet() {
+  try {
+    if (REVELAR_CONTATO_EM === 'contrato') {
+      const r = await db("select distinct n.lead_id from negocios n join contratos c on c.negocio_id=n.id where n.lead_id is not null and (c.assinado_em is not null or lower(coalesce(c.status_assinatura,'')) in ('assinado','assinada','concluido','concluida','signed'))");
+      return new Set((r.rows || []).map(function (x) { return String(x.lead_id); }));
+    }
+    const r = await db("select distinct lead_id from atividades where lead_id is not null and lower(coalesce(tipo,'')) like '%visita%' and (concluida = true or (inicio is not null and inicio < now()))");
+    return new Set((r.rows || []).map(function (x) { return String(x.lead_id); }));
+  } catch (_) { return new Set(); }
+}
+// versao para um lead so (respostas de save/assign)
+async function podeRevelarContato(leadId) {
+  if (!leadId) return false;
+  try {
+    if (REVELAR_CONTATO_EM === 'contrato') {
+      const r = await db("select 1 from negocios n join contratos c on c.negocio_id=n.id where n.lead_id=$1 and (c.assinado_em is not null or lower(coalesce(c.status_assinatura,'')) in ('assinado','assinada','concluido','concluida','signed')) limit 1", [leadId]);
+      return !!r.rows[0];
+    }
+    const r = await db("select 1 from atividades where lead_id=$1 and lower(coalesce(tipo,'')) like '%visita%' and (concluida = true or (inicio is not null and inicio < now())) limit 1", [leadId]);
+    return !!r.rows[0];
+  } catch (_) { return false; }
+}
 function fonteOut(r) {
   return { id: r.id, imobiliaria_id: r.imobiliaria_id, nome: r.nome, canal: r.canal, ativo: r.ativo };
 }
@@ -179,6 +220,8 @@ module.exports = async (req, res) => {
       cacheDel('data:' + ent + ':all', 'data:' + ent + ':' + (user.imobiliariaId || 'none'),
         'dash:resumo:all', 'dash:resumo:' + (user.imobiliariaId || ''),
         'dash:funil:all', 'dash:funil:' + (user.imobiliariaId || ''));
+      // salvar/concluir uma visita muda quem tem o contato liberado -> limpa a lista de leads tambem
+      if (ent === 'agenda') cacheDel('data:leads:all', 'data:leads:' + (user.imobiliariaId || 'none'));
     }
 
     // ---- LIST (com escopo RBAC) ----
@@ -211,7 +254,14 @@ module.exports = async (req, res) => {
       }
       const where = conds.length ? 'where ' + conds.join(' and ') : '';
       const r = await db(`select * from ${TABLE[ent]} ${where} order by created_at`, params);
-      const out = { rows: r.rows.map(OUT[ent]) };
+      let out;
+      if (ent === 'leads' && !user.isAdmin) {
+        // seguranca juridica: mascara contato do lead ate a porta de liberacao (visita/contrato)
+        const liberados = await leadsLiberadosSet();
+        out = { rows: r.rows.map(function (row) { const o = leadOut(row); if (!liberados.has(String(row.id))) maskContato(o); return o; }) };
+      } else {
+        out = { rows: r.rows.map(OUT[ent]) };
+      }
       cacheSet(ckey, out, 90);   // invalidado ao salvar/excluir (acima)
       res.status(200).json(out);
       return;
@@ -254,7 +304,9 @@ module.exports = async (req, res) => {
       }
       const r = await db(`update leads set responsavel_id=$1, updated_at=now() where id=$2 returning *`, [resp, id]);
       if (!r.rows[0]) { res.status(404).json({ error: 'lead nao encontrado' }); return; }
-      res.status(200).json({ row: leadOut(r.rows[0]) }); return;
+      const oAsg = leadOut(r.rows[0]);
+      if (!user.isAdmin && !(await podeRevelarContato(r.rows[0].id))) maskContato(oAsg);
+      res.status(200).json({ row: oAsg }); return;
     }
 
     // ---- SAVE (insert/update) ----
@@ -280,11 +332,15 @@ module.exports = async (req, res) => {
         if (o.id) {
           const r = await db(`update leads set nome=$1,telefone=$2,email=$3,interesse=$4,updated_at=now() where id=$5 returning *`,
             [o.nome, o.telefone || null, o.email || null, o.interesse || null, o.id]);
-          res.status(200).json({ row: leadOut(r.rows[0]) }); return;
+          const oUp = leadOut(r.rows[0]);
+          if (!user.isAdmin && !(await podeRevelarContato(r.rows[0].id))) maskContato(oUp);
+          res.status(200).json({ row: oUp }); return;
         }
         const r = await db(`insert into leads(imobiliaria_id,nome,telefone,email,interesse) values($1,$2,$3,$4,$5) returning *`,
           [o.imobiliaria_id, o.nome, o.telefone || null, o.email || null, o.interesse || null]);
-        res.status(200).json({ row: leadOut(r.rows[0]) }); return;
+        const oNew = leadOut(r.rows[0]);
+        if (!user.isAdmin && !(await podeRevelarContato(r.rows[0].id))) maskContato(oNew);
+        res.status(200).json({ row: oNew }); return;
       }
       if (ent === 'agenda') {
         const o = body;
