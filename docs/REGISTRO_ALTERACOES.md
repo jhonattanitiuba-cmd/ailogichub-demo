@@ -8,6 +8,30 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 19 - Bloco 2: locacao online (parametros + guardrail do valor minimo)
+
+Primeiro item do nucleo imobiliario (Bloco 2). Extende a proposta publica do imovel para
+locacao e liga o valor minimo do imovel a uma classificacao automatica da oferta.
+
+- imovel.html: quando o imovel e de Locacao, a proposta mostra Prazo do contrato (12/30 meses)
+  e Garantia (Calcao / Seguro fianca). Envia esses campos e mostra ao cliente uma mensagem
+  generica de margem (dentro da faixa / abaixo do esperado) SEM revelar o piso do proprietario.
+- api/proposta.js: recebe prazo/garantia/finalidade; busca o valor_minimo do imovel pelo codigo
+  e classifica a oferta em 'dentro' | 'abaixo' | 'sem_referencia' (guardrail para a IA/time
+  negociarem dentro da margem). Grava tudo no extra da proposta e devolve so a classificacao.
+  A listagem autenticada passa a incluir o extra.
+- propostas.html: nova coluna "Margem" mostrando Dentro da faixa (verde) / Abaixo do minimo
+  (ambar) e, embaixo, prazo e garantia da locacao.
+
+Testado com Playwright (selects de locacao aparecem, POST leva os campos, mensagem de margem
+generica, coluna Margem na tela do time). Deploy: precisa promover em producao.
+Observacao: a negociacao automatica da IA (ida e volta) fica para uma proxima etapa; aqui
+entregamos a captura estruturada + o guardrail que impede aceitar abaixo do minimo.
+
+Arquivos: imovel.html, api/proposta.js, propostas.html.
+
+---
+
 ## Estado atual (resumo rápido)
 
 - No ar (produção, branch main): login e permissões por perfil, cadastro de imóveis,

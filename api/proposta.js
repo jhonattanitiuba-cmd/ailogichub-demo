@@ -67,7 +67,7 @@ module.exports = async (req, res) => {
       await ensurePropostas();
       const params = []; let where = '';
       if (!user.isAdmin) { if (!user.imobiliariaId) { res.status(200).json({ rows: [] }); return; } params.push(user.imobiliariaId); where = 'where imobiliaria_id=$1'; }
-      const r = await db('select id, imovel_codigo, cliente, whatsapp, valor, status, lead_id, created_at from propostas ' + where + ' order by created_at desc limit 500', params);
+      const r = await db('select id, imovel_codigo, cliente, whatsapp, valor, status, lead_id, created_at, extra from propostas ' + where + ' order by created_at desc limit 500', params);
       res.status(200).json({ rows: r.rows }); return;
     }
     // ---- ATUALIZAR STATUS (autenticado) ----
@@ -109,14 +109,30 @@ module.exports = async (req, res) => {
     const imobId = await imobiliariaHub();
     if (!imobId) { res.status(200).json({ ok: true, semImobiliaria: true }); return; } // nao trava o cliente
 
+    // parametros de locacao online (opcionais): prazo do contrato e tipo de garantia
+    const prazo = clip(b.prazo, 20) || null;
+    const garantia = clip(b.garantia, 40) || null;
+    const finalidade = clip(b.finalidade, 20) || null;
+    // guardrail do valor minimo (piso do proprietario). NUNCA revela o piso ao cliente:
+    // classifica a oferta como dentro/abaixo da margem para o time e a IA negociarem.
+    let margem = 'sem_referencia', vmin = null;
+    try {
+      if (codigo) {
+        const im = await db("select extra->>'valor_minimo' as vmin from imoveis where lower(codigo)=lower($1) and deleted_at is null limit 1", [codigo]);
+        const raw = im.rows[0] && im.rows[0].vmin; vmin = (raw != null && raw !== '') ? Number(raw) : null;
+      }
+    } catch (_) {}
+    if (valorNum && vmin != null && isFinite(vmin) && vmin > 0) margem = (valorNum >= vmin) ? 'dentro' : 'abaixo';
+
     await ensurePropostas();
-    const interesse = 'Proposta pelo site' + (codigo ? ' para o imovel ' + codigo : '') + (valorNum ? ' no valor de R$ ' + valorNum.toLocaleString('pt-BR') : '');
+    const interesse = 'Proposta pelo site' + (codigo ? ' para o imovel ' + codigo : '') + (valorNum ? ' no valor de R$ ' + valorNum.toLocaleString('pt-BR') : '') + (prazo ? ' | prazo ' + prazo : '') + (garantia ? ' | garantia ' + garantia : '');
     const leadId = await garantirLead(imobId, cliente, whatsapp, interesse);
     await db(`insert into propostas(imobiliaria_id,imovel_codigo,cliente,whatsapp,valor,lead_id,extra)
-      values($1,$2,$3,$4,$5,$6,jsonb_build_object('origem','site'))`,
-      [imobId, codigo || null, cliente, whatsapp || null, valorNum, leadId || null]);
+      values($1,$2,$3,$4,$5,$6,jsonb_build_object('origem','site','prazo',$7::text,'garantia',$8::text,'finalidade',$9::text,'margem',$10::text))`,
+      [imobId, codigo || null, cliente, whatsapp || null, valorNum, leadId || null, prazo, garantia, finalidade, margem]);
 
-    res.status(200).json({ ok: true });
+    // devolve so a classificacao (nunca o piso). Cliente ve mensagem generica.
+    res.status(200).json({ ok: true, margem: margem });
   } catch (e) {
     console.error('[proposta]', (e && e.stack) || e);
     res.status(500).json({ error: 'Nao foi possivel registrar a proposta agora.' });

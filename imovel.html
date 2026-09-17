@@ -38,7 +38,7 @@ h1{font-size:clamp(24px,4vw,34px);margin:0;letter-spacing:-.02em}
 .panel h3{margin:0 0 4px;font-size:19px}
 .panel .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
 label{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.05em;margin:10px 0 5px;text-transform:uppercase}
-input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;background:#f7f9fc;font-size:15px}
+input,select{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;background:#f7f9fc;font-size:15px}
 .slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:6px}
 .slot{padding:12px 8px;border:1px solid var(--line);border-radius:12px;background:#f7f9fc;cursor:pointer;text-align:center;font-size:13px;font-weight:700;transition:.12s}
 .slot span{display:block;font-size:11px;color:var(--muted);font-weight:600}
@@ -109,6 +109,8 @@ input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;ba
     if(p.vagas)facts.push(['Vagas',p.vagas]);
     if(p.banheiros)facts.push(['Banheiros',p.banheiros]);
     var fin=(p.finalidade||'').toLowerCase()==='locacao'?'Locação':(p.finalidade||'').toLowerCase()==='temporada'?'Temporada':'Venda';
+    var isLoc=(fin==='Locação');
+    var locFields=isLoc?('<label>Prazo do contrato</label><select id="pprazo"><option value="12 meses">12 meses</option><option value="30 meses">30 meses</option></select><label>Garantia</label><select id="pgar"><option value="Calção">Calção</option><option value="Seguro fiança">Seguro fiança</option></select>'):'';
     var gal=fotos.length?'<img id="big" src="'+esc(fotos[0])+'" alt="">':'<div class="ph">Foto em breve</div>';
     var th=fotos.length>1?'<div class="thumbs">'+fotos.map(function(f,i){return '<img class="'+(i===0?'on':'')+'" data-i="'+i+'" src="'+esc(f)+'">';}).join('')+'</div>':'';
     document.getElementById('wrap').innerHTML=
@@ -119,8 +121,8 @@ input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;ba
       (p.descricao?'<p class="desc">'+esc(p.descricao)+'</p>':'')+
       '<div class="actions"><button class="btn p" id="bp">Fazer proposta e assinatura</button><button class="btn v" id="bv">Agendar uma visita</button></div>'+
       '<div class="panel" id="pp"><h3>Proposta e assinatura digital</h3><div class="sub">Preencha e o Hub gera o contrato timbrado para você conferir. A proposta segue com o nosso time pelo WhatsApp.</div>'+
-        '<label>Seu nome</label><input id="pn" placeholder="Nome completo"><label>WhatsApp</label><input id="pw" placeholder="(11) 90000-0000"><label>Valor da sua proposta</label><input id="pv" placeholder="R$">'+
-        '<button class="btn p" style="margin-top:14px" id="penv">Gerar proposta e contrato</button><div class="err" id="perr" style="display:none;color:#c0392b;font-size:13px;margin-top:10px">Informe seu nome e WhatsApp para gerarmos o contrato.</div><div class="ok" id="pok">Geramos o contrato timbrado do Hub em uma nova aba para você conferir. Para concluir a proposta, envie os dados ao nosso time: <a id="pwa" target="_blank" rel="noopener" style="color:#0a7d43;text-decoration:underline">enviar proposta pelo WhatsApp</a>.</div></div>'+
+        '<label>Seu nome</label><input id="pn" placeholder="Nome completo"><label>WhatsApp</label><input id="pw" placeholder="(11) 90000-0000"><label>Valor da sua proposta</label><input id="pv" placeholder="R$">'+locFields+
+        '<button class="btn p" style="margin-top:14px" id="penv">Gerar proposta e contrato</button><div class="err" id="perr" style="display:none;color:#c0392b;font-size:13px;margin-top:10px">Informe seu nome e WhatsApp para gerarmos o contrato.</div><div class="ok" id="pok">Geramos o contrato timbrado do Hub em uma nova aba para você conferir. Para concluir a proposta, envie os dados ao nosso time: <a id="pwa" target="_blank" rel="noopener" style="color:#0a7d43;text-decoration:underline">enviar proposta pelo WhatsApp</a>.</div><div class="marg" id="pmarg" style="display:none;font-size:13px;margin-top:10px"></div></div>'+
       '<div class="panel" id="vp"><h3>Agende uma visita</h3><div class="sub">Escolha um horário disponível. A confirmação chega no seu WhatsApp.</div><div class="slots" id="slots"></div>'+
         '<div class="ok" id="vok"></div></div>';
     wire(p,fotos);
@@ -142,10 +144,18 @@ input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;ba
       if(!nm||!wp){ pok.classList.remove('on'); if(perr)perr.style.display='block'; return; }
       if(perr)perr.style.display='none';
       var codi=cod||(p&&p.codigo)||'';
-      // registra a proposta e gera lead no CRM (nao bloqueante: se falhar, segue o handoff normal)
-      try{ fetch('/api/proposta',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cod:codi,cliente:nm,whatsapp:wp,valor:vl})}).catch(function(){}); }catch(e){}
+      var isLoc=(String((p&&p.finalidade)||'').toLowerCase()==='locacao');
+      var prazo=(document.getElementById('pprazo')||{}).value||'';
+      var gar=(document.getElementById('pgar')||{}).value||'';
+      // registra a proposta e gera lead no CRM. Le a classificacao de margem (sem revelar o piso).
+      try{ fetch('/api/proposta',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cod:codi,cliente:nm,whatsapp:wp,valor:vl,prazo:prazo,garantia:gar,finalidade:(isLoc?'locacao':'venda')})})
+        .then(function(r){return r.json();}).then(function(d){
+          var mg=document.getElementById('pmarg'); if(!mg)return;
+          if(d&&d.margem==='dentro'){mg.style.display='block';mg.style.color='#0a7d43';mg.textContent='Sua proposta está dentro da faixa aceita. Nosso time dá sequência.';}
+          else if(d&&d.margem==='abaixo'){mg.style.display='block';mg.style.color='#b07a00';mg.textContent='Recebemos sua proposta. O valor está abaixo do esperado pelo proprietário; nosso time vai avaliar e retornar.';}
+        }).catch(function(){}); }catch(e){}
       // handoff real: a proposta tambem chega ao time pelo WhatsApp
-      var msg='Ola! Quero fazer uma proposta para '+((p&&p.titulo)||'o imovel')+' ['+codi+'].'+(vl?(' Valor: R$ '+Number(vl).toLocaleString('pt-BR')+'.'):'')+' Meu nome: '+nm+'.';
+      var msg='Ola! Quero fazer uma proposta para '+((p&&p.titulo)||'o imovel')+' ['+codi+'].'+(vl?(' Valor: R$ '+Number(vl).toLocaleString('pt-BR')+'.'):'')+(isLoc&&prazo?(' Prazo: '+prazo+'.'):'')+(isLoc&&gar?(' Garantia: '+gar+'.'):'')+' Meu nome: '+nm+'.';
       var pwa=document.getElementById('pwa'); if(pwa)pwa.href='https://wa.me/5511936238387?text='+encodeURIComponent(msg);
       pok.classList.add('on');
       var u='/contrato?cod='+encodeURIComponent(codi)+(nm?'&cliente='+encodeURIComponent(nm):'')+(wp?'&whatsapp='+encodeURIComponent(wp):'')+(vl?'&valor='+encodeURIComponent(vl):'');
