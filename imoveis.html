@@ -114,6 +114,7 @@ td.strong{font-weight:700;color:var(--heading)}
     <div class="toolbar">
       <input class="inp search" id="q" placeholder="Buscar título, cidade ou código..." />
       <select class="inp" id="fFin"><option value="">Toda finalidade</option></select>
+      <select class="inp" id="fCat"><option value="">Residencial e comercial</option><option value="residencial">Residencial</option><option value="comercial">Comercial</option></select>
       <select class="inp" id="fStatus"><option value="">Todo status</option></select>
     </div>
     <div class="table-wrap">
@@ -186,15 +187,18 @@ td.strong{font-weight:700;color:var(--heading)}
     });
   }
 
+  // categoria a partir do tipo (robusto a rotulo ou chave): residencial x comercial
+  function categoriaDe(t){t=String(t||'').toLowerCase();if(/comerc|sala|galp|loja|escrit/.test(t))return 'comercial';if(/apart|casa|loft|cobert|kit|studio|flat|sobrado/.test(t))return 'residencial';return 'outro';}
   function applyFilter(){
-    var q=$('q').value.trim().toLowerCase(),fi=$('fFin').value,st=$('fStatus').value;
+    var q=$('q').value.trim().toLowerCase(),fi=$('fFin').value,st=$('fStatus').value,ca=$('fCat').value;
     renderRows(imoveis.filter(function(m){
       if(fi&&String(m.finalidade||'').toLowerCase()!==fi.toLowerCase())return false;
+      if(ca&&categoriaDe(m.tipo)!==ca)return false;
       if(st&&String(m.status||'').toLowerCase()!==st.toLowerCase())return false;
       if(!q)return true;return ((m.titulo||'')+' '+(m.cidade||'')+' '+(m.codigo||'')).toLowerCase().indexOf(q)>=0;
     }));
   }
-  ['q','fFin','fStatus'].forEach(function(id){$(id).addEventListener(id==='q'?'input':'change',applyFilter);});
+  ['q','fFin','fCat','fStatus'].forEach(function(id){$(id).addEventListener(id==='q'?'input':'change',applyFilter);});
   // chega do funil via ?codigo= : ja filtra o imovel
   (function(){ try{ var _c=new URLSearchParams(location.search).get('codigo'); if(!_c) return;
     if($('q')) $('q').value=_c;

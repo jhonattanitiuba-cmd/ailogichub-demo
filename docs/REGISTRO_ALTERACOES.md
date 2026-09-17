@@ -25,6 +25,15 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 18 - Bloco 1: filtro por tipo (residencial/comercial) em Imoveis
+
+imoveis.html: novo filtro de categoria (Residencial x Comercial) na toolbar, ao lado do de
+finalidade (Venda/Locacao = compra/locacao, ja existente). Categoria derivada do tipo do imovel
+(robusto a rotulo ou chave). Cobre "filtros por tipo (residencial, comercial ou compra)" do
+pedido. Testado com Playwright. Deploy: precisa promover em producao.
+
+---
+
 ## Rodada 17 - Bloco 1: motivo de perda detalhado no funil
 
 Ao mover um card para Perdido/Recusado, o funil agora pede o motivo (lista padrao:
