@@ -15,6 +15,37 @@ const DEFAULT_ETAPAS = [
   { key: 'fechado', nome: 'Fechado' },
   { key: 'perdido', nome: 'Perdido' }
 ];
+// Duas visoes de funil (definidas na reuniao). A Diretoria (admin) ve o funil completo do Hub;
+// a imobiliaria ve o funil operacional dela. Chaves reaproveitadas dos cards existentes quando
+// possivel (novo, atendimento, qualif_ia, distribuido, visita, proposta, documentacao, fechado, perdido)
+// para nao perder cards; chaves novas nascem como colunas vazias.
+const DEFAULT_ETAPAS_HUB = [
+  { key: 'novo', nome: 'Novo lead' },
+  { key: 'qualif_ia', nome: 'Qualificação por IA' },
+  { key: 'qualificado', nome: 'Lead qualificado' },
+  { key: 'distribuido', nome: 'Distribuído' },
+  { key: 'atendimento', nome: 'Aceito em atendimento' },
+  { key: 'visita', nome: 'Visita' },
+  { key: 'reuniao', nome: 'Reunião' },
+  { key: 'proposta', nome: 'Proposta' },
+  { key: 'negociacao', nome: 'Negociação' },
+  { key: 'documentacao', nome: 'Documentação' },
+  { key: 'contrato', nome: 'Contrato' },
+  { key: 'fechado', nome: 'Fechado' },
+  { key: 'posvenda', nome: 'Pós-venda' },
+  { key: 'perdido', nome: 'Pedido recusado' }
+];
+const DEFAULT_ETAPAS_IMOB = [
+  { key: 'atendimento', nome: 'Atendimento' },
+  { key: 'distribuido', nome: 'Envio de imóveis' },
+  { key: 'visita', nome: 'Visita' },
+  { key: 'proposta', nome: 'Proposta' },
+  { key: 'documentacao', nome: 'Documentação' },
+  { key: 'contrato', nome: 'Contrato' },
+  { key: 'pagamentos', nome: 'Pagamentos' },
+  { key: 'fechado', nome: 'Fechado' },
+  { key: 'perdido', nome: 'Perdido' }
+];
 async function ensureFunilConfig() { try { await db("create table if not exists funil_config(scope text primary key, etapas jsonb not null default '[]', updated_at timestamptz not null default now())"); } catch (_) {} }
 // Fase 1 da unificacao do funil: coluna de fechamento no card + tabela de historico de etapas.
 // Aditivo e idempotente (create/alter if not exists); nao toca em negocios nem no financeiro.
@@ -34,9 +65,11 @@ async function loadEtapas(scope, isAdmin) {
   let et = null;
   try {
     if (scope) { const r = await db('select etapas from funil_config where scope=$1', [scope]); if (r.rows[0] && Array.isArray(r.rows[0].etapas) && r.rows[0].etapas.length) et = r.rows[0].etapas; }
-    if (!et && !isAdmin) { const r2 = await db("select etapas from funil_config where scope='global'"); if (r2.rows[0] && Array.isArray(r2.rows[0].etapas) && r2.rows[0].etapas.length) et = r2.rows[0].etapas; }
   } catch (_) {}
-  return et ? et.slice() : DEFAULT_ETAPAS.map((e, i) => ({ key: e.key, nome: e.nome, ordem: i, hidden: false }));
+  if (et) return et.slice();
+  // sem customizacao salva: escolhe a visao padrao pelo perfil (Hub para a Diretoria, imobiliaria para os demais)
+  const base = isAdmin ? DEFAULT_ETAPAS_HUB : DEFAULT_ETAPAS_IMOB;
+  return base.map((e, i) => ({ key: e.key, nome: e.nome, ordem: i, hidden: false }));
 }
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');

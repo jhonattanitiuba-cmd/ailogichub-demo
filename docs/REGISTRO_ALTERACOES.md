@@ -8,6 +8,34 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 21 - Funil com duas visoes (Hub x imobiliaria), conforme a ata
+
+A ata define duas sequencias de funil. Implementadas como padroes por perfil (ainda editaveis
+pelo botao "Editar etapas" por escopo):
+
+- Diretoria (admin) -> funil do Hub (14 etapas): Novo lead, Qualificação por IA, Lead qualificado,
+  Distribuído, Aceito em atendimento, Visita, Reunião, Proposta, Negociação, Documentação,
+  Contrato, Fechado, Pós-venda, Pedido recusado.
+- Imobiliaria (gestor/comercial/corretor) -> funil da imobiliaria (9 etapas): Atendimento,
+  Envio de imóveis, Visita, Proposta, Documentação, Contrato, Pagamentos, Fechado, Perdido.
+
+Implementacao:
+- api/dash.js: DEFAULT_ETAPAS_HUB e DEFAULT_ETAPAS_IMOB; loadEtapas escolhe o padrao pelo isAdmin
+  quando nao ha customizacao salva (deixou de herdar o 'global' para a imobiliaria, para as visoes
+  ficarem distintas). Chaves reaproveitadas dos cards atuais para nao perder nada; o backend ja
+  cria coluna para qualquer etapa presente nos cards.
+- funil.html: o rotulo enviado pelo servidor (por visao) tem prioridade; ETLBL virou fallback com
+  rotulos amigaveis e acentuados para colunas que venham so com a chave crua.
+
+Compatibilidade: fechamento (fechado), perdido e o seletor de motivo continuam funcionando nas
+duas visoes (chaves fechado/perdido preservadas). Testado com Playwright (HUB mostra 14 colunas,
+IMOB 9, distribuido some como "Distribuído" no Hub e "Envio de imóveis" na imobiliaria; card em
+etapa fora da visao aparece com rotulo amigavel). Deploy: subido para producao.
+
+Arquivos: api/dash.js, funil.html.
+
+---
+
 ## Rodada 20 - Hotfix: coluna direita do funil cortava o conteudo dos paineis
 
 Sintoma (visto em producao): os paineis da coluna direita do funil (Resumo operacional,
