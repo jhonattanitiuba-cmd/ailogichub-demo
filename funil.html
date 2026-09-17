@@ -64,8 +64,10 @@ a{text-decoration:none;color:inherit}
 .badge.blue{background:var(--blueSoft);color:var(--blue)}.badge.green{background:var(--greenSoft);color:var(--green)}.badge.orange{background:var(--orangeSoft);color:#b8860b}.badge.red{background:var(--redSoft);color:var(--red)}
 .chip-o{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 7px;border-radius:999px;background:var(--blueSoft);color:var(--blue)}
 .meta{display:flex;justify-content:space-between;align-items:center;margin-top:7px;font-size:10px;color:var(--muted)}
-.side{display:flex;flex-direction:column;gap:14px;overflow-y:auto;min-height:0}
+.side{display:flex;flex-direction:column;gap:14px;overflow-y:auto;min-height:0;padding-right:2px}
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:15px;box-shadow:var(--soft);overflow:hidden}
+/* painel nao encolhe: a coluna rola em vez de cortar o conteudo */
+.side>.panel{flex:0 0 auto}
 .panel-head{padding:13px 15px;border-bottom:1px solid var(--border)}.panel-head h3{margin:0;font-size:14px;color:var(--heading)}
 .side-list{padding:8px 14px 12px}
 .side-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border)}.side-row:last-child{border-bottom:0}.side-row strong{font-size:12.5px;color:var(--text);font-weight:650}

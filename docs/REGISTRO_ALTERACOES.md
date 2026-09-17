@@ -8,6 +8,24 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 20 - Hotfix: coluna direita do funil cortava o conteudo dos paineis
+
+Sintoma (visto em producao): os paineis da coluna direita do funil (Resumo operacional,
+Motivos de perda) apareciam so com o titulo e o conteudo cortado/sobreposto. Agravado pela
+adicao do painel "Gargalo do funil".
+
+Causa: .side e um flex column com overflow-y:auto, mas os paineis tinham flex-shrink padrao
+(1) e overflow:hidden. Quando o conteudo passava da altura, o flexbox encolhia os paineis e o
+overflow:hidden cortava, em vez de a coluna rolar.
+
+Correcao (funil.html, CSS): .side>.panel{flex:0 0 auto} (paineis nao encolhem; a coluna rola).
+Validado com Playwright (nenhum painel corta conteudo; print isolado mostra os 5 paineis
+completos).
+
+Arquivo: funil.html. Deploy: subido para producao.
+
+---
+
 ## Rodada 19 - Bloco 2: locacao online (parametros + guardrail do valor minimo)
 
 Primeiro item do nucleo imobiliario (Bloco 2). Extende a proposta publica do imovel para
