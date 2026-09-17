@@ -29,16 +29,19 @@ const DEFAULT_ETAPAS_HUB = [ // Diretoria
   { key: 'contrato', nome: 'Contrato' },
   { key: 'pagamentos', nome: 'Pagamentos' },
   { key: 'fechado', nome: 'Fechamento' },
-  { key: 'pesquisa', nome: 'Pesquisa' }
+  { key: 'pesquisa', nome: 'Pesquisa' },
+  { key: 'perdido', nome: 'Perdido' }
 ];
 const DEFAULT_ETAPAS_IMOB = [ // Imobiliaria e Corretor (mesma sequencia)
   { key: 'atendimento', nome: 'Atendimento' },
   { key: 'distribuido', nome: 'Envio de imóveis' },
+  { key: 'visita', nome: 'Visita' },
   { key: 'proposta', nome: 'Proposta' },
   { key: 'documentacao', nome: 'Documentação' },
   { key: 'contrato', nome: 'Contrato' },
   { key: 'pagamentos', nome: 'Pagamentos' },
-  { key: 'fechado', nome: 'Fechamento' }
+  { key: 'fechado', nome: 'Fechamento' },
+  { key: 'perdido', nome: 'Perdido' }
 ];
 const DEFAULT_ETAPAS_JURIDICO = [ // Juridico (ativa apos a proposta assinada)
   { key: 'proposta_assinada', nome: 'Proposta assinada' },

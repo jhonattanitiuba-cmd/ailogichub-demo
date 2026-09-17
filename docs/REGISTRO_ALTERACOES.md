@@ -8,6 +8,20 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 24 - Funil: volta o Perdido e a Visita na imobiliaria (ajustes do cliente)
+
+- Diretoria (10): ..., Fechamento, Pesquisa, Perdido (voltou a coluna Perdido).
+- Imobiliaria e Corretor (9): Atendimento, Envio de imoveis, Visita, Proposta, Documentacao,
+  Contrato, Pagamentos, Fechamento, Perdido (voltou Visita, que faltava, e Perdido).
+- Juridico (6): mantido (Proposta assinada, Documentacao, Contrato, Pagamentos, Fechamento,
+  Assinatura de escritura). Regra de negocio: "Assinatura de escritura" so se aplica a compra e
+  venda; locacao encerra em Fechamento (a coluna existe, so os negocios de venda a usam).
+
+Com o Perdido de volta, o seletor de motivo de perda volta a funcionar nas visoes comercial.
+Testado com Playwright. Deploy: subido para producao.
+
+---
+
 ## Rodada 23 - Funil: quatro visoes definitivas por perfil (sequencias exatas do cliente)
 
 Sequencias fechadas pelo cliente (exatas, sem adicionar nem tirar):
