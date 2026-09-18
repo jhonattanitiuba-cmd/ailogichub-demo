@@ -117,8 +117,10 @@ module.exports = async (req, res) => {
       let propagado = false;
       if (won && negocioId) {
         try {
+          // Comissao pela tabela do cliente: 6% em compra e venda; primeiro aluguel (1x o valor) na locacao/temporada.
+          // Preserva a comissao ja gravada (coalesce), so calcula quando ainda estava vazia.
           const up = await db(
-            'update negocios set etapa_funil=$1::negocio_etapa, fechado_em=coalesce(fechado_em, now()), comissao=coalesce(comissao, round(coalesce(valor,0)*0.05)), updated_at=now() where id=$2 and deleted_at is null returning id',
+            "update negocios set etapa_funil=$1::negocio_etapa, fechado_em=coalesce(negocios.fechado_em, now()), comissao=coalesce(negocios.comissao, round(coalesce(negocios.valor,0) * (case when lower(coalesce((select i.finalidade from imoveis i where i.id=negocios.imovel_id),'venda')) like 'loca%' or lower(coalesce((select i.finalidade from imoveis i where i.id=negocios.imovel_id),'venda')) like 'tempor%' then 1.0 else 0.06 end))), updated_at=now() where negocios.id=$2 and negocios.deleted_at is null returning id",
             [ENUM_GANHO, negocioId]);
           propagado = !!up.rows[0];
         } catch (_) {}

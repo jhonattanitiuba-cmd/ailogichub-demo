@@ -8,6 +8,24 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 31 - Financeiro: tabela de comissoes do cliente (Bloco 4, controle financeiro)
+
+- api/dash.js (fechamento do funil): a comissao deixou de ser 5% fixo e passou a seguir a tabela
+  definida pelo cliente: 6% em compra e venda; primeiro aluguel (1x o valor do negocio) em locacao e
+  temporada. Le a finalidade do imovel vinculado ao negocio. Preserva a comissao ja gravada (so
+  calcula quando estava vazia); afeta apenas fechamentos novos, nada e reescrito no historico.
+- financeiro.html: as comissoes (KPIs "Comissao prevista" e "Receita realizada", coluna da tabela,
+  detalhe e divisao de repasse) passam a usar a mesma regra, com a finalidade do imovel. Quando o
+  negocio ja tem comissao registrada, esse valor e mantido. Nova barra "Tabela de comissoes" no topo
+  da lista, mostrando 6% (compra e venda) e 1o aluguel (locacao) para o time.
+
+Por que: item "controle financeiro" do Bloco 4, sem depender de terceiros. Os demais itens do bloco
+(cartao de credito, integracao bancaria, portais externos) seguem dependendo de provedor ou de
+reuniao. Validado no navegador: venda a 6%, locacao e temporada a 1 aluguel, comissao gravada
+preservada, e os totais (valor, comissao, receita, ticket) batendo.
+
+---
+
 ## Rodada 30 - Agenda: visoes Dia e Semana (estilo calendario)
 
 - agenda.html: o seletor de visao passou de "Calendario / Lista" para "Dia / Semana / Mes / Lista".

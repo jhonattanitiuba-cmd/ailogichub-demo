@@ -132,6 +132,13 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
       </div></div>
   </section>
 
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:var(--soft);padding:12px 16px;margin-bottom:16px">
+    <div style="font-weight:800;color:var(--heading);font-size:13px">Tabela de comissões</div>
+    <div style="display:flex;align-items:center;gap:8px;background:var(--blueSoft);border-radius:10px;padding:6px 11px"><span style="font-weight:900;color:var(--blue);font-size:14px">6%</span><span style="font-size:12px;color:var(--muted)">Compra e venda</span></div>
+    <div style="display:flex;align-items:center;gap:8px;background:var(--greenSoft);border-radius:10px;padding:6px 11px"><span style="font-weight:900;color:var(--green);font-size:13px">1º aluguel</span><span style="font-size:12px;color:var(--muted)">Locação</span></div>
+    <div style="font-size:11.5px;color:var(--muted);margin-left:auto;max-width:340px;line-height:1.45">A comissão prevista usa esta tabela. Quando o negócio já tem comissão registrada no fechamento, esse valor é mantido.</div>
+  </div>
+
   <section class="panel">
     <div class="toolbar">
       <input class="inp search" id="q" placeholder="Buscar por imobiliária..." />
@@ -156,7 +163,10 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
 <script src="hub.js" defer></script>
 <script>/*fin-real*/(function(){
   var DATA="/api/data";
-  var negs=[],imobMap={},modal=document.getElementById('negModal');
+  var negs=[],imobMap={},finMap={},modal=document.getElementById('negModal');
+  // Tabela de comissoes do cliente: 6% em compra e venda; primeiro aluguel (1x o valor) na locacao/temporada.
+  function ehLocacao(n){var f=String(finMap[n.imovel_id]||'').toLowerCase();return f.indexOf('loca')===0||f.indexOf('tempor')===0;}
+  function comissaoDe(n){ if(n.comissao!=null)return Number(n.comissao); var v=Number(n.valor)||0; return ehLocacao(n)?v:Math.round(v*0.06); }
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function brl(v){return v==null?'—':'R$ '+Math.round(v).toLocaleString('pt-BR');}
   function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
@@ -166,7 +176,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
 
   var pagos={};
   function keyOf(n){return String(n.id||(String(n.imobiliaria_id||'')+'|'+(n.valor||'')+'|'+(n.fechado_em||'')+'|'+(n.etapa_funil||'')));}
-  function splitDe(n){var hub=(n.rlor!=null)?Number(n.rlor):((Number(n.comissao)||0)*0.5);var parc=Math.max(0,(Number(n.comissao)||0)-hub);return {hub:hub,parc:parc};}
+  function splitDe(n){var c=comissaoDe(n);var hub=(n.rlor!=null)?Number(n.rlor):(c*0.5);var parc=Math.max(0,c-hub);return {hub:hub,parc:parc};}
   function confirmarPagamento(n){pagos[keyOf(n)]=true;renderRows(_lista);}
   function atualizaResumo(){var rep=0,ar=0;(_lista||[]).forEach(function(n){var s=splitDe(n);if(pagos[keyOf(n)])rep+=s.parc;else if(n.fechado_em)ar+=s.parc;});var el=document.getElementById('repasseResumo');if(el)el.textContent='Repassado aos parceiros: '+brl(rep)+' · a repassar: '+brl(ar);}
   var _lista=[];
@@ -179,7 +189,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
       var rep=pago
         ? '<span class="badge green">Repassado</span><div style="font-size:10px;color:var(--muted);margin-top:2px">Parceiro '+brl(s.parc)+' · Hub '+brl(s.hub)+'</div>'
         : '<button class="btn" data-pay="'+ix+'" style="height:28px;padding:0 10px;font-size:11px">Confirmar pagamento</button>';
-      return '<tr data-i="'+ix+'"><td class="strong">'+esc(imobMap[n.imobiliaria_id]||'—')+'</td><td class="num">'+brl(n.valor)+'</td><td class="num">'+brl(n.comissao)+'</td><td class="num">'+brl(n.rlor)+'</td><td>'+esc(n.etapa_funil||'—')+'</td><td>'+st+'</td><td>'+rep+'</td><td>'+dt(n.fechado_em)+'</td></tr>';
+      return '<tr data-i="'+ix+'"><td class="strong">'+esc(imobMap[n.imobiliaria_id]||'—')+'</td><td class="num">'+brl(n.valor)+'</td><td class="num">'+brl(comissaoDe(n))+'</td><td class="num">'+brl(n.rlor)+'</td><td>'+esc(n.etapa_funil||'—')+'</td><td>'+st+'</td><td>'+rep+'</td><td>'+dt(n.fechado_em)+'</td></tr>';
     }).join('');
     Array.prototype.forEach.call(tb.querySelectorAll('tr'),function(tr){
       var n=list[+tr.getAttribute('data-i')];
@@ -194,7 +204,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     document.getElementById('mTit').textContent=imobMap[n.imobiliaria_id]||'Negócio';
     document.getElementById('mSub').textContent=n.etapa_funil||'—';
     document.getElementById('mGrid').innerHTML=
-       fld('Valor',brl(n.valor))+fld('Comissão',brl(n.comissao))
+       fld('Valor',brl(n.valor))+fld('Comissão'+(ehLocacao(n)?' (1º aluguel)':' (6%)'),brl(comissaoDe(n)))
       +fld('RLOR',brl(n.rlor))+fld('Etapa',n.etapa_funil)
       +fld('Status',n.fechado_em?'Fechado':'Em aberto')+fld('Fechado em',dt(n.fechado_em))
       +fld('Criado em',n.created_at?new Date(n.created_at).toLocaleDateString('pt-BR'):'—')
@@ -220,13 +230,14 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   document.getElementById('q').addEventListener('input',applyFilter);
   document.getElementById('fStatus').addEventListener('change',applyFilter);
 
-  Promise.all([get('negocios'),get('imobiliarias')]).then(function(a){
+  Promise.all([get('negocios'),get('imobiliarias'),get('imoveis')]).then(function(a){
     negs=a[0]; a[1].forEach(function(i){imobMap[i.id]=i.nome;});
+    (a[2]||[]).forEach(function(im){finMap[im.id]=im.finalidade;});
     negs.sort(function(x,y){return new Date(y.created_at||0)-new Date(x.created_at||0);});
     var valor=negs.reduce(function(s,n){return s+(n.valor||0);},0);
-    var comissao=negs.reduce(function(s,n){return s+(n.comissao||0);},0);
+    var comissao=negs.reduce(function(s,n){return s+comissaoDe(n);},0);
     var fechados=negs.filter(function(n){return n.fechado_em;});
-    var receita=fechados.reduce(function(s,n){return s+(n.comissao||0);},0);
+    var receita=fechados.reduce(function(s,n){return s+comissaoDe(n);},0);
     var comValor=negs.filter(function(n){return n.valor;});
     kset('valor',brl(valor));
     kset('comissao',brl(comissao));
