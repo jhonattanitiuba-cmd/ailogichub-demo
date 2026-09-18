@@ -33,6 +33,16 @@ async function ensurePropostas() {
   _ensured = true;
 }
 
+// AREA DO CLIENTE: acesso por link magico (token unico, com validade). Guarda so o HASH do token.
+const crypto = require('crypto');
+function shaHex(s) { try { return crypto.createHash('sha256').update(String(s)).digest('hex'); } catch (_) { return null; } }
+let _acessoOk = false;
+async function ensureAcesso() {
+  if (_acessoOk) return;
+  await db("create table if not exists cliente_acesso(token_hash text primary key, lead_id uuid, whatsapp text, imobiliaria_id uuid, criado_em timestamptz not null default now(), expira_em timestamptz)");
+  _acessoOk = true;
+}
+
 // cria/vincula lead por telefone dentro da imobiliaria Hub (idempotente), origem proposta-site
 async function garantirLead(imobId, nome, telefone, interesse) {
   try {
@@ -61,6 +71,36 @@ module.exports = async (req, res) => {
   if (!DB_URL) { res.status(500).json({ error: 'backend nao configurado' }); return; }
   const action = (req.query && req.query.action) || '';
   try {
+    // ---- AREA DO CLIENTE (publico): valida o token e devolve SO os dados daquele cliente ----
+    if (action === 'area') {
+      await ensurePropostas(); await ensureAcesso();
+      const tok = (req.query && (req.query.t || req.query.token)) || '';
+      const th = tok ? shaHex(tok) : null;
+      if (!th) { res.status(400).json({ error: 'link invalido' }); return; }
+      const xff0 = String((req.headers && req.headers['x-forwarded-for']) || '').split(',')[0].trim();
+      const ip0 = xff0 || (req.socket && req.socket.remoteAddress) || '';
+      if (ip0) { const rl = await rateAllow('rl:area:' + ip0, 40, 600); if (!rl.allowed) { res.status(429).json({ error: 'Muitas tentativas. Aguarde alguns minutos.' }); return; } }
+      const ac = await db('select lead_id, whatsapp, imobiliaria_id, expira_em from cliente_acesso where token_hash=$1', [th]);
+      const row = ac.rows[0];
+      if (!row) { res.status(404).json({ error: 'link nao encontrado' }); return; }
+      if (row.expira_em && new Date(row.expira_em).getTime() < Date.now()) { res.status(410).json({ error: 'link expirado' }); return; }
+      const tel = String(row.whatsapp || '').replace(/\D/g, '');
+      const props = await db(
+        "select imovel_codigo, valor, status, created_at, extra from propostas where imobiliaria_id=$1 and (lead_id=$2 or regexp_replace(coalesce(whatsapp,''),'\\D','','g')=$3) order by created_at desc limit 100",
+        [row.imobiliaria_id, row.lead_id, tel]);
+      let nome = 'Cliente';
+      try { const nr = await db('select nome from leads where id=$1', [row.lead_id]); if (nr.rows[0] && nr.rows[0].nome) nome = nr.rows[0].nome; } catch (_) {}
+      const FRIEND = { nova: 'Recebida', em_andamento: 'Em análise', fechada: 'Aceita', descartada: 'Não seguiu' };
+      const propostas = (props.rows || []).map(function (p) {
+        return {
+          imovel_codigo: p.imovel_codigo || null, valor: p.valor != null ? Number(p.valor) : null,
+          status: FRIEND[p.status] || 'Recebida', created_at: p.created_at,
+          prazo: (p.extra && p.extra.prazo) || null, garantia: (p.extra && p.extra.garantia) || null
+        };
+      });
+      res.status(200).json({ cliente: nome, propostas: propostas });
+      return;
+    }
     // ---- LISTAR (autenticado): propostas escopadas por imobiliaria (admin ve todas) ----
     if (action === 'list') {
       const user = await requireAuth(req, res); if (!user) return;
@@ -85,6 +125,34 @@ module.exports = async (req, res) => {
       const r = await db('update propostas set status=$1 where id=$2' + scope + ' returning id', params);
       if (!r.rows[0]) { res.status(404).json({ error: 'proposta nao encontrada' }); return; }
       res.status(200).json({ ok: true }); return;
+    }
+    // ---- GERAR LINK DE ACESSO DO CLIENTE (autenticado): o time cria o link magico ----
+    if (action === 'area_link') {
+      if (req.method !== 'POST') { res.status(405).json({ error: 'metodo nao permitido' }); return; }
+      const user = await requireAuth(req, res); if (!user) return;
+      await ensurePropostas(); await ensureAcesso();
+      let lb = req.body; if (typeof lb === 'string') { try { lb = JSON.parse(lb); } catch (_) { lb = {}; } } lb = lb || {};
+      const propostaId = parseInt(lb.propostaId, 10) || null;
+      let leadId = lb.leadId || null, tel = String(lb.whatsapp || '').replace(/\D/g, '') || null, imobId = null;
+      if (propostaId) {
+        const pr = user.isAdmin
+          ? await db('select lead_id, whatsapp, imobiliaria_id from propostas where id=$1', [propostaId])
+          : await db('select lead_id, whatsapp, imobiliaria_id from propostas where id=$1 and imobiliaria_id=$2', [propostaId, user.imobiliariaId]);
+        const p = pr.rows[0]; if (!p) { res.status(404).json({ error: 'proposta nao encontrada' }); return; }
+        leadId = p.lead_id || leadId; tel = String(p.whatsapp || '').replace(/\D/g, '') || tel; imobId = p.imobiliaria_id;
+      } else {
+        imobId = user.isAdmin ? (lb.imobiliariaId || null) : user.imobiliariaId;
+      }
+      if (!imobId) { res.status(400).json({ error: 'sem imobiliaria' }); return; }
+      if (!user.isAdmin && String(imobId) !== String(user.imobiliariaId)) { res.status(403).json({ error: 'sem permissao' }); return; }
+      if (!leadId && tel) { try { const lr = await db("select id from leads where imobiliaria_id=$1 and regexp_replace(coalesce(telefone,''),'\\D','','g')=$2 and deleted_at is null limit 1", [imobId, tel]); if (lr.rows[0]) leadId = lr.rows[0].id; } catch (_) {} }
+      if (!leadId && !tel) { res.status(400).json({ error: 'informe o cliente (proposta, lead ou whatsapp)' }); return; }
+      const token = crypto.randomBytes(24).toString('hex');
+      await db("insert into cliente_acesso(token_hash, lead_id, whatsapp, imobiliaria_id, expira_em) values($1,$2,$3,$4, now() + interval '30 days')", [shaHex(token), leadId, tel, imobId]);
+      const url = 'https://ailogichub.app/area?t=' + token;
+      const msg = 'Olá! Acompanhe suas propostas e o andamento do seu imóvel por aqui: ' + url;
+      res.status(200).json({ ok: true, url: url, whatsapp: tel ? ('https://wa.me/55' + tel + '?text=' + encodeURIComponent(msg)) : null });
+      return;
     }
     // ---- SUBMETER PROPOSTA (publico, sem autenticacao) ----
     if (req.method && req.method !== 'POST') { res.status(405).json({ error: 'metodo nao permitido' }); return; }

@@ -135,6 +135,29 @@ Arquivos: imovel.html, api/proposta.js, propostas.html.
 
 ---
 
+## Rodada 27 - Bloco 2: Area do Cliente (acompanhamento por link magico)
+
+O cliente acompanha as propostas dele sem senha, por um link magico enviado pelo time.
+
+- api/proposta.js: tabela cliente_acesso (guarda so o HASH do token + validade 30 dias, escopo
+  por lead/whatsapp/imobiliaria). Acao publica "area" valida o token (com rate limit) e devolve
+  SO os dados daquele cliente: nome + propostas (imovel, valor, status amigavel, prazo/garantia).
+  Acao autenticada "area_link" gera o token e devolve a url + um link de WhatsApp pronto; escopada
+  por imobiliaria (admin gera de qualquer, os demais so da propria).
+- area.html (nova pagina publica, mobile-first): le o token da url, mostra a saudacao, a lista de
+  propostas com status (Recebida, Em analise, Aceita, Nao seguiu) e um botao "Falar com o time".
+  Trata link invalido/expirado. noindex.
+- propostas.html: botao "Enviar acesso" por proposta -> gera o link e abre o WhatsApp do cliente
+  ja com a mensagem.
+Seguranca: so o hash do token vai ao banco; o retorno e escopado ao cliente do token; rate limit.
+Testado com Playwright (area renderiza propostas/status, link expirado, botao gera area_link).
+Deploy: subido para producao. Nao adiciona funcao serverless (reusa proposta.js; area.html e estatica).
+
+Proximas ondas da Area do Cliente (nao nesta): favoritos, chat com juridico e com o assistente,
+e a etapa da negociacao em linguagem do cliente.
+
+---
+
 ## Rodada 26 - Bloco 2: documento de autorizacao do proprietario (obrigatorio para publicar)
 
 Regra da reuniao: nenhum imovel pode ser publicado sem a autorizacao de divulgacao assinada

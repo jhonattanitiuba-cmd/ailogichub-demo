@@ -135,7 +135,7 @@ td.strong{font-weight:700;color:var(--heading)}
       var waCell=wa?'<a class="wa" href="'+wa+'" target="_blank" rel="noopener">'+esc(p.whatsapp||'')+' ▸</a>':esc(p.whatsapp||'—');
       return '<tr>'+
         '<td>'+dt(p.created_at)+'</td>'+
-        '<td class="strong">'+esc(p.cliente||'—')+'</td>'+
+        '<td class="strong">'+esc(p.cliente||'—')+'<div><button class="acesso" data-id="'+esc(p.id)+'" style="margin-top:6px;background:none;border:1px solid var(--border2);border-radius:8px;padding:4px 9px;font-size:11px;font-weight:700;color:var(--blue);cursor:pointer">Enviar acesso</button></div></td>'+
         '<td>'+esc(p.imovel_codigo||'—')+'</td>'+
         '<td>'+brl(p.valor)+'</td>'+
         '<td>'+margCell(p)+'</td>'+
@@ -153,6 +153,19 @@ td.strong{font-weight:700;color:var(--heading)}
           .catch(function(){sel.disabled=false;alert('Nao foi possivel atualizar o status agora.');});
       });
       sel.setAttribute('data-old',sel.value);
+    });
+    Array.prototype.forEach.call(tb.querySelectorAll('.acesso'),function(btn){
+      btn.addEventListener('click',function(){
+        var id=btn.getAttribute('data-id'); btn.disabled=true; var txt=btn.textContent; btn.textContent='Gerando...';
+        fetch(API+'?action=area_link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({propostaId:id})})
+          .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+          .then(function(x){ btn.disabled=false; btn.textContent=txt;
+            if(!x.ok){ alert('Nao foi possivel gerar o acesso: '+((x.j&&x.j.error)||'erro')); return; }
+            if(x.j.whatsapp){ window.open(x.j.whatsapp,'_blank','noopener'); }
+            else { try{ if(navigator.clipboard) navigator.clipboard.writeText(x.j.url); }catch(_){ } alert('Link de acesso do cliente (copie e envie):\n\n'+x.j.url); }
+          })
+          .catch(function(){ btn.disabled=false; btn.textContent=txt; alert('Falha ao gerar o acesso.'); });
+      });
     });
   }
   function recount(){

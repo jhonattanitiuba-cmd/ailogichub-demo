@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Área do Cliente · AILogic Hub</title>
+<link rel="icon" href="/assets/favicon.png">
+<style>
+  :root{--bg:#f5f8fd;--panel:#fff;--line:#e7edf6;--text:#0f172a;--heading:#132b58;--muted:#64748b;--blue:#0b66ff;--green:#0f9d58;--amber:#b07a00;--red:#c0392b}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);padding:0 0 40px}
+  .top{background:linear-gradient(135deg,#0a1a38,#0b3aa0);padding:18px 18px 22px;color:#fff}
+  .top img{height:26px;display:block}
+  .wrap{max-width:720px;margin:0 auto;padding:0 16px}
+  .hi{margin:18px auto 4px;max-width:720px;padding:0 16px}
+  .hi h1{font-size:22px;color:var(--heading);letter-spacing:-.02em}
+  .hi p{color:var(--muted);font-size:13.5px;margin-top:4px}
+  .sec-t{max-width:720px;margin:22px auto 8px;padding:0 16px;font-size:13px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:10px 0;box-shadow:0 6px 18px rgba(15,23,42,.05)}
+  .card .r1{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .card .cod{font-weight:800;color:var(--heading);font-size:15px}
+  .card .val{font-weight:900;color:var(--heading);font-size:16px;white-space:nowrap}
+  .card .meta{color:var(--muted);font-size:12.5px;margin-top:4px}
+  .badge{display:inline-block;border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:800;margin-top:10px}
+  .b-rec{background:#eaf2ff;color:var(--blue)} .b-an{background:#fff5e6;color:var(--amber)} .b-ok{background:#e9f9f0;color:var(--green)} .b-no{background:#fdecec;color:var(--red)}
+  .empty{background:var(--panel);border:1px dashed var(--line);border-radius:14px;padding:26px 16px;text-align:center;color:var(--muted);font-size:14px}
+  .cta{display:block;text-align:center;background:var(--green);color:#fff;text-decoration:none;font-weight:800;font-size:15px;padding:14px;border-radius:12px;margin:18px 0}
+  .note{max-width:720px;margin:14px auto 0;padding:0 16px;color:var(--muted);font-size:12px;line-height:1.5}
+  .state{max-width:720px;margin:40px auto;padding:0 16px;text-align:center;color:var(--muted)}
+  .state h2{color:var(--heading);font-size:18px;margin-bottom:6px}
+  .foot{max-width:720px;margin:26px auto 0;padding:16px;color:#9aa7bd;font-size:11.5px;text-align:center;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><img src="/assets/logo-horizontal.png" alt="AILogic Hub"></div></div>
+<div id="app">
+  <div class="state"><p>Carregando o seu acompanhamento...</p></div>
+</div>
+<script>
+(function(){
+  var WA_HUB='5511936238387';
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function brl(v){return v==null?'Sob consulta':'R$ '+Math.round(v).toLocaleString('pt-BR');}
+  function dt(s){try{return new Date(s).toLocaleDateString('pt-BR');}catch(e){return '';}}
+  function badge(st){
+    var m={'Recebida':'b-rec','Em analise':'b-an','Em análise':'b-an','Aceita':'b-ok','Nao seguiu':'b-no','Não seguiu':'b-no'};
+    return '<span class="badge '+(m[st]||'b-rec')+'">'+esc(st)+'</span>';
+  }
+  var t=new URLSearchParams(location.search).get('t')||'';
+  var app=document.getElementById('app');
+  function stateMsg(titulo,txt){
+    app.innerHTML='<div class="state"><h2>'+esc(titulo)+'</h2><p>'+esc(txt)+'</p><a class="cta" style="max-width:320px;margin:18px auto 0" href="https://wa.me/'+WA_HUB+'">Falar com o nosso time</a></div>';
+  }
+  if(!t){ stateMsg('Link inválido','Abra o link que enviamos para você pelo WhatsApp.'); return; }
+  fetch('/api/proposta?action=area&t='+encodeURIComponent(t),{cache:'no-store'})
+    .then(function(r){return r.json().then(function(j){return {ok:r.ok,status:r.status,j:j};});})
+    .then(function(x){
+      if(!x.ok){
+        if(x.status===410){ stateMsg('Link expirado','Este link de acesso venceu. Fale com o nosso time para receber um novo.'); return; }
+        stateMsg('Não encontramos o seu acesso','Confira se abriu o link completo que enviamos, ou fale com o nosso time.'); return;
+      }
+      render(x.j);
+    })
+    .catch(function(){ stateMsg('Ops','Não foi possível carregar agora. Tente novamente em instantes.'); });
+
+  function render(d){
+    var nome=(d&&d.cliente)||'Cliente';
+    var props=(d&&d.propostas)||[];
+    var html='<div class="hi"><h1>Olá, '+esc(nome)+'</h1><p>Aqui você acompanha suas propostas e o andamento com o nosso time.</p></div>';
+    html+='<div class="sec-t">Suas propostas</div><div class="wrap">';
+    if(!props.length){
+      html+='<div class="empty">Você ainda não tem propostas registradas. Quando enviar uma, ela aparece aqui com o status.</div>';
+    } else {
+      html+=props.map(function(p){
+        var loc=[p.prazo,p.garantia].filter(Boolean).join(' · ');
+        return '<div class="card"><div class="r1"><div><div class="cod">'+(p.imovel_codigo?('Imóvel '+esc(p.imovel_codigo)):'Sua proposta')+'</div>'
+          +'<div class="meta">Enviada em '+esc(dt(p.created_at))+(loc?(' · '+esc(loc)):'')+'</div></div>'
+          +'<div class="val">'+brl(p.valor)+'</div></div>'+badge(p.status)+'</div>';
+      }).join('');
+    }
+    html+='</div>';
+    html+='<div class="wrap"><a class="cta" href="https://wa.me/'+WA_HUB+'?text='+encodeURIComponent('Olá! Sou '+nome+' e quero falar sobre minhas propostas.')+'">Falar com o nosso time</a></div>';
+    html+='<div class="note">Em breve você também poderá ver seus imóveis favoritos e falar direto com o jurídico e com o nosso assistente por aqui.</div>';
+    html+='<div class="foot">AILogic Hub · Inteligência que conecta o mercado imobiliário. Seus dados são privados e visíveis apenas para você por este link.</div>';
+    app.innerHTML=html;
+  }
+})();
+</script>
+</body>
+</html>
