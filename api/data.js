@@ -462,6 +462,37 @@ module.exports = async (req, res) => {
       res.status(200).json({ row: imovOut(r.rows[0]) }); return;
     }
 
+    // ---- IMPORTACAO EM LOTE (imoveis via planilha) ----
+    // Entram como rascunho (Inativo): o time revisa e publica depois anexando a autorizacao.
+    if (action === 'bulk') {
+      if (ent !== 'imoveis') { res.status(400).json({ error: 'importacao suportada apenas para imoveis' }); return; }
+      let imobId = user.isAdmin ? (body.imobiliaria_id || null) : user.imobiliariaId;
+      if (!imobId) { res.status(400).json({ error: 'selecione a imobiliaria' }); return; }
+      if (!user.isAdmin && String(imobId) !== String(user.imobiliariaId)) { res.status(403).json({ error: 'sem permissao' }); return; }
+      const rows = Array.isArray(body.rows) ? body.rows : [];
+      if (!rows.length) { res.status(400).json({ error: 'planilha vazia' }); return; }
+      if (rows.length > 300) { res.status(400).json({ error: 'no maximo 300 imoveis por vez' }); return; }
+      let inserted = 0; const erros = [];
+      for (let i = 0; i < rows.length; i++) {
+        const o = rows[i] || {};
+        const titulo = String(o.titulo || '').trim();
+        if (!titulo) { erros.push({ linha: i + 1, erro: 'sem titulo' }); continue; }
+        const tipo = MAP_TIPO[o.tipo] || 'outro', fin = MAP_FIN[o.finalidade] || 'venda';
+        const extraB = { origem: 'importacao' };
+        try {
+          await db(`insert into imoveis(imobiliaria_id,titulo,codigo,tipo,finalidade,status,preco,area_util,quartos,suites,banheiros,vagas,endereco,bairro,cidade,descricao,extra)
+            values($1,$2,$3,$4,$5,'inativo',$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`,
+            [imobId, titulo, (o.codigo || null), tipo, fin, numOrNull(o.preco), numOrNull(o.area),
+              intOrNull(o.quartos), intOrNull(o.suites), intOrNull(o.banheiros), intOrNull(o.vagas),
+              (o.endereco || null), (o.bairro || null), (o.cidade || null), (o.descricao || null), JSON.stringify(extraB)]);
+          inserted++;
+        } catch (e) { erros.push({ linha: i + 1, erro: 'falha ao inserir' }); }
+      }
+      cacheDel('data:imoveis:all', 'data:imoveis:' + (user.imobiliariaId || 'none'), 'dash:resumo:all', 'dash:resumo:' + (user.imobiliariaId || ''));
+      res.status(200).json({ inserted: inserted, total: rows.length, erros: erros.slice(0, 50) });
+      return;
+    }
+
     res.status(400).json({ error: 'action invalida' });
   } catch (e) {
     console.error('[data]', (e && e.stack) || e);

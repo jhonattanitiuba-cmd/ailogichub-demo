@@ -199,6 +199,24 @@ seguranca de documentos.
 
 ---
 
+## Rodada 28 - Bloco 3: importacao de imoveis em lote (CSV)
+
+Onboarding mais rapido: sobe varios imoveis de uma planilha (dor operacional citada na reuniao).
+
+- api/data.js: acao bulk (ent=imoveis) insere ate 300 imoveis por vez, escopada por imobiliaria
+  (admin escolhe a imobiliaria; os demais na propria). Entram como status Inativo (rascunho),
+  entao o time revisa e publica cada um anexando a autorizacao (nao fura a regra do Bloco 2).
+  Retorna inserted/total/erros. Aceita application/pdf ja estava no upload; aqui e so JSON.
+- imoveis.html: botao "Importar planilha" abre um modal com selecao da imobiliaria, link "Baixar
+  modelo CSV" e upload do arquivo. Parser de CSV proprio (sem biblioteca): detecta separador
+  virgula ou ponto-e-virgula, trata aspas, cabecalho flexivel (titulo, codigo, tipo, finalidade,
+  preco, area, quartos, suites, banheiros, vagas, cidade, bairro, endereco, descricao, com/sem
+  acento). Mostra quantos serao importados e o resultado.
+Testado com Playwright (CSV ; do Excel, 2 imoveis lidos, POST com as linhas, resultado ok).
+Deploy: subido para producao. Sem nova funcao serverless.
+
+---
+
 ## Estado atual (resumo rápido)
 
 - No ar (produção, branch main): login e permissões por perfil, cadastro de imóveis,
