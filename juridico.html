@@ -135,6 +135,15 @@ td.strong{font-weight:700;color:var(--heading)}
     </div>
   </section>
 
+  <section style="margin-bottom:16px;background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:14px 16px;box-shadow:var(--soft)">
+    <div style="font-weight:800;color:var(--heading);font-size:13.5px;margin-bottom:9px">Assinatura pelo Google Workspace eSignature</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:180px;background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:11px 13px"><div style="font-weight:900;color:var(--blue);font-size:13px">1. Gerar</div><div style="font-size:12px;color:var(--muted);margin-top:3px">O Hub monta o contrato com os dados do negócio.</div></div>
+      <div style="flex:1;min-width:180px;background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:11px 13px"><div style="font-weight:900;color:var(--blue);font-size:13px">2. Assinar no Google</div><div style="font-size:12px;color:var(--muted);margin-top:3px">As partes assinam pelo Google Workspace eSignature e recebem o PDF final.</div></div>
+      <div style="flex:1;min-width:180px;background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:11px 13px"><div style="font-weight:900;color:var(--green);font-size:13px">3. Anexar aqui</div><div style="font-size:12px;color:var(--muted);margin-top:3px">Anexe o PDF assinado no caso; ele fica registrado e segue para pagamentos.</div></div>
+    </div>
+  </section>
+
   <section class="panel">
     <div class="toolbar"><input class="inp search" id="q" placeholder="Buscar por advogado, cliente ou imóvel..." /></div>
     <div class="table-wrap">
@@ -176,12 +185,12 @@ td.strong{font-weight:700;color:var(--heading)}
     Array.prototype.forEach.call(tb.querySelectorAll('[data-a="rm"]'),function(b){b.addEventListener('click',function(){var c=list[+b.closest('tr').getAttribute('data-i')];desatribuir(c);});});
     Array.prototype.forEach.call(tb.querySelectorAll('[data-a="anexar"]'),function(b){b.addEventListener('click',function(){var c=list[+b.closest('tr').getAttribute('data-i')];anexarAssinado(c);});});
   }
-  // Fase 1 da assinatura: anexa o PDF assinado (ex.: pela assinatura do Google) ao caso
+  // Fase 1 da assinatura: anexa o PDF assinado pelo Google Workspace eSignature ao caso
   var _pendingNeg=null;
   function anexarAssinado(c){ if(!c||!c.negocio_id){alert('Este caso ainda nao tem negocio vinculado.');return;} _pendingNeg=c.negocio_id; var fi=$('fileAssin'); fi.value=''; fi.click(); }
   (function(){ var fi=$('fileAssin'); if(!fi)return; fi.addEventListener('change',function(){
     var f=this.files&&this.files[0]; if(!f||!_pendingNeg)return;
-    if(f.type!=='application/pdf'){alert('Envie um arquivo PDF (o contrato assinado).');return;}
+    if(f.type!=='application/pdf'){alert('Envie o PDF do contrato assinado no Google Workspace eSignature.');return;}
     if(f.size>12*1024*1024){alert('PDF muito grande (maximo 12MB).');return;}
     var rd=new FileReader();
     rd.onload=function(){

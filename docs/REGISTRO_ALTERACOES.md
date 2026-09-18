@@ -8,6 +8,23 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 32 - Consolidacao da jornada: visita exige CRECI e assinatura Google explicita
+
+- api/data.js (save de agenda): visita atribuida a corretor sem CRECI e bloqueada (estagiario nao faz
+  visita). Vale na criacao e na edicao; quando nao ha responsavel a validar ou em erro de infra, nao
+  bloqueia. Mensagem clara orientando atribuir a um corretor habilitado ou cadastrar o CRECI.
+- juridico.html: novo bloco "Assinatura pelo Google Workspace eSignature" com os 3 passos (gerar,
+  assinar no Google, anexar aqui) e textos do anexo apontando o Google Workspace, deixando o fluxo
+  imediato de assinatura explicito para o time.
+- docs/AUDITORIA_JORNADA.md: mapa da jornada ponta a ponta com estado por etapa e gargalos priorizados
+  (P0 SERVICE_ROLE_KEY e bucket privado de documentos; P1 visita sem CRECI e e-mail transacional).
+
+Por que: inicio da fase de consolidacao (concluir e testar a jornada antes de funcao nova). Estes dois
+itens de codigo nao dependem de acesso externo. Assinatura ponta a ponta em producao ainda aguarda a
+SERVICE_ROLE_KEY na Vercel.
+
+---
+
 ## Rodada 31 - Financeiro: tabela de comissoes do cliente (Bloco 4, controle financeiro)
 
 - api/dash.js (fechamento do funil): a comissao deixou de ser 5% fixo e passou a seguir a tabela

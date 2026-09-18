@@ -177,6 +177,18 @@ function atividadeOut(r) {
 function contratoOut(r) {
   return { id: r.id, imobiliaria_id: r.imobiliaria_id, negocio_id: r.negocio_id, status_assinatura: r.status_assinatura, assinado_em: r.assinado_em, url_assinado: r.url_assinado, created_at: r.created_at };
 }
+// CRECI do responsavel: '' quando cadastrado sem CRECI (estagiario, nao pode visitar),
+// string com o CRECI quando habilitado, '_skip_' quando nao ha a quem validar ou em erro de infra.
+async function creciDe(id) {
+  if (!id) return '_skip_';
+  try {
+    const r = await db('select creci from usuarios where id=$1', [id]);
+    const c = r.rows[0] && r.rows[0].creci;
+    return (c && String(c).trim()) ? String(c).trim() : '';
+  } catch (_) { return '_skip_'; }
+}
+const MSG_SEM_CRECI = 'Sem CRECI cadastrado, este corretor nao pode realizar visitas. Atribua a visita a um corretor habilitado ou cadastre o CRECI dele.';
+
 const TABLE = { imobiliarias: 'imobiliarias', imoveis: 'imoveis', corretores: 'usuarios', leads: 'leads', fontes: 'fontes_lead', negocios: 'negocios', agenda: 'atividades', contratos: 'contratos' };
 const OUT = { imobiliarias: imobOut, imoveis: imovOut, corretores: corOut, leads: leadOut, fontes: fonteOut, negocios: negOut, agenda: atividadeOut, contratos: contratoOut };
 // tabelas que têm coluna deleted_at (soft delete)
@@ -348,7 +360,13 @@ module.exports = async (req, res) => {
         if (!o.titulo) { res.status(400).json({ error: 'titulo obrigatorio' }); return; }
         const concl = (o.concluida === true || o.concluida === 'true');
         const ini = o.inicio || null, fim = o.fim || null;
+        const ehVisita = /visita/i.test(o.tipo || '');
         if (o.id) {
+          // bloqueia visita atribuida a corretor sem CRECI (estagiario nao faz visita)
+          if (ehVisita) {
+            const ex = await db('select responsavel_id from atividades where id=$1', [o.id]);
+            if (await creciDe(ex.rows[0] && ex.rows[0].responsavel_id) === '') { res.status(400).json({ error: MSG_SEM_CRECI }); return; }
+          }
           const r = await db(`update atividades set titulo=$1,tipo=$2,inicio=$3,fim=$4,concluida=$5 where id=$6 returning *`,
             [o.titulo, o.tipo || null, ini, fim, concl, o.id]);
           res.status(200).json({ row: atividadeOut(r.rows[0]) }); return;
@@ -357,6 +375,8 @@ module.exports = async (req, res) => {
         // corretor/autonomo (self): se nao informar responsavel, assume a si mesmo,
         // senao o proprio compromisso some da lista dele (filtrada por responsavel_id).
         const respAg = o.responsavel_id || ((!user.isAdmin && isSelfRole(user.perfil) && user.usuarioId) ? user.usuarioId : null);
+        // bloqueia visita atribuida a corretor sem CRECI (estagiario nao faz visita)
+        if (ehVisita && await creciDe(respAg) === '') { res.status(400).json({ error: MSG_SEM_CRECI }); return; }
         const r = await db(`insert into atividades(imobiliaria_id,titulo,tipo,inicio,fim,concluida,lead_id,negocio_id,responsavel_id) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *`,
           [o.imobiliaria_id, o.titulo, o.tipo || null, ini, fim, concl, o.lead_id || null, o.negocio_id || null, respAg]);
         res.status(200).json({ row: atividadeOut(r.rows[0]) }); return;
