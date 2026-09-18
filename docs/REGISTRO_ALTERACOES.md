@@ -8,6 +8,24 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 30 - Agenda: visoes Dia e Semana (estilo calendario)
+
+- agenda.html: o seletor de visao passou de "Calendario / Lista" para "Dia / Semana / Mes / Lista".
+  A visao de Mes (o calendario que ja existia) e a Lista continuam iguais.
+- Visao Dia: mostra os compromissos do dia escolhido em ordem de horario, com hora de inicio e fim,
+  tipo, imobiliaria e status (Concluido, Atrasado ou Pendente). Setas para dia anterior/proximo e
+  botao Hoje. Clicar em um item abre o detalhe.
+- Visao Semana: sete colunas (Dom a Sab) com o dia da semana e o numero do dia; a coluna de hoje fica
+  destacada. Cada compromisso aparece como uma etiqueta com o horario. Setas para semana
+  anterior/proxima e botao Hoje. Clicar na etiqueta abre o detalhe; clicar na coluna abre o novo
+  compromisso ja com a data daquele dia.
+
+Por que: dar ao time visoes de curto prazo (o dia e a semana) alem do panorama do mes, no estilo de
+uma agenda de calendario, para os testes. Sem dependencia externa, sem mexer no backend. Validado no
+navegador as quatro visoes, a navegacao (dia, semana, mes) e a abertura de detalhe pela etiqueta.
+
+---
+
 ## Rodada 24 - Funil: volta o Perdido e a Visita na imobiliaria (ajustes do cliente)
 
 - Diretoria (10): ..., Fechamento, Pesquisa, Perdido (voltou a coluna Perdido).

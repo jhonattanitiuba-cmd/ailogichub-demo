@@ -49,6 +49,27 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
 .chip.done{background:var(--greenSoft);color:var(--green)}
 .chip.late{background:var(--redSoft);color:var(--red)}
 .more{font-size:10.5px;color:var(--muted);font-weight:700}
+/* semana */
+.wcols{display:grid;grid-template-columns:repeat(7,1fr);flex:1;min-height:0;overflow:auto}
+.wcol{border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
+.wcol:last-child{border-right:0}
+.wcol-h{padding:8px 9px;border-bottom:1px solid var(--border);text-align:center}
+.wcol-h .wd{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.wcol-h .wn{font-size:16px;font-weight:800;color:var(--heading);margin-top:2px}
+.wcol.today .wcol-h .wn{background:var(--blue);color:#fff;width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;line-height:1}
+.wcol-b{flex:1;min-height:180px;overflow:auto;padding:7px;display:flex;flex-direction:column;gap:5px;cursor:pointer}
+.wcol-b .empty-mini{font-size:11px;color:var(--muted);text-align:center;margin-top:14px;opacity:.7}
+/* dia */
+.day-list{flex:1;overflow:auto;padding:16px 18px;display:flex;flex-direction:column;gap:11px}
+.day-item{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--border);border-radius:13px;padding:13px 15px;background:var(--panel2);cursor:pointer}
+.day-item:hover{border-color:var(--border2)}
+.day-item .hh{font-size:16px;font-weight:900;color:var(--heading);min-width:56px;letter-spacing:-.02em}
+.day-item .hh small{display:block;font-size:10px;font-weight:700;color:var(--muted)}
+.day-item .di-body{flex:1;min-width:0}
+.day-item .di-tit{font-size:14px;font-weight:750;color:var(--heading)}
+.day-item .di-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.day-item .di-bar{width:5px;align-self:stretch;border-radius:4px;background:var(--blue)}
+.day-item.done .di-bar{background:var(--green)} .day-item.late .di-bar{background:var(--red)}
 /* lista */
 .toolbar{padding:13px 15px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .inp{height:40px;border:1px solid var(--border2);border-radius:11px;padding:0 13px;font:inherit;font-size:13px;color:var(--text);background:var(--panel2);outline:none}
@@ -120,7 +141,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   <header class="header">
     <div class="headline"><h1>Agenda</h1><p>Compromissos, visitas e follow-ups do Hub, com dados reais.</p></div>
     <div class="head-actions">
-      <div class="seg" id="viewSeg"><button type="button" data-v="cal" class="on">Calendário</button><button type="button" data-v="list">Lista</button></div>
+      <div class="seg" id="viewSeg"><button type="button" data-v="dia">Dia</button><button type="button" data-v="sem">Semana</button><button type="button" data-v="cal" class="on">Mês</button><button type="button" data-v="list">Lista</button></div>
       <button class="btn primary" id="btnNew">＋ Novo compromisso</button>
       <button class="icon-btn" id="themeToggle" title="Alternar tema"><svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z'/></svg></button>
     </div>
@@ -146,6 +167,28 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
       <div class="wdays"><div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div></div>
       <div class="grid" id="grid"></div>
     </div>
+  </section>
+
+  <!-- Dia -->
+  <section class="panel hide" id="panelDay">
+    <div class="cal-top">
+      <button class="nav-b" id="prevD" title="Dia anterior"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <div class="mlabel" id="dLabel" style="min-width:230px">·</div>
+      <button class="nav-b" id="nextD" title="Próximo dia"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="btn" id="todayD" style="margin-left:6px">Hoje</button>
+    </div>
+    <div class="day-list" id="dayList"></div>
+  </section>
+
+  <!-- Semana -->
+  <section class="panel hide" id="panelWeek">
+    <div class="cal-top">
+      <button class="nav-b" id="prevW" title="Semana anterior"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <div class="mlabel" id="wLabel" style="min-width:230px">·</div>
+      <button class="nav-b" id="nextW" title="Próxima semana"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="btn" id="todayW" style="margin-left:6px">Hoje</button>
+    </div>
+    <div class="wcols" id="wcols"></div>
   </section>
 
   <!-- Lista -->
@@ -191,7 +234,10 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   var items=[],imobs=[],imobMap={},curDetail=null;
   var fm=document.getElementById('formModal'),dm=document.getElementById('detModal');
   var view='cal', mState=new Date(); mState.setDate(1);
+  var dState=new Date(); dState.setHours(0,0,0,0);
   var MES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var DIAS=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  var DIAS_C=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   function $(id){return document.getElementById(id);}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
@@ -234,6 +280,50 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     Array.prototype.forEach.call(g.querySelectorAll('.cell'),function(cell){ cell.addEventListener('click',function(){ openForm(null, cell.getAttribute('data-day')); }); });
   }
 
+  function hhmm(x){ if(!x)return ''; var d=new Date(x); return pad(d.getHours())+':'+pad(d.getMinutes()); }
+  function chipHtml(a){ var cls=a.concluida?'done':(isLate(a)?'late':''); var hr=hhmm(a.inicio); return '<div class="chip '+cls+'" data-id="'+esc(a.id)+'" title="'+esc(a.titulo)+'">'+(hr?esc(hr)+' ':'')+esc(a.titulo||'—')+'</div>'; }
+  function itemsOfDay(d){ var key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); return items.filter(function(a){return a.inicio&&ymd(a.inicio)===key;}).sort(function(x,y){return new Date(x.inicio)-new Date(y.inicio);}); }
+  function bindDetail(root){ Array.prototype.forEach.call(root.querySelectorAll('[data-id]'),function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=items.filter(function(x){return String(x.id)===el.getAttribute('data-id');})[0]; if(a)openDetail(a); }); }); }
+
+  /* ---- dia ---- */
+  function renderDay(){
+    $('dLabel').textContent=DIAS[dState.getDay()]+', '+dState.getDate()+' de '+MES[dState.getMonth()]+' de '+dState.getFullYear();
+    var list=itemsOfDay(dState);
+    var box=$('dayList');
+    if(!list.length){ box.innerHTML='<div class="empty">Nenhum compromisso neste dia. Toque em "Novo compromisso" para agendar.</div>'; return; }
+    box.innerHTML=list.map(function(a){
+      var cls=a.concluida?'done':(isLate(a)?'late':'');
+      var st=a.concluida?'Concluído':(isLate(a)?'Atrasado':'Pendente');
+      var meta=[a.tipo,imobMap[a.imobiliaria_id],st].filter(Boolean).join(' · ');
+      var hi=hhmm(a.inicio), hf=hhmm(a.fim);
+      return '<div class="day-item '+cls+'" data-id="'+esc(a.id)+'"><div class="di-bar"></div>'
+        +'<div class="hh">'+(hi||'--:--')+(hf?'<small>até '+esc(hf)+'</small>':'')+'</div>'
+        +'<div class="di-body"><div class="di-tit">'+esc(a.titulo||'—')+'</div><div class="di-meta">'+esc(meta)+'</div></div></div>';
+    }).join('');
+    bindDetail(box);
+  }
+
+  /* ---- semana ---- */
+  function weekStart(){ var s=new Date(dState); s.setDate(s.getDate()-s.getDay()); s.setHours(0,0,0,0); return s; }
+  function renderWeek(){
+    var s=weekStart(); var e=new Date(s); e.setDate(s.getDate()+6);
+    var lbl;
+    if(s.getMonth()===e.getMonth()){ lbl=s.getDate()+' a '+e.getDate()+' de '+MES[s.getMonth()]+' de '+s.getFullYear(); }
+    else { lbl=s.getDate()+' de '+MES[s.getMonth()]+' a '+e.getDate()+' de '+MES[e.getMonth()]; }
+    $('wLabel').textContent=lbl;
+    var html='';
+    for(var i=0;i<7;i++){
+      var d=new Date(s); d.setDate(s.getDate()+i);
+      var list=itemsOfDay(d);
+      var chips=list.map(chipHtml).join('')||'<div class="empty-mini">·</div>';
+      html+='<div class="wcol'+(isToday(d)?' today':'')+'"><div class="wcol-h"><div class="wd">'+DIAS_C[d.getDay()]+'</div><div class="wn">'+d.getDate()+'</div></div>'
+        +'<div class="wcol-b" data-day="'+toInput(new Date(d.getFullYear(),d.getMonth(),d.getDate(),9,0))+'">'+chips+'</div></div>';
+    }
+    var w=$('wcols'); w.innerHTML=html;
+    bindDetail(w);
+    Array.prototype.forEach.call(w.querySelectorAll('.wcol-b'),function(col){ col.addEventListener('click',function(){ openForm(null, col.getAttribute('data-day')); }); });
+  }
+
   /* ---- lista ---- */
   function statusBadge(a){return a.concluida?'<span class="badge green">Concluído</span>':(isLate(a)?'<span class="badge red">Atrasado</span>':'<span class="badge orange">Pendente</span>');}
   function renderRows(list){
@@ -253,7 +343,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   }
   $('q').addEventListener('input',applyFilter);$('fStatus').addEventListener('change',applyFilter);
 
-  function refreshView(){ if(view==='cal') renderCal(); else applyFilter(); }
+  function refreshView(){ if(view==='cal') renderCal(); else if(view==='dia') renderDay(); else if(view==='sem') renderWeek(); else applyFilter(); }
 
   /* ---- detalhe ---- */
   function openDetail(a){ if(!a)return; curDetail=a;
@@ -313,10 +403,19 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   /* ---- view toggle + nav ---- */
   $('viewSeg').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;view=b.getAttribute('data-v');
     Array.prototype.forEach.call($('viewSeg').children,function(x){x.classList.toggle('on',x===b);});
-    $('panelCal').classList.toggle('hide',view!=='cal');$('panelList').classList.toggle('hide',view!=='list');refreshView();});
+    $('panelDay').classList.toggle('hide',view!=='dia');
+    $('panelWeek').classList.toggle('hide',view!=='sem');
+    $('panelCal').classList.toggle('hide',view!=='cal');
+    $('panelList').classList.toggle('hide',view!=='list');refreshView();});
   $('prevM').addEventListener('click',function(){mState.setMonth(mState.getMonth()-1);renderCal();});
   $('nextM').addEventListener('click',function(){mState.setMonth(mState.getMonth()+1);renderCal();});
   $('todayB').addEventListener('click',function(){mState=new Date();mState.setDate(1);renderCal();});
+  $('prevD').addEventListener('click',function(){dState.setDate(dState.getDate()-1);renderDay();});
+  $('nextD').addEventListener('click',function(){dState.setDate(dState.getDate()+1);renderDay();});
+  $('todayD').addEventListener('click',function(){dState=new Date();dState.setHours(0,0,0,0);renderDay();});
+  $('prevW').addEventListener('click',function(){dState.setDate(dState.getDate()-7);renderWeek();});
+  $('nextW').addEventListener('click',function(){dState.setDate(dState.getDate()+7);renderWeek();});
+  $('todayW').addEventListener('click',function(){dState=new Date();dState.setHours(0,0,0,0);renderWeek();});
 
   function load(){
     Promise.all([get('agenda'),get('imobiliarias')]).then(function(a){
