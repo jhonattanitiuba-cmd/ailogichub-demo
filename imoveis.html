@@ -146,6 +146,8 @@ td.strong{font-weight:700;color:var(--heading)}
     <label>Foto de capa (URL)<input id="f_foto" placeholder="https://..."></label>
     <label>Mais fotos (uma URL por linha)<textarea id="f_fotos" placeholder="https://exemplo.com/foto-2.jpg&#10;https://exemplo.com/foto-3.jpg"></textarea></label>
     <label>Descrição<textarea id="f_desc"></textarea></label>
+    <label>Autorização de divulgação do proprietário (obrigatória para publicar)<input type="file" id="f_autoriz" accept="application/pdf,image/*" style="height:auto;padding:9px 12px"></label>
+    <div id="autorizStatus" style="font-size:12px;color:var(--muted);margin:-2px 0 4px"></div>
   </div>
   <div class="modal-f"><span class="ferr" id="fErr"></span><button class="btn" id="fCancel">Cancelar</button><button class="btn primary" id="fSave">Salvar</button></div>
 </div></div>
@@ -231,6 +233,8 @@ td.strong{font-weight:700;color:var(--heading)}
     $('f_quartos').value=m.quartos!=null?m.quartos:'';$('f_suites').value=m.suites!=null?m.suites:'';$('f_banheiros').value=m.banheiros!=null?m.banheiros:'';
     $('f_cidade').value=m.cidade||'';$('f_bairro').value=m.bairro||'';$('f_endereco').value=m.endereco||'';$('f_desc').value=m.descricao||'';
     $('f_foto').value=m.foto||'';$('f_fotos').value=(Array.isArray(m.fotos)?m.fotos:[]).join('\n');
+    $('f_autoriz').value='';var au=m.autorizacao_url||'';fm.dataset.autoriz=au;
+    $('autorizStatus').innerHTML=au?('Autorização anexada. <a href="'+esc(au)+'" target="_blank" rel="noopener" style="color:var(--blue)">ver</a> (envie outra para substituir).'):'Sem autorização anexada. É necessária para publicar (status Disponível).';
     fm.dataset.id=m.id||'';
     fm.classList.add('open');
   }
@@ -253,12 +257,29 @@ td.strong{font-weight:700;color:var(--heading)}
     if(!o.titulo){$('fErr').textContent='Informe o título.';return;}
     if(!o.imobiliaria_id){$('fErr').textContent='Selecione a imobiliária.';return;}
     if(fm.dataset.id)o.id=fm.dataset.id;
+    // carrega a autorizacao existente (backend tambem preserva); se houver arquivo novo, sobe antes
+    if(fm.dataset.autoriz){o.autorizacao_url=fm.dataset.autoriz;o.autorizacao_ok=true;}
     var btn=$('fSave');btn.disabled=true;btn.textContent='Salvando…';
+    function doSave(){
     fetch(DATA+'?ent=imoveis&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)})
       .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
       .then(function(x){btn.disabled=false;btn.textContent='Salvar';
         if(x.ok){closeForm();load();}else{$('fErr').textContent='Erro: '+((x.j&&x.j.error)||'desconhecido');}})
       .catch(function(){btn.disabled=false;btn.textContent='Salvar';$('fErr').textContent='Falha na requisição.';});
+    }
+    // se ha um arquivo de autorizacao novo, sobe antes de salvar
+    var afile=($('f_autoriz').files||[])[0];
+    if(afile){
+      if(afile.size>12*1024*1024){btn.disabled=false;btn.textContent='Salvar';$('fErr').textContent='Autorização muito grande (máx 12MB).';return;}
+      var rd=new FileReader();
+      rd.onload=function(){
+        fetch(DATA+'?action=upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:(afile.type||'application/pdf'),dataBase64:rd.result})})
+          .then(function(r){return r.json();})
+          .then(function(j){ if(j&&j.url){o.autorizacao_url=j.url;o.autorizacao_ok=true;} doSave(); })
+          .catch(function(){btn.disabled=false;btn.textContent='Salvar';$('fErr').textContent='Falha ao enviar a autorização.';});
+      };
+      rd.readAsDataURL(afile);
+    } else { doSave(); }
   });
 
   function delImovel(m){

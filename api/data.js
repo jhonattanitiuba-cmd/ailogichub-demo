@@ -194,13 +194,14 @@ module.exports = async (req, res) => {
       if (!SUPABASE_URL || !SERVICE_KEY) { res.status(500).json({ error: 'storage indisponivel' }); return; }
       let ub = req.body; if (typeof ub === 'string') { try { ub = JSON.parse(ub); } catch (_) { ub = {}; } } ub = ub || {};
       const type = String(ub.type || 'image/jpeg');
-      if (!/^image\/(jpeg|png|webp)$/.test(type)) { res.status(400).json({ error: 'tipo invalido' }); return; }
+      // fotos de imovel (imagens) + documento de autorizacao (PDF)
+      if (!/^image\/(jpeg|png|webp)$/.test(type) && type !== 'application/pdf') { res.status(400).json({ error: 'tipo invalido' }); return; }
       const b64 = String(ub.dataBase64 || '').replace(/^data:[^;]+;base64,/, '');
       if (!b64) { res.status(400).json({ error: 'sem dados' }); return; }
       const buf = Buffer.from(b64, 'base64');
       if (!buf.length) { res.status(400).json({ error: 'dados vazios' }); return; }
-      if (buf.length > 8 * 1024 * 1024) { res.status(413).json({ error: 'imagem muito grande' }); return; }
-      const ext = type === 'image/png' ? 'png' : type === 'image/webp' ? 'webp' : 'jpg';
+      if (buf.length > 12 * 1024 * 1024) { res.status(413).json({ error: 'arquivo muito grande' }); return; }
+      const ext = type === 'application/pdf' ? 'pdf' : type === 'image/png' ? 'png' : type === 'image/webp' ? 'webp' : 'jpg';
       const path = (user.imobiliariaId || 'geral') + '/' + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6) + '.' + ext;
       const up = await fetch(SUPABASE_URL + '/storage/v1/object/imoveis/' + path, {
         method: 'POST', headers: { apikey: SERVICE_KEY, Authorization: 'Bearer ' + SERVICE_KEY, 'Content-Type': type, 'x-upsert': 'true' }, body: buf
@@ -441,6 +442,14 @@ module.exports = async (req, res) => {
       if (!o.titulo) { res.status(400).json({ error: 'titulo obrigatorio' }); return; }
       if (!o.imobiliaria_id) { res.status(400).json({ error: 'imobiliaria_id obrigatorio' }); return; }
       const tipo = MAP_TIPO[o.tipo] || 'outro', fin = MAP_FIN[o.finalidade] || 'venda', st = MAP_ST[o.status] || 'disponivel';
+      // preserva a autorizacao do proprietario num update quando o cliente nao reenvia
+      if (o.id && !(extra.autorizacao_url || extra.autorizacao_ok)) {
+        try { const exr = await db("select extra->>'autorizacao_url' au, extra->>'autorizacao_ok' ok from imoveis where id=$1", [o.id]); const e0 = exr.rows[0] || {}; if (e0.au) extra.autorizacao_url = e0.au; if (e0.ok) extra.autorizacao_ok = (e0.ok === 'true'); } catch (_) {}
+      }
+      // REGRA (Bloco 2): publicar (Disponivel) exige a autorizacao de divulgacao do proprietario
+      if (st === 'disponivel' && !(extra.autorizacao_url || extra.autorizacao_ok === true)) {
+        res.status(400).json({ error: 'Para publicar (Disponivel), anexe a autorizacao de divulgacao assinada pelo proprietario.' }); return;
+      }
       const vals = [o.imobiliaria_id, o.titulo, o.codigo||null, tipo, fin, st, numOrNull(o.preco), numOrNull(o.area),
         intOrNull(o.quartos), intOrNull(o.suites), intOrNull(o.banheiros), intOrNull(o.vagas),
         o.endereco||null, o.bairro||null, o.cidade||null, o.descricao||null, JSON.stringify(extra)];

@@ -135,6 +135,23 @@ Arquivos: imovel.html, api/proposta.js, propostas.html.
 
 ---
 
+## Rodada 26 - Bloco 2: documento de autorizacao do proprietario (obrigatorio para publicar)
+
+Regra da reuniao: nenhum imovel pode ser publicado sem a autorizacao de divulgacao assinada
+pelo proprietario.
+
+- api/data.js: acao upload passa a aceitar application/pdf (alem de imagens), limite 12MB.
+  No save de imovel, quando o status e "Disponivel" (publicar), exige extra.autorizacao_url/ok;
+  senao bloqueia com mensagem clara. Em update, preserva a autorizacao existente se o cliente
+  nao reenviar. Salvar como Reservado/Inativo (rascunho) continua liberado sem autorizacao.
+- imoveis.html: campo "Autorizacao de divulgacao do proprietario (obrigatoria para publicar)"
+  no cadastro (PDF ou imagem), com status (anexada + link "ver" / pendente). No salvar, sobe o
+  arquivo antes e vincula ao imovel; carrega a autorizacao existente ao editar.
+Testado com Playwright (campo aparece, upload chamado, autorizacao_url vai no save; sem erro).
+Deploy: subido para producao.
+
+---
+
 ## Rodada 25 - Bloco 2: Fase 1 da assinatura (anexar contrato assinado no Hub)
 
 Permite fechar o ciclo de assinatura usando a assinatura do Google (ou qualquer PDF assinado),
