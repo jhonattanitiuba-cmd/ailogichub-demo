@@ -199,6 +199,20 @@ seguranca de documentos.
 
 ---
 
+## Rodada 29 - Bloco 3: filtros e ordenacao de corretores (com/sem CRECI, alfabetica, recentes)
+
+- corretores.html: novos filtros na toolbar. Filtro CRECI (Com e sem / Com CRECI / Sem CRECI =
+  estagiario) e ordenacao (Ordem alfabetica / Cadastros recentes). O padrao passa a ser alfabetico.
+  A diferenciacao com/sem CRECI ja existia (estagiario sem CRECI, com corretor responsavel).
+- api/data.js: corOut passa a devolver created_at (para ordenar por recentes).
+Testado com Playwright (default A-Z; filtro sem CRECI mostra so estagiario; com CRECI ordenado;
+recentes por data desc). Deploy: subido para producao.
+
+Observacao (follow-up): a regra "estagiario sem CRECI nao realiza visitas" sera aplicada no
+guard da agenda quando fizermos a agenda dia/semana/mes.
+
+---
+
 ## Rodada 28 - Bloco 3: importacao de imoveis em lote (CSV)
 
 Onboarding mais rapido: sobe varios imoveis de uma planilha (dor operacional citada na reuniao).

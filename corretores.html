@@ -108,7 +108,7 @@ td.strong{font-weight:700;color:var(--heading)}
   </section>
 
   <section class="panel">
-    <div class="toolbar"><input class="inp search" id="q" placeholder="Buscar por nome, e-mail ou CRECI..." /><select class="inp" id="fImob"><option value="">Toda imobiliária</option></select></div>
+    <div class="toolbar"><input class="inp search" id="q" placeholder="Buscar por nome, e-mail ou CRECI..." /><select class="inp" id="fImob"><option value="">Toda imobiliária</option></select><select class="inp" id="fCreci"><option value="">Com e sem CRECI</option><option value="com">Com CRECI</option><option value="sem">Sem CRECI (estagiário)</option></select><select class="inp" id="fSort"><option value="az">Ordem alfabética</option><option value="recentes">Cadastros recentes</option></select></div>
     <div class="table-wrap">
       <table><thead><tr><th>Corretor</th><th>Imobiliária</th><th>CRECI</th><th>Telefone</th><th>Perfil</th><th>Status de acesso</th><th>Ações</th></tr></thead>
       <tbody id="rows"><tr><td colspan="7" class="empty">Carregando…</td></tr></tbody></table>
@@ -187,11 +187,17 @@ td.strong{font-weight:700;color:var(--heading)}
       })
       .catch(function(){alert('Falha na requisição.');});
   }
-  function applyFilter(){var q=$('q').value.trim().toLowerCase(),im=$('fImob').value;
-    renderRows(items.filter(function(m){
-      if(im&&String(m.imobiliaria_id||'')!==im)return false;
-      if(!q)return true;return ((m.nome||'')+' '+(m.email||'')+' '+(m.creci||'')).toLowerCase().indexOf(q)>=0;}));}
-  $('q').addEventListener('input',applyFilter);$('fImob').addEventListener('change',applyFilter);
+  function applyFilter(){var q=$('q').value.trim().toLowerCase(),im=$('fImob').value,cr=$('fCreci').value,sort=$('fSort').value;
+    var list=items.filter(function(m){
+      if(cr==='com'&&!m.creci)return false;
+      if(cr==='sem'&&m.creci)return false;
+      if(im&&String(m.imobiliaria_id||'')!==String(im))return false;
+      if(!q)return true;return ((m.nome||'')+' '+(m.email||'')+' '+(m.creci||'')).toLowerCase().indexOf(q)>=0;});
+    if(sort==='recentes'){list.sort(function(a,b){return (new Date(b.created_at||0))-(new Date(a.created_at||0));});}
+    else{list.sort(function(a,b){return (a.nome||'').localeCompare(b.nome||'','pt',{sensitivity:'base'});});}
+    renderRows(list);
+  }
+  $('q').addEventListener('input',applyFilter);$('fImob').addEventListener('change',applyFilter);$('fCreci').addEventListener('change',applyFilter);$('fSort').addEventListener('change',applyFilter);
 
   function openDetail(m){curDetail=m;$('dTit').textContent=m.nome||'Corretor';
     $('dGrid').innerHTML=fld('Imobiliária',imobMap[m.imobiliaria_id])+fld('Perfil',m.perfil==='estagiario'?'Estagiário':cap(m.perfil))+fld('E-mail',m.email)+fld('Telefone',m.telefone)+fld('CRECI',m.creci)+(m.perfil==='estagiario'?fld('Corretor responsável',m.supervisor_nome):'')+'<div class="mcell full"><label>Status de acesso</label><strong>'+acessoBadge(m)+'</strong></div>';
@@ -263,7 +269,7 @@ td.strong{font-weight:700;color:var(--heading)}
       kset('inativos',items.filter(function(m){return m.status==='Inativo';}).length);
       kset('creci',items.filter(function(m){return m.creci;}).length);
       var ff=$('fImob');ff.length=1;imobs.forEach(function(i){var o=document.createElement('option');o.value=i.id;o.textContent=i.nome;ff.appendChild(o);});
-      renderRows(items);
+      applyFilter();
     });
   }
   load();
