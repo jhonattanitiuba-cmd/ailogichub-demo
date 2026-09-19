@@ -23,6 +23,7 @@ function pubOut(r) {
     descricao: r.descricao,
     foto: foto,
     fotos: fotos.length ? fotos : (foto ? [foto] : []),
+    destaque: !!e.destaque,
     imobiliaria: r.imob_nome || ''
   };
 }

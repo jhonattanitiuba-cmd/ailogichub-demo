@@ -8,6 +8,26 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 33 - Site: destaque de imoveis, blindagem da tela Imobiliarias e roteiro de teste
+
+- Vitrine de destaques (Tela 3 do site): a diretoria marca "Destaque no site" no cadastro do imovel
+  (imoveis.html) e esses imoveis aparecem primeiro na secao de imoveis do site publico (site.html),
+  com o selo "Destaque". Ordenacao: destaque, depois com foto, depois maior valor. api/vitrine.js
+  passou a expor o campo destaque. Assim o cliente controla a "selecao dos melhores imoveis".
+- imobiliarias.html: blindagem do carregamento. A requisicao tem timeout de 12s e nunca deixa a tela
+  presa em "Carregando"; em falha, mostra "Nao foi possivel carregar... Tentar novamente" e zera os
+  indicadores. Corrige o comportamento do print enviado pelo cliente.
+- docs/ROTEIRO_TESTE_JORNADA.md: roteiro guiado de ponta a ponta para a equipe rodar, com o que fazer
+  e o que conferir em cada etapa, mais a checagem transversal de reaproveitamento de dados (nenhuma
+  etapa deve exigir recadastro do mesmo negocio) e a lista de atencao a bugs.
+
+Por que: itens da fase de consolidacao pedidos apos a leitura da conversa dos ultimos dias. O ajuste
+de tamanho de fonte das telas 1 e 2 do site depende dos prints, que ainda nao chegaram. Validado no
+navegador: destaque sobe ao topo com selo, e a tela Imobiliarias cai em estado de erro com "tentar
+novamente" em vez de travar.
+
+---
+
 ## Rodada 32 - Consolidacao da jornada: visita exige CRECI e assinatura Google explicita
 
 - api/data.js (save de agenda): visita atribuida a corretor sem CRECI e bloqueada (estagiario nao faz

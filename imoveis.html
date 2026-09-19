@@ -148,6 +148,7 @@ td.strong{font-weight:700;color:var(--heading)}
     <label>Descrição<textarea id="f_desc"></textarea></label>
     <label>Autorização de divulgação do proprietário (obrigatória para publicar)<input type="file" id="f_autoriz" accept="application/pdf,image/*" style="height:auto;padding:9px 12px"></label>
     <div id="autorizStatus" style="font-size:12px;color:var(--muted);margin:-2px 0 4px"></div>
+    <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-weight:600;color:var(--text);text-transform:none"><input type="checkbox" id="f_destaque" style="width:auto;height:auto;margin:0"> Destaque no site (aparece entre os melhores imóveis, no topo da vitrine)</label>
   </div>
   <div class="modal-f"><span class="ferr" id="fErr"></span><button class="btn" id="fCancel">Cancelar</button><button class="btn primary" id="fSave">Salvar</button></div>
 </div></div>
@@ -248,6 +249,7 @@ td.strong{font-weight:700;color:var(--heading)}
     $('f_foto').value=m.foto||'';$('f_fotos').value=(Array.isArray(m.fotos)?m.fotos:[]).join('\n');
     $('f_autoriz').value='';var au=m.autorizacao_url||'';fm.dataset.autoriz=au;
     $('autorizStatus').innerHTML=au?('Autorização anexada. <a href="'+esc(au)+'" target="_blank" rel="noopener" style="color:var(--blue)">ver</a> (envie outra para substituir).'):'Sem autorização anexada. É necessária para publicar (status Disponível).';
+    $('f_destaque').checked=!!m.destaque;
     fm.dataset.id=m.id||'';
     fm.classList.add('open');
   }
@@ -266,7 +268,7 @@ td.strong{font-weight:700;color:var(--heading)}
       tipo:$('f_tipo').value,finalidade:$('f_fin').value,status:$('f_status').value,
       preco:num('f_preco'),valor_minimo:num('f_valor_min'),area:num('f_area'),vagas:num('f_vagas'),quartos:num('f_quartos'),suites:num('f_suites'),banheiros:num('f_banheiros'),
       cidade:$('f_cidade').value.trim(),bairro:$('f_bairro').value.trim(),endereco:$('f_endereco').value.trim(),descricao:$('f_desc').value.trim(),
-      foto:capa,fotos:fotos};
+      foto:capa,fotos:fotos,destaque:$('f_destaque').checked};
     if(!o.titulo){$('fErr').textContent='Informe o título.';return;}
     if(!o.imobiliaria_id){$('fErr').textContent='Selecione a imobiliária.';return;}
     if(fm.dataset.id)o.id=fm.dataset.id;

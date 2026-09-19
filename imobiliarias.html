@@ -243,7 +243,10 @@ td.strong{font-weight:700;color:var(--heading)}
   function userById(id){for(var i=0;i<usersCache.length;i++){if(String(usersCache[i].id)===String(id))return usersCache[i];}return null;}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
-  function get(){return fetch(DATA+'?ent=imobiliarias&action=list',{cache:'no-store'}).then(function(r){return r.ok?r.json():{rows:[]};}).then(function(d){return d.rows||[];}).catch(function(){return [];});}
+  // blindagem: a requisicao nunca pode travar a tela em "Carregando". Timeout de 12s -> estado de erro com "tentar novamente".
+  function fetchTimeout(url,ms){return new Promise(function(resolve){var done=false;var to=setTimeout(function(){if(!done){done=true;resolve({__erro:true});}},ms);
+    fetch(url,{cache:'no-store'}).then(function(r){return r.ok?r.json():{rows:[]};}).then(function(d){if(!done){done=true;clearTimeout(to);resolve(d||{rows:[]});}}).catch(function(){if(!done){done=true;clearTimeout(to);resolve({__erro:true});}});});}
+  function get(){return fetchTimeout(DATA+'?ent=imobiliarias&action=list',12000).then(function(d){return (d&&d.__erro)?{__erro:true}:{rows:(d&&d.rows)||[]};});}
   function fld(l,v,full){return '<div class="mcell'+(full?' full':'')+'"><label>'+l+'</label><strong>'+esc(v==null||v===''?'—':v)+'</strong></div>';}
   function stBadge(s){return (s||'')==='Pausado'?'<span class="badge orange">Pausado</span>':'<span class="badge green">'+esc(s||'Ativo')+'</span>';}
 
@@ -528,7 +531,14 @@ td.strong{font-weight:700;color:var(--heading)}
       .catch(function(){alert('Falha na requisição.');});
   }
 
-  function load(){get().then(function(rows){items=rows;
+  function load(){get().then(function(res){
+    if(res&&res.__erro){
+      items=[];kset('total','0');kset('ativas','0');kset('pausadas','0');kset('pendentes','0');
+      $('rows').innerHTML='<tr><td colspan="6" class="empty">Não foi possível carregar as imobiliárias agora. <a href="#" id="reloadImob" style="color:var(--blue);font-weight:700">Tentar novamente</a></td></tr>';
+      var rl=$('reloadImob');if(rl)rl.addEventListener('click',function(e){e.preventDefault();$('rows').innerHTML='<tr><td colspan="6" class="empty">Carregando…</td></tr>';load();});
+      return;
+    }
+    items=(res&&res.rows)||[];
     kset('total',items.length);
     kset('ativas',items.filter(function(m){return m.status!=='Pausado';}).length);
     kset('pausadas',items.filter(function(m){return m.status==='Pausado'&&!m.pendente;}).length);
