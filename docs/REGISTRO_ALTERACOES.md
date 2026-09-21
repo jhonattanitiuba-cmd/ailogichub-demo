@@ -8,6 +8,18 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 34 - Remocao do "Em Breve" do sistema
+
+- hub.js: removida a injecao do item "Em Breve" na barra lateral (aparecia em todas as telas).
+  Agora a sidebar nao mostra mais esse atalho.
+- embreve.html: a pagina virou um redirecionamento para /visaogeral, para nao deixar 404 caso
+  alguem tenha o link salvo. As outras ocorrencias de "em breve" (placeholder de foto, dicas de
+  tela) sao textos legitimos e foram mantidas.
+
+Por que: pedido do cliente para tirar a parte "Em Breve" do sistema.
+
+---
+
 ## Rodada 33 - Site: destaque de imoveis, blindagem da tela Imobiliarias e roteiro de teste
 
 - Vitrine de destaques (Tela 3 do site): a diretoria marca "Destaque no site" no cadastro do imovel

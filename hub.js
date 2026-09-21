@@ -664,7 +664,6 @@
     }
     add('data-propostas','/propostas','\u25A4','Propostas');     // gated (gestor/comercial/corretor/admin) pelo restrictMenu
     add('data-mkt360','/marketing','\u25CD','Marketing 360');   // gated (marketing/admin) pelo restrictMenu
-    if(!/\/embreve(\.html)?$/.test(location.pathname)) add('data-embreve','/embreve','\u2726','Em Breve');
   }
   function run(){ try{ ensureViewport(); markScr(); ensureCss(); replaceIconHosts(); cleanText(); injectEmBreve(); active(); setupCollapse(); setupLogout(); setupDock(); cascadeSidebar(); revealContent(document.querySelector('.main'), 'entry'); markWidgets(document); document.documentElement.classList.remove('hub-pre'); setupNav(); setupSwipe(); swipeHint(); standardizeButtons(); watchButtons(); markStatusPills(); setupPullRefresh(); setupFab(); loadBegin(); gateDashboard(); setTimeout(gateDashboard,400); window.addEventListener('resize', onResize); window.addEventListener('orientationchange', onResize); }catch(e){ document.documentElement.classList.remove('hub-pre'); } }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
