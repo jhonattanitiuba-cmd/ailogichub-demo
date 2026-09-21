@@ -1028,3 +1028,70 @@
   function boot(){ try{ mount(); load(); }catch(_){} }
   if(document.readyState!=='loading') boot(); else document.addEventListener('DOMContentLoaded',boot);
 })();
+
+/* ===== Lembretes da Agenda: alerta na tela quando um compromisso se aproxima ===== */
+(function(){
+  if(location.pathname.indexOf('login')>=0) return;
+  var POLL=60000;            // checa a cada 60s
+  var GRACE=10*60000;        // ainda avisa ate 10 min depois do horario (caso o Hub estivesse fechado)
+  function LS(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } }
+  function LSset(k,v){ try{ localStorage.setItem(k,v); }catch(_){} }
+  function defaultLead(){ var v=LS('ag_lembrete_min'); return (v==null)?'30':v; } // minutos, '0'=no horario, 'off'=nao lembrar
+  function leadDe(a){ var pe=LS('ag_lembrete:'+a.id); if(pe==null||pe==='default') return defaultLead(); return pe; }
+  function jaAvisou(id,lead){ return LS('ag_notified:'+id+':'+lead)==='1'; }
+  function marcaAvisou(id,lead){ LSset('ag_notified:'+id+':'+lead,'1'); }
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+  function ensureCss(){ if(document.getElementById('ag-lembrete-css')) return;
+    var css=''
+      +'.ag-toasts{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:10px;max-width:340px}'
+      +'@media(max-width:560px){.ag-toasts{left:12px;right:12px;max-width:none}}'
+      +'.ag-toast{background:#0b1a34;color:#fff;border:1px solid rgba(120,170,255,.35);border-radius:14px;padding:13px 14px;box-shadow:0 16px 40px rgba(0,0,0,.4);display:flex;gap:11px;align-items:flex-start;animation:agin .25s ease}'
+      +'@keyframes agin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}'
+      +'.ag-toast .agic{width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:linear-gradient(135deg,#0b66ff,#10b5ff);display:grid;place-items:center;font-size:17px}'
+      +'.ag-toast .agb{flex:1;min-width:0}'
+      +'.ag-toast .agt{font-weight:800;font-size:13.5px;line-height:1.25}'
+      +'.ag-toast .agx{color:#bcd0f5;font-size:12px;margin-top:3px}'
+      +'.ag-toast .aga{display:flex;gap:8px;margin-top:9px}'
+      +'.ag-toast .aga button{border:0;border-radius:8px;padding:6px 11px;font:inherit;font-size:11.5px;font-weight:700;cursor:pointer}'
+      +'.ag-toast .agver{background:#0b66ff;color:#fff}.ag-toast .agok{background:rgba(255,255,255,.14);color:#fff}'
+      +'.ag-toast .agclose{background:none;border:0;color:#9fb5dd;font-size:18px;cursor:pointer;line-height:1;padding:0 2px}';
+    var st=document.createElement('style'); st.id='ag-lembrete-css'; st.textContent=css; document.head.appendChild(st);
+  }
+  function host(){ var h=document.querySelector('.ag-toasts'); if(!h){ h=document.createElement('div'); h.className='ag-toasts'; document.body.appendChild(h); } return h; }
+  function quando(ms){ var m=Math.round(ms/60000); if(m<=0) return 'agora'; if(m<60) return 'em '+m+' min'; if(m<1440){ var h=Math.floor(m/60), r=m%60; return 'em '+h+'h'+(r?(' '+r+'min'):''); } var d=Math.round(m/1440); return 'em '+d+' dia'+(d>1?'s':''); }
+  function toast(a){
+    ensureCss();
+    var t0=new Date(a.inicio).getTime(), now=Date.now();
+    var quandoTxt = now>=t0 ? 'Começando agora' : ('Faltam '+quando(t0-now).replace('em ',''));
+    var horaTxt=''; try{ horaTxt=new Date(a.inicio).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(_){}
+    var el=document.createElement('div'); el.className='ag-toast';
+    el.innerHTML='<div class="agic">⏰</div><div class="agb"><div class="agt">'+esc(a.titulo||'Compromisso')+'</div>'
+      +'<div class="agx">'+esc(quandoTxt)+' · '+esc((a.tipo?a.tipo+' · ':'')+horaTxt)+'</div>'
+      +'<div class="aga"><button class="agver">Ver na agenda</button><button class="agok">Ok</button></div></div>'
+      +'<button class="agclose" title="Fechar">×</button>';
+    function rm(){ if(el.parentNode) el.parentNode.removeChild(el); }
+    el.querySelector('.agver').addEventListener('click',function(){ location.href='/agenda'; });
+    el.querySelector('.agok').addEventListener('click',rm);
+    el.querySelector('.agclose').addEventListener('click',rm);
+    host().appendChild(el);
+    setTimeout(rm, 45000);
+    // notificacao do sistema, se ja autorizada
+    try{ if('Notification' in window && Notification.permission==='granted'){ new Notification('AILogic Hub - Agenda',{body:(a.titulo||'Compromisso')+' · '+quandoTxt}); } }catch(_){}
+  }
+  function checa(){
+    fetch('/api/data?ent=agenda&action=list',{cache:'no-store'})
+      .then(function(r){ return r.ok?r.json():{rows:[]}; }).then(function(d){
+        var now=Date.now();
+        (d.rows||[]).forEach(function(a){
+          if(!a.inicio||a.concluida) return;
+          var lead=leadDe(a); if(lead==='off') return;
+          var leadMs=(parseInt(lead,10)||0)*60000;
+          var t0=new Date(a.inicio).getTime();
+          if(now>=(t0-leadMs) && now<=(t0+GRACE) && !jaAvisou(a.id,lead)){ marcaAvisou(a.id,lead); toast(a); }
+        });
+      }).catch(function(){});
+  }
+  function boot(){ setTimeout(checa,4000); setInterval(checa,POLL); }
+  if(document.readyState!=='loading') boot(); else document.addEventListener('DOMContentLoaded',boot);
+})();

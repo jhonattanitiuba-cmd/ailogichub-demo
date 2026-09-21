@@ -146,6 +146,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     <div class="headline"><h1>Agenda</h1><p>Compromissos, visitas e follow-ups do Hub, com dados reais.</p></div>
     <div class="head-actions">
       <div class="seg" id="viewSeg"><button type="button" data-v="dia">Dia</button><button type="button" data-v="sem">Semana</button><button type="button" data-v="cal" class="on">Mês</button><button type="button" data-v="list">Lista</button></div>
+      <select class="btn" id="lembreteDefault" title="Antecedência padrão do lembrete dos compromissos" style="height:38px;padding:0 12px"><option value="off">Lembrete: desligado</option><option value="0">Lembrete: no horário</option><option value="15">Lembrete: 15 min</option><option value="30">Lembrete: 30 min</option><option value="60">Lembrete: 1 hora</option><option value="120">Lembrete: 2 horas</option><option value="1440">Lembrete: 1 dia</option></select>
       <button class="btn primary" id="btnNew">＋ Novo compromisso</button>
       <button class="icon-btn" id="themeToggle" title="Alternar tema"><svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z'/></svg></button>
     </div>
@@ -220,6 +221,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     </div>
     <div class="fgroup"><div class="fglabel">Início (data e hora)*</div><div class="fg2"><label class="sub">Data<input id="f_ini_data" type="date"></label><label class="sub">Hora<input id="f_ini_hora" type="time"></label></div></div>
     <div class="fgroup"><div class="fglabel">Fim (data e hora)</div><div class="fg2"><label class="sub">Data<input id="f_fim_data" type="date"></label><label class="sub">Hora<input id="f_fim_hora" type="time"></label></div></div>
+    <label>Lembrar antes<select id="f_lembrete"><option value="default">Usar o padrão</option><option value="off">Não lembrar</option><option value="0">No horário</option><option value="15">15 minutos antes</option><option value="30">30 minutos antes</option><option value="60">1 hora antes</option><option value="120">2 horas antes</option><option value="1440">1 dia antes</option></select></label>
     <label class="ckrow"><input id="f_concluida" type="checkbox"> Marcar como concluído</label>
   </div>
   <div class="modal-f"><span class="ferr" id="fErr"></span><button class="btn" id="fCancel">Cancelar</button><button class="btn primary" id="fSave">Salvar</button></div>
@@ -385,6 +387,8 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     if(a.fim){ $('f_fim_data').value=dpart(a.fim); $('f_fim_hora').value=tpart(a.fim); }
     else { $('f_fim_data').value=''; $('f_fim_hora').value=''; }
     $('f_concluida').checked=!!a.concluida;
+    var pe=null; try{ pe=a.id?localStorage.getItem('ag_lembrete:'+a.id):null; }catch(_){}
+    $('f_lembrete').value=pe||'default';
     fm.dataset.id=a.id||'';
     fm.classList.add('open');
   }
@@ -397,7 +401,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   function save(payload, done){
     fetch(DATA+'?ent=agenda&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
       .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
-      .then(function(x){ if(x.ok){ if(done)done(); load(); } else { $('fErr').textContent='Erro: '+((x.j&&x.j.error)||'desconhecido'); alert('Não foi possível salvar: '+((x.j&&x.j.error)||'desconhecido')); } })
+      .then(function(x){ if(x.ok){ if(done)done(x.j&&x.j.row); load(); } else { $('fErr').textContent='Erro: '+((x.j&&x.j.error)||'desconhecido'); alert('Não foi possível salvar: '+((x.j&&x.j.error)||'desconhecido')); } })
       .catch(function(){ $('fErr').textContent='Falha na requisição.'; });
   }
   $('fSave').addEventListener('click',function(){
@@ -407,10 +411,18 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     if(!o.imobiliaria_id){$('fErr').textContent='Selecione a imobiliária.';return;}
     if(!o.inicio){$('fErr').textContent='Informe a data de início.';return;}
     if(fm.dataset.id)o.id=fm.dataset.id;
+    var lembrete=$('f_lembrete').value;
     var b=$('fSave');b.disabled=true;b.textContent='Salvando…';
-    save(o,function(){closeForm();});
+    save(o,function(row){ var id=o.id||(row&&row.id); if(id){ try{ if(lembrete==='default') localStorage.removeItem('ag_lembrete:'+id); else localStorage.setItem('ag_lembrete:'+id,lembrete); }catch(_){} } closeForm(); });
     setTimeout(function(){b.disabled=false;b.textContent='Salvar';},600);
   });
+  /* ---- lembrete padrao (global, guardado no navegador) ---- */
+  (function(){ var sel=$('lembreteDefault'); if(!sel)return; var v=null; try{ v=localStorage.getItem('ag_lembrete_min'); }catch(_){}
+    sel.value=(v==null?'30':v);
+    sel.addEventListener('change',function(){ try{ localStorage.setItem('ag_lembrete_min',sel.value); }catch(_){}
+      if(sel.value!=='off' && 'Notification' in window && Notification.permission==='default'){ try{ Notification.requestPermission(); }catch(_){} }
+    });
+  })();
 
   /* ---- view toggle + nav ---- */
   $('viewSeg').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;view=b.getAttribute('data-v');

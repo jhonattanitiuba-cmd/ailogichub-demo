@@ -8,6 +8,25 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 38 - Lembretes da agenda: alerta na tela antes do compromisso
+
+- hub.js: novo motor de lembretes (roda em todas as telas do Hub). A cada 60s verifica os
+  compromissos da agenda e, quando um se aproxima da data/hora, mostra um alerta na tela (toast no
+  canto superior) com o titulo, quanto falta e botoes "Ver na agenda" e "Ok". Se o navegador
+  autorizar, dispara tambem uma notificacao do sistema. Nao repete o mesmo aviso (dedupe por evento).
+- agenda.html: a pessoa configura a antecedencia. No cabecalho, "Lembrete padrao" (desligado, no
+  horario, 15 min, 30 min, 1 hora, 2 horas, 1 dia). No formulario do compromisso, "Lembrar antes"
+  por evento (ou usar o padrao). Ao definir um lembrete, pede permissao de notificacao do sistema.
+
+Detalhe tecnico: a preferencia fica guardada no navegador (por dispositivo). O alerta aparece
+enquanto o Hub esta aberto; a notificacao do sistema, quando autorizada, aparece mesmo com a aba em
+segundo plano. Validado no navegador: com lembrete de 30 min, um compromisso proximo dispara o toast.
+
+Por que: pedido de um sistema de notificacao mostrando na tela quando um evento da agenda chega a
+data, com a antecedencia configuravel pela pessoa.
+
+---
+
 ## Rodada 37 - Agenda: card de compromisso mais claro (data e hora separadas)
 
 - agenda.html: no formulario de compromisso, os campos Inicio e Fim deixaram de ser um so campo
