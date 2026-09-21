@@ -8,6 +8,21 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 37 - Agenda: card de compromisso mais claro (data e hora separadas)
+
+- agenda.html: no formulario de compromisso, os campos Inicio e Fim deixaram de ser um so campo
+  datetime e viraram dois campos cada: Data (dd/mm/aaaa) e Hora (HH:MM, com os dois pontos), com
+  rotulos claros "Inicio (data e hora)" e "Fim (data e hora)". Tamanhos ajustados.
+- O rodape com o botao Salvar agora fica fixo (sticky) no rodape do card, entao o Salvar continua
+  visivel e acessivel mesmo com o seletor de hora aberto (util no celular).
+- O salvamento junta data+hora automaticamente; exige a data de inicio.
+
+Por que: o card de editar compromisso estava confuso; pedido para separar data e hora, ajustar
+tamanhos e manter o Salvar a mao ao informar a hora. Validado no navegador: edicao abre com data e
+hora separadas, rodape fixo, e salva juntando os dois.
+
+---
+
 ## Rodada 36 - Pessoas e Contatos: editar e buscar imoveis pelo interesse
 
 - pessoas.html: coluna Acoes com botao "Editar" (abre o formulario ja preenchido e salva) e botao

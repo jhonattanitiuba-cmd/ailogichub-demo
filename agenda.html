@@ -95,9 +95,13 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
 .ckrow{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text);text-transform:none;font-weight:600}
 .ckrow input{width:auto;height:auto;margin:0}
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fgroup{display:flex;flex-direction:column;gap:6px}
+.fglabel{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.fbody label.sub{font-size:10px;font-weight:700;color:var(--muted);text-transform:none;letter-spacing:0}
+.fbody label.sub input{margin-top:4px;height:42px}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
 .mcell{background:var(--panel);padding:13px 18px}.mcell.full{grid-column:1/-1}.mcell label{display:block;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}.mcell strong{font-size:13.5px;color:var(--text);font-weight:650}
-.modal-f{padding:14px 18px;display:flex;justify-content:flex-end;align-items:center;gap:10px;border-top:1px solid var(--border)}
+.modal-f{padding:14px 18px;display:flex;justify-content:flex-end;align-items:center;gap:10px;border-top:1px solid var(--border);position:sticky;bottom:0;background:var(--panel);z-index:2}
 .ferr{margin-right:auto;color:var(--red);font-size:12px;font-weight:600}
 @media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto}.main{height:auto}.sidebar{height:auto}.kpis{grid-template-columns:repeat(2,1fr)}.cell{min-height:78px}}
 </style>
@@ -214,7 +218,8 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
       <label>Tipo<select id="f_tipo"><option>Visita</option><option>Ligação</option><option>Reunião</option><option>Follow-up</option><option>Documentação</option><option>Escritura (cartório)</option><option>Entrega de chaves</option><option>Outro</option></select></label>
       <label>Imobiliária*<select id="f_imob"></select></label>
     </div>
-    <div class="fg2"><label>Início*<input id="f_inicio" type="datetime-local"></label><label>Fim<input id="f_fim" type="datetime-local"></label></div>
+    <div class="fgroup"><div class="fglabel">Início (data e hora)*</div><div class="fg2"><label class="sub">Data<input id="f_ini_data" type="date"></label><label class="sub">Hora<input id="f_ini_hora" type="time"></label></div></div>
+    <div class="fgroup"><div class="fglabel">Fim (data e hora)</div><div class="fg2"><label class="sub">Data<input id="f_fim_data" type="date"></label><label class="sub">Hora<input id="f_fim_hora" type="time"></label></div></div>
     <label class="ckrow"><input id="f_concluida" type="checkbox"> Marcar como concluído</label>
   </div>
   <div class="modal-f"><span class="ferr" id="fErr"></span><button class="btn" id="fCancel">Cancelar</button><button class="btn primary" id="fSave">Salvar</button></div>
@@ -249,6 +254,9 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   function isLate(a){return a.inicio && !a.concluida && new Date(a.inicio).getTime()<Date.now();}
   function pad(n){return (n<10?'0':'')+n;}
   function toInput(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());}
+  function dpart(x){var d=new Date(x);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function tpart(x){var d=new Date(x);return pad(d.getHours())+':'+pad(d.getMinutes());}
+  function comb(dId,hId){var d=$(dId).value,h=$(hId).value;if(!d)return null;return d+'T'+(h||'00:00');}
 
   function computeKpis(){
     var now=Date.now();
@@ -371,8 +379,11 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     selVal($('f_tipo'),a.tipo||'Visita');
     $('f_imob').innerHTML=imobs.map(function(i){return '<option value="'+esc(i.id)+'">'+esc(i.nome)+'</option>';}).join('');
     if(a.imobiliaria_id)$('f_imob').value=a.imobiliaria_id;
-    $('f_inicio').value=a.inicio?toInput(new Date(a.inicio)):(prefDate||'');
-    $('f_fim').value=a.fim?toInput(new Date(a.fim)):'';
+    var pp=(prefDate||'').split('T');
+    if(a.inicio){ $('f_ini_data').value=dpart(a.inicio); $('f_ini_hora').value=tpart(a.inicio); }
+    else { $('f_ini_data').value=pp[0]||''; $('f_ini_hora').value=pp[1]||'09:00'; }
+    if(a.fim){ $('f_fim_data').value=dpart(a.fim); $('f_fim_hora').value=tpart(a.fim); }
+    else { $('f_fim_data').value=''; $('f_fim_hora').value=''; }
     $('f_concluida').checked=!!a.concluida;
     fm.dataset.id=a.id||'';
     fm.classList.add('open');
@@ -391,9 +402,10 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   }
   $('fSave').addEventListener('click',function(){
     var o={titulo:$('f_titulo').value.trim(),tipo:$('f_tipo').value,imobiliaria_id:$('f_imob').value||null,
-      inicio:$('f_inicio').value||null,fim:$('f_fim').value||null,concluida:$('f_concluida').checked};
+      inicio:comb('f_ini_data','f_ini_hora'),fim:comb('f_fim_data','f_fim_hora'),concluida:$('f_concluida').checked};
     if(!o.titulo){$('fErr').textContent='Informe o título.';return;}
     if(!o.imobiliaria_id){$('fErr').textContent='Selecione a imobiliária.';return;}
+    if(!o.inicio){$('fErr').textContent='Informe a data de início.';return;}
     if(fm.dataset.id)o.id=fm.dataset.id;
     var b=$('fSave');b.disabled=true;b.textContent='Salvando…';
     save(o,function(){closeForm();});
