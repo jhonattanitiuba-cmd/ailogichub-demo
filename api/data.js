@@ -343,7 +343,9 @@ module.exports = async (req, res) => {
         if (!o.nome) { res.status(400).json({ error: 'nome obrigatorio' }); return; }
         if (!o.imobiliaria_id) { res.status(400).json({ error: 'imobiliaria_id obrigatorio' }); return; }
         if (o.id) {
-          const r = await db(`update leads set nome=$1,telefone=$2,email=$3,interesse=$4,updated_at=now() where id=$5 returning *`,
+          // telefone e email com coalesce: nao apaga o contato quando o editor nao os enviou
+          // (ex.: corretor editando um lead com contato restrito, que ve os campos mascarados).
+          const r = await db(`update leads set nome=$1,telefone=coalesce($2,telefone),email=coalesce($3,email),interesse=$4,updated_at=now() where id=$5 returning *`,
             [o.nome, o.telefone || null, o.email || null, o.interesse || null, o.id]);
           const oUp = leadOut(r.rows[0]);
           if (!user.isAdmin && !(await podeRevelarContato(r.rows[0].id))) maskContato(oUp);

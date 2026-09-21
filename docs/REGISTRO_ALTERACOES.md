@@ -8,6 +8,26 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 36 - Pessoas e Contatos: editar e buscar imoveis pelo interesse
+
+- pessoas.html: coluna Acoes com botao "Editar" (abre o formulario ja preenchido e salva) e botao
+  "Buscar imoveis". No detalhe da pessoa, mostra o Interesse e traz "Buscar na imobiliaria" e "Buscar
+  no site", que usam o texto do interesse como busca.
+- imoveis.html: passou a aceitar ?q= na URL (alem do ?codigo= que ja existia), pre-preenchendo a busca.
+- vitrine.html: passou a aceitar ?q= na URL, abrindo direto o grid filtrado pelo termo.
+- api/data.js (update de leads): telefone e email agora usam coalesce, para a edicao nao apagar o
+  contato quando o editor ve os campos mascarados (lead com contato restrito).
+
+Como funciona a busca: a partir da pessoa, "Buscar na imobiliaria" abre a tela de Imoveis filtrada
+pelo interesse; "Buscar no site" abre a vitrine publica filtrada pelo mesmo termo.
+
+Quem cadastra: os leads entram sozinhos pelo Sam (site e WhatsApp) e, manualmente, pela tela de
+Pessoas (Diretoria, gestor da imobiliaria ou corretor, cada um no seu escopo).
+
+Por que: pedido para editar pessoas e para acionar a busca de imoveis conforme o interesse escrito.
+
+---
+
 ## Rodada 35 - Pessoas e Contatos: botao para inserir manualmente
 
 - pessoas.html: a tela era so de consulta (listava os leads, sem como inserir). Agora tem o botao

@@ -216,7 +216,7 @@ td.strong{font-weight:700;color:var(--heading)}
   }
   ['q','fFin','fCat','fStatus'].forEach(function(id){$(id).addEventListener(id==='q'?'input':'change',applyFilter);});
   // chega do funil via ?codigo= : ja filtra o imovel
-  (function(){ try{ var _c=new URLSearchParams(location.search).get('codigo'); if(!_c) return;
+  (function(){ try{ var sp=new URLSearchParams(location.search); var _c=sp.get('codigo')||sp.get('q'); if(!_c) return;
     if($('q')) $('q').value=_c;
     setTimeout(function(){ try{ if($('q')) $('q').value=_c; applyFilter(); }catch(_){} }, 1200);
   }catch(_){} })();

@@ -106,8 +106,8 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
       <input class="inp search" id="q" placeholder="Buscar nome, telefone ou e-mail..." />
     </div>
     <div class="table-wrap">
-      <table><thead><tr><th>Nome</th><th>Telefone</th><th>E-mail</th><th>Status</th><th>Imobiliária</th></tr></thead>
-      <tbody id="rows"><tr><td colspan="5" class="empty">Carregando…</td></tr></tbody></table>
+      <table><thead><tr><th>Nome</th><th>Telefone</th><th>E-mail</th><th>Status</th><th>Imobiliária</th><th>Ações</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="6" class="empty">Carregando…</td></tr></tbody></table>
     </div>
   </section>
 </main>
@@ -116,11 +116,11 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
 <div class="modal-bg" id="modal"><div class="modal">
   <div class="modal-h"><div><h3 id="mTit">·</h3><p id="mSub">·</p></div><button class="modal-x" id="mClose">×</button></div>
   <div class="mgrid" id="mGrid"></div>
-  <div class="modal-f"><button class="btn" id="mClose2">Fechar</button></div>
+  <div class="modal-f" id="detFoot"><button class="btn" id="mClose2">Fechar</button></div>
 </div></div>
 
 <div class="modal-bg" id="formModal"><div class="modal">
-  <div class="modal-h"><div><h3>Nova pessoa</h3><p>Cadastre um cliente ou contato na base.</p></div><button class="modal-x" id="fClose">×</button></div>
+  <div class="modal-h"><div><h3 id="fTit">Nova pessoa</h3><p>Cadastre um cliente ou contato na base.</p></div><button class="modal-x" id="fClose">×</button></div>
   <div class="fbody">
     <label>Nome*<input class="inp" id="f_nome" placeholder="Nome completo"></label>
     <label>Imobiliária*<select class="inp" id="f_imob"></select></label>
@@ -146,17 +146,41 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
 
   function renderRows(list){
     var tb=document.getElementById('rows');
-    if(!list.length){tb.innerHTML='<tr><td colspan="5" class="empty">Nenhuma pessoa encontrada.</td></tr>';return;}
+    if(!list.length){tb.innerHTML='<tr><td colspan="6" class="empty">Nenhuma pessoa encontrada.</td></tr>';return;}
+    var bs='height:28px;padding:0 10px;border:1px solid var(--border2);background:var(--panel2);border-radius:8px;font:inherit;font-size:11px;font-weight:700;color:var(--text);cursor:pointer;margin-right:6px';
     tb.innerHTML=list.map(function(p,ix){
-      return '<tr data-i="'+ix+'"><td class="strong">'+esc(p.nome||'—')+'</td><td>'+(p.contato_restrito?'<span style="color:#b07a00;font-weight:700;font-size:11px">Restrito até a visita</span>':esc(p.telefone||'—'))+'</td><td>'+(p.contato_restrito?'<span style="color:#b07a00">—</span>':esc(p.email||'—'))+'</td><td>'+(p.papel?'<span class="badge blue">'+esc(p.papel)+'</span>':'—')+'</td><td>'+esc(imobMap[p.imobiliaria_id]||'—')+'</td></tr>';
+      var acoes='<button data-a="edit" style="'+bs+'">Editar</button><button data-a="buscar" style="'+bs+'">Buscar imóveis</button>';
+      return '<tr data-i="'+ix+'"><td class="strong">'+esc(p.nome||'—')+'</td><td>'+(p.contato_restrito?'<span style="color:#b07a00;font-weight:700;font-size:11px">Restrito até a visita</span>':esc(p.telefone||'—'))+'</td><td>'+(p.contato_restrito?'<span style="color:#b07a00">—</span>':esc(p.email||'—'))+'</td><td>'+(p.papel?'<span class="badge blue">'+esc(p.papel)+'</span>':'—')+'</td><td>'+esc(imobMap[p.imobiliaria_id]||'—')+'</td><td style="white-space:nowrap">'+acoes+'</td></tr>';
     }).join('');
-    Array.prototype.forEach.call(tb.querySelectorAll('tr'),function(tr){tr.addEventListener('click',function(){openIt(list[+tr.getAttribute('data-i')]);});});
+    Array.prototype.forEach.call(tb.querySelectorAll('tr'),function(tr){
+      var p=list[+tr.getAttribute('data-i')];
+      var be=tr.querySelector('[data-a="edit"]'); if(be)be.addEventListener('click',function(e){e.stopPropagation();openForm(p);});
+      var bb=tr.querySelector('[data-a="buscar"]'); if(bb)bb.addEventListener('click',function(e){e.stopPropagation();buscarImoveis(p,'imob');});
+      tr.addEventListener('click',function(){openIt(p);});
+    });
   }
-  function openIt(p){ if(!p)return;
+  var curP=null;
+  function openIt(p){ if(!p)return; curP=p;
     document.getElementById('mTit').textContent=p.nome||'Pessoa';
     document.getElementById('mSub').textContent='Cliente'+(p.papel?' · '+p.papel:'');
-    document.getElementById('mGrid').innerHTML=(p.contato_restrito?(fld('Telefone','Liberado após a visita')+fld('E-mail','Liberado após a visita')):(fld('Telefone',p.telefone)+fld('E-mail',p.email)))+fld('Status',p.papel)+fld('Imobiliária',imobMap[p.imobiliaria_id],true);
+    document.getElementById('mGrid').innerHTML=(p.contato_restrito?(fld('Telefone','Liberado após a visita')+fld('E-mail','Liberado após a visita')):(fld('Telefone',p.telefone)+fld('E-mail',p.email)))+fld('Status',p.papel)+fld('Imobiliária',imobMap[p.imobiliaria_id])+fld('Interesse',p.interesse,true);
+    var temInt=!!(p.interesse&&p.interesse.trim());
+    document.getElementById('detFoot').innerHTML=
+      '<button class="btn" id="mEditar">Editar</button>'
+      +'<button class="btn" id="mBuscarImob"'+(temInt?'':' disabled')+'>Buscar na imobiliária</button>'
+      +'<button class="btn" id="mBuscarSite"'+(temInt?'':' disabled')+'>Buscar no site</button>'
+      +'<button class="btn primary" id="mClose3">Fechar</button>';
+    document.getElementById('mClose3').addEventListener('click',close_);
+    document.getElementById('mEditar').addEventListener('click',function(){close_();openForm(p);});
+    var bi=document.getElementById('mBuscarImob'); if(bi&&temInt)bi.addEventListener('click',function(){buscarImoveis(p,'imob');});
+    var st=document.getElementById('mBuscarSite'); if(st&&temInt)st.addEventListener('click',function(){buscarImoveis(p,'site');});
     modal.classList.add('open');
+  }
+  function buscarImoveis(p,alvo){
+    var q=encodeURIComponent((p&&p.interesse||'').trim());
+    if(!q){alert('Esta pessoa nao tem um interesse escrito. Edite o cadastro e informe o interesse para buscar.');return;}
+    if(alvo==='site'){ window.open('/vitrine?q='+q,'_blank','noopener'); }
+    else { location.href='/imoveis?q='+q; }
   }
   function close_(){modal.classList.remove('open');}
   document.getElementById('mClose').addEventListener('click',close_);document.getElementById('mClose2').addEventListener('click',close_);
@@ -173,7 +197,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   function load(){
     Promise.all([get('leads'),get('imobiliarias')]).then(function(a){
       imobs=a[1]||[]; imobMap={}; imobs.forEach(function(i){imobMap[i.id]=i.nome;});
-      pessoas=a[0].map(function(l){return {nome:l.nome,telefone:l.telefone,email:l.email,imobiliaria_id:l.imobiliaria_id,tipo:'cliente',papel:l.status,contato_restrito:l.contato_restrito};})
+      pessoas=a[0].map(function(l){return {id:l.id,nome:l.nome,telefone:l.telefone,email:l.email,imobiliaria_id:l.imobiliaria_id,tipo:'cliente',papel:l.status,contato_restrito:l.contato_restrito,interesse:l.interesse};})
         .sort(function(x,y){return (x.nome||'').localeCompare(y.nome||'');});
       kset('total',pessoas.length);
       kset('fone',pessoas.filter(function(p){return p.telefone;}).length);
@@ -184,13 +208,16 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   load();
 
   /* ---- nova pessoa (cadastra como lead) ---- */
-  function openForm(){
-    $err('');
-    document.getElementById('f_nome').value='';
-    document.getElementById('f_tel').value='';
-    document.getElementById('f_email').value='';
-    document.getElementById('f_interesse').value='';
+  function openForm(p){
+    p=p||{}; $err('');
+    document.getElementById('fTit').textContent=p.id?'Editar pessoa':'Nova pessoa';
+    document.getElementById('f_nome').value=p.nome||'';
+    document.getElementById('f_tel').value=(p.contato_restrito?'':(p.telefone||''));
+    document.getElementById('f_email').value=(p.contato_restrito?'':(p.email||''));
+    document.getElementById('f_interesse').value=p.interesse||'';
     document.getElementById('f_imob').innerHTML=imobs.map(function(i){return '<option value="'+esc(i.id)+'">'+esc(i.nome)+'</option>';}).join('');
+    if(p.imobiliaria_id)document.getElementById('f_imob').value=p.imobiliaria_id;
+    fm.dataset.id=p.id||'';
     fm.classList.add('open');
   }
   function closeForm(){fm.classList.remove('open');}
@@ -205,6 +232,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
       interesse:document.getElementById('f_interesse').value.trim()};
     if(!o.nome){$err('Informe o nome.');return;}
     if(!o.imobiliaria_id){$err('Selecione a imobiliária.');return;}
+    if(fm.dataset.id)o.id=fm.dataset.id;
     var b=document.getElementById('fSave');b.disabled=true;b.textContent='Salvando…';
     fetch(DATA+'?ent=leads&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)})
       .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
