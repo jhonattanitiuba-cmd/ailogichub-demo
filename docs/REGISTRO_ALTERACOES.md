@@ -8,6 +8,18 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 39 - Correcao: horario do compromisso deslocava ao salvar (fuso)
+
+- agenda.html (comb): a data e hora digitadas (locais) eram enviadas como texto sem fuso e o banco
+  interpretava como UTC, deslocando o horario (ex.: 20:43 virava 17:43, 3h a menos no Brasil). Agora o
+  formulario monta o instante a partir da data e hora locais e envia em ISO (com fuso), entao o
+  horario salvo e exibido bate com o que foi digitado.
+
+Por que: o cliente relatou "coloco um horario, quando salva ele muda". Validado no navegador com o
+fuso de Sao Paulo: digitar 20:43 salva e exibe 20:43.
+
+---
+
 ## Rodada 38 - Lembretes da agenda: alerta na tela antes do compromisso
 
 - hub.js: novo motor de lembretes (roda em todas as telas do Hub). A cada 60s verifica os
