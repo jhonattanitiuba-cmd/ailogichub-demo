@@ -46,6 +46,11 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
 .mcell{background:var(--panel);padding:13px 18px}.mcell.full{grid-column:1/-1}.mcell label{display:block;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}.mcell strong{font-size:13.5px;color:var(--text);font-weight:650}
 .modal-f{padding:15px 18px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border)}
 .btn{height:38px;border:1px solid var(--border2);background:var(--panel2);border-radius:11px;padding:0 16px;font:inherit;font-weight:750;font-size:12.5px;color:var(--text);cursor:pointer}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.fbody{padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.fbody label{display:block;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.fbody label .inp,.fbody label select{display:block;width:100%;margin-top:6px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto}.main{height:auto}.sidebar{height:auto}.kpis{grid-template-columns:repeat(2,1fr)}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -87,7 +92,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
 <main class="main">
   <header class="header">
     <div class="headline"><h1>Pessoas &amp; Contatos</h1><p>Clientes e leads da sua base, com dados reais.</p></div>
-    <div class="head-actions"><button class="icon-btn" id="themeToggle" title="Alternar tema"><svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z'/></svg></button></div>
+    <div class="head-actions"><button class="btn primary" id="btnNew">＋ Nova pessoa</button><button class="icon-btn" id="themeToggle" title="Alternar tema"><svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z'/></svg></button></div>
   </header>
 
   <section class="kpis">
@@ -114,11 +119,25 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   <div class="modal-f"><button class="btn" id="mClose2">Fechar</button></div>
 </div></div>
 
+<div class="modal-bg" id="formModal"><div class="modal">
+  <div class="modal-h"><div><h3>Nova pessoa</h3><p>Cadastre um cliente ou contato na base.</p></div><button class="modal-x" id="fClose">×</button></div>
+  <div class="fbody">
+    <label>Nome*<input class="inp" id="f_nome" placeholder="Nome completo"></label>
+    <label>Imobiliária*<select class="inp" id="f_imob"></select></label>
+    <div class="fg2">
+      <label>Telefone<input class="inp" id="f_tel" placeholder="(11) 90000-0000"></label>
+      <label>E-mail<input class="inp" id="f_email" placeholder="cliente@email.com"></label>
+    </div>
+    <label>Interesse<input class="inp" id="f_interesse" placeholder="Ex.: apartamento 2 quartos, Vila Mariana"></label>
+  </div>
+  <div class="modal-f"><span id="fErr" style="margin-right:auto;color:#c0392b;font-size:12px;font-weight:600"></span><button class="btn" id="fCancel">Cancelar</button><button class="btn primary" id="fSave">Salvar</button></div>
+</div></div>
+
 <script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script>
 <script src="hub.js" defer></script>
 <script>/*pes-real*/(function(){
   var DATA="/api/data";
-  var pessoas=[],imobMap={},modal=document.getElementById('modal');
+  var pessoas=[],imobs=[],imobMap={},modal=document.getElementById('modal'),fm=document.getElementById('formModal');
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
   function get(ent){return fetch(DATA+'?ent='+ent+'&action=list',{cache:'no-store'}).then(function(r){return r.ok?r.json():{rows:[]};}).then(function(d){return d.rows||[];}).catch(function(){return [];});}
@@ -151,14 +170,46 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   }
   document.getElementById('q').addEventListener('input',applyFilter);
 
-  Promise.all([get('leads'),get('imobiliarias')]).then(function(a){
-    a[1].forEach(function(i){imobMap[i.id]=i.nome;});
-    pessoas=a[0].map(function(l){return {nome:l.nome,telefone:l.telefone,email:l.email,imobiliaria_id:l.imobiliaria_id,tipo:'cliente',papel:l.status,contato_restrito:l.contato_restrito};})
-      .sort(function(x,y){return (x.nome||'').localeCompare(y.nome||'');});
-    kset('total',pessoas.length);
-    kset('fone',pessoas.filter(function(p){return p.telefone;}).length);
-    kset('mail',pessoas.filter(function(p){return p.email;}).length);
-    renderRows(pessoas);
+  function load(){
+    Promise.all([get('leads'),get('imobiliarias')]).then(function(a){
+      imobs=a[1]||[]; imobMap={}; imobs.forEach(function(i){imobMap[i.id]=i.nome;});
+      pessoas=a[0].map(function(l){return {nome:l.nome,telefone:l.telefone,email:l.email,imobiliaria_id:l.imobiliaria_id,tipo:'cliente',papel:l.status,contato_restrito:l.contato_restrito};})
+        .sort(function(x,y){return (x.nome||'').localeCompare(y.nome||'');});
+      kset('total',pessoas.length);
+      kset('fone',pessoas.filter(function(p){return p.telefone;}).length);
+      kset('mail',pessoas.filter(function(p){return p.email;}).length);
+      renderRows(pessoas);
+    });
+  }
+  load();
+
+  /* ---- nova pessoa (cadastra como lead) ---- */
+  function openForm(){
+    $err('');
+    document.getElementById('f_nome').value='';
+    document.getElementById('f_tel').value='';
+    document.getElementById('f_email').value='';
+    document.getElementById('f_interesse').value='';
+    document.getElementById('f_imob').innerHTML=imobs.map(function(i){return '<option value="'+esc(i.id)+'">'+esc(i.nome)+'</option>';}).join('');
+    fm.classList.add('open');
+  }
+  function closeForm(){fm.classList.remove('open');}
+  function $err(t){var e=document.getElementById('fErr');if(e)e.textContent=t||'';}
+  document.getElementById('btnNew').addEventListener('click',function(){ if(!imobs.length){alert('Cadastre uma imobiliária antes de adicionar pessoas.');return;} openForm(); });
+  document.getElementById('fClose').addEventListener('click',closeForm);
+  document.getElementById('fCancel').addEventListener('click',closeForm);
+  fm.addEventListener('click',function(e){if(e.target===fm)closeForm();});
+  document.getElementById('fSave').addEventListener('click',function(){
+    var o={nome:document.getElementById('f_nome').value.trim(),imobiliaria_id:document.getElementById('f_imob').value||null,
+      telefone:document.getElementById('f_tel').value.trim(),email:document.getElementById('f_email').value.trim(),
+      interesse:document.getElementById('f_interesse').value.trim()};
+    if(!o.nome){$err('Informe o nome.');return;}
+    if(!o.imobiliaria_id){$err('Selecione a imobiliária.');return;}
+    var b=document.getElementById('fSave');b.disabled=true;b.textContent='Salvando…';
+    fetch(DATA+'?ent=leads&action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)})
+      .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+      .then(function(x){ b.disabled=false;b.textContent='Salvar'; if(x.ok){ closeForm(); load(); } else { $err('Erro: '+((x.j&&x.j.error)||'desconhecido')); } })
+      .catch(function(){ b.disabled=false;b.textContent='Salvar'; $err('Falha na requisição.'); });
   });
 
   var tt=document.getElementById('themeToggle');

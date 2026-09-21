@@ -8,6 +8,18 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 35 - Pessoas e Contatos: botao para inserir manualmente
+
+- pessoas.html: a tela era so de consulta (listava os leads, sem como inserir). Agora tem o botao
+  "Nova pessoa" com formulario (nome, imobiliaria, telefone, e-mail, interesse), que cadastra na base
+  de leads (ent=leads). Recarrega a lista apos salvar. Valida nome e imobiliaria obrigatorios.
+
+Por que: com o banco zerado, era preciso um caminho manual para inserir pessoas/contatos (antes so
+entravam pelo Sam). Validado no navegador: abre o formulario, salva com os campos certos e a pessoa
+aparece na lista.
+
+---
+
 ## Rodada 34 - Remocao do "Em Breve" do sistema
 
 - hub.js: removida a injecao do item "Em Breve" na barra lateral (aparecia em todas as telas).
