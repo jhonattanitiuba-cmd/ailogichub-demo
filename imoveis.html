@@ -142,6 +142,20 @@ td.strong{font-weight:700;color:var(--heading)}
     <div class="fg3"><label>CEP<input id="f_cep" placeholder="00000-000"></label><label>IPTU (R$)<input id="f_iptu" type="number" min="0"></label><label>Condomínio (R$)<input id="f_condominio" type="number" min="0"></label></div>
     <div class="fg2"><label>Cidade<input id="f_cidade"></label><label>Bairro<input id="f_bairro"></label></div>
     <label>Endereço<input id="f_endereco"></label>
+    <label>Pontos de referência<input id="f_referencia" placeholder="Próximo a... (preenchido pelo CEP quando houver)"></label>
+    <div class="fgroup" style="border:1px solid var(--border2);border-radius:12px;padding:12px 13px;gap:10px">
+      <div class="fglabel" style="margin:0">Disponibilidade para visitas (estilo Booking)</div>
+      <div id="f_disp_dias" style="display:flex;flex-wrap:wrap;gap:8px">
+        <label class="ckrow" style="text-transform:none"><input type="checkbox" data-d="1" style="width:auto;height:auto;margin:0"> Seg</label>
+        <label class="ckrow" style="text-transform:none"><input type="checkbox" data-d="2" style="width:auto;height:auto;margin:0"> Ter</label>
+        <label class="ckrow" style="text-transform:none"><input type="checkbox" data-d="3" style="width:auto;height:auto;margin:0"> Qua</label>
+        <label class="ckrow" style="text-transform:none"><input type="checkbox" data-d="4" style="width:auto;height:auto;margin:0"> Qui</label>
+        <label class="ckrow" style="text-transform:none"><input type="checkbox" data-d="5" style="width:auto;height:auto;margin:0"> Sex</label>
+        <label class="ckrow" style="text-transform:none"><input type="checkbox" data-d="6" style="width:auto;height:auto;margin:0"> Sáb</label>
+        <label class="ckrow" style="text-transform:none"><input type="checkbox" data-d="0" style="width:auto;height:auto;margin:0"> Dom</label>
+      </div>
+      <div class="fg3"><label>Das<input id="f_disp_ini" type="time"></label><label>Até<input id="f_disp_fim" type="time"></label><label>Duração (min)<input id="f_disp_dur" type="number" min="15" step="15" placeholder="60"></label></div>
+    </div>
     <label>Enviar fotos do computador<input type="file" id="f_upload" accept="image/*" multiple style="height:auto;padding:9px 12px"></label>
     <div id="f_uplist" style="display:flex;flex-wrap:wrap;gap:8px;margin:-2px 0 6px"></div>
     <label>Foto de capa (URL)<input id="f_foto" placeholder="https://..."></label>
@@ -172,6 +186,17 @@ td.strong{font-weight:700;color:var(--heading)}
   <div class="modal-h"><h3 id="dTit">·</h3><button class="modal-x" id="dClose">×</button></div>
   <div class="mgrid" id="dGrid"></div>
   <div class="modal-f"><button class="btn primary" id="dGerar">Gerar negócio</button><button class="btn" id="dEdit">Editar</button><button class="btn" id="dClose2">Fechar</button></div>
+</div></div>
+
+<!-- B3: vincular pessoa ao gerar negocio -->
+<div class="modal-bg" id="pessoaModal"><div class="modal" style="width:480px">
+  <div class="modal-h"><h3>Vincular pessoa ao negócio</h3><button class="modal-x" id="pClose">×</button></div>
+  <div class="fbody">
+    <div style="font-size:12.5px;color:var(--muted)">Busque uma pessoa já cadastrada (sem recadastro) para vincular a este negócio, ou gere sem vínculo.</div>
+    <label>Buscar pessoa<input id="p_busca" placeholder="Nome, interesse..." autocomplete="off"></label>
+    <div id="p_lista" style="max-height:260px;overflow:auto;display:flex;flex-direction:column;gap:6px"></div>
+  </div>
+  <div class="modal-f"><span class="ferr" id="pErr"></span><button class="btn" id="pSemVinculo">Gerar sem vincular</button></div>
 </div></div>
 
 <script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script>
@@ -226,24 +251,69 @@ td.strong{font-weight:700;color:var(--heading)}
   function fld(l,v,full){return '<div class="mcell'+(full?' full':'')+'"><label>'+l+'</label><strong>'+esc(v==null||v===''?'—':v)+'</strong></div>';}
   function openDetail(m){curDetail=m;
     $('dTit').textContent=m.titulo||'Imóvel';
-    $('dGrid').innerHTML=fld('Tipo',cap(m.tipo))+fld('Finalidade',cap(m.finalidade))+fld('Preço',brl(m.preco))+fld('Valor mínimo',m.valor_minimo!=null?brl(m.valor_minimo):'—')+fld('Área',m.area?m.area+' m²':'—')+fld('Quartos',m.quartos)+fld('Suítes',m.suites)+fld('Banheiros',m.banheiros)+fld('Vagas',m.vagas)+fld('CEP',m.cep)+fld('IPTU',m.iptu!=null?brl(m.iptu):'—')+fld('Condomínio',m.condominio!=null?brl(m.condominio):'—')+fld('Cidade',m.cidade)+fld('Bairro',m.bairro)+fld('Endereço',m.endereco,true)+fld('Status',cap(m.status))+fld('Imobiliária',imobMap[m.imobiliaria_id])+(m.descricao?fld('Descrição',m.descricao,true):'');
+    var DIASN={0:'Dom',1:'Seg',2:'Ter',3:'Qua',4:'Qui',5:'Sex',6:'Sáb'};
+    var disp=m.disponibilidade||null;var dispTxt='—';
+    if(disp&&((disp.dias&&disp.dias.length)||disp.hora_ini)){var dd=(disp.dias||[]).map(function(x){return DIASN[Number(x)];}).filter(Boolean).join(', ');dispTxt=(dd||'Todos os dias')+(disp.hora_ini?' · '+disp.hora_ini+(disp.hora_fim?' às '+disp.hora_fim:''):'')+(disp.duracao_min?' · '+disp.duracao_min+' min':'');}
+    $('dGrid').innerHTML=fld('Tipo',cap(m.tipo))+fld('Finalidade',cap(m.finalidade))+fld('Preço',brl(m.preco))+fld('Valor mínimo',m.valor_minimo!=null?brl(m.valor_minimo):'—')+fld('Área',m.area?m.area+' m²':'—')+fld('Quartos',m.quartos)+fld('Suítes',m.suites)+fld('Banheiros',m.banheiros)+fld('Vagas',m.vagas)+fld('CEP',m.cep)+fld('IPTU',m.iptu!=null?brl(m.iptu):'—')+fld('Condomínio',m.condominio!=null?brl(m.condominio):'—')+fld('Cidade',m.cidade)+fld('Bairro',m.bairro)+fld('Endereço',m.endereco,true)+(m.referencia?fld('Pontos de referência',m.referencia,true):'')+fld('Disponibilidade p/ visitas',dispTxt,true)+fld('Status',cap(m.status))+fld('Imobiliária',imobMap[m.imobiliaria_id])+(m.descricao?fld('Descrição',m.descricao,true):'');
     dm.classList.add('open');
   }
   $('dClose').addEventListener('click',function(){dm.classList.remove('open');});
   $('dClose2').addEventListener('click',function(){dm.classList.remove('open');});
   $('dEdit').addEventListener('click',function(){dm.classList.remove('open');openForm(curDetail);});
+  // B3: gerar negocio vinculando (ou nao) uma pessoa ja cadastrada, sem recadastro.
+  var pModal=$('pessoaModal'),_pessoas=[];
+  function gerarNegocio(extra){
+    if(!curDetail||!curDetail.id)return;
+    var payload=Object.assign({imovel_id:curDetail.id},extra||{});
+    fetch('/api/dash?action=novo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+      .then(function(x){
+        if(x.ok){ pModal.classList.remove('open'); dm.classList.remove('open'); if(confirm('Negócio gerado no funil a partir deste imóvel. Abrir o funil agora?')) location.href='/funil'; }
+        else { $('pErr').textContent='Não foi possível gerar: '+((x.j&&x.j.error)||'erro'); }
+      })
+      .catch(function(){ $('pErr').textContent='Falha na requisição.'; });
+  }
+  function renderPessoas(){
+    var q=$('p_busca').value.trim().toLowerCase();
+    var imob=curDetail&&curDetail.imobiliaria_id;
+    var list=_pessoas.filter(function(pp){
+      if(imob&&pp.imobiliaria_id&&String(pp.imobiliaria_id)!==String(imob))return false;
+      if(!q)return true;return ((pp.nome||'')+' '+(pp.interesse||'')).toLowerCase().indexOf(q)>=0;
+    }).slice(0,40);
+    var box=$('p_lista');
+    if(!list.length){box.innerHTML='<div style="color:var(--muted);font-size:12.5px;padding:8px">Nenhuma pessoa encontrada. Use "Gerar sem vincular" ou cadastre em Pessoas &amp; Contatos.</div>';return;}
+    box.innerHTML=list.map(function(pp,i){return '<button type="button" data-i="'+i+'" style="text-align:left;border:1px solid var(--border2);background:var(--panel2);border-radius:10px;padding:9px 11px;cursor:pointer;font:inherit"><div style="font-weight:700;color:var(--heading);font-size:13px">'+esc(pp.nome||'—')+'</div>'+(pp.interesse?'<div style="font-size:11.5px;color:var(--muted)">'+esc(pp.interesse)+'</div>':'')+'</button>';}).join('');
+    Array.prototype.forEach.call(box.querySelectorAll('button'),function(bt){bt.addEventListener('click',function(){var pp=list[+bt.getAttribute('data-i')];gerarNegocio({lead_id:pp.id,lead_nome:pp.nome});});});
+  }
   $('dGerar').addEventListener('click',function(){
     if(!curDetail||!curDetail.id)return;
-    var b=$('dGerar');b.disabled=true;b.textContent='Gerando…';
-    fetch('/api/dash?action=novo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imovel_id:curDetail.id})})
-      .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
-      .then(function(x){ b.disabled=false;b.textContent='Gerar negócio';
-        if(x.ok){ dm.classList.remove('open'); if(confirm('Negócio gerado no funil a partir deste imóvel. Abrir o funil agora?')) location.href='/funil'; }
-        else { alert('Não foi possível gerar o negócio: '+((x.j&&x.j.error)||'erro')); }
-      })
-      .catch(function(){ b.disabled=false;b.textContent='Gerar negócio'; alert('Falha na requisição.'); });
+    $('pErr').textContent='';$('p_busca').value='';
+    $('p_lista').innerHTML='<div style="color:var(--muted);font-size:12.5px;padding:8px">Carregando pessoas…</div>';
+    pModal.classList.add('open');
+    get('leads').then(function(rows){_pessoas=rows||[];renderPessoas();});
   });
+  $('p_busca').addEventListener('input',renderPessoas);
+  $('pClose').addEventListener('click',function(){pModal.classList.remove('open');});
+  $('pSemVinculo').addEventListener('click',function(){gerarNegocio({});});
+  pModal.addEventListener('click',function(e){if(e.target===pModal)pModal.classList.remove('open');});
   dm.addEventListener('click',function(e){if(e.target===dm)dm.classList.remove('open');});
+  // B9: auto-preenchimento por CEP (ViaCEP) — preenche endereco, bairro, cidade e pontos de referencia.
+  (function(){ var cep=$('f_cep'); if(!cep)return;
+    function buscarCep(){
+      var v=(cep.value||'').replace(/\D/g,''); if(v.length!==8)return;
+      cep.value=v.slice(0,5)+'-'+v.slice(5);
+      fetch('https://viacep.com.br/ws/'+v+'/json/',{cache:'force-cache'})
+        .then(function(r){return r.json();})
+        .then(function(d){ if(!d||d.erro)return;
+          if(d.logradouro&&!$('f_endereco').value.trim())$('f_endereco').value=d.logradouro;
+          if(d.bairro&&!$('f_bairro').value.trim())$('f_bairro').value=d.bairro;
+          if(d.localidade&&!$('f_cidade').value.trim())$('f_cidade').value=d.localidade;
+          if(d.complemento&&!$('f_referencia').value.trim())$('f_referencia').value=d.complemento;
+        }).catch(function(){});
+    }
+    cep.addEventListener('blur',buscarCep);
+    cep.addEventListener('input',function(){ if((cep.value||'').replace(/\D/g,'').length===8) buscarCep(); });
+  })();
 
   // ---- form ----
   function openForm(m){
@@ -259,6 +329,11 @@ td.strong{font-weight:700;color:var(--heading)}
     $('f_quartos').value=m.quartos!=null?m.quartos:'';$('f_suites').value=m.suites!=null?m.suites:'';$('f_banheiros').value=m.banheiros!=null?m.banheiros:'';
     $('f_cep').value=m.cep||'';$('f_iptu').value=m.iptu!=null?m.iptu:'';$('f_condominio').value=m.condominio!=null?m.condominio:'';
     $('f_cidade').value=m.cidade||'';$('f_bairro').value=m.bairro||'';$('f_endereco').value=m.endereco||'';$('f_desc').value=m.descricao||'';
+    $('f_referencia').value=m.referencia||'';
+    // B7: disponibilidade de visitas
+    var disp=m.disponibilidade||{};var dias=Array.isArray(disp.dias)?disp.dias.map(Number):[];
+    Array.prototype.forEach.call(document.querySelectorAll('#f_disp_dias input'),function(c){c.checked=dias.indexOf(Number(c.getAttribute('data-d')))>=0;});
+    $('f_disp_ini').value=disp.hora_ini||'';$('f_disp_fim').value=disp.hora_fim||'';$('f_disp_dur').value=disp.duracao_min!=null?disp.duracao_min:'';
     $('f_foto').value=m.foto||'';$('f_fotos').value=(Array.isArray(m.fotos)?m.fotos:[]).join('\n');
     $('f_autoriz').value='';var au=m.autorizacao_url||'';fm.dataset.autoriz=au;
     $('autorizStatus').innerHTML=au?('Autorização anexada. <a href="'+esc(au)+'" target="_blank" rel="noopener" style="color:var(--blue)">ver</a> (envie outra para substituir).'):'Sem autorização anexada. É necessária para publicar (status Disponível).';
@@ -282,7 +357,12 @@ td.strong{font-weight:700;color:var(--heading)}
       preco:num('f_preco'),valor_minimo:num('f_valor_min'),area:num('f_area'),vagas:num('f_vagas'),quartos:num('f_quartos'),suites:num('f_suites'),banheiros:num('f_banheiros'),
       cidade:$('f_cidade').value.trim(),bairro:$('f_bairro').value.trim(),endereco:$('f_endereco').value.trim(),descricao:$('f_desc').value.trim(),
       cep:$('f_cep').value.trim(),iptu:num('f_iptu'),condominio:num('f_condominio'),
+      referencia:$('f_referencia').value.trim(),
       foto:capa,fotos:fotos,destaque:$('f_destaque').checked};
+    // B7: disponibilidade de visitas
+    var _dias=[];Array.prototype.forEach.call(document.querySelectorAll('#f_disp_dias input'),function(c){if(c.checked)_dias.push(Number(c.getAttribute('data-d')));});
+    var _hi=$('f_disp_ini').value,_hf=$('f_disp_fim').value,_dur=num('f_disp_dur');
+    o.disponibilidade=(_dias.length||_hi||_hf)?{dias:_dias,hora_ini:_hi||'',hora_fim:_hf||'',duracao_min:_dur!=null?_dur:60}:null;
     if(!o.titulo){$('fErr').textContent='Informe o título.';return;}
     if(!o.imobiliaria_id){$('fErr').textContent='Selecione a imobiliária.';return;}
     if(fm.dataset.id)o.id=fm.dataset.id;

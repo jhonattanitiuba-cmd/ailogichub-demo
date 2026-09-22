@@ -8,6 +8,59 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 44 - Bloco B completo (B3 a B9)
+
+Fecha o Bloco B do roadmap da reuniao de 21/09. Cada item seguiu a risca o pedido.
+
+- B3 - Vinculo de pessoas na criacao de negocio (sem recadastro):
+  - imoveis.html: o botao "Gerar negocio" agora abre um seletor para buscar uma pessoa (lead) ja
+    cadastrada e vincular ao negocio, ou gerar sem vinculo.
+  - api/dash.js (novo): aceita lead_id, valida o escopo (mesma imobiliaria do imovel) e grava o
+    vinculo (lead_id) e o nome no card. Nova coluna funil_negocios.lead_id (idempotente).
+
+- B4 - Documentos anexaveis nos cards (contrato, proposta, ficha de visita, outro):
+  - api/dash.js: endpoints docs (listar), doc_add e doc_del; guardados em funil_negocios.documentos
+    (jsonb). O arquivo sobe pelo upload existente (/api/data?action=upload, aceita PDF/imagem).
+  - funil.html: no detalhe do negocio, secao de documentos (lista + anexar por tipo + remover) e um
+    selo com a contagem de documentos no card.
+
+- B5 - Corretor autonomo com edicao + cores do funil por perfil:
+  - api/dash.js (move): o corretor autonomo (self) passa a poder mover/editar os proprios cards,
+    seja pela imobiliaria ou por ser o responsavel (corretor_nome).
+  - api/dash.js (novo): grava o perfil do responsavel no card (corretor_perfil). funil.html: a borda
+    do card ganha cor por perfil (autonomo, corretor, gestor, diretoria, juridico) com legenda.
+
+- B6 - Gestor autoriza agendar na agenda de outro corretor:
+  - corretores.html: checkbox "Pode criar compromissos na agenda de outros corretores" (grava em
+    usuarios.extra.agenda_outros). api/_auth.js expoe a permissao no escopo (agendaOutros).
+  - api/data.js (agenda save): criar evento para outro corretor exige ser gestor/admin ou ter a
+    permissao liberada; senao bloqueia com aviso.
+
+- B7 - Disponibilidade de visitas estilo Booking:
+  - imoveis.html: no cadastro do imovel, dias da semana + horario (das/ate) + duracao do slot,
+    mostrados tambem no detalhe. api/data.js: endpoint slots (disponibilidade + horarios ocupados);
+    agenda save bloqueia horario ja ocupado do imovel (conflito de visita). Nova coluna
+    atividades.imovel_id (idempotente).
+  - agenda.html: nas visitas, seletor de imovel e um aviso com a disponibilidade e os horarios ja
+    ocupados; envia imovel_id no compromisso.
+
+- B8 - Botao "solicitar parceria" no site:
+  - vitrine.html: para o usuario logado no Hub, botao "Solicitar parceria" no detalhe do imovel.
+  - api/dash.js: endpoint parceria cria um card no funil da imobiliaria DONA do imovel, com origem
+    "Parceria (site)" e o nome do solicitante.
+
+- B9 - Auto-preenchimento por CEP:
+  - imoveis.html: ao digitar o CEP, preenche endereco, bairro, cidade e pontos de referencia via
+    ViaCEP (sem sobrescrever o que ja estiver preenchido). Campo "Pontos de referencia" adicionado.
+
+Validacao: sintaxe do backend e dos scripts das paginas ok; testes no navegador (API mockada) para
+B3 (seletor + payload), B4 (painel de documentos), B5 (cores por perfil + legenda), B7 (seletor de
+imovel na agenda + slots) e B8 (botao so para logado + payload). B9 usa o ViaCEP (rede do navegador).
+Observacao: os inserts/updates que dependem das novas colunas foram validados por sintaxe e testes
+mockados; o comportamento contra o banco real deve ser conferido pelo cliente.
+
+---
+
 ## Rodada 43 - Bloco B (B1 e B2): codigo automatico do imovel e gerar negocio a partir do imovel
 
 - api/data.js (B1): ao cadastrar um imovel sem codigo, o sistema gera um codigo automatico no

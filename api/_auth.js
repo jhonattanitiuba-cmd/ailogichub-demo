@@ -157,10 +157,12 @@ async function resolveScope(user) {
   // 3) bootstrap de fundador: e-mail do dono entra como admin do Hub
   let isAdmin = isAdminRole(perfil);
   if (!isAdmin && isFounder(email)) { perfil = perfil || 'admin'; isAdmin = true; }
+  // B6: permissao (configuravel pelo gestor) de criar evento na agenda de outro corretor.
+  const agendaOutros = !!(extra && (extra.agenda_outros === true || extra.agenda_outros === 'true'));
   return {
     user: user, authId: user && user.id, email: email, nome: nome,
     usuarioId: usuarioId, perfil: perfil, departamento: departamentoDe(perfil, extra),
-    imobiliariaId: imobiliariaId, isAdmin: isAdmin
+    imobiliariaId: imobiliariaId, isAdmin: isAdmin, agendaOutros: agendaOutros
   };
 }
 

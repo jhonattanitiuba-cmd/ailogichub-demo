@@ -28,15 +28,15 @@ Legenda: [Feito] pronto no ar | [Parcial] parte feita | [A fazer] | [Depende] de
 - [A fazer] A6. Campos CEP, IPTU e condominio (obrigatorios) no cadastro de imoveis.
 
 ## 3. Funcionalidades (media complexidade)
-- [A fazer] B1. Codigo automatico do imovel por tipologia (AP, CA, SL) + numeracao sequencial; sugestao: prefixo por imobiliaria e numero inicial configuravel.
-- [A fazer] B2. Botao "gerar negocio" na tela do imovel, criando o card no funil ja vinculado ao imovel e ao lead.
-- [A fazer] B3. Busca/vinculo de pessoas dentro da criacao de negocio (sem recadastro).
-- [A fazer] B4. Documentos (contrato, proposta, ficha de visita) anexaveis nos cards de negociacao.
-- [A fazer] B5. Corretor autonomo com permissao de edicao; campos do funil diferenciados por cor conforme o perfil.
-- [A fazer] B6. Permissao configuravel: gestor autoriza corretor a criar evento na agenda de outro corretor.
-- [A fazer] B7. Disponibilidade de visitas estilo Booking (dias/horarios no imovel; agenda bloqueia horarios ocupados).
-- [A fazer] B8. Botao "solicitar parceria" no site (usuario logado) gerando card no funil.
-- [A fazer] B9. Auto-preenchimento por CEP (endereco + pontos de referencia).
+- [Feito] B1. Codigo automatico do imovel por tipologia (AP, CA, SL) + numeracao sequencial; sugestao: prefixo por imobiliaria e numero inicial configuravel.
+- [Feito] B2. Botao "gerar negocio" na tela do imovel, criando o card no funil ja vinculado ao imovel e ao lead.
+- [Feito] B3. Busca/vinculo de pessoas dentro da criacao de negocio (sem recadastro).
+- [Feito] B4. Documentos (contrato, proposta, ficha de visita) anexaveis nos cards de negociacao.
+- [Feito] B5. Corretor autonomo com permissao de edicao; campos do funil diferenciados por cor conforme o perfil.
+- [Feito] B6. Permissao configuravel: gestor autoriza corretor a criar evento na agenda de outro corretor.
+- [Feito] B7. Disponibilidade de visitas estilo Booking (dias/horarios no imovel; agenda bloqueia horarios ocupados).
+- [Feito] B8. Botao "solicitar parceria" no site (usuario logado) gerando card no funil.
+- [Feito] B9. Auto-preenchimento por CEP (endereco + pontos de referencia).
 
 ## 4. Integracoes e infraestrutura (dependem de acesso/terceiro)
 - [Depende] C1. E-mail automatico no dominio ailogichub.com.br (SMTP + DNS) para senha temporaria e avisos.

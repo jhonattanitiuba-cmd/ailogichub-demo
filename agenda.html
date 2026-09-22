@@ -219,6 +219,8 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
       <label>Tipo<select id="f_tipo"><option>Visita</option><option>Ligação</option><option>Reunião</option><option>Follow-up</option><option>Documentação</option><option>Escritura (cartório)</option><option>Entrega de chaves</option><option>Outro</option></select></label>
       <label>Imobiliária*<select id="f_imob"></select></label>
     </div>
+    <label id="f_imovel_row" style="display:none">Imóvel da visita<select id="f_imovel"><option value="">— Sem imóvel —</option></select></label>
+    <div id="f_disp_hint" style="display:none;font-size:11.5px;line-height:1.5;color:var(--muted);background:var(--panel2);border:1px solid var(--border2);border-radius:10px;padding:9px 11px"></div>
     <div class="fgroup"><div class="fglabel">Início (data e hora)*</div><div class="fg2"><label class="sub">Data<input id="f_ini_data" type="date"></label><label class="sub">Hora<input id="f_ini_hora" type="time"></label></div></div>
     <div class="fgroup"><div class="fglabel">Fim (data e hora)</div><div class="fg2"><label class="sub">Data<input id="f_fim_data" type="date"></label><label class="sub">Hora<input id="f_fim_hora" type="time"></label></div></div>
     <label>Lembrar antes<select id="f_lembrete"><option value="default">Usar o padrão</option><option value="off">Não lembrar</option><option value="0">No horário</option><option value="15">15 minutos antes</option><option value="30">30 minutos antes</option><option value="60">1 hora antes</option><option value="120">2 horas antes</option><option value="1440">1 dia antes</option></select></label>
@@ -238,7 +240,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
 <script src="hub.js" defer></script>
 <script>/*agenda*/(function(){
   var DATA="/api/data";
-  var items=[],imobs=[],imobMap={},curDetail=null;
+  var items=[],imobs=[],imobMap={},imoveis=[],imovMap={},curDetail=null;
   var fm=document.getElementById('formModal'),dm=document.getElementById('detModal');
   var view='cal', mState=new Date(); mState.setDate(1);
   var dState=new Date(); dState.setHours(0,0,0,0);
@@ -363,7 +365,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   /* ---- detalhe ---- */
   function openDetail(a){ if(!a)return; curDetail=a;
     $('dTit').textContent=a.titulo||'Compromisso'; $('dSub').textContent=a.tipo||'—';
-    $('dGrid').innerHTML=fld('Início',dth(a.inicio))+fld('Fim',dth(a.fim))+fld('Status',a.concluida?'Concluído':(isLate(a)?'Atrasado':'Pendente'))+fld('Imobiliária',imobMap[a.imobiliaria_id])+fld('Criado em',a.created_at?new Date(a.created_at).toLocaleString('pt-BR'):'—',true);
+    $('dGrid').innerHTML=fld('Início',dth(a.inicio))+fld('Fim',dth(a.fim))+fld('Status',a.concluida?'Concluído':(isLate(a)?'Atrasado':'Pendente'))+fld('Imobiliária',imobMap[a.imobiliaria_id])+(a.imovel_id&&imovMap[a.imovel_id]?fld('Imóvel',imovMap[a.imovel_id],true):'')+fld('Criado em',a.created_at?new Date(a.created_at).toLocaleString('pt-BR'):'—',true);
     $('dToggle').textContent=a.concluida?'Reabrir':'Concluir';
     dm.classList.add('open');
   }
@@ -386,6 +388,8 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     selVal($('f_tipo'),a.tipo||'Visita');
     $('f_imob').innerHTML=imobs.map(function(i){return '<option value="'+esc(i.id)+'">'+esc(i.nome)+'</option>';}).join('');
     if(a.imobiliaria_id)$('f_imob').value=a.imobiliaria_id;
+    fillImovel(a.imovel_id||'');
+    toggleImovel();
     var pp=(prefDate||'').split('T');
     if(a.inicio){ $('f_ini_data').value=dpart(a.inicio); $('f_ini_hora').value=tpart(a.inicio); }
     else { $('f_ini_data').value=pp[0]||''; $('f_ini_hora').value=pp[1]||'09:00'; }
@@ -398,6 +402,33 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     fm.classList.add('open');
   }
   function closeForm(){fm.classList.remove('open');}
+  // B7: seletor de imovel para visitas + aviso de disponibilidade e horarios ocupados
+  function fillImovel(sel){ var imob=$('f_imob').value;
+    var list=imoveis.filter(function(m){return !imob||String(m.imobiliaria_id)===String(imob);});
+    $('f_imovel').innerHTML='<option value="">— Sem imóvel —</option>'+list.map(function(m){return '<option value="'+esc(m.id)+'">'+esc((m.titulo||'Imóvel')+(m.codigo?' · '+m.codigo:''))+'</option>';}).join('');
+    if(sel)$('f_imovel').value=sel;
+  }
+  function toggleImovel(){ var ehVisita=/visita/i.test($('f_tipo').value||''); $('f_imovel_row').style.display=ehVisita?'':'none'; if(!ehVisita){$('f_disp_hint').style.display='none';} else {refreshDispHint();} }
+  var DIASN={0:'Dom',1:'Seg',2:'Ter',3:'Qua',4:'Qui',5:'Sex',6:'Sáb'};
+  function refreshDispHint(){ var h=$('f_disp_hint'); var iv=$('f_imovel').value;
+    if(!iv){h.style.display='none';return;}
+    h.style.display='block'; h.textContent='Carregando disponibilidade…';
+    fetch(DATA+'?action=slots&imovel_id='+encodeURIComponent(iv),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){ if(!d){h.style.display='none';return;}
+        var parts=[];
+        var disp=d.disponibilidade;
+        if(disp&&((disp.dias&&disp.dias.length)||disp.hora_ini)){ var dd=(disp.dias||[]).map(function(x){return DIASN[Number(x)];}).filter(Boolean).join(', '); parts.push('Disponível: '+(dd||'todos os dias')+(disp.hora_ini?' · '+disp.hora_ini+(disp.hora_fim?' às '+disp.hora_fim:''):'')); }
+        else { parts.push('Sem disponibilidade cadastrada no imóvel (qualquer horário livre).'); }
+        var oc=(d.ocupados||[]).filter(function(o){return o.inicio;});
+        if(oc.length){ var txt=oc.slice(0,8).map(function(o){var s=new Date(o.inicio);return pad(s.getDate())+'/'+pad(s.getMonth()+1)+' '+pad(s.getHours())+':'+pad(s.getMinutes());}).join(' · '); parts.push('Horários já ocupados: '+txt+(oc.length>8?' …':'')); }
+        else { parts.push('Nenhum horário ocupado.'); }
+        h.innerHTML=parts.map(function(p){return '<div>'+esc(p)+'</div>';}).join('');
+      }).catch(function(){h.style.display='none';});
+  }
+  $('f_tipo').addEventListener('change',toggleImovel);
+  $('f_imob').addEventListener('change',function(){fillImovel('');refreshDispHint();});
+  $('f_imovel').addEventListener('change',refreshDispHint);
   $('btnNew').addEventListener('click',function(){ if(!imobs.length){alert('Cadastre uma imobiliária antes de criar compromissos.');return;} openForm(null); });
   $('fClose').addEventListener('click',closeForm);$('fCancel').addEventListener('click',closeForm);
   fm.addEventListener('click',function(e){if(e.target===fm)closeForm();});
@@ -411,7 +442,8 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   }
   $('fSave').addEventListener('click',function(){
     var o={titulo:$('f_titulo').value.trim(),tipo:$('f_tipo').value,imobiliaria_id:$('f_imob').value||null,
-      inicio:comb('f_ini_data','f_ini_hora'),fim:comb('f_fim_data','f_fim_hora'),concluida:$('f_concluida').checked};
+      inicio:comb('f_ini_data','f_ini_hora'),fim:comb('f_fim_data','f_fim_hora'),concluida:$('f_concluida').checked,
+      imovel_id:(/visita/i.test($('f_tipo').value||'')?($('f_imovel').value||null):null)};
     if(!o.titulo){$('fErr').textContent='Informe o título.';return;}
     if(!o.imobiliaria_id){$('fErr').textContent='Selecione a imobiliária.';return;}
     if(!o.inicio){$('fErr').textContent='Informe a data de início.';return;}
@@ -447,8 +479,9 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   $('todayW').addEventListener('click',function(){dState=new Date();dState.setHours(0,0,0,0);renderWeek();});
 
   function load(){
-    Promise.all([get('agenda'),get('imobiliarias')]).then(function(a){
-      items=a[0]; imobs=a[1]; imobMap={}; imobs.forEach(function(i){imobMap[i.id]=i.nome;});
+    Promise.all([get('agenda'),get('imobiliarias'),get('imoveis')]).then(function(a){
+      items=a[0]; imobs=a[1]; imoveis=a[2]||[]; imobMap={}; imobs.forEach(function(i){imobMap[i.id]=i.nome;});
+      imovMap={}; imoveis.forEach(function(m){imovMap[m.id]=(m.titulo||'Imóvel')+(m.codigo?' · '+m.codigo:'');});
       items.sort(function(x,y){return new Date(y.inicio||y.created_at||0)-new Date(x.inicio||x.created_at||0);});
       computeKpis(); refreshView();
     });

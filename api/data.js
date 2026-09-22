@@ -183,7 +183,7 @@ function negOut(r) {
   };
 }
 function atividadeOut(r) {
-  return { id: r.id, imobiliaria_id: r.imobiliaria_id, lead_id: r.lead_id, negocio_id: r.negocio_id, responsavel_id: r.responsavel_id, titulo: r.titulo, tipo: r.tipo, inicio: r.inicio, fim: r.fim, concluida: r.concluida, created_at: r.created_at };
+  return { id: r.id, imobiliaria_id: r.imobiliaria_id, lead_id: r.lead_id, negocio_id: r.negocio_id, imovel_id: r.imovel_id || null, responsavel_id: r.responsavel_id, titulo: r.titulo, tipo: r.tipo, inicio: r.inicio, fim: r.fim, concluida: r.concluida, created_at: r.created_at };
 }
 function contratoOut(r) {
   return { id: r.id, imobiliaria_id: r.imobiliaria_id, negocio_id: r.negocio_id, status_assinatura: r.status_assinatura, assinado_em: r.assinado_em, url_assinado: r.url_assinado, created_at: r.created_at };
@@ -249,6 +249,21 @@ module.exports = async (req, res) => {
       });
       if (!up.ok) { const t = await up.text().catch(() => ''); res.status(502).json({ error: 'upload falhou', detail: t.slice(0, 200) }); return; }
       res.status(200).json({ url: SUPABASE_URL + '/storage/v1/object/public/imoveis/' + path });
+      return;
+    }
+    // B7: disponibilidade de visitas (estilo Booking). Devolve os dias/horarios do imovel e os horarios
+    // ja ocupados (visitas agendadas e nao concluidas), para a agenda bloquear os conflitos.
+    if (req.query && req.query.action === 'slots') {
+      const imovelId = req.query.imovel_id;
+      if (!imovelId) { res.status(400).json({ error: 'imovel_id obrigatorio' }); return; }
+      let disponibilidade = null, imobId = null;
+      try { const r = await db("select imobiliaria_id, extra->'disponibilidade' disp from imoveis where id=$1 and deleted_at is null", [imovelId]); if (r.rows[0]) { imobId = r.rows[0].imobiliaria_id; disponibilidade = r.rows[0].disp || null; } } catch (_) {}
+      if (imobId == null) { res.status(404).json({ error: 'imovel nao encontrado' }); return; }
+      if (!user.isAdmin && String(user.imobiliariaId) !== String(imobId)) { res.status(403).json({ error: 'sem permissao' }); return; }
+      try { await db('alter table atividades add column if not exists imovel_id uuid'); } catch (_) {}
+      let ocupados = [];
+      try { const o = await db("select inicio, fim from atividades where imovel_id=$1 and coalesce(concluida,false)=false and inicio is not null and inicio > now() - interval '1 hour' order by inicio limit 300", [imovelId]); ocupados = o.rows; } catch (_) {}
+      res.status(200).json({ disponibilidade: disponibilidade, ocupados: ocupados });
       return;
     }
     const ent = req.query && req.query.ent;
@@ -401,24 +416,40 @@ module.exports = async (req, res) => {
         const concl = (o.concluida === true || o.concluida === 'true');
         const ini = o.inicio || null, fim = o.fim || null;
         const ehVisita = /visita/i.test(o.tipo || '');
+        const imovelIdAg = o.imovel_id || null;
+        try { await db('alter table atividades add column if not exists imovel_id uuid'); } catch (_) {}
+        // B7: bloqueia horario ja ocupado do imovel (outra visita nao concluida que se sobrepoe).
+        if (imovelIdAg && ini) {
+          const fimJan = fim || new Date(new Date(ini).getTime() + 60 * 60 * 1000).toISOString();
+          try {
+            const ov = await db("select 1 from atividades where imovel_id=$1 and coalesce(concluida,false)=false and inicio is not null and ($4::text is null or id::text<>$4) and inicio < $3 and coalesce(fim, inicio + interval '1 hour') > $2 limit 1",
+              [imovelIdAg, ini, fimJan, o.id ? String(o.id) : null]);
+            if (ov.rows[0]) { res.status(409).json({ error: 'Este horario ja esta ocupado para este imovel. Escolha outro horario disponivel.' }); return; }
+          } catch (_) {}
+        }
         if (o.id) {
           // bloqueia visita atribuida a corretor sem CRECI (estagiario nao faz visita)
           if (ehVisita) {
             const ex = await db('select responsavel_id from atividades where id=$1', [o.id]);
             if (await creciDe(ex.rows[0] && ex.rows[0].responsavel_id) === '') { res.status(400).json({ error: MSG_SEM_CRECI }); return; }
           }
-          const r = await db(`update atividades set titulo=$1,tipo=$2,inicio=$3,fim=$4,concluida=$5 where id=$6 returning *`,
-            [o.titulo, o.tipo || null, ini, fim, concl, o.id]);
+          const r = await db(`update atividades set titulo=$1,tipo=$2,inicio=$3,fim=$4,concluida=$5,imovel_id=coalesce($7,imovel_id) where id=$6 returning *`,
+            [o.titulo, o.tipo || null, ini, fim, concl, o.id, imovelIdAg]);
           res.status(200).json({ row: atividadeOut(r.rows[0]) }); return;
         }
         if (!o.imobiliaria_id) { res.status(400).json({ error: 'imobiliaria_id obrigatorio' }); return; }
         // corretor/autonomo (self): se nao informar responsavel, assume a si mesmo,
         // senao o proprio compromisso some da lista dele (filtrada por responsavel_id).
         const respAg = o.responsavel_id || ((!user.isAdmin && isSelfRole(user.perfil) && user.usuarioId) ? user.usuarioId : null);
+        // B6: criar evento na agenda de OUTRO corretor exige ser gestor/admin ou ter a permissao liberada pelo gestor.
+        if (respAg && user.usuarioId && String(respAg) !== String(user.usuarioId)) {
+          const gestor = user.isAdmin || /gerente|gestor|comercial|diretor|dono|owner|admin/i.test(String(user.perfil || ''));
+          if (!gestor && !user.agendaOutros) { res.status(403).json({ error: 'Sem permissao para agendar na agenda de outro corretor. Peca ao gestor para liberar.' }); return; }
+        }
         // bloqueia visita atribuida a corretor sem CRECI (estagiario nao faz visita)
         if (ehVisita && await creciDe(respAg) === '') { res.status(400).json({ error: MSG_SEM_CRECI }); return; }
-        const r = await db(`insert into atividades(imobiliaria_id,titulo,tipo,inicio,fim,concluida,lead_id,negocio_id,responsavel_id) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *`,
-          [o.imobiliaria_id, o.titulo, o.tipo || null, ini, fim, concl, o.lead_id || null, o.negocio_id || null, respAg]);
+        const r = await db(`insert into atividades(imobiliaria_id,titulo,tipo,inicio,fim,concluida,lead_id,negocio_id,responsavel_id,imovel_id) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning *`,
+          [o.imobiliaria_id, o.titulo, o.tipo || null, ini, fim, concl, o.lead_id || null, o.negocio_id || null, respAg, imovelIdAg]);
         res.status(200).json({ row: atividadeOut(r.rows[0]) }); return;
       }
       const o = body;

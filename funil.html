@@ -151,6 +151,7 @@ a{text-decoration:none;color:inherit}
   </section>
 
   <div id="iaInsight" style="margin:0 0 18px"></div>
+  <div id="perfilLegend" style="display:none;gap:14px;flex-wrap:wrap;align-items:center;margin:0 0 12px;font-size:11.5px;color:var(--muted)"></div>
 
   <section class="board-wrap">
     <div class="kanban" id="kanban"><div class="empty">Carregando funil…</div></div>
@@ -168,6 +169,7 @@ a{text-decoration:none;color:inherit}
 <div class="modal-bg" id="dealModal"><div class="modal">
   <div class="modal-h"><div><h3 id="dLead">·</h3><p id="dSub">·</p></div><button class="modal-x" id="dClose">×</button></div>
   <div class="mgrid" id="dGrid"></div>
+  <div id="dDocs" style="padding:14px 18px;border-top:1px solid var(--border)"></div>
   <div class="modal-f"><button class="btn" id="dClose2">Fechar</button></div>
 </div></div>
 
@@ -220,7 +222,59 @@ a{text-decoration:none;color:inherit}
       +(c.imovel_codigo?lnkCell('Ver imóvel','/imoveis?codigo='+encodeURIComponent(c.imovel_codigo),'Cód. '+c.imovel_codigo):'')
       +(fone?lnkCell('Abrir conversa','/whatsapp?jid='+encodeURIComponent(fone),'WhatsApp'):'')
       +fld('Observações',c.observacoes,true);
+    renderDocs(c.id);
     modal.classList.add('open');
+  }
+  // B4: documentos (contrato, proposta, ficha de visita) anexaveis ao card.
+  var DOC_TIPOS=[['contrato','Contrato'],['proposta','Proposta'],['ficha_visita','Ficha de visita'],['outro','Outro']];
+  function renderDocs(cardId){
+    var box=document.getElementById('dDocs'); if(!box) return;
+    var opts=DOC_TIPOS.map(function(t){return '<option value="'+t[0]+'">'+t[1]+'</option>';}).join('');
+    box.innerHTML='<div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Documentos</div>'
+      +'<div id="docList" style="display:flex;flex-direction:column;gap:6px"><div style="color:var(--muted);font-size:12px">Carregando…</div></div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px">'
+        +'<select id="docTipo" class="btn" style="height:34px;padding:0 10px">'+opts+'</select>'
+        +'<input type="file" id="docFile" accept="application/pdf,image/*" style="font-size:12px;max-width:190px">'
+        +'<button class="btn" id="docAdd" style="height:34px">Anexar</button>'
+        +'<span id="docMsg" style="font-size:11.5px;color:var(--muted)"></span></div>';
+    loadDocs(cardId);
+    document.getElementById('docAdd').addEventListener('click',function(){ addDoc(cardId); });
+  }
+  function loadDocs(cardId){
+    fetch('/api/dash?action=docs&id='+encodeURIComponent(cardId),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():{docs:[]};})
+      .then(function(d){ drawDocs(cardId,(d&&d.docs)||[]); })
+      .catch(function(){ var l=document.getElementById('docList'); if(l)l.innerHTML='<div style="color:var(--muted);font-size:12px">Não foi possível carregar os documentos.</div>'; });
+  }
+  function drawDocs(cardId,docs){
+    var l=document.getElementById('docList'); if(!l)return;
+    if(!docs.length){ l.innerHTML='<div style="color:var(--muted);font-size:12px">Nenhum documento anexado.</div>'; return; }
+    l.innerHTML=docs.map(function(d){return '<div style="display:flex;align-items:center;gap:8px;border:1px solid var(--border2);border-radius:9px;padding:7px 10px">'
+      +'<span class="badge blue">'+esc(d.tipo_label||d.tipo||'Doc')+'</span>'
+      +'<a href="'+esc(d.url)+'" target="_blank" rel="noopener" style="color:var(--blue);font-weight:700;font-size:12.5px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(d.nome||'Abrir')+'</a>'
+      +'<button class="btn" data-doc="'+esc(d.id)+'" style="height:28px;padding:0 9px;color:var(--red)">Remover</button></div>';}).join('');
+    Array.prototype.forEach.call(l.querySelectorAll('[data-doc]'),function(b){b.addEventListener('click',function(){
+      if(!confirm('Remover este documento?'))return;
+      fetch('/api/dash?action=doc_del',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:cardId,doc_id:b.getAttribute('data-doc')})})
+        .then(function(r){return r.json();}).then(function(d){ drawDocs(cardId,(d&&d.docs)||[]); }).catch(function(){});
+    });});
+  }
+  function addDoc(cardId){
+    var f=(document.getElementById('docFile').files||[])[0], tipo=document.getElementById('docTipo').value, msg=document.getElementById('docMsg');
+    if(!f){ msg.textContent='Selecione um arquivo.'; return; }
+    if(f.size>12*1024*1024){ msg.textContent='Arquivo muito grande (máx 12MB).'; return; }
+    msg.textContent='Enviando…';
+    var rd=new FileReader();
+    rd.onload=function(){
+      fetch('/api/data?action=upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:(f.type||'application/pdf'),dataBase64:rd.result})})
+        .then(function(r){return r.json();})
+        .then(function(j){ if(!j||!j.url)throw 0;
+          return fetch('/api/dash?action=doc_add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:cardId,tipo:tipo,nome:f.name,url:j.url})}).then(function(r){return r.json();});
+        })
+        .then(function(d){ msg.textContent=''; document.getElementById('docFile').value=''; drawDocs(cardId,(d&&d.docs)||[]); })
+        .catch(function(){ msg.textContent='Falha ao anexar o documento.'; });
+    };
+    rd.readAsDataURL(f);
   }
   function closeDeal(){modal.classList.remove('open');}
   document.getElementById('dClose').addEventListener('click',closeDeal);
@@ -229,11 +283,17 @@ a{text-decoration:none;color:inherit}
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDeal();});
 
   function foneDe(c){ return c.lead_telefone||c.telefone||c.contato||c.jid||''; }
+  // B5: cor do card conforme o perfil do corretor responsavel.
+  function perfilGrupo(p){ p=String(p||'').toLowerCase(); if(/autonom|parceir/.test(p))return 'autonomo'; if(/corretor/.test(p))return 'corretor'; if(/gerente|gestor|comercial/.test(p))return 'gestor'; if(/admin|diretor|dono|owner|super/.test(p))return 'diretoria'; if(/advog|juridic/.test(p))return 'juridico'; return 'outro'; }
+  var PERFIL_COR={autonomo:'#7257ff',corretor:'#0b66ff',gestor:'#16a56f',diretoria:'#f59e0b',juridico:'#e94242',outro:'#94a3b8'};
+  var PERFIL_LBL={autonomo:'Autônomo',corretor:'Corretor',gestor:'Gestor',diretoria:'Diretoria',juridico:'Jurídico',outro:'Outro'};
   function card(c){
     var cor=ORIGEM_COR[c.origem]||'#64748b';
     var slaOk=(c.sla==='Venda concluída'||c.sla==='Dentro do SLA');
     var fone=foneDe(c);
-    return '<div class="kcard" draggable="true" data-id="'+esc(c.id)+'">'
+    var pg=perfilGrupo(c.corretor_perfil), pcor=PERFIL_COR[pg];
+    return '<div class="kcard" draggable="true" data-id="'+esc(c.id)+'" style="border-left:3px solid '+pcor+'" title="Responsável: '+esc(PERFIL_LBL[pg])+'">'
+      +(c.docs?'<div style="float:right;font-size:10px;font-weight:800;color:var(--muted)" title="'+c.docs+' documento(s) anexado(s)">📎 '+c.docs+'</div>':'')
       +'<div class="lead">'+esc(c.lead_nome||'—')+'</div>'
       +'<div class="desc">'+esc(c.imovel_desc||(c.imovel_codigo?'Cód. '+c.imovel_codigo:'—'))+'</div>'
       +(c.imob_nome?'<div style="margin-top:7px"><span class="badge blue">'+esc(c.imob_nome)+'</span></div>':'')
@@ -267,6 +327,13 @@ a{text-decoration:none;color:inherit}
         +'<div class="kbody" data-etapa="'+esc(e.key)+'">'+(list.map(card).join('')||'<div style="text-align:center;color:var(--muted);font-size:11px;padding:8px">·</div>')+'</div></div>';
     }).join('');
     wireDnD();computePanels(etapas,cards);
+    // B5: legenda de cores por perfil (so os perfis presentes nos cards)
+    var lg=document.getElementById('perfilLegend');
+    if(lg){ var grp={}; cards.forEach(function(c){grp[perfilGrupo(c.corretor_perfil)]=1;});
+      var ks=Object.keys(grp);
+      if(ks.length){ lg.style.display='flex'; lg.innerHTML='<strong style="color:var(--text)">Cor por perfil:</strong>'+ks.map(function(k){return '<span style="display:inline-flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:'+PERFIL_COR[k]+';display:inline-block"></span>'+PERFIL_LBL[k]+'</span>';}).join(''); }
+      else { lg.style.display='none'; }
+    }
   }
 
   function computePanels(etapas,cards){

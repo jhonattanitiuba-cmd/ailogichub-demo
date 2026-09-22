@@ -59,6 +59,9 @@ async function ensureFunilExtras() {
   if (_funilExtras) return;
   try { await db('alter table funil_negocios add column if not exists fechado_em timestamptz'); } catch (_) {}
   try { await db('alter table funil_negocios add column if not exists negocio_id uuid'); } catch (_) {}   // vinculo card -> negocio (Fase 2)
+  try { await db('alter table funil_negocios add column if not exists lead_id text'); } catch (_) {}       // B3: vinculo card -> pessoa (lead)
+  try { await db('alter table funil_negocios add column if not exists corretor_perfil text'); } catch (_) {} // B5: perfil do responsavel (cor por perfil)
+  try { await db("alter table funil_negocios add column if not exists documentos jsonb not null default '[]'"); } catch (_) {} // B4: documentos anexados ao card
   try { await db('create table if not exists funil_historico(id bigserial primary key, card_id text, imobiliaria_id text, etapa_de text, etapa_para text, autor_id text, autor_nome text, criado_em timestamptz not null default now())'); } catch (_) {}
   _funilExtras = true;
 }
@@ -86,6 +89,7 @@ module.exports = async (req, res) => {
     if (action === 'novo') {
       let body = req.body; if (typeof body === 'string') { try { body = JSON.parse(body); } catch (_) { body = {}; } }
       body = body || {};
+      await ensureFunilExtras();
       const imovelId = body.imovel_id;
       if (!imovelId) { res.status(400).json({ error: 'imovel_id obrigatorio' }); return; }
       let iv = null;
@@ -95,13 +99,50 @@ module.exports = async (req, res) => {
       let etapa = 'atendimento';
       try { const et = await loadEtapas(iv.imobiliaria_id || 'global', 'imob'); if (et && et[0] && et[0].key) etapa = et[0].key; } catch (_) {}
       const desc = iv.titulo || ('Imovel ' + (iv.codigo || ''));
-      const leadNome = body.lead_nome ? String(body.lead_nome).slice(0, 120) : null;
+      let leadNome = body.lead_nome ? String(body.lead_nome).slice(0, 120) : null;
+      let leadId = body.lead_id ? String(body.lead_id) : null;
+      // B3: vincular uma pessoa (lead) ja cadastrada, sem recadastro. Busca o nome pelo id e valida o escopo.
+      if (leadId) {
+        try {
+          const lr = await db('select id, nome, imobiliaria_id from leads where id=$1 and deleted_at is null', [leadId]);
+          const lead = lr.rows[0];
+          if (!lead) { leadId = null; }
+          else {
+            if (!user.isAdmin && String(lead.imobiliaria_id) !== String(iv.imobiliaria_id)) { res.status(403).json({ error: 'pessoa de outra imobiliaria' }); return; }
+            leadNome = lead.nome || leadNome;
+          }
+        } catch (_) { leadId = null; }
+      }
       try {
-        const r = await db(`insert into funil_negocios (imobiliaria_id, imob_nome, lead_nome, imovel_desc, imovel_codigo, corretor_nome, valor, etapa, origem, tentativas, sla, status_label, ultimo_contato, motivo_perda)
-          values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning id`,
-          [iv.imobiliaria_id, iv.imob || null, leadNome, desc, iv.codigo || null, user.nome || null, (iv.preco != null ? iv.preco : null), etapa, 'Hub', 1, null, 'Novo negocio', 'Agora', null]);
+        const r = await db(`insert into funil_negocios (imobiliaria_id, imob_nome, lead_nome, lead_id, imovel_desc, imovel_codigo, corretor_nome, corretor_perfil, valor, etapa, origem, tentativas, sla, status_label, ultimo_contato, motivo_perda)
+          values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16) returning id`,
+          [iv.imobiliaria_id, iv.imob || null, leadNome, leadId, desc, iv.codigo || null, user.nome || null, user.perfil || null, (iv.preco != null ? iv.preco : null), etapa, 'Hub', 1, null, 'Novo negocio', 'Agora', null]);
         res.status(200).json({ ok: true, id: r.rows[0] && r.rows[0].id, etapa: etapa });
       } catch (e) { console.error('[dash novo]', (e && e.message) || e); res.status(500).json({ error: 'nao foi possivel gerar o negocio' }); }
+      return;
+    }
+    // B8: "solicitar parceria" no site. Usuario logado pede parceria num imovel (de qualquer imobiliaria);
+    // gera um card no funil da imobiliaria DONA do imovel, com origem Parceria e o nome do solicitante.
+    if (action === 'parceria') {
+      await ensureFunilExtras();
+      let body = req.body; if (typeof body === 'string') { try { body = JSON.parse(body); } catch (_) { body = {}; } }
+      body = body || {};
+      const imovelId = body.imovel_id;
+      if (!imovelId) { res.status(400).json({ error: 'imovel_id obrigatorio' }); return; }
+      let iv = null;
+      try { const r = await db('select i.titulo, i.codigo, i.preco, i.imobiliaria_id, m.nome imob from imoveis i left join imobiliarias m on m.id=i.imobiliaria_id where i.id=$1 and i.deleted_at is null', [imovelId]); iv = r.rows[0]; } catch (_) {}
+      if (!iv) { res.status(404).json({ error: 'imovel nao encontrado' }); return; }
+      let etapa = 'atendimento';
+      try { const et = await loadEtapas(iv.imobiliaria_id || 'global', 'imob'); if (et && et[0] && et[0].key) etapa = et[0].key; } catch (_) {}
+      const solicitante = (user.nome || user.email || 'Parceiro').toString().slice(0, 120);
+      const desc = (iv.titulo || ('Imovel ' + (iv.codigo || ''))) + ' · parceria solicitada por ' + solicitante;
+      try {
+        const r = await db(`insert into funil_negocios (imobiliaria_id, imob_nome, lead_nome, imovel_desc, imovel_codigo, corretor_nome, corretor_perfil, valor, etapa, origem, tentativas, sla, status_label, ultimo_contato, motivo_perda)
+          values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning id`,
+          [iv.imobiliaria_id, iv.imob || null, solicitante, desc, iv.codigo || null, solicitante, user.perfil || null, (iv.preco != null ? iv.preco : null), etapa, 'Parceria (site)', 1, null, 'Solicitacao de parceria', 'Agora', null]);
+        try { cacheDel('dash:funil:all', 'dash:funil:' + (iv.imobiliaria_id || '')); } catch (_) {}
+        res.status(200).json({ ok: true, id: r.rows[0] && r.rows[0].id });
+      } catch (e) { console.error('[dash parceria]', (e && e.message) || e); res.status(500).json({ error: 'nao foi possivel registrar a parceria' }); }
       return;
     }
     if (action === 'move') {
@@ -114,9 +155,13 @@ module.exports = async (req, res) => {
           const chkA = await db('select 1 from negocio_advogado where negocio_id=$1 and advogado_id=$2', [id, user.usuarioId]);
           if (!chkA.rows[0]) { res.status(403).json({ error: 'sem permissao sobre este caso' }); return; }
         } else {
-          if (!user.imobiliariaId) { res.status(403).json({ error: 'sem permissao' }); return; }
-          const chk = await db('select 1 from funil_negocios where id=$1 and imobiliaria_id=$2', [id, user.imobiliariaId]);
-          if (!chk.rows[0]) { res.status(403).json({ error: 'sem permissao sobre este registro' }); return; }
+          // B5: corretor autonomo (self) tem permissao de edicao dos proprios cards, seja pela imobiliaria
+          // ou por ser o responsavel (corretor_nome). Assim quem atua sem imobiliaria fixa ainda move o seu funil.
+          const self = isSelfRole(user.perfil);
+          let ok = false;
+          if (user.imobiliariaId) { const chk = await db('select 1 from funil_negocios where id=$1 and imobiliaria_id=$2', [id, user.imobiliariaId]); ok = !!chk.rows[0]; }
+          if (!ok && self && user.nome) { const chk2 = await db('select 1 from funil_negocios where id=$1 and corretor_nome=$2', [id, user.nome]); ok = !!chk2.rows[0]; }
+          if (!ok) { res.status(403).json({ error: 'sem permissao sobre este registro' }); return; }
         }
       }
       await ensureFunilExtras();
@@ -164,6 +209,47 @@ module.exports = async (req, res) => {
       res.status(200).json({ rows: r.rows });
       return;
     }
+    // B4: documentos (contrato, proposta, ficha de visita) anexados ao card do funil.
+    // Guardados em funil_negocios.documentos (jsonb array). O arquivo em si sobe por /api/data?action=upload.
+    if (action === 'docs' || action === 'doc_add' || action === 'doc_del') {
+      await ensureFunilExtras();
+      let dbody = req.body; if (typeof dbody === 'string') { try { dbody = JSON.parse(dbody); } catch (_) { dbody = {}; } } dbody = dbody || {};
+      const cardId = (req.query && req.query.id) || dbody.id;
+      if (!cardId) { res.status(400).json({ error: 'id obrigatorio' }); return; }
+      // escopo: admin ve tudo; senao o card precisa ser da imobiliaria do usuario
+      if (!user.isAdmin) {
+        if (!user.imobiliariaId) { res.status(403).json({ error: 'sem permissao' }); return; }
+        const chk = await db('select 1 from funil_negocios where id=$1 and imobiliaria_id=$2', [cardId, user.imobiliariaId]);
+        if (!chk.rows[0]) { res.status(403).json({ error: 'sem permissao sobre este registro' }); return; }
+      }
+      if (action === 'docs') {
+        const r = await db('select coalesce(documentos, $2::jsonb) docs from funil_negocios where id=$1', [cardId, '[]']);
+        res.status(200).json({ docs: (r.rows[0] && r.rows[0].docs) || [] });
+        return;
+      }
+      const TIPOS = { contrato: 'Contrato', proposta: 'Proposta', ficha_visita: 'Ficha de visita', outro: 'Outro' };
+      if (action === 'doc_add') {
+        const tipo = TIPOS[dbody.tipo] ? dbody.tipo : 'outro';
+        const url = String(dbody.url || '').trim();
+        const nome = String(dbody.nome || '').slice(0, 160).trim() || TIPOS[tipo];
+        if (!url || !/^https?:\/\//i.test(url)) { res.status(400).json({ error: 'url do documento invalida' }); return; }
+        const doc = { id: Math.random().toString(36).slice(2, 10), tipo: tipo, tipo_label: TIPOS[tipo], nome: nome, url: url, autor: user.nome || null, criado_em: new Date().toISOString() };
+        const r = await db("update funil_negocios set documentos = coalesce(documentos,'[]'::jsonb) || $2::jsonb where id=$1 returning coalesce(documentos,'[]'::jsonb) docs", [cardId, JSON.stringify([doc])]);
+        try { cacheDel('dash:funil:all', 'dash:funil:' + (user.imobiliariaId || '')); } catch (_) {}
+        res.status(200).json({ ok: true, doc: doc, docs: (r.rows[0] && r.rows[0].docs) || [] });
+        return;
+      }
+      if (action === 'doc_del') {
+        const docId = String(dbody.doc_id || '');
+        if (!docId) { res.status(400).json({ error: 'doc_id obrigatorio' }); return; }
+        const r = await db("select coalesce(documentos,'[]'::jsonb) docs from funil_negocios where id=$1", [cardId]);
+        const arr = ((r.rows[0] && r.rows[0].docs) || []).filter(function (d) { return String(d && d.id) !== docId; });
+        const u = await db('update funil_negocios set documentos=$2::jsonb where id=$1 returning documentos docs', [cardId, JSON.stringify(arr)]);
+        try { cacheDel('dash:funil:all', 'dash:funil:' + (user.imobiliariaId || '')); } catch (_) {}
+        res.status(200).json({ ok: true, docs: (u.rows[0] && u.rows[0].docs) || [] });
+        return;
+      }
+    }
     if (action === 'etapas_save') {
       let body = req.body; if (typeof body === 'string') { try { body = JSON.parse(body); } catch (_) { body = {}; } }
       body = body || {};
@@ -193,10 +279,11 @@ module.exports = async (req, res) => {
       const fcached = await cacheGet(fkey);
       if (fcached) { res.status(200).json(fcached); return; }   // hit no Redis
       // advogado: só os negócios atribuídos a ele; senão escopo por imobiliária
+      await ensureFunilExtras();
       const scope = lawyer ? ' where id in (select negocio_id from negocio_advogado where advogado_id=$1)' : ((!user.isAdmin) ? ' where imobiliaria_id=$1' : '');
       const params = (!user.isAdmin) ? [lawyer ? user.usuarioId : user.imobiliariaId] : [];
-      const r = await db('select id, imob_nome, lead_nome, imovel_desc, imovel_codigo, corretor_nome, valor, etapa, origem, tentativas, sla, status_label, ultimo_contato, motivo_perda from funil_negocios' + scope + ' order by criado_em', params);
-      const fout = { cards: r.rows.map(x => ({ ...x, valor: x.valor != null ? Number(x.valor) : null })) };
+      const r = await db('select id, imob_nome, lead_nome, lead_id, imovel_desc, imovel_codigo, corretor_nome, corretor_perfil, valor, etapa, origem, tentativas, sla, status_label, ultimo_contato, motivo_perda, coalesce(jsonb_array_length(documentos),0) docs from funil_negocios' + scope + ' order by criado_em', params);
+      const fout = { cards: r.rows.map(x => ({ ...x, valor: x.valor != null ? Number(x.valor) : null, docs: Number(x.docs) || 0 })) };
       // etapas configuraveis (nome/ordem) por visao + garante coluna para toda etapa presente nos cards
       const view = user.isAdmin ? 'hub' : (lawyer ? 'juridico' : 'imob');
       const escopoEt = user.isAdmin ? 'global' : (lawyer ? 'juridico' : (user.imobiliariaId || null));

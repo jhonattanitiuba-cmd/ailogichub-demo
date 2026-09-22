@@ -144,6 +144,9 @@ img{max-width:100%;display:block}
       countEl=document.getElementById('count'),mbg=document.getElementById('mbg'),modal=document.getElementById('modal'),catsEl=document.getElementById('cats'),voltarEl=document.getElementById('voltar');
   var all=[],list=[],cat='',bairro='',fin='',q='',fav={},gIdx=0,gCur=null;
   try{fav=JSON.parse(localStorage.getItem('vitrine_fav')||'{}');}catch(_){}
+  // B8: usuario logado no Hub pode solicitar parceria. Le o token direto do storage (sem carregar auth.js,
+  // que redirecionaria a vitrine publica ao /login).
+  function hubToken(){ try{ var s=JSON.parse(localStorage.getItem('ailogic-auth')||'null'); var tok=s&&(s.access_token||(s.currentSession&&s.currentSession.access_token)); var exp=s&&(s.expires_at||(s.currentSession&&s.currentSession.expires_at)); if(exp&&(Date.now()/1000)>(exp+5))return null; return tok||null; }catch(_){return null;} }
 
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function cap(s){s=String(s||'');return s?s.charAt(0).toUpperCase()+s.slice(1):'';}
@@ -233,12 +236,25 @@ img{max-width:100%;display:block}
         +(specs?'<div class="mspecs">'+specs+'</div>':'')
         +(p.descricao?'<div class="mdesc">'+esc(p.descricao)+'</div>':'')
         +'<div class="mfoot">'+(p.imobiliaria?'<div class="mby">Anunciado por <b>'+esc(p.imobiliaria)+'</b></div>':'')
-          +'<button class="cta" id="cta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H5.2L4 17.2V4Z"/><path d="M8 9h8M8 12h5"/></svg>Tenho interesse</button>'
+          +(hubToken()?'<button class="cta" id="parceria" style="margin-left:auto;background:linear-gradient(135deg,#16a56f,#0d7a4f);box-shadow:0 12px 26px rgba(22,165,111,.3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Solicitar parceria</button>':'')
+          +'<button class="cta" id="cta"'+(hubToken()?' style="margin-left:0"':'')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H5.2L4 17.2V4Z"/><path d="M8 9h8M8 12h5"/></svg>Tenho interesse</button>'
         +'</div>'
       +'</div>';
     mbg.classList.add('open');document.body.style.overflow='hidden';
     var x=document.getElementById('mx');if(x)x.onclick=closeModal;
     var cta=document.getElementById('cta');if(cta)cta.onclick=function(){share(p);};
+    var parc=document.getElementById('parceria');
+    if(parc)parc.onclick=function(){
+      var tok=hubToken(); if(!tok){toast('Faça login no Hub para solicitar parceria.');return;}
+      parc.disabled=true;var _t=parc.innerHTML;parc.textContent='Enviando…';
+      fetch('/api/dash?action=parceria',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({imovel_id:p.id})})
+        .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+        .then(function(x){ parc.disabled=false;parc.innerHTML=_t;
+          if(x.ok){ toast('Solicitação de parceria enviada. A imobiliária receberá no funil.'); }
+          else { toast('Não foi possível: '+((x.j&&x.j.error)||'erro')); }
+        })
+        .catch(function(){ parc.disabled=false;parc.innerHTML=_t; toast('Falha na requisição.'); });
+    };
     if(fs.length>1){
       var img=document.getElementById('gimg'),dots=modal.querySelectorAll('.gdots i');
       function show(i){gIdx=(i+fs.length)%fs.length;img.src=fs[gIdx];dots.forEach(function(d,k){d.classList.toggle('on',k===gIdx);});}
