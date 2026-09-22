@@ -8,6 +8,18 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 40 - Lembretes da agenda: aviso de compromisso atrasado (vencido)
+
+- hub.js: alem do lembrete de aproximacao, o motor agora avisa os compromissos VENCIDOS (passaram da
+  hora e continuam pendentes). Toast vermelho com "Venceu ha X" e o selo Atrasado; avisa uma vez por
+  compromisso, so para eventos dos ultimos 30 dias. Quando ha muitos, mostra um resumo ("N
+  compromissos atrasados") em vez de varios toasts.
+
+Por que: pedido para tambem notificar quando o compromisso estiver vencido. Validado no navegador: um
+compromisso pendente com hora passada dispara o aviso de atrasado.
+
+---
+
 ## Rodada 39 - Correcao: horario do compromisso deslocava ao salvar (fuso)
 
 - agenda.html (comb): a data e hora digitadas (locais) eram enviadas como texto sem fuso e o banco
