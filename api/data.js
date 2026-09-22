@@ -66,6 +66,17 @@ const intOrNull = v => (v != null && v !== '') ? parseInt(v) : null;
 const MAP_TIPO = { 'Apartamento':'apartamento','Casa':'casa','Sala comercial':'sala_comercial','Loft':'loft','Cobertura':'cobertura','Terreno':'terreno','Galpão':'galpao','Outro':'outro' };
 const MAP_FIN  = { 'Venda':'venda','Locação':'locacao','Temporada':'temporada' };
 const MAP_ST   = { 'Disponível':'disponivel','Reservado':'reservado','Vendido':'vendido','Locado':'locado','Inativo':'inativo' };
+// B1: prefixo de codigo por tipologia (ex.: apartamento -> AP-1001)
+const PREF_TIPO = { apartamento:'AP', casa:'CA', sala_comercial:'SL', loft:'LF', cobertura:'CO', terreno:'TE', galpao:'GP', outro:'IM' };
+// gera um codigo automatico por tipo e imobiliaria, comecando em 1000, garantindo unicidade
+async function gerarCodigoImovel(tipo, imobId) {
+  const pref = PREF_TIPO[tipo] || 'IM';
+  let seq = 1000;
+  try { const c = await db('select count(*) n from imoveis where imobiliaria_id=$1', [imobId]); seq = 1000 + (Number(c.rows[0] && c.rows[0].n) || 0) + 1; } catch (_) {}
+  let cod = pref + '-' + seq;
+  try { for (let k = 0; k < 60; k++) { const ex = await db('select 1 from imoveis where codigo=$1 and imobiliaria_id=$2', [cod, imobId]); if (!ex.rows[0]) break; seq++; cod = pref + '-' + seq; } } catch (_) {}
+  return cod;
+}
 // Cota de corretores por plano (REV2 item 02): base inclui 2; a partir do 3o exige plano.
 // Modelo comercial atual: sem teto de corretores por plano (unico custo = taxa de ativacao do WhatsApp). Cota liberada.
 const PLAN_QUOTAS = { _base: Infinity, '': Infinity, free: Infinity, gratis: Infinity, starter: Infinity, basico: Infinity, essencial: Infinity, pro: Infinity, plus: Infinity, avancado: Infinity, premium: Infinity, ilimitado: Infinity, enterprise: Infinity };
@@ -504,6 +515,8 @@ module.exports = async (req, res) => {
         if (!(await podeEditarReg('imoveis', o.id, user))) { res.status(403).json({ error: MSG_SEM_EDICAO }); return; }
         try { const cr = await db("select extra->>'criado_por' cp from imoveis where id=$1", [o.id]); const cp = cr.rows[0] && cr.rows[0].cp; if (cp) extra.criado_por = cp; } catch (_) {}
       } else if (user.usuarioId) { extra.criado_por = String(user.usuarioId); }
+      // B1: gera o codigo automatico por tipologia quando o cadastro nao informa um
+      if (!o.id && !(o.codigo && String(o.codigo).trim())) { o.codigo = await gerarCodigoImovel(tipo, o.imobiliaria_id); }
       const vals = [o.imobiliaria_id, o.titulo, o.codigo||null, tipo, fin, st, numOrNull(o.preco), numOrNull(o.area),
         intOrNull(o.quartos), intOrNull(o.suites), intOrNull(o.banheiros), intOrNull(o.vagas),
         o.endereco||null, o.bairro||null, o.cidade||null, o.descricao||null, JSON.stringify(extra)];
@@ -533,10 +546,12 @@ module.exports = async (req, res) => {
         if (!titulo) { erros.push({ linha: i + 1, erro: 'sem titulo' }); continue; }
         const tipo = MAP_TIPO[o.tipo] || 'outro', fin = MAP_FIN[o.finalidade] || 'venda';
         const extraB = { origem: 'importacao' };
+        if (user.usuarioId) extraB.criado_por = String(user.usuarioId);
+        const codB = (o.codigo && String(o.codigo).trim()) ? o.codigo : await gerarCodigoImovel(tipo, imobId);
         try {
           await db(`insert into imoveis(imobiliaria_id,titulo,codigo,tipo,finalidade,status,preco,area_util,quartos,suites,banheiros,vagas,endereco,bairro,cidade,descricao,extra)
             values($1,$2,$3,$4,$5,'inativo',$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`,
-            [imobId, titulo, (o.codigo || null), tipo, fin, numOrNull(o.preco), numOrNull(o.area),
+            [imobId, titulo, codB, tipo, fin, numOrNull(o.preco), numOrNull(o.area),
               intOrNull(o.quartos), intOrNull(o.suites), intOrNull(o.banheiros), intOrNull(o.vagas),
               (o.endereco || null), (o.bairro || null), (o.cidade || null), (o.descricao || null), JSON.stringify(extraB)]);
           inserted++;

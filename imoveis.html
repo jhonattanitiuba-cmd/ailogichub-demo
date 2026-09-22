@@ -130,7 +130,7 @@ td.strong{font-weight:700;color:var(--heading)}
   <div class="modal-h"><h3 id="fTit">Novo imóvel</h3><button class="modal-x" id="fClose">×</button></div>
   <div class="fbody">
     <label>Título*<input id="f_titulo" placeholder="Ex.: Apartamento 3 dorms · Vila Mariana"></label>
-    <div class="fg2"><label>Imobiliária*<select id="f_imob"></select></label><label>Código<input id="f_codigo"></label></div>
+    <div class="fg2"><label>Imobiliária*<select id="f_imob"></select></label><label>Código<input id="f_codigo" placeholder="Deixe vazio para gerar automático (ex.: AP-1001)"></label></div>
     <div class="fg3">
       <label>Tipo<select id="f_tipo"><option>Apartamento</option><option>Casa</option><option>Sala comercial</option><option>Loft</option><option>Cobertura</option><option>Terreno</option><option>Galpão</option><option>Outro</option></select></label>
       <label>Finalidade<select id="f_fin"><option>Venda</option><option>Locação</option><option>Temporada</option></select></label>
@@ -171,7 +171,7 @@ td.strong{font-weight:700;color:var(--heading)}
 <div class="modal-bg mdetail" id="detModal"><div class="modal">
   <div class="modal-h"><h3 id="dTit">·</h3><button class="modal-x" id="dClose">×</button></div>
   <div class="mgrid" id="dGrid"></div>
-  <div class="modal-f"><button class="btn" id="dEdit">Editar</button><button class="btn" id="dClose2">Fechar</button></div>
+  <div class="modal-f"><button class="btn primary" id="dGerar">Gerar negócio</button><button class="btn" id="dEdit">Editar</button><button class="btn" id="dClose2">Fechar</button></div>
 </div></div>
 
 <script>(function(){var p=(location.pathname.split('/').pop()||'visaogeral').replace(/\.html$/,'')||'visaogeral';document.querySelectorAll('.nav-item').forEach(function(a){var h=(a.getAttribute('href')||'').split('/').pop().replace(/\.html$/,'');a.classList.toggle('active',h===p);});})();</script>
@@ -232,6 +232,17 @@ td.strong{font-weight:700;color:var(--heading)}
   $('dClose').addEventListener('click',function(){dm.classList.remove('open');});
   $('dClose2').addEventListener('click',function(){dm.classList.remove('open');});
   $('dEdit').addEventListener('click',function(){dm.classList.remove('open');openForm(curDetail);});
+  $('dGerar').addEventListener('click',function(){
+    if(!curDetail||!curDetail.id)return;
+    var b=$('dGerar');b.disabled=true;b.textContent='Gerando…';
+    fetch('/api/dash?action=novo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imovel_id:curDetail.id})})
+      .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+      .then(function(x){ b.disabled=false;b.textContent='Gerar negócio';
+        if(x.ok){ dm.classList.remove('open'); if(confirm('Negócio gerado no funil a partir deste imóvel. Abrir o funil agora?')) location.href='/funil'; }
+        else { alert('Não foi possível gerar o negócio: '+((x.j&&x.j.error)||'erro')); }
+      })
+      .catch(function(){ b.disabled=false;b.textContent='Gerar negócio'; alert('Falha na requisição.'); });
+  });
   dm.addEventListener('click',function(e){if(e.target===dm)dm.classList.remove('open');});
 
   // ---- form ----

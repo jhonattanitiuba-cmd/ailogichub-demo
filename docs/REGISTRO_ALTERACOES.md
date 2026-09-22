@@ -8,6 +8,26 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 43 - Bloco B (B1 e B2): codigo automatico do imovel e gerar negocio a partir do imovel
+
+- api/data.js (B1): ao cadastrar um imovel sem codigo, o sistema gera um codigo automatico no
+  formato PREFIXO-NUMERO (ex.: AP-1001 para apartamento, CA para casa, SL para sala comercial,
+  LF loft, CO cobertura, TE terreno, GP galpao, IM os demais). A numeracao comeca em 1000 e sobe
+  por imobiliaria, com verificacao de unicidade. Vale tambem para a importacao em lote. Quem
+  informar um codigo manualmente continua com o codigo informado.
+- api/dash.js (B2): novo endpoint POST /api/dash?action=novo cria um card de negocio no funil a
+  partir de um imovel (le titulo, codigo, preco e imobiliaria do imovel; entra na primeira etapa
+  do funil configurado, com origem "Hub"). Respeita o escopo: usuario que nao e diretoria so gera
+  negocio de imovel da propria imobiliaria.
+- imoveis.html (B2): no detalhe do imovel, botao "Gerar negocio" que chama o endpoint acima e, ao
+  concluir, oferece ir direto ao funil.
+
+Por que: itens B1 e B2 do Bloco B do roadmap. B1 valida sozinho; B2 validado no navegador com API
+mockada (botao visivel, payload correto, sem erros de pagina). O insert real no funil_negocios
+ainda deve ser testado pelo cliente com o banco real.
+
+---
+
 ## Rodada 42 - Bloco A (A4): edicao restrita ao criador, gestor e diretoria
 
 - api/data.js: os cadastros de imoveis e de contatos (leads) passam a gravar o autor (criado_por).

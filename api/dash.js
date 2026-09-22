@@ -82,6 +82,28 @@ module.exports = async (req, res) => {
     const user = await requireAuth(req, res); if (!user) return;
     if (!DB_URL) { res.status(500).json({ error: 'env' }); return; }
     const action = (req.query && req.query.action) || 'dash';
+    // B2: gera um card no funil a partir de um imovel (e, opcionalmente, de um contato)
+    if (action === 'novo') {
+      let body = req.body; if (typeof body === 'string') { try { body = JSON.parse(body); } catch (_) { body = {}; } }
+      body = body || {};
+      const imovelId = body.imovel_id;
+      if (!imovelId) { res.status(400).json({ error: 'imovel_id obrigatorio' }); return; }
+      let iv = null;
+      try { const r = await db('select i.titulo, i.codigo, i.preco, i.imobiliaria_id, m.nome imob from imoveis i left join imobiliarias m on m.id=i.imobiliaria_id where i.id=$1 and i.deleted_at is null', [imovelId]); iv = r.rows[0]; } catch (_) {}
+      if (!iv) { res.status(404).json({ error: 'imovel nao encontrado' }); return; }
+      if (!user.isAdmin && (!user.imobiliariaId || String(user.imobiliariaId) !== String(iv.imobiliaria_id))) { res.status(403).json({ error: 'sem permissao sobre este imovel' }); return; }
+      let etapa = 'atendimento';
+      try { const et = await loadEtapas(iv.imobiliaria_id || 'global', 'imob'); if (et && et[0] && et[0].key) etapa = et[0].key; } catch (_) {}
+      const desc = iv.titulo || ('Imovel ' + (iv.codigo || ''));
+      const leadNome = body.lead_nome ? String(body.lead_nome).slice(0, 120) : null;
+      try {
+        const r = await db(`insert into funil_negocios (imobiliaria_id, imob_nome, lead_nome, imovel_desc, imovel_codigo, corretor_nome, valor, etapa, origem, tentativas, sla, status_label, ultimo_contato, motivo_perda)
+          values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning id`,
+          [iv.imobiliaria_id, iv.imob || null, leadNome, desc, iv.codigo || null, user.nome || null, (iv.preco != null ? iv.preco : null), etapa, 'Hub', 1, null, 'Novo negocio', 'Agora', null]);
+        res.status(200).json({ ok: true, id: r.rows[0] && r.rows[0].id, etapa: etapa });
+      } catch (e) { console.error('[dash novo]', (e && e.message) || e); res.status(500).json({ error: 'nao foi possivel gerar o negocio' }); }
+      return;
+    }
     if (action === 'move') {
       let body = req.body; if (typeof body === 'string') { try { body = JSON.parse(body); } catch (_) { body = {}; } }
       body = body || {};
