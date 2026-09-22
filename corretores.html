@@ -124,6 +124,14 @@ td.strong{font-weight:700;color:var(--heading)}
     <label>Imobiliária*<span style="display:flex;gap:8px;align-items:stretch"><select id="f_imob" style="flex:1"></select><button type="button" id="fEditImob" class="btn" style="padding:0 12px;white-space:nowrap" title="Editar o nome da imobiliária">✎ Nome</button></span></label>
     <div class="fg2"><label>E-mail<input id="f_email"></label><label>Telefone<input id="f_telefone"></label></div>
     <div class="fg2"><label>CRECI<input id="f_creci"></label><label>Perfil<select id="f_perfil"><option value="corretor">Corretor</option><option value="estagiario">Estagiário</option><option value="gerente">Gerente</option><option value="admin">Admin</option></select></label></div>
+    <div class="fg2"><label>CPF<input id="f_cpf" placeholder="000.000.000-00"></label><label>Telefone alternativo<input id="f_tel2"></label></div>
+    <div class="fg2"><label>UF do CRECI<input id="f_creci_uf" maxlength="2" placeholder="AM"></label><label>Situação do CRECI<select id="f_creci_sit"><option value="">—</option><option>Ativo</option><option>Suspenso</option><option>Em verificação</option></select></label></div>
+    <label>Endereço completo<input id="f_endereco" placeholder="Rua, número, bairro, cidade/UF"></label>
+    <div class="fgroup" style="border:1px solid var(--border2);border-radius:12px;padding:12px 13px;gap:10px">
+      <div class="fglabel" style="margin:0">Atuação</div>
+      <div class="fg2"><label>Regiões / bairros atendidos<input id="f_regioes" placeholder="Centro, Adrianópolis..."></label><label>Tipos de imóvel<input id="f_tipos" placeholder="Apartamento, comercial..."></label></div>
+      <div class="fg2"><label>Idiomas<input id="f_idiomas" placeholder="Português, inglês"></label><label>Horários de atendimento<input id="f_horarios" placeholder="Seg-Sex 9h-18h"></label></div>
+    </div>
     <div class="fg2" id="supRow" style="display:none"><label>Corretor responsável<select id="f_supervisor"></select></label><label style="align-self:end"><span style="display:block;font-size:11px;color:#7a8699;line-height:1.4;padding-bottom:9px">Estagiário atua dentro da rede do corretor responsável, sem CRECI própria.</span></label></div>
     <label>Status<select id="f_status"><option>Ativo</option><option>Inativo</option></select></label>
     <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-weight:600;color:var(--text);text-transform:none"><input type="checkbox" id="f_agenda_outros" style="width:auto;height:auto;margin:0"> Pode criar compromissos na agenda de outros corretores</label>
@@ -201,7 +209,9 @@ td.strong{font-weight:700;color:var(--heading)}
   $('q').addEventListener('input',applyFilter);$('fImob').addEventListener('change',applyFilter);$('fCreci').addEventListener('change',applyFilter);$('fSort').addEventListener('change',applyFilter);
 
   function openDetail(m){curDetail=m;$('dTit').textContent=m.nome||'Corretor';
-    $('dGrid').innerHTML=fld('Imobiliária',imobMap[m.imobiliaria_id])+fld('Perfil',m.perfil==='estagiario'?'Estagiário':cap(m.perfil))+fld('E-mail',m.email)+fld('Telefone',m.telefone)+fld('CRECI',m.creci)+(m.perfil==='estagiario'?fld('Corretor responsável',m.supervisor_nome):'')+'<div class="mcell full"><label>Status de acesso</label><strong>'+acessoBadge(m)+'</strong></div>';
+    function fi(l,v,full){return (v==null||v==='')?'':fld(l,v,full);}
+    var creciFull=[m.creci,m.creci_uf&&('/'+m.creci_uf),m.creci_situacao&&(' ('+m.creci_situacao+')')].filter(Boolean).join('');
+    $('dGrid').innerHTML=fld('Imobiliária',imobMap[m.imobiliaria_id])+fld('Perfil',m.perfil==='estagiario'?'Estagiário':cap(m.perfil))+fld('E-mail',m.email)+fld('Telefone',m.telefone)+fi('Telefone alt.',m.telefone2)+fld('CRECI',creciFull||m.creci)+fi('CPF',m.cpf)+fi('Endereço',m.endereco,true)+fi('Regiões',m.regioes,true)+fi('Tipos de imóvel',m.tipos_imovel)+fi('Idiomas',m.idiomas)+fi('Horários',m.horarios)+(m.perfil==='estagiario'?fld('Corretor responsável',m.supervisor_nome):'')+'<div class="mcell full"><label>Status de acesso</label><strong>'+acessoBadge(m)+'</strong></div>';
     dm.classList.add('open');}
   $('dClose').addEventListener('click',function(){dm.classList.remove('open');});
   $('dClose2').addEventListener('click',function(){dm.classList.remove('open');});
@@ -215,6 +225,8 @@ td.strong{font-weight:700;color:var(--heading)}
     if(m.imobiliaria_id)$('f_imob').value=m.imobiliaria_id;
     selVal($('f_perfil'),m.perfil||'corretor');$('f_status').value=(m.status==='Inativo')?'Inativo':'Ativo';
     $('f_agenda_outros').checked=(m.agenda_outros===true||m.agenda_outros==='true');
+    $('f_cpf').value=m.cpf||'';$('f_tel2').value=m.telefone2||'';$('f_creci_uf').value=m.creci_uf||'';selVal($('f_creci_sit'),m.creci_situacao);
+    $('f_endereco').value=m.endereco||'';$('f_regioes').value=m.regioes||'';$('f_tipos').value=m.tipos_imovel||'';$('f_idiomas').value=m.idiomas||'';$('f_horarios').value=m.horarios||'';
     fm.dataset.id=m.id||'';popSupervisors(m.supervisor_id||'');toggleSup();fm.classList.add('open');}
   function popSupervisors(selId){var im=$('f_imob').value;var list=items.filter(function(x){return (x.perfil==='corretor')&&String(x.imobiliaria_id||'')===String(im)&&x.id!==fm.dataset.id;});var sel=$('f_supervisor');sel.innerHTML=list.length?list.map(function(x){return '<option value="'+esc(x.id)+'">'+esc(x.nome||'—')+'</option>';}).join(''):'<option value="">Nenhum corretor nesta imobiliária</option>';if(selId)selVal(sel,selId);}
   function toggleSup(){var est=$('f_perfil').value==='estagiario';$('supRow').style.display=est?'':'none';$('f_creci').placeholder=est?'Sem CRECI (atua na rede do corretor)':'';if(!fm.dataset.id)$('fTit').textContent=est?'Novo estagiário':'Novo corretor';if(est)popSupervisors($('f_supervisor').value);}
@@ -243,7 +255,9 @@ td.strong{font-weight:700;color:var(--heading)}
   document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeForm();dm.classList.remove('open');}});
 
   $('fSave').addEventListener('click',function(){
-    var o={nome:$('f_nome').value.trim(),imobiliaria_id:$('f_imob').value,email:$('f_email').value.trim(),telefone:$('f_telefone').value.trim(),creci:$('f_creci').value.trim(),perfil:$('f_perfil').value,status:$('f_status').value,agenda_outros:$('f_agenda_outros').checked};
+    var o={nome:$('f_nome').value.trim(),imobiliaria_id:$('f_imob').value,email:$('f_email').value.trim(),telefone:$('f_telefone').value.trim(),creci:$('f_creci').value.trim(),perfil:$('f_perfil').value,status:$('f_status').value,agenda_outros:$('f_agenda_outros').checked,
+      cpf:$('f_cpf').value.trim(),telefone2:$('f_tel2').value.trim(),creci_uf:$('f_creci_uf').value.trim().toUpperCase(),creci_situacao:$('f_creci_sit').value,
+      endereco:$('f_endereco').value.trim(),regioes:$('f_regioes').value.trim(),tipos_imovel:$('f_tipos').value.trim(),idiomas:$('f_idiomas').value.trim(),horarios:$('f_horarios').value.trim()};
     if(o.perfil==='estagiario'){var sv=$('f_supervisor');o.supervisor_id=sv.value||'';o.supervisor_nome=(sv.options[sv.selectedIndex]||{}).text||'';o.is_estagiario=true;o.creci='';if(!o.supervisor_id){$('fErr').textContent='Selecione o corretor responsável pelo estagiário.';return;}}
     if(!o.nome){$('fErr').textContent='Informe o nome.';return;}
     if(!o.imobiliaria_id){$('fErr').textContent='Selecione a imobiliária.';return;}

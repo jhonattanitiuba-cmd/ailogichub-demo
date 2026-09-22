@@ -136,6 +136,10 @@ td.strong{font-weight:700;color:var(--heading)}
       <label>Finalidade<select id="f_fin"><option>Venda</option><option>Locação</option><option>Temporada</option></select></label>
       <label>Status<select id="f_status"><option>Disponível</option><option>Reservado</option><option>Vendido</option><option>Locado</option><option>Inativo</option></select></label>
     </div>
+    <div class="fg2">
+      <label>Uso<select id="f_uso"><option value="">—</option><option>Residencial</option><option>Comercial</option><option>Misto</option><option>Rural</option></select></label>
+      <label>Subtipo<input id="f_subtipo" placeholder="Ex.: Apartamento garden, Sobrado, Kitnet"></label>
+    </div>
     <div class="fg3"><label>Preço (R$)<input id="f_preco" type="number" min="0"></label><label>Área (m²)<input id="f_area" type="number" min="0"></label><label>Vagas<input id="f_vagas" type="number" min="0"></label></div>
     <label>Valor mínimo aceito pelo proprietário (R$)<input id="f_valor_min" type="number" min="0" placeholder="Piso para a negociação (opcional). A IA não fecha abaixo deste valor."></label>
     <div class="fg3"><label>Quartos<input id="f_quartos" type="number" min="0"></label><label>Suítes<input id="f_suites" type="number" min="0"></label><label>Banheiros<input id="f_banheiros" type="number" min="0"></label></div>
@@ -143,6 +147,42 @@ td.strong{font-weight:700;color:var(--heading)}
     <div class="fg2"><label>Cidade<input id="f_cidade"></label><label>Bairro<input id="f_bairro"></label></div>
     <label>Endereço<input id="f_endereco"></label>
     <label>Pontos de referência<input id="f_referencia" placeholder="Próximo a... (preenchido pelo CEP quando houver)"></label>
+    <div class="fg3"><label>Número<input id="f_numero" placeholder="123 ou S/N"></label><label>Complemento<input id="f_complemento" placeholder="Apto, sala..."></label><label>UF<input id="f_uf" maxlength="2" placeholder="AM"></label></div>
+    <div class="fg3"><label>Unidade<input id="f_unidade"></label><label>Bloco / Torre<input id="f_bloco"></label><label>Lote / Quadra<input id="f_lote"></label></div>
+    <div class="fgroup" style="border:1px solid var(--border2);border-radius:12px;padding:12px 13px;gap:10px">
+      <div class="fglabel" style="margin:0">Áreas (m²) e andares</div>
+      <div class="fg3"><label>Área privativa<input id="f_area_priv" type="number" min="0"></label><label>Área construída<input id="f_area_constr" type="number" min="0"></label><label>Área total<input id="f_area_total" type="number" min="0"></label></div>
+      <div class="fg3"><label>Área do terreno<input id="f_area_terreno" type="number" min="0"></label><label>Andar<input id="f_andar" type="number"></label><label>Total de andares<input id="f_total_andares" type="number" min="0"></label></div>
+    </div>
+    <div class="fgroup" style="border:1px solid var(--border2);border-radius:12px;padding:12px 13px;gap:10px">
+      <div class="fglabel" style="margin:0">Características</div>
+      <div class="fg3">
+        <label>Mobília<select id="f_mobilia"><option value="">—</option><option>Mobiliado</option><option>Semimobiliado</option><option>Vazio</option></select></label>
+        <label>Ar-condicionado<select id="f_arcond"><option value="">Não informado</option><option>Sim</option><option>Não</option></select></label>
+        <label>Varanda<select id="f_varanda"><option value="">Não informado</option><option>Sim</option><option>Não</option></select></label>
+      </div>
+      <div class="fg3">
+        <label>Acessibilidade<select id="f_acessibilidade"><option value="">Não informado</option><option>Sim</option><option>Não</option></select></label>
+        <label>Posição solar<input id="f_sol" placeholder="Nascente, poente..."></label>
+        <label>Ano de construção<input id="f_ano" type="number" min="1900" placeholder="Ex.: 2015"></label>
+      </div>
+      <label>Vista / conservação / acabamento<input id="f_vista" placeholder="Ex.: vista livre, reformado, alto padrão"></label>
+    </div>
+    <div class="fgroup" style="border:1px solid var(--border2);border-radius:12px;padding:12px 13px;gap:10px">
+      <div class="fglabel" style="margin:0">Negociação</div>
+      <div class="fg3">
+        <label>Financiamento<select id="f_financia"><option value="">Não informado</option><option>Aceita</option><option>Não aceita</option></select></label>
+        <label>FGTS<select id="f_fgts"><option value="">Não informado</option><option>Aceita</option><option>Não aceita</option></select></label>
+        <label>Permuta<select id="f_permuta"><option value="">Não informado</option><option>Aceita</option><option>Não aceita</option></select></label>
+      </div>
+      <label>Condições de pagamento / prazo<input id="f_cond_pag" placeholder="Ex.: entrada + financiamento; entrega em 6 meses"></label>
+    </div>
+    <div class="fgroup" style="border:1px solid var(--border2);border-radius:12px;padding:12px 13px;gap:10px">
+      <div class="fglabel" style="margin:0">Acesso e mídia</div>
+      <label>Chaves / acesso para visita<input id="f_chaves" placeholder="Responsável e onde ficam as chaves; instruções de portaria"></label>
+      <div class="fg2"><label>Vídeo (URL)<input id="f_video" placeholder="https://..."></label><label>Tour virtual (URL)<input id="f_tour" placeholder="https://..."></label></div>
+      <label>Planta (URL)<input id="f_planta" placeholder="https://..."></label>
+    </div>
     <div class="fgroup" style="border:1px solid var(--border2);border-radius:12px;padding:12px 13px;gap:10px">
       <div class="fglabel" style="margin:0">Disponibilidade para visitas (estilo Booking)</div>
       <div id="f_disp_dias" style="display:flex;flex-wrap:wrap;gap:8px">
@@ -254,7 +294,12 @@ td.strong{font-weight:700;color:var(--heading)}
     var DIASN={0:'Dom',1:'Seg',2:'Ter',3:'Qua',4:'Qui',5:'Sex',6:'Sáb'};
     var disp=m.disponibilidade||null;var dispTxt='—';
     if(disp&&((disp.dias&&disp.dias.length)||disp.hora_ini)){var dd=(disp.dias||[]).map(function(x){return DIASN[Number(x)];}).filter(Boolean).join(', ');dispTxt=(dd||'Todos os dias')+(disp.hora_ini?' · '+disp.hora_ini+(disp.hora_fim?' às '+disp.hora_fim:''):'')+(disp.duracao_min?' · '+disp.duracao_min+' min':'');}
-    $('dGrid').innerHTML=fld('Tipo',cap(m.tipo))+fld('Finalidade',cap(m.finalidade))+fld('Preço',brl(m.preco))+fld('Valor mínimo',m.valor_minimo!=null?brl(m.valor_minimo):'—')+fld('Área',m.area?m.area+' m²':'—')+fld('Quartos',m.quartos)+fld('Suítes',m.suites)+fld('Banheiros',m.banheiros)+fld('Vagas',m.vagas)+fld('CEP',m.cep)+fld('IPTU',m.iptu!=null?brl(m.iptu):'—')+fld('Condomínio',m.condominio!=null?brl(m.condominio):'—')+fld('Cidade',m.cidade)+fld('Bairro',m.bairro)+fld('Endereço',m.endereco,true)+(m.referencia?fld('Pontos de referência',m.referencia,true):'')+fld('Disponibilidade p/ visitas',dispTxt,true)+fld('Status',cap(m.status))+fld('Imobiliária',imobMap[m.imobiliaria_id])+(m.descricao?fld('Descrição',m.descricao,true):'');
+    function fldIf(l,v,full){return (v==null||v===''||v==='—')?'':fld(l,v,full);}
+    function m2(v){return v!=null&&v!==''?v+' m²':'';}
+    var endComp=[m.numero&&('nº '+m.numero),m.complemento,m.unidade,m.bloco&&('Bloco '+m.bloco),m.lote&&('Lote/Q '+m.lote)].filter(Boolean).join(' · ');
+    var negoc=[m.financiamento&&('Financiamento: '+m.financiamento),m.fgts&&('FGTS: '+m.fgts),m.permuta&&('Permuta: '+m.permuta)].filter(Boolean).join(' · ');
+    var midia=[m.video&&('<a href="'+esc(m.video)+'" target="_blank" rel="noopener" style="color:var(--blue)">Vídeo</a>'),m.tour&&('<a href="'+esc(m.tour)+'" target="_blank" rel="noopener" style="color:var(--blue)">Tour</a>'),m.planta&&('<a href="'+esc(m.planta)+'" target="_blank" rel="noopener" style="color:var(--blue)">Planta</a>')].filter(Boolean).join(' · ');
+    $('dGrid').innerHTML=fld('Tipo',cap(m.tipo))+fld('Finalidade',cap(m.finalidade))+fldIf('Uso',m.uso)+fldIf('Subtipo',m.subtipo)+fld('Preço',brl(m.preco))+fld('Valor mínimo',m.valor_minimo!=null?brl(m.valor_minimo):'—')+fld('Área',m.area?m.area+' m²':'—')+fldIf('Área privativa',m2(m.area_privativa))+fldIf('Área construída',m2(m.area_construida))+fldIf('Área total',m2(m.area_total))+fldIf('Área do terreno',m2(m.area_terreno))+fldIf('Andar',m.andar)+fldIf('Total de andares',m.total_andares)+fld('Quartos',m.quartos)+fld('Suítes',m.suites)+fld('Banheiros',m.banheiros)+fld('Vagas',m.vagas)+fldIf('Mobília',m.mobilia)+fldIf('Ar-condicionado',m.ar_condicionado)+fldIf('Varanda',m.varanda)+fldIf('Acessibilidade',m.acessibilidade)+fldIf('Posição solar',m.posicao_solar)+fldIf('Ano de construção',m.ano_construcao)+fldIf('Vista/conservação',m.vista,true)+fld('CEP',m.cep)+fld('IPTU',m.iptu!=null?brl(m.iptu):'—')+fld('Condomínio',m.condominio!=null?brl(m.condominio):'—')+fld('Cidade',m.cidade)+fld('Bairro',m.bairro)+fldIf('UF',m.uf)+fld('Endereço',m.endereco,true)+fldIf('Complemento',endComp,true)+(m.referencia?fld('Pontos de referência',m.referencia,true):'')+fldIf('Negociação',negoc,true)+fldIf('Condições de pagamento',m.condicoes_pagamento,true)+fldIf('Acesso/chaves',m.chaves,true)+(midia?fld('Mídia',midia,true):'')+fld('Disponibilidade p/ visitas',dispTxt,true)+fld('Status',cap(m.status))+fld('Imobiliária',imobMap[m.imobiliaria_id])+(m.descricao?fld('Descrição',m.descricao,true):'');
     dm.classList.add('open');
   }
   $('dClose').addEventListener('click',function(){dm.classList.remove('open');});
@@ -330,6 +375,17 @@ td.strong{font-weight:700;color:var(--heading)}
     $('f_cep').value=m.cep||'';$('f_iptu').value=m.iptu!=null?m.iptu:'';$('f_condominio').value=m.condominio!=null?m.condominio:'';
     $('f_cidade').value=m.cidade||'';$('f_bairro').value=m.bairro||'';$('f_endereco').value=m.endereco||'';$('f_desc').value=m.descricao||'';
     $('f_referencia').value=m.referencia||'';
+    // Fase 1: campos ricos do imovel
+    selVal($('f_uso'),m.uso);$('f_subtipo').value=m.subtipo||'';
+    $('f_numero').value=m.numero||'';$('f_complemento').value=m.complemento||'';$('f_uf').value=m.uf||'';
+    $('f_unidade').value=m.unidade||'';$('f_bloco').value=m.bloco||'';$('f_lote').value=m.lote||'';
+    $('f_area_priv').value=m.area_privativa!=null?m.area_privativa:'';$('f_area_constr').value=m.area_construida!=null?m.area_construida:'';$('f_area_total').value=m.area_total!=null?m.area_total:'';
+    $('f_area_terreno').value=m.area_terreno!=null?m.area_terreno:'';$('f_andar').value=m.andar!=null?m.andar:'';$('f_total_andares').value=m.total_andares!=null?m.total_andares:'';
+    selVal($('f_mobilia'),m.mobilia);selVal($('f_arcond'),m.ar_condicionado);selVal($('f_varanda'),m.varanda);
+    selVal($('f_acessibilidade'),m.acessibilidade);$('f_sol').value=m.posicao_solar||'';$('f_ano').value=m.ano_construcao!=null?m.ano_construcao:'';
+    $('f_vista').value=m.vista||'';
+    selVal($('f_financia'),m.financiamento);selVal($('f_fgts'),m.fgts);selVal($('f_permuta'),m.permuta);$('f_cond_pag').value=m.condicoes_pagamento||'';
+    $('f_chaves').value=m.chaves||'';$('f_video').value=m.video||'';$('f_tour').value=m.tour||'';$('f_planta').value=m.planta||'';
     // B7: disponibilidade de visitas
     var disp=m.disponibilidade||{};var dias=Array.isArray(disp.dias)?disp.dias.map(Number):[];
     Array.prototype.forEach.call(document.querySelectorAll('#f_disp_dias input'),function(c){c.checked=dias.indexOf(Number(c.getAttribute('data-d')))>=0;});
@@ -358,6 +414,15 @@ td.strong{font-weight:700;color:var(--heading)}
       cidade:$('f_cidade').value.trim(),bairro:$('f_bairro').value.trim(),endereco:$('f_endereco').value.trim(),descricao:$('f_desc').value.trim(),
       cep:$('f_cep').value.trim(),iptu:num('f_iptu'),condominio:num('f_condominio'),
       referencia:$('f_referencia').value.trim(),
+      uso:$('f_uso').value,subtipo:$('f_subtipo').value.trim(),
+      numero:$('f_numero').value.trim(),complemento:$('f_complemento').value.trim(),uf:$('f_uf').value.trim().toUpperCase(),
+      unidade:$('f_unidade').value.trim(),bloco:$('f_bloco').value.trim(),lote:$('f_lote').value.trim(),
+      area_privativa:num('f_area_priv'),area_construida:num('f_area_constr'),area_total:num('f_area_total'),
+      area_terreno:num('f_area_terreno'),andar:num('f_andar'),total_andares:num('f_total_andares'),
+      mobilia:$('f_mobilia').value,ar_condicionado:$('f_arcond').value,varanda:$('f_varanda').value,
+      acessibilidade:$('f_acessibilidade').value,posicao_solar:$('f_sol').value.trim(),ano_construcao:num('f_ano'),vista:$('f_vista').value.trim(),
+      financiamento:$('f_financia').value,fgts:$('f_fgts').value,permuta:$('f_permuta').value,condicoes_pagamento:$('f_cond_pag').value.trim(),
+      chaves:$('f_chaves').value.trim(),video:$('f_video').value.trim(),tour:$('f_tour').value.trim(),planta:$('f_planta').value.trim(),
       foto:capa,fotos:fotos,destaque:$('f_destaque').checked};
     // B7: disponibilidade de visitas
     var _dias=[];Array.prototype.forEach.call(document.querySelectorAll('#f_disp_dias input'),function(c){if(c.checked)_dias.push(Number(c.getAttribute('data-d')));});

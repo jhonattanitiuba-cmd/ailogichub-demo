@@ -162,6 +162,11 @@ td.strong{font-weight:700;color:var(--heading)}
     <div class="fg2"><label>Telefone<input id="f_telefone"></label><label>E-mail<input id="f_email"></label></div>
     <div class="fg2"><label>Cidade<input id="f_cidade"></label><label>Instagram<input id="f_instagram"></label></div>
     <div class="fg2"><label>Site<input id="f_site"></label><label>Endereço<input id="f_endereco"></label></div>
+    <div class="fg2"><label>Razão social<input id="f_razao"></label><label>Nome fantasia<input id="f_fantasia"></label></div>
+    <div class="fg2"><label>CNPJ<input id="f_cnpj" placeholder="00.000.000/0000-00"></label><label>Inscrição municipal<input id="f_im"></label></div>
+    <div class="fg2"><label>WhatsApp<input id="f_whats"></label><label>UF do CRECI<input id="f_creci_uf" maxlength="2" placeholder="AM"></label></div>
+    <div class="fg2"><label>Responsável técnico (nome)<input id="f_rt_nome"></label><label>CRECI do responsável técnico<input id="f_rt_creci"></label></div>
+    <div class="fg2"><label>Representante legal (nome)<input id="f_rep_nome"></label><label>CPF do representante<input id="f_rep_cpf"></label></div>
 
     <!-- REV2 item 01 — Gestor responsável -->
     <div class="fsec">
@@ -282,8 +287,12 @@ td.strong{font-weight:700;color:var(--heading)}
   }
 
   function paneGeral(m){
+    function fi(l,v,full){return (v==null||v==='')?'':fld(l,v,full);}
     var extra=m.pendente?(fld('Solicitação','Pendente de aprovação')+fld('Responsável',m.responsavel_nome)+fld('E-mail do responsável',m.responsavel_email)+fld('WhatsApp',m.responsavel_telefone)):'';
-    return '<div class="mgrid">'+fld('CRECI',m.creci)+fld('Status',m.pendente?'Pendente':m.status)+fld('Telefone',m.telefone)+fld('E-mail',m.email)+fld('Cidade',m.cidade)+fld('Instagram',m.instagram)+fld('Site',m.site,true)+fld('Endereço',m.endereco,true)+extra+'</div>';
+    var creciFull=[m.creci,m.creci_uf&&('/'+m.creci_uf)].filter(Boolean).join('');
+    var rt=[m.rt_nome,m.rt_creci&&('CRECI '+m.rt_creci)].filter(Boolean).join(' · ');
+    var rep=[m.rep_nome,m.rep_cpf&&('CPF '+m.rep_cpf)].filter(Boolean).join(' · ');
+    return '<div class="mgrid">'+fld('CRECI',creciFull||m.creci)+fld('Status',m.pendente?'Pendente':m.status)+fi('Razão social',m.razao_social)+fi('Nome fantasia',m.nome_fantasia)+fi('CNPJ',m.cnpj)+fi('Inscrição municipal',m.inscricao_municipal)+fld('Telefone',m.telefone)+fi('WhatsApp',m.whatsapp)+fld('E-mail',m.email)+fld('Cidade',m.cidade)+fld('Instagram',m.instagram)+fld('Site',m.site,true)+fld('Endereço',m.endereco,true)+fi('Responsável técnico',rt,true)+fi('Representante legal',rep,true)+extra+'</div>';
   }
   function paneGestor(m){
     var g=m.gestor_id?userById(m.gestor_id):null;
@@ -412,6 +421,9 @@ td.strong{font-weight:700;color:var(--heading)}
   function openForm(m){m=m||{};$('fTit').textContent=m.id?'Editar imobiliária':'Nova imobiliária';$('fErr').textContent='';
     $('f_nome').value=m.nome||'';$('f_creci').value=m.creci||'';$('f_telefone').value=m.telefone||'';$('f_email').value=m.email||'';
     $('f_cidade').value=m.cidade||'';$('f_instagram').value=m.instagram||'';$('f_site').value=m.site||'';$('f_endereco').value=m.endereco||'';
+    $('f_razao').value=m.razao_social||'';$('f_fantasia').value=m.nome_fantasia||'';$('f_cnpj').value=m.cnpj||'';$('f_im').value=m.inscricao_municipal||'';
+    $('f_whats').value=m.whatsapp||'';$('f_creci_uf').value=m.creci_uf||'';$('f_rt_nome').value=m.rt_nome||'';$('f_rt_creci').value=m.rt_creci||'';
+    $('f_rep_nome').value=m.rep_nome||'';$('f_rep_cpf').value=m.rep_cpf||'';
     $('f_status').value=(['Ativo','Implantando','Pausado'].indexOf(m.status)>=0)?m.status:'Implantando';
     // gestor: prefill se já vinculado
     gestorInviteMode=false;cancelInvite();
@@ -441,7 +453,10 @@ td.strong{font-weight:700;color:var(--heading)}
   // REV2 item 03 — valida, checa e-mail único e monta o resumo de confirmação
   $('fSave').addEventListener('click',function(){
     var o={nome:$('f_nome').value.trim(),creci:$('f_creci').value.trim(),telefone:$('f_telefone').value.trim(),email:$('f_email').value.trim(),
-      cidade:$('f_cidade').value.trim(),instagram:$('f_instagram').value.trim(),site:$('f_site').value.trim(),endereco:$('f_endereco').value.trim(),status:$('f_status').value};
+      cidade:$('f_cidade').value.trim(),instagram:$('f_instagram').value.trim(),site:$('f_site').value.trim(),endereco:$('f_endereco').value.trim(),status:$('f_status').value,
+      razao_social:$('f_razao').value.trim(),nome_fantasia:$('f_fantasia').value.trim(),cnpj:$('f_cnpj').value.trim(),inscricao_municipal:$('f_im').value.trim(),
+      whatsapp:$('f_whats').value.trim(),creci_uf:$('f_creci_uf').value.trim().toUpperCase(),rt_nome:$('f_rt_nome').value.trim(),rt_creci:$('f_rt_creci').value.trim(),
+      rep_nome:$('f_rep_nome').value.trim(),rep_cpf:$('f_rep_cpf').value.trim()};
     if(!o.nome){$('fErr').textContent='Informe o nome.';return;}
     if(o.email&&!isEmail(o.email)){$('fErr').textContent='E-mail da imobiliária inválido.';return;}
     // gestor obrigatório (seleção ou convite)

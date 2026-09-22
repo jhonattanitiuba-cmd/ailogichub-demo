@@ -218,6 +218,15 @@ async function podeEditarReg(tbl, id, user) {
 }
 const MSG_SEM_EDICAO = 'Sem permissao para editar: apenas quem criou o registro, o gestor da imobiliaria ou a diretoria.';
 
+// Fase 1: campos estruturados do cliente interessado (lead), guardados no jsonb extra.
+// So os presentes sao gravados; nao apaga o que o editor nao enviou (merge no update).
+const LEAD_EXTRA_KEYS = ['objetivo', 'uso_finalidade', 'tipo_desejado', 'regioes', 'prazo', 'orcamento_max', 'entrada', 'financiamento', 'perfil_imovel', 'canal_origem', 'horario_preferido', 'cidade_uf', 'pessoa_tipo'];
+function leadExtraFields(src) {
+  const e = {};
+  LEAD_EXTRA_KEYS.forEach(function (k) { const v = src[k]; if (v !== undefined && v !== '' && v !== null) e[k] = v; });
+  return e;
+}
+
 const TABLE = { imobiliarias: 'imobiliarias', imoveis: 'imoveis', corretores: 'usuarios', leads: 'leads', fontes: 'fontes_lead', negocios: 'negocios', agenda: 'atividades', contratos: 'contratos' };
 const OUT = { imobiliarias: imobOut, imoveis: imovOut, corretores: corOut, leads: leadOut, fontes: fonteOut, negocios: negOut, agenda: atividadeOut, contratos: contratoOut };
 // tabelas que têm coluna deleted_at (soft delete)
@@ -386,21 +395,32 @@ module.exports = async (req, res) => {
         const o = body;
         if (!o.nome) { res.status(400).json({ error: 'nome obrigatorio' }); return; }
         if (!o.imobiliaria_id) { res.status(400).json({ error: 'imobiliaria_id obrigatorio' }); return; }
+        // Fase 1: campos estruturados do cliente interessado (objetivo/orcamento/perfil/origem), guardados no extra.
         if (o.id) {
           if (!(await podeEditarReg('leads', o.id, user))) { res.status(403).json({ error: MSG_SEM_EDICAO }); return; }
+          // preserva o extra existente (inclui criado_por) e funde os campos estruturados enviados
+          let ex0 = {};
+          try { const cr = await db('select extra from leads where id=$1', [o.id]); ex0 = (cr.rows[0] && cr.rows[0].extra) || {}; } catch (_) {}
+          const merged = Object.assign({}, ex0, leadExtraFields(o));
           // telefone e email com coalesce: nao apaga o contato quando o editor nao os enviou
           // (ex.: corretor editando um lead com contato restrito, que ve os campos mascarados).
-          const r = await db(`update leads set nome=$1,telefone=coalesce($2,telefone),email=coalesce($3,email),interesse=$4,updated_at=now() where id=$5 returning *`,
-            [o.nome, o.telefone || null, o.email || null, o.interesse || null, o.id]);
+          let r;
+          try {
+            r = await db(`update leads set nome=$1,telefone=coalesce($2,telefone),email=coalesce($3,email),interesse=$4,extra=$6,updated_at=now() where id=$5 returning *`,
+              [o.nome, o.telefone || null, o.email || null, o.interesse || null, o.id, JSON.stringify(merged)]);
+          } catch (_) {
+            r = await db(`update leads set nome=$1,telefone=coalesce($2,telefone),email=coalesce($3,email),interesse=$4,updated_at=now() where id=$5 returning *`,
+              [o.nome, o.telefone || null, o.email || null, o.interesse || null, o.id]);
+          }
           const oUp = leadOut(r.rows[0]);
           if (!user.isAdmin && !(await podeRevelarContato(r.rows[0].id))) maskContato(oUp);
           res.status(200).json({ row: oUp }); return;
         }
-        const extraLead = user.usuarioId ? JSON.stringify({ criado_por: String(user.usuarioId) }) : '{}';
+        const extraObj = Object.assign(user.usuarioId ? { criado_por: String(user.usuarioId) } : {}, leadExtraFields(o));
         let r;
         try {
           r = await db(`insert into leads(imobiliaria_id,nome,telefone,email,interesse,extra) values($1,$2,$3,$4,$5,$6) returning *`,
-            [o.imobiliaria_id, o.nome, o.telefone || null, o.email || null, o.interesse || null, extraLead]);
+            [o.imobiliaria_id, o.nome, o.telefone || null, o.email || null, o.interesse || null, JSON.stringify(extraObj)]);
         } catch (_) {
           // retrocompat: se a tabela nao tiver a coluna extra, cadastra sem o autor (nao bloqueia a criacao)
           r = await db(`insert into leads(imobiliaria_id,nome,telefone,email,interesse) values($1,$2,$3,$4,$5) returning *`,

@@ -8,6 +8,36 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 46 - Fase 1 do gap de cadastros (enriquecer os cadastros que ja existem)
+
+Implementa a Fase 1 do documento docs/GAP_CADASTROS.md: campos novos que entram no jsonb `extra`
+(round-trip ja suportado), sem migracao de schema e sem entidades novas.
+
+- Imovel (imoveis.html): uso (residencial/comercial/misto/rural), subtipo; endereco detalhado
+  (numero, complemento, unidade, bloco/torre, lote/quadra, UF); areas separadas (privativa,
+  construida, total, terreno), andar e total de andares; caracteristicas (mobilia, ar-condicionado,
+  varanda, acessibilidade, posicao solar, ano, vista/conservacao); negociacao (financiamento, FGTS,
+  permuta, condicoes de pagamento); acesso/chaves e midia (video, tour, planta). Tudo aparece no
+  detalhe do imovel.
+- Corretor (corretores.html): CPF, telefone alternativo, UF e situacao do CRECI, endereco completo,
+  atuacao (regioes/bairros, tipos de imovel, idiomas, horarios). Exibidos no detalhe.
+- Imobiliaria (imobiliarias.html): razao social, nome fantasia, CNPJ, inscricao municipal, WhatsApp,
+  UF do CRECI, responsavel tecnico (nome/CRECI) e representante legal (nome/CPF). Exibidos no detalhe.
+- Cliente interessado (pessoas.html + api/data.js): estrutura o interesse em objetivo (comprar/alugar),
+  uso (moradia/investimento/comercial), tipo desejado, regioes, orcamento maximo, entrada,
+  financiamento, prazo, perfil do imovel e canal de origem. O save de leads passou a persistir esses
+  campos no `extra` (insert e update, com fallback se a tabela nao tiver a coluna extra), preservando
+  o criado_por.
+
+Por que: Fase 1 escolhida pelo cliente. Baixo risco (sem tabelas novas). Fase 2 (anexos por cadastro
+e dados bancarios restritos) e Fase 3 (entidades Indicador e Proprietario) seguem no roadmap do gap.
+
+Validacao: sintaxe (backend + scripts das 4 telas) ok; testes no navegador (API mockada) confirmando
+o round-trip do payload em Imovel, Corretor e Cliente interessado. Imobiliaria usa o modal de
+confirmacao existente, que posta o mesmo objeto com os campos novos.
+
+---
+
 ## Rodada 45 - Bloco C possivel (C2 e C3, sem depender de terceiros)
 
 Do Bloco C, adiantamos o que nao depende de acesso/infra externa. C1 (SMTP), C4 (SERVICE ROLE KEY)

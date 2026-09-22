@@ -128,7 +128,28 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
       <label>Telefone<input class="inp" id="f_tel" placeholder="(11) 90000-0000"></label>
       <label>E-mail<input class="inp" id="f_email" placeholder="cliente@email.com"></label>
     </div>
-    <label>Interesse<input class="inp" id="f_interesse" placeholder="Ex.: apartamento 2 quartos, Vila Mariana"></label>
+    <label>Interesse (resumo)<input class="inp" id="f_interesse" placeholder="Ex.: apartamento 2 quartos, Vila Mariana"></label>
+    <div class="fg2">
+      <label>Objetivo<select class="inp" id="f_objetivo"><option value="">—</option><option>Comprar</option><option>Alugar</option></select></label>
+      <label>Uso<select class="inp" id="f_uso_fin"><option value="">—</option><option>Moradia</option><option>Investimento</option><option>Comercial</option></select></label>
+    </div>
+    <div class="fg2">
+      <label>Tipo desejado<input class="inp" id="f_tipo_des" placeholder="Apartamento, casa..."></label>
+      <label>Regiões / bairros<input class="inp" id="f_regioes" placeholder="Centro, Adrianópolis..."></label>
+    </div>
+    <div class="fg2">
+      <label>Orçamento máximo (R$)<input class="inp" id="f_orcamento" type="number" min="0"></label>
+      <label>Entrada disponível (R$)<input class="inp" id="f_entrada" type="number" min="0"></label>
+    </div>
+    <div class="fg2">
+      <label>Financiamento<select class="inp" id="f_financia"><option value="">Não informado</option><option>Sim</option><option>Não</option></select></label>
+      <label>Prazo desejado<input class="inp" id="f_prazo" placeholder="Ex.: 3 meses"></label>
+    </div>
+    <label>Perfil do imóvel (indispensáveis)<input class="inp" id="f_perfil_im" placeholder="Ex.: 2 dorm, 1 vaga, andar alto, aceita pet"></label>
+    <div class="fg2">
+      <label>Canal de origem<input class="inp" id="f_canal" placeholder="Site, WhatsApp, portal, indicação..."></label>
+      <label>Horário preferido de contato<input class="inp" id="f_horario" placeholder="Ex.: manhã"></label>
+    </div>
   </div>
   <div class="modal-f"><span id="fErr" style="margin-right:auto;color:#c0392b;font-size:12px;font-weight:600"></span><button class="btn" id="fCancel">Cancelar</button><button class="btn primary" id="fSave">Salvar</button></div>
 </div></div>
@@ -163,7 +184,10 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   function openIt(p){ if(!p)return; curP=p;
     document.getElementById('mTit').textContent=p.nome||'Pessoa';
     document.getElementById('mSub').textContent='Cliente'+(p.papel?' · '+p.papel:'');
-    document.getElementById('mGrid').innerHTML=(p.contato_restrito?(fld('Telefone','Liberado após a visita')+fld('E-mail','Liberado após a visita')):(fld('Telefone',p.telefone)+fld('E-mail',p.email)))+fld('Status',p.papel)+fld('Imobiliária',imobMap[p.imobiliaria_id])+fld('Interesse',p.interesse,true);
+    var fi=function(l,v,full){return (v==null||v==='')?'':fld(l,v,full);};
+    var brl=function(v){return v==null||v===''?'':'R$ '+Math.round(Number(v)).toLocaleString('pt-BR');};
+    document.getElementById('mGrid').innerHTML=(p.contato_restrito?(fld('Telefone','Liberado após a visita')+fld('E-mail','Liberado após a visita')):(fld('Telefone',p.telefone)+fld('E-mail',p.email)))+fld('Status',p.papel)+fld('Imobiliária',imobMap[p.imobiliaria_id])+fld('Interesse',p.interesse,true)
+      +fi('Objetivo',p.objetivo)+fi('Uso',p.uso_finalidade)+fi('Tipo desejado',p.tipo_desejado)+fi('Regiões',p.regioes,true)+fi('Orçamento máx.',brl(p.orcamento_max))+fi('Entrada',brl(p.entrada))+fi('Financiamento',p.financiamento)+fi('Prazo',p.prazo)+fi('Perfil do imóvel',p.perfil_imovel,true)+fi('Canal de origem',p.canal_origem)+fi('Horário preferido',p.horario_preferido);
     var temInt=!!(p.interesse&&p.interesse.trim());
     document.getElementById('detFoot').innerHTML=
       '<button class="btn" id="mEditar">Editar</button>'
@@ -217,6 +241,10 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     document.getElementById('f_interesse').value=p.interesse||'';
     document.getElementById('f_imob').innerHTML=imobs.map(function(i){return '<option value="'+esc(i.id)+'">'+esc(i.nome)+'</option>';}).join('');
     if(p.imobiliaria_id)document.getElementById('f_imob').value=p.imobiliaria_id;
+    var sv=function(id,v){var e=document.getElementById(id);if(e)e.value=(v==null?'':v);};
+    sv('f_objetivo',p.objetivo);sv('f_uso_fin',p.uso_finalidade);sv('f_tipo_des',p.tipo_desejado);sv('f_regioes',p.regioes);
+    sv('f_orcamento',p.orcamento_max);sv('f_entrada',p.entrada);sv('f_financia',p.financiamento);sv('f_prazo',p.prazo);
+    sv('f_perfil_im',p.perfil_imovel);sv('f_canal',p.canal_origem);sv('f_horario',p.horario_preferido);
     fm.dataset.id=p.id||'';
     fm.classList.add('open');
   }
@@ -227,9 +255,14 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
   document.getElementById('fCancel').addEventListener('click',closeForm);
   fm.addEventListener('click',function(e){if(e.target===fm)closeForm();});
   document.getElementById('fSave').addEventListener('click',function(){
+    var gv=function(id){var e=document.getElementById(id);return e?e.value.trim():'';};
+    var gn=function(id){var v=gv(id);return v===''?null:Number(v);};
     var o={nome:document.getElementById('f_nome').value.trim(),imobiliaria_id:document.getElementById('f_imob').value||null,
       telefone:document.getElementById('f_tel').value.trim(),email:document.getElementById('f_email').value.trim(),
-      interesse:document.getElementById('f_interesse').value.trim()};
+      interesse:document.getElementById('f_interesse').value.trim(),
+      objetivo:gv('f_objetivo'),uso_finalidade:gv('f_uso_fin'),tipo_desejado:gv('f_tipo_des'),regioes:gv('f_regioes'),
+      orcamento_max:gn('f_orcamento'),entrada:gn('f_entrada'),financiamento:gv('f_financia'),prazo:gv('f_prazo'),
+      perfil_imovel:gv('f_perfil_im'),canal_origem:gv('f_canal'),horario_preferido:gv('f_horario')};
     if(!o.nome){$err('Informe o nome.');return;}
     if(!o.imobiliaria_id){$err('Selecione a imobiliária.');return;}
     if(fm.dataset.id)o.id=fm.dataset.id;
