@@ -1055,18 +1055,21 @@
       +'.ag-toast .aga{display:flex;gap:8px;margin-top:9px}'
       +'.ag-toast .aga button{border:0;border-radius:8px;padding:6px 11px;font:inherit;font-size:11.5px;font-weight:700;cursor:pointer}'
       +'.ag-toast .agver{background:#0b66ff;color:#fff}.ag-toast .agok{background:rgba(255,255,255,.14);color:#fff}'
+      +'.ag-toast.atr{border-color:rgba(233,66,66,.55)}.ag-toast.atr .agic{background:linear-gradient(135deg,#e94242,#f97316)}.ag-toast.atr .agt::after{content:" · Atrasado";color:#ff9a9a;font-weight:800}'
       +'.ag-toast .agclose{background:none;border:0;color:#9fb5dd;font-size:18px;cursor:pointer;line-height:1;padding:0 2px}';
     var st=document.createElement('style'); st.id='ag-lembrete-css'; st.textContent=css; document.head.appendChild(st);
   }
   function host(){ var h=document.querySelector('.ag-toasts'); if(!h){ h=document.createElement('div'); h.className='ag-toasts'; document.body.appendChild(h); } return h; }
   function quando(ms){ var m=Math.round(ms/60000); if(m<=0) return 'agora'; if(m<60) return 'em '+m+' min'; if(m<1440){ var h=Math.floor(m/60), r=m%60; return 'em '+h+'h'+(r?(' '+r+'min'):''); } var d=Math.round(m/1440); return 'em '+d+' dia'+(d>1?'s':''); }
-  function toast(a){
+  function atrasoTxt(ms){ var m=Math.round(ms/60000); if(m<60) return 'há '+m+' min'; if(m<1440){ var h=Math.floor(m/60); return 'há '+h+'h'; } var d=Math.round(m/1440); return 'há '+d+' dia'+(d>1?'s':''); }
+  function toast(a, modo){
     ensureCss();
     var t0=new Date(a.inicio).getTime(), now=Date.now();
-    var quandoTxt = now>=t0 ? 'Começando agora' : ('Faltam '+quando(t0-now).replace('em ',''));
+    var atrasado = modo==='atr';
+    var quandoTxt = atrasado ? ('Venceu '+atrasoTxt(now-t0)) : (now>=t0 ? 'Começando agora' : ('Faltam '+quando(t0-now).replace('em ','')));
     var horaTxt=''; try{ horaTxt=new Date(a.inicio).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(_){}
-    var el=document.createElement('div'); el.className='ag-toast';
-    el.innerHTML='<div class="agic">⏰</div><div class="agb"><div class="agt">'+esc(a.titulo||'Compromisso')+'</div>'
+    var el=document.createElement('div'); el.className='ag-toast'+(atrasado?' atr':'');
+    el.innerHTML='<div class="agic">'+(atrasado?'⚠':'⏰')+'</div><div class="agb"><div class="agt">'+esc(a.titulo||'Compromisso')+'</div>'
       +'<div class="agx">'+esc(quandoTxt)+' · '+esc((a.tipo?a.tipo+' · ':'')+horaTxt)+'</div>'
       +'<div class="aga"><button class="agver">Ver na agenda</button><button class="agok">Ok</button></div></div>'
       +'<button class="agclose" title="Fechar">×</button>';
@@ -1075,23 +1078,45 @@
     el.querySelector('.agok').addEventListener('click',rm);
     el.querySelector('.agclose').addEventListener('click',rm);
     host().appendChild(el);
-    setTimeout(rm, 45000);
-    // notificacao do sistema, se ja autorizada
+    setTimeout(rm, atrasado?60000:45000);
     try{ if('Notification' in window && Notification.permission==='granted'){ new Notification('AILogic Hub - Agenda',{body:(a.titulo||'Compromisso')+' · '+quandoTxt}); } }catch(_){}
+  }
+  function toastResumo(n){
+    ensureCss();
+    var el=document.createElement('div'); el.className='ag-toast atr';
+    el.innerHTML='<div class="agic">⚠</div><div class="agb"><div class="agt">'+n+' compromissos atrasados</div>'
+      +'<div class="agx">Há compromissos pendentes que já venceram.</div>'
+      +'<div class="aga"><button class="agver">Ver na agenda</button><button class="agok">Ok</button></div></div>'
+      +'<button class="agclose" title="Fechar">×</button>';
+    function rm(){ if(el.parentNode) el.parentNode.removeChild(el); }
+    el.querySelector('.agver').addEventListener('click',function(){ location.href='/agenda'; });
+    el.querySelector('.agok').addEventListener('click',rm);
+    el.querySelector('.agclose').addEventListener('click',rm);
+    host().appendChild(el);
+    try{ if('Notification' in window && Notification.permission==='granted'){ new Notification('AILogic Hub - Agenda',{body:n+' compromissos atrasados'}); } }catch(_){}
   }
   function checa(){
     fetch('/api/data?ent=agenda&action=list',{cache:'no-store'})
       .then(function(r){ return r.ok?r.json():{rows:[]}; }).then(function(d){
-        var now=Date.now();
+        var now=Date.now(), atrasados=[];
         (d.rows||[]).forEach(function(a){
           if(!a.inicio||a.concluida) return;
           var lead=leadDe(a); if(lead==='off') return;
           var leadMs=(parseInt(lead,10)||0)*60000;
           var t0=new Date(a.inicio).getTime();
-          if(now>=(t0-leadMs) && now<=(t0+GRACE) && !jaAvisou(a.id,lead)){ marcaAvisou(a.id,lead); toast(a); }
+          // lembrete de aproximacao (antes / comecando)
+          if(now>=(t0-leadMs) && now<=(t0+GRACE) && !jaAvisou(a.id,lead)){ marcaAvisou(a.id,lead); toast(a,'prox'); return; }
+          // vencido: passou da hora e continua pendente. Avisa uma vez, so para eventos recentes (30 dias).
+          if(now>(t0+GRACE) && (now-t0)<=30*86400000 && LS('ag_overdue:'+a.id)!=='1'){ atrasados.push(a); }
         });
+        if(atrasados.length){
+          atrasados.forEach(function(a){ marcaAvisou2(a.id); });
+          if(atrasados.length<=2){ atrasados.forEach(function(a){ toast(a,'atr'); }); }
+          else { toastResumo(atrasados.length); }
+        }
       }).catch(function(){});
   }
+  function marcaAvisou2(id){ LSset('ag_overdue:'+id,'1'); }
   function boot(){ setTimeout(checa,4000); setInterval(checa,POLL); }
   if(document.readyState!=='loading') boot(); else document.addEventListener('DOMContentLoaded',boot);
 })();
