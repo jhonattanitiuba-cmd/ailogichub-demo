@@ -578,6 +578,12 @@ module.exports = async (req, res) => {
         const tipo = MAP_TIPO[o.tipo] || 'outro', fin = MAP_FIN[o.finalidade] || 'venda';
         const extraB = { origem: 'importacao' };
         if (user.usuarioId) extraB.criado_por = String(user.usuarioId);
+        // C3: preserva os campos ricos da planilha (CIRAG etc.) no jsonb extra do imovel
+        if (o.cep) extraB.cep = String(o.cep).trim();
+        if (o.iptu != null && o.iptu !== '') extraB.iptu = numOrNull(o.iptu);
+        if (o.condominio != null && o.condominio !== '') extraB.condominio = numOrNull(o.condominio);
+        if (o.uf) extraB.uf = String(o.uf).trim();
+        if (o.referencia) extraB.referencia = String(o.referencia).trim();
         const codB = (o.codigo && String(o.codigo).trim()) ? o.codigo : await gerarCodigoImovel(tipo, imobId);
         try {
           await db(`insert into imoveis(imobiliaria_id,titulo,codigo,tipo,finalidade,status,preco,area_util,quartos,suites,banheiros,vagas,endereco,bairro,cidade,descricao,extra)

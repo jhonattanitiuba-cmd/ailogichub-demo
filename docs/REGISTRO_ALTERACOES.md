@@ -8,6 +8,34 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 45 - Bloco C possivel (C2 e C3, sem depender de terceiros)
+
+Do Bloco C, adiantamos o que nao depende de acesso/infra externa. C1 (SMTP), C4 (SERVICE ROLE KEY)
+e C5 (backup) seguem aguardando os dados do Jhonattan; C3 (scraper do CIRAG) fica para quando houver
+acesso, mas o fluxo por CSV ja esta pronto.
+
+- C2 - WhatsApp direto dos cards do funil:
+  - api/dash.js (funil): o card agora traz o telefone da pessoa vinculada (join com leads pelo
+    lead_id). Seguranca juridica preservada: para nao-admin, o telefone so aparece apos a visita
+    realizada (mesma porta da mascara de leads); a diretoria (Hub) sempre ve.
+  - funil.html: com o telefone no card, o link de WhatsApp do card passa a funcionar e o detalhe do
+    negocio ganha "WhatsApp direto" (wa.me), abrindo a conversa em nova aba, normalizando o numero
+    para DDI 55. O envio pela base Evolution ja existia (/api/wa?action=send).
+
+- C3 - Fluxo CIRAG por CSV (usa a importacao em lote existente):
+  - imoveis.html: o importador de planilha passa a reconhecer variacoes de nome de coluna comuns
+    (ex.: Anuncio, Tipo de Imovel, Valor de Venda, Dormitorios, Vagas de Garagem, Municipio,
+    Logradouro, CEP, IPTU, Valor Condominio, Estado, Ponto de Referencia). Modelo CSV e texto de
+    ajuda atualizados citando o CIRAG.
+  - api/data.js (bulk): a importacao passa a preservar cep, iptu, condominio, uf e referencia no
+    jsonb extra do imovel (antes so entrava origem/autor).
+
+Validacao: sintaxe ok; testes no navegador (API mockada) - WhatsApp direto no funil gerando o link
+wa.me correto (55+DDD+numero) e o import de um CSV estilo CIRAG (com ; e cabecalhos variados) lendo
+o imovel para importar. C2 depende da base Evolution ja configurada para o envio real.
+
+---
+
 ## Rodada 44 - Bloco B completo (B3 a B9)
 
 Fecha o Bloco B do roadmap da reuniao de 21/09. Cada item seguiu a risca o pedido.

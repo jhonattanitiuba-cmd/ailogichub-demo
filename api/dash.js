@@ -69,6 +69,14 @@ async function ensureFunilExtras() {
 function etapaFechada(k) { return /^(fechad|ganho)/i.test(String(k || '')); }
 // rotulo do enum negocio_etapa para negocio ganho (confirmado no banco: LEAD..GANHO,PERDIDO)
 const ENUM_GANHO = 'GANHO';
+// C2: conjunto de lead_ids com contato liberado (visita realizada) — mesma regra da mascara em data.js.
+// Para nao-admin, o telefone do card so aparece apos a visita; o admin (Hub) sempre ve.
+async function leadsLiberadosSetDash() {
+  try {
+    const r = await db("select distinct lead_id from atividades where lead_id is not null and lower(coalesce(tipo,'')) like '%visita%' and (concluida = true or (inicio is not null and inicio < now()))");
+    return new Set((r.rows || []).map(function (x) { return String(x.lead_id); }));
+  } catch (_) { return new Set(); }
+}
 async function loadEtapas(scope, view) {
   let et = null;
   try {
@@ -280,10 +288,20 @@ module.exports = async (req, res) => {
       if (fcached) { res.status(200).json(fcached); return; }   // hit no Redis
       // advogado: só os negócios atribuídos a ele; senão escopo por imobiliária
       await ensureFunilExtras();
-      const scope = lawyer ? ' where id in (select negocio_id from negocio_advogado where advogado_id=$1)' : ((!user.isAdmin) ? ' where imobiliaria_id=$1' : '');
+      const scope = lawyer ? ' where f.id in (select negocio_id from negocio_advogado where advogado_id=$1)' : ((!user.isAdmin) ? ' where f.imobiliaria_id=$1' : '');
       const params = (!user.isAdmin) ? [lawyer ? user.usuarioId : user.imobiliariaId] : [];
-      const r = await db('select id, imob_nome, lead_nome, lead_id, imovel_desc, imovel_codigo, corretor_nome, corretor_perfil, valor, etapa, origem, tentativas, sla, status_label, ultimo_contato, motivo_perda, coalesce(jsonb_array_length(documentos),0) docs from funil_negocios' + scope + ' order by criado_em', params);
-      const fout = { cards: r.rows.map(x => ({ ...x, valor: x.valor != null ? Number(x.valor) : null, docs: Number(x.docs) || 0 })) };
+      // C2: traz o telefone da pessoa vinculada (lead) para o card, para o WhatsApp direto.
+      const r = await db('select f.id, f.imob_nome, f.lead_nome, f.lead_id, f.imovel_desc, f.imovel_codigo, f.corretor_nome, f.corretor_perfil, f.valor, f.etapa, f.origem, f.tentativas, f.sla, f.status_label, f.ultimo_contato, f.motivo_perda, coalesce(jsonb_array_length(f.documentos),0) docs, l.telefone lead_telefone from funil_negocios f left join leads l on l.id::text = f.lead_id' + scope + ' order by f.criado_em', params);
+      // seguranca juridica: para nao-admin, so revela o telefone apos a visita (mesma porta da mascara de leads)
+      let liberados = null;
+      if (!user.isAdmin) { liberados = await leadsLiberadosSetDash(); }
+      const fout = {
+        cards: r.rows.map(function (x) {
+          const c = Object.assign({}, x, { valor: x.valor != null ? Number(x.valor) : null, docs: Number(x.docs) || 0 });
+          if (!user.isAdmin && (!c.lead_id || !liberados || !liberados.has(String(c.lead_id)))) c.lead_telefone = null;
+          return c;
+        })
+      };
       // etapas configuraveis (nome/ordem) por visao + garante coluna para toda etapa presente nos cards
       const view = user.isAdmin ? 'hub' : (lawyer ? 'juridico' : 'imob');
       const escopoEt = user.isAdmin ? 'global' : (lawyer ? 'juridico' : (user.imobiliariaId || null));

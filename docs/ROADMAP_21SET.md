@@ -40,8 +40,8 @@ Legenda: [Feito] pronto no ar | [Parcial] parte feita | [A fazer] | [Depende] de
 
 ## 4. Integracoes e infraestrutura (dependem de acesso/terceiro)
 - [Depende] C1. E-mail automatico no dominio ailogichub.com.br (SMTP + DNS) para senha temporaria e avisos.
-- [Depende] C2. Integracao direta com WhatsApp a partir dos cards (base Evolution ja existe).
-- [Depende] C3. Varredura automatica do site CIRAG para extrair imoveis; sugestao: gerar CSV e usar a importacao em lote existente.
+- [Parcial] C2. Integracao direta com WhatsApp a partir dos cards (base Evolution ja existe).
+- [Parcial] C3. Varredura automatica do site CIRAG para extrair imoveis; sugestao: gerar CSV e usar a importacao em lote existente.
 - [Depende] C4. Assinatura digital Fase 2 (API) - so se o volume exigir; Fase 1 (Google) ja atende; destrava total depende da SERVICE ROLE KEY.
 - [Depende] C5. Backup e seguranca (retencao 5 anos, copia externa, versionamento).
 

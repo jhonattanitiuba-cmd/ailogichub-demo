@@ -172,7 +172,7 @@ td.strong{font-weight:700;color:var(--heading)}
 <div class="modal-bg" id="importModal"><div class="modal">
   <div class="modal-h"><h3>Importar imóveis de planilha</h3><button class="modal-x" id="impClose">×</button></div>
   <div class="fbody">
-    <div style="font-size:12.5px;color:var(--muted);line-height:1.5">Envie um arquivo <b>CSV</b> (a planilha exportada como CSV). Os imóveis entram como <b>rascunho (Inativo)</b>; depois você revisa e publica cada um anexando a autorização. Colunas aceitas: titulo, codigo, tipo, finalidade, preco, area, quartos, suites, banheiros, vagas, cidade, bairro, endereco, descricao.</div>
+    <div style="font-size:12.5px;color:var(--muted);line-height:1.5">Envie um arquivo <b>CSV</b> (a planilha exportada como CSV). Serve para trazer os imóveis do <b>CIRAG</b> ou de outra planilha: exporte/gere o CSV e importe aqui. Os imóveis entram como <b>rascunho (Inativo)</b>; depois você revisa e publica cada um anexando a autorização. Colunas aceitas (aceita variações de nome): titulo, codigo, tipo, finalidade, preco, area, quartos, suites, banheiros, vagas, cidade, bairro, endereco, cep, iptu, condominio, uf, referencia, descricao.</div>
     <a id="impModelo" href="#" style="font-size:12.5px;color:var(--blue);font-weight:700">Baixar modelo CSV</a>
     <label>Imobiliária de destino<select id="imp_imob"></select></label>
     <label>Arquivo CSV<input type="file" id="imp_file" accept=".csv,text/csv" style="height:auto;padding:9px 12px"></label>
@@ -394,7 +394,18 @@ td.strong{font-weight:700;color:var(--heading)}
   // ---- Importacao em lote (CSV) ----
   var _impRows=[];
   function normH(h){return String(h||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();}
-  var HMAP={titulo:'titulo',codigo:'codigo',tipo:'tipo',finalidade:'finalidade',preco:'preco',valor:'preco',area:'area',quartos:'quartos',dormitorios:'quartos',suites:'suites',banheiros:'banheiros',vagas:'vagas',cidade:'cidade',bairro:'bairro',endereco:'endereco',descricao:'descricao'};
+  var HMAP={titulo:'titulo',nome:'titulo',anuncio:'titulo',codigo:'codigo','codigo do imovel':'codigo',ref:'codigo',referencia_imovel:'codigo',
+    tipo:'tipo','tipo de imovel':'tipo','tipo imovel':'tipo',categoria:'tipo',
+    finalidade:'finalidade',
+    preco:'preco',valor:'preco','valor de venda':'preco','valor venda':'preco','preco de venda':'preco','valor do imovel':'preco',
+    area:'area','area util':'area','area privativa':'area','m2':'area',
+    quartos:'quartos',dormitorios:'quartos',dormitorio:'quartos',dorms:'quartos',
+    suites:'suites',suite:'suites',
+    banheiros:'banheiros',banheiro:'banheiros',banhos:'banheiros',
+    vagas:'vagas',garagem:'vagas',garagens:'vagas','vagas de garagem':'vagas',
+    cidade:'cidade',municipio:'cidade',bairro:'bairro',endereco:'endereco',logradouro:'endereco',rua:'endereco',descricao:'descricao',
+    cep:'cep',iptu:'iptu',condominio:'condominio','valor condominio':'condominio',
+    uf:'uf',estado:'uf',referencia:'referencia','ponto de referencia':'referencia','pontos de referencia':'referencia',complemento:'referencia'};
   function parseCSV(text){
     text=text.replace(/^﻿/,'');
     var head=(text.split(/\r?\n/)[0]||'');
@@ -417,8 +428,8 @@ td.strong{font-weight:700;color:var(--heading)}
   if($('impClose')) $('impClose').addEventListener('click',function(){$('importModal').classList.remove('open');});
   if($('impCancel')) $('impCancel').addEventListener('click',function(){$('importModal').classList.remove('open');});
   if($('impModelo')) $('impModelo').addEventListener('click',function(e){e.preventDefault();
-    var csv='titulo,codigo,tipo,finalidade,preco,area,quartos,suites,banheiros,vagas,cidade,bairro,endereco,descricao\n'
-      +'Apartamento 2 dorms Centro,AP001,Apartamento,Venda,450000,68,2,1,1,1,Manaus,Centro,Rua A 100,Otima localizacao\n';
+    var csv='titulo,codigo,tipo,finalidade,preco,area,quartos,suites,banheiros,vagas,cidade,bairro,endereco,cep,iptu,condominio,uf,referencia,descricao\n'
+      +'Apartamento 2 dorms Centro,AP001,Apartamento,Venda,450000,68,2,1,1,1,Manaus,Centro,Rua A 100,69000-000,1200,450,AM,Proximo ao shopping,Otima localizacao\n';
     var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='modelo-imoveis.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
   });
   if($('imp_file')) $('imp_file').addEventListener('change',function(){

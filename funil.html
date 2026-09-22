@@ -180,6 +180,9 @@ a{text-decoration:none;color:inherit}
   var ORIGEM_COR={WhatsApp:'#16a56f',Instagram:'#ec4899',Site:'#64748b',Portal:'#0b66ff',Google:'#f59e0b'};
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function brl(v){return 'R$ '+Math.round(v).toLocaleString('pt-BR');}
+  // C2: link direto para o WhatsApp (wa.me). Normaliza para DDI 55 quando vier so DDD+numero.
+  function waDigits(f){var d=String(f||'').replace(/\D/g,'');if(!d)return '';if(d.length>=12&&d.slice(0,2)==='55')return d;if(d.length===10||d.length===11)return '55'+d;return d;}
+  function waHref(f){var d=waDigits(f);return d?'https://wa.me/'+d:'';}
   function money(v){return v!=null&&v!==''?brl(Number(v)):'a definir';}
   function kset(k,v){var e=document.querySelector('[data-k="'+k+'"]');if(e)e.textContent=v;}
   var dragId=null, dealsById={}, justDragged=false, modal=document.getElementById('dealModal');
@@ -220,7 +223,8 @@ a{text-decoration:none;color:inherit}
       +(c.status_label?fld('Status',c.status_label,true):'')
       +(c.motivo_perda?fld('Motivo da perda',c.motivo_perda,true):'')
       +(c.imovel_codigo?lnkCell('Ver imóvel','/imoveis?codigo='+encodeURIComponent(c.imovel_codigo),'Cód. '+c.imovel_codigo):'')
-      +(fone?lnkCell('Abrir conversa','/whatsapp?jid='+encodeURIComponent(fone),'WhatsApp'):'')
+      +(fone?lnkCell('Abrir conversa (auditoria)','/whatsapp?jid='+encodeURIComponent(fone),'WhatsApp'):'')
+      +(waHref(fone)?('<div class="mcell full"><label>WhatsApp direto</label><strong><a href="'+waHref(fone)+'" target="_blank" rel="noopener" style="color:var(--green);text-decoration:none;font-weight:800">Abrir conversa no WhatsApp</a></strong></div>'):'')
       +fld('Observações',c.observacoes,true);
     renderDocs(c.id);
     modal.classList.add('open');
