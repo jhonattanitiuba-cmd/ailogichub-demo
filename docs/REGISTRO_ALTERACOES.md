@@ -8,6 +8,22 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 42 - Bloco A (A4): edicao restrita ao criador, gestor e diretoria
+
+- api/data.js: os cadastros de imoveis e de contatos (leads) passam a gravar o autor (criado_por).
+  Na edicao, so podem editar: quem criou o registro, o gestor da imobiliaria (perfil gerente ou o
+  gestor_id da imobiliaria) e a diretoria. Registros antigos sem autor nao sao bloqueados
+  (retrocompatibilidade), e em erro de infra nao bloqueia. O insert de leads tem fallback caso a
+  tabela nao tenha a coluna extra, para nao travar a criacao.
+
+Por que: item A4 do Bloco A (regra escolhida: criador + gestor + diretoria). A5 (ocultar itens do
+menu) ficou de fora por decisao do cliente (manter o menu como esta por enquanto).
+
+Com isto o Bloco A esta concluido: A1 (login), A2 (status Ativo), A3 (cores do funil), A4 (edicao por
+autor) e A6 (CEP/IPTU/condominio). A5 dispensado.
+
+---
+
 ## Rodada 41 - Bloco A do roadmap (parte 1): login, status, funil e campos do imovel
 
 - login.html (A1): removida a lista de e-mails corporativos pre-carregada no campo de login.

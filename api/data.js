@@ -189,6 +189,24 @@ async function creciDe(id) {
 }
 const MSG_SEM_CRECI = 'Sem CRECI cadastrado, este corretor nao pode realizar visitas. Atribua a visita a um corretor habilitado ou cadastre o CRECI dele.';
 
+// A4: edicao restrita a quem criou o registro, mais o gestor da imobiliaria e a diretoria.
+// Retorna true se pode editar. Registros antigos (sem criado_por) nao sao bloqueados.
+async function podeEditarReg(tbl, id, user) {
+  if (user.isAdmin) return true;
+  const perfil = String(user.perfil || '').toLowerCase();
+  if (perfil === 'gerente' || perfil === 'admin' || perfil === 'diretoria') return true; // gestor pelo perfil
+  try {
+    const r = await db("select extra->>'criado_por' cp, imobiliaria_id from " + tbl + " where id=$1", [id]);
+    const row = r.rows[0] || {};
+    if (!row.cp) return true;                                   // sem autor gravado: retrocompat
+    if (String(row.cp) === String(user.usuarioId)) return true; // criador
+    const g = await db('select 1 from imobiliarias where id=$1 and gestor_id=$2', [row.imobiliaria_id, user.usuarioId]);
+    if (g.rows[0]) return true;                                 // gestor da imobiliaria do registro
+  } catch (_) { return true; }                                  // em erro de infra, nao bloqueia
+  return false;
+}
+const MSG_SEM_EDICAO = 'Sem permissao para editar: apenas quem criou o registro, o gestor da imobiliaria ou a diretoria.';
+
 const TABLE = { imobiliarias: 'imobiliarias', imoveis: 'imoveis', corretores: 'usuarios', leads: 'leads', fontes: 'fontes_lead', negocios: 'negocios', agenda: 'atividades', contratos: 'contratos' };
 const OUT = { imobiliarias: imobOut, imoveis: imovOut, corretores: corOut, leads: leadOut, fontes: fonteOut, negocios: negOut, agenda: atividadeOut, contratos: contratoOut };
 // tabelas que têm coluna deleted_at (soft delete)
@@ -343,6 +361,7 @@ module.exports = async (req, res) => {
         if (!o.nome) { res.status(400).json({ error: 'nome obrigatorio' }); return; }
         if (!o.imobiliaria_id) { res.status(400).json({ error: 'imobiliaria_id obrigatorio' }); return; }
         if (o.id) {
+          if (!(await podeEditarReg('leads', o.id, user))) { res.status(403).json({ error: MSG_SEM_EDICAO }); return; }
           // telefone e email com coalesce: nao apaga o contato quando o editor nao os enviou
           // (ex.: corretor editando um lead com contato restrito, que ve os campos mascarados).
           const r = await db(`update leads set nome=$1,telefone=coalesce($2,telefone),email=coalesce($3,email),interesse=$4,updated_at=now() where id=$5 returning *`,
@@ -351,8 +370,16 @@ module.exports = async (req, res) => {
           if (!user.isAdmin && !(await podeRevelarContato(r.rows[0].id))) maskContato(oUp);
           res.status(200).json({ row: oUp }); return;
         }
-        const r = await db(`insert into leads(imobiliaria_id,nome,telefone,email,interesse) values($1,$2,$3,$4,$5) returning *`,
-          [o.imobiliaria_id, o.nome, o.telefone || null, o.email || null, o.interesse || null]);
+        const extraLead = user.usuarioId ? JSON.stringify({ criado_por: String(user.usuarioId) }) : '{}';
+        let r;
+        try {
+          r = await db(`insert into leads(imobiliaria_id,nome,telefone,email,interesse,extra) values($1,$2,$3,$4,$5,$6) returning *`,
+            [o.imobiliaria_id, o.nome, o.telefone || null, o.email || null, o.interesse || null, extraLead]);
+        } catch (_) {
+          // retrocompat: se a tabela nao tiver a coluna extra, cadastra sem o autor (nao bloqueia a criacao)
+          r = await db(`insert into leads(imobiliaria_id,nome,telefone,email,interesse) values($1,$2,$3,$4,$5) returning *`,
+            [o.imobiliaria_id, o.nome, o.telefone || null, o.email || null, o.interesse || null]);
+        }
         const oNew = leadOut(r.rows[0]);
         if (!user.isAdmin && !(await podeRevelarContato(r.rows[0].id))) maskContato(oNew);
         res.status(200).json({ row: oNew }); return;
@@ -472,6 +499,11 @@ module.exports = async (req, res) => {
       if (st === 'disponivel' && !(extra.autorizacao_url || extra.autorizacao_ok === true)) {
         res.status(400).json({ error: 'Para publicar (Disponivel), anexe a autorizacao de divulgacao assinada pelo proprietario.' }); return;
       }
+      // A4: autor do registro. Grava no cadastro; preserva na edicao; checa permissao para editar.
+      if (o.id) {
+        if (!(await podeEditarReg('imoveis', o.id, user))) { res.status(403).json({ error: MSG_SEM_EDICAO }); return; }
+        try { const cr = await db("select extra->>'criado_por' cp from imoveis where id=$1", [o.id]); const cp = cr.rows[0] && cr.rows[0].cp; if (cp) extra.criado_por = cp; } catch (_) {}
+      } else if (user.usuarioId) { extra.criado_por = String(user.usuarioId); }
       const vals = [o.imobiliaria_id, o.titulo, o.codigo||null, tipo, fin, st, numOrNull(o.preco), numOrNull(o.area),
         intOrNull(o.quartos), intOrNull(o.suites), intOrNull(o.banheiros), intOrNull(o.vagas),
         o.endereco||null, o.bairro||null, o.cidade||null, o.descricao||null, JSON.stringify(extra)];
