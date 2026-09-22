@@ -46,8 +46,10 @@ a{text-decoration:none;color:inherit}
 .board-wrap{display:grid;grid-template-columns:minmax(0,1fr) 316px;gap:14px;flex:1;min-height:0}
 .kanban{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;height:100%;padding-bottom:4px}
 .kcol{flex:0 0 258px;display:flex;flex-direction:column;min-height:0;background:var(--panel2);border:1px solid var(--border);border-radius:14px}
-.kcol-head{padding:12px 13px;border-bottom:1px solid var(--border)}
+.kcol-head{padding:12px 13px;border-bottom:1px solid var(--border);border-top:3px solid transparent}
 .kcol-head .t{font-weight:800;font-size:12.5px;color:var(--heading)}.kcol-head .s{font-size:10.5px;color:var(--muted);margin-top:2px}
+.kcol-head.fim-ok{border-top-color:var(--green)}.kcol-head.fim-ok .t{color:var(--green)}
+.kcol-head.fim-no{border-top-color:var(--red)}.kcol-head.fim-no .t{color:var(--red)}
 .kbody{overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:9px;flex:1;min-height:0}
 .kcard{background:var(--panel);border:1px solid var(--border2);border-radius:12px;padding:11px;box-shadow:var(--soft);cursor:grab}
 .kcard:active{cursor:grabbing}
@@ -260,7 +262,8 @@ a{text-decoration:none;color:inherit}
     K.innerHTML=etapas.map(function(e,i){
       var list=cards.filter(function(c){return c.etapa===e.key;});
       var val=list.reduce(function(a,c){return a+(Number(c.valor)||0);},0);
-      return '<div class="kcol"><div class="kcol-head"><div class="t">'+(i+1)+'. '+esc(_etLabel(e.key,e.nome))+'</div><div class="s">'+list.length+' negócios'+(val?' · '+brl(val):'')+'</div></div>'
+      var fim=/fechad|ganho|finaliz|vend/i.test(e.key)?' fim-ok':(/perdid|recus/i.test(e.key)?' fim-no':'');
+      return '<div class="kcol"><div class="kcol-head'+fim+'"><div class="t">'+(i+1)+'. '+esc(_etLabel(e.key,e.nome))+'</div><div class="s">'+list.length+' negócios'+(val?' · '+brl(val):'')+'</div></div>'
         +'<div class="kbody" data-etapa="'+esc(e.key)+'">'+(list.map(card).join('')||'<div style="text-align:center;color:var(--muted);font-size:11px;padding:8px">·</div>')+'</div></div>';
     }).join('');
     wireDnD();computePanels(etapas,cards);

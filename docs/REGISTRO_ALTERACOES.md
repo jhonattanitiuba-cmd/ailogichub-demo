@@ -8,6 +8,21 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 41 - Bloco A do roadmap (parte 1): login, status, funil e campos do imovel
+
+- login.html (A1): removida a lista de e-mails corporativos pre-carregada no campo de login.
+- imobiliarias.html (A2): status "Ativo" adicionado (alem de Implantando e Pausado); a edicao
+  passa a respeitar o status salvo.
+- funil.html (A3): a etapa final (Fechamento) ganhou destaque verde e a de Perdido ficou vermelha,
+  para nao confundir as duas pontas do funil.
+- imoveis.html (A6): novos campos CEP, IPTU e Condominio no cadastro do imovel (aparecem tambem no
+  detalhe). Guardados junto do imovel; preparam o auto-preenchimento por CEP (B9).
+
+Por que: primeiros itens do Bloco A do roadmap da reuniao de 21/09. Validado no navegador: login sem
+a lista, status Ativo salvando, cores do funil e CEP/IPTU/condominio no cadastro.
+
+---
+
 ## Rodada 40 - Lembretes da agenda: aviso de compromisso atrasado (vencido)
 
 - hub.js: alem do lembrete de aproximacao, o motor agora avisa os compromissos VENCIDOS (passaram da

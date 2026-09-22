@@ -158,7 +158,7 @@ td.strong{font-weight:700;color:var(--heading)}
   <div class="modal-h"><h3 id="fTit">Nova imobiliária</h3><button class="modal-x" id="fClose">×</button></div>
   <div class="fbody">
     <label>Nome*<input id="f_nome"></label>
-    <div class="fg2"><label>CRECI<input id="f_creci"></label><label>Status<select id="f_status"><option>Implantando</option><option>Pausado</option></select></label></div>
+    <div class="fg2"><label>CRECI<input id="f_creci"></label><label>Status<select id="f_status"><option>Ativo</option><option>Implantando</option><option>Pausado</option></select></label></div>
     <div class="fg2"><label>Telefone<input id="f_telefone"></label><label>E-mail<input id="f_email"></label></div>
     <div class="fg2"><label>Cidade<input id="f_cidade"></label><label>Instagram<input id="f_instagram"></label></div>
     <div class="fg2"><label>Site<input id="f_site"></label><label>Endereço<input id="f_endereco"></label></div>
@@ -412,7 +412,7 @@ td.strong{font-weight:700;color:var(--heading)}
   function openForm(m){m=m||{};$('fTit').textContent=m.id?'Editar imobiliária':'Nova imobiliária';$('fErr').textContent='';
     $('f_nome').value=m.nome||'';$('f_creci').value=m.creci||'';$('f_telefone').value=m.telefone||'';$('f_email').value=m.email||'';
     $('f_cidade').value=m.cidade||'';$('f_instagram').value=m.instagram||'';$('f_site').value=m.site||'';$('f_endereco').value=m.endereco||'';
-    $('f_status').value=(m.status==='Pausado')?'Pausado':'Implantando';
+    $('f_status').value=(['Ativo','Implantando','Pausado'].indexOf(m.status)>=0)?m.status:'Implantando';
     // gestor: prefill se já vinculado
     gestorInviteMode=false;cancelInvite();
     var g=m.gestor_id?userById(m.gestor_id):null;
