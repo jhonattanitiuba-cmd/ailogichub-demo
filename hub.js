@@ -1120,3 +1120,67 @@
   function boot(){ setTimeout(checa,4000); setInterval(checa,POLL); }
   if(document.readyState!=='loading') boot(); else document.addEventListener('DOMContentLoaded',boot);
 })();
+
+/* Fase 2a: painel reaproveitavel de anexos por cadastro.
+   Uso: window.hubDocs('imoveis'|'corretores'|'imobiliarias'|'leads', id, containerEl) */
+(function(){
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  var TIPOS=[['contrato','Contrato'],['matricula','Matrícula'],['identidade','Identidade/CPF'],['comprovante_endereco','Comprovante de endereço'],['comprovante_renda','Comprovante de renda'],['autorizacao','Autorização'],['cnpj','CNPJ'],['contrato_social','Contrato social'],['procuracao','Procuração'],['ficha_visita','Ficha de visita'],['outro','Outro']];
+  function api(ent,action,body,q){
+    var url='/api/data?ent='+encodeURIComponent(ent)+'&action='+action+(q?('&'+q):'');
+    var opt=body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{cache:'no-store'};
+    return fetch(url,opt).then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});});
+  }
+  function fmtDate(s){ if(!s) return ''; try{ var d=new Date(s); if(isNaN(d)) return s; return d.toLocaleDateString('pt-BR'); }catch(_){ return s; } }
+  window.hubDocs=function(ent,id,el){
+    if(!el||!id) return;
+    var opts=TIPOS.map(function(t){return '<option value="'+t[0]+'">'+t[1]+'</option>';}).join('');
+    el.innerHTML='<div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Documentos / Anexos</div>'
+      +'<div class="hd-list" style="display:flex;flex-direction:column;gap:6px"><div style="color:var(--muted);font-size:12px">Carregando…</div></div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:10px">'
+        +'<label style="font-size:10px;font-weight:700;color:var(--muted)">Tipo<br><select class="hd-tipo" style="height:32px;border:1px solid var(--border2);border-radius:8px;background:var(--panel2);color:var(--text);padding:0 8px">'+opts+'</select></label>'
+        +'<label style="font-size:10px;font-weight:700;color:var(--muted)">Emissão<br><input type="date" class="hd-emissao" style="height:32px;border:1px solid var(--border2);border-radius:8px;background:var(--panel2);color:var(--text);padding:0 6px"></label>'
+        +'<label style="font-size:10px;font-weight:700;color:var(--muted)">Validade<br><input type="date" class="hd-validade" style="height:32px;border:1px solid var(--border2);border-radius:8px;background:var(--panel2);color:var(--text);padding:0 6px"></label>'
+        +'<input type="file" class="hd-file" accept="application/pdf,image/*" style="font-size:12px;max-width:170px">'
+        +'<button type="button" class="hd-add" style="height:32px;border:1px solid var(--border2);border-radius:8px;background:var(--panel2);color:var(--text);font-weight:700;cursor:pointer;padding:0 12px">Anexar</button>'
+        +'<span class="hd-msg" style="font-size:11.5px;color:var(--muted)"></span></div>';
+    var listEl=el.querySelector('.hd-list'), msg=el.querySelector('.hd-msg');
+    function draw(docs){
+      if(!docs||!docs.length){ listEl.innerHTML='<div style="color:var(--muted);font-size:12px">Nenhum documento anexado.</div>'; return; }
+      listEl.innerHTML=docs.map(function(d){
+        var val=d.validade?(' · val. '+fmtDate(d.validade)):''; var emi=d.emissao?(' · '+fmtDate(d.emissao)):'';
+        var conf=d.conferido?'<span style="color:var(--green);font-weight:800">✓ conferido</span>':'<button type="button" class="hd-conf" data-id="'+esc(d.id)+'" style="border:0;background:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:11px">marcar conferido</button>';
+        return '<div style="display:flex;align-items:center;gap:8px;border:1px solid var(--border2);border-radius:9px;padding:7px 10px;flex-wrap:wrap">'
+          +'<span style="font-size:10px;font-weight:800;background:var(--blueSoft);color:var(--blue);border-radius:999px;padding:3px 8px">'+esc(d.tipo_label||d.tipo||'Doc')+'</span>'
+          +'<a href="'+esc(d.url)+'" target="_blank" rel="noopener" style="color:var(--blue);font-weight:700;font-size:12.5px;flex:1;min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(d.nome||'Abrir')+'</a>'
+          +'<span style="font-size:10.5px;color:var(--muted)">'+esc(emi+val)+'</span>'+conf
+          +'<button type="button" class="hd-del" data-id="'+esc(d.id)+'" style="border:1px solid var(--border2);border-radius:7px;background:var(--panel2);color:var(--red);cursor:pointer;height:26px;padding:0 8px;font-size:11px">Remover</button></div>';
+      }).join('');
+      Array.prototype.forEach.call(listEl.querySelectorAll('.hd-del'),function(b){b.addEventListener('click',function(){
+        if(!confirm('Remover este documento?'))return;
+        api(ent,'doc_del',{id:id,doc_id:b.getAttribute('data-id')}).then(function(x){ if(x.ok)draw(x.j.docs); });
+      });});
+      Array.prototype.forEach.call(listEl.querySelectorAll('.hd-conf'),function(b){b.addEventListener('click',function(){
+        api(ent,'doc_conf',{id:id,doc_id:b.getAttribute('data-id')}).then(function(x){ if(x.ok)draw(x.j.docs); });
+      });});
+    }
+    api(ent,'docs',null,'id='+encodeURIComponent(id)).then(function(x){ draw((x.j&&x.j.docs)||[]); }).catch(function(){ listEl.innerHTML='<div style="color:var(--muted);font-size:12px">Não foi possível carregar.</div>'; });
+    el.querySelector('.hd-add').addEventListener('click',function(){
+      var f=(el.querySelector('.hd-file').files||[])[0], tipo=el.querySelector('.hd-tipo').value, emissao=el.querySelector('.hd-emissao').value||null, validade=el.querySelector('.hd-validade').value||null;
+      if(!f){ msg.textContent='Selecione um arquivo.'; return; }
+      if(f.size>12*1024*1024){ msg.textContent='Arquivo muito grande (máx 12MB).'; return; }
+      msg.textContent='Enviando…';
+      var rd=new FileReader();
+      rd.onload=function(){
+        fetch('/api/data?action=upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:(f.type||'application/pdf'),dataBase64:rd.result})})
+          .then(function(r){return r.json();})
+          .then(function(j){ if(!j||!j.url)throw 0;
+            return api(ent,'doc_add',{id:id,tipo:tipo,nome:f.name,url:j.url,emissao:emissao,validade:validade});
+          })
+          .then(function(x){ if(!x.ok)throw 0; msg.textContent=''; el.querySelector('.hd-file').value=''; draw(x.j.docs); })
+          .catch(function(){ msg.textContent='Falha ao anexar.'; });
+      };
+      rd.readAsDataURL(f);
+    });
+  };
+})();

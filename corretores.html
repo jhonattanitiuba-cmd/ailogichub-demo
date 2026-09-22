@@ -52,11 +52,14 @@ td.strong{font-weight:700;color:var(--heading)}
 .fbody label input,.fbody label select{display:block;width:100%;margin-top:6px;height:40px;border:1px solid var(--border2);border-radius:10px;padding:0 12px;font:inherit;font-size:13px;color:var(--text);background:var(--panel2);outline:none;text-transform:none;font-weight:500;letter-spacing:0}
 .fbody label input:focus,.fbody label select:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--blueSoft)}
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.fgroup{display:flex;flex-direction:column;gap:6px}
+.fglabel{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
 .modal-f{padding:14px 20px;display:flex;justify-content:flex-end;align-items:center;gap:10px;border-top:1px solid var(--border)}
 .ferr{margin-right:auto;color:var(--red);font-size:12px;font-weight:600}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
 .mcell{background:var(--panel);padding:13px 18px}.mcell.full{grid-column:1/-1}.mcell label{display:block;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}.mcell strong{font-size:13.5px;color:var(--text);font-weight:650}
-@media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto}.main{height:auto}.sidebar{height:auto}.kpis{grid-template-columns:repeat(2,1fr)}.fg2{grid-template-columns:1fr}}
+@media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto}.main{height:auto}.sidebar{height:auto}.kpis{grid-template-columns:repeat(2,1fr)}.fg2,.fg3{grid-template-columns:1fr}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -132,6 +135,12 @@ td.strong{font-weight:700;color:var(--heading)}
       <div class="fg2"><label>Regiões / bairros atendidos<input id="f_regioes" placeholder="Centro, Adrianópolis..."></label><label>Tipos de imóvel<input id="f_tipos" placeholder="Apartamento, comercial..."></label></div>
       <div class="fg2"><label>Idiomas<input id="f_idiomas" placeholder="Português, inglês"></label><label>Horários de atendimento<input id="f_horarios" placeholder="Seg-Sex 9h-18h"></label></div>
     </div>
+    <div class="fgroup" style="border:1px solid var(--border2);border-radius:12px;padding:12px 13px;gap:10px">
+      <div class="fglabel" style="margin:0">Recebimento (acesso restrito)</div>
+      <div class="fg2"><label>Favorecido<input id="f_fav_nome"></label><label>CPF/CNPJ do favorecido<input id="f_fav_doc"></label></div>
+      <div class="fg3"><label>Banco<input id="f_banco"></label><label>Agência<input id="f_agencia"></label><label>Conta<input id="f_conta"></label></div>
+      <div class="fg2"><label>Tipo de conta<select id="f_conta_tipo"><option value="">—</option><option>Corrente</option><option>Poupança</option></select></label><label>Chave Pix<input id="f_pix"></label></div>
+    </div>
     <div class="fg2" id="supRow" style="display:none"><label>Corretor responsável<select id="f_supervisor"></select></label><label style="align-self:end"><span style="display:block;font-size:11px;color:#7a8699;line-height:1.4;padding-bottom:9px">Estagiário atua dentro da rede do corretor responsável, sem CRECI própria.</span></label></div>
     <label>Status<select id="f_status"><option>Ativo</option><option>Inativo</option></select></label>
     <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-weight:600;color:var(--text);text-transform:none"><input type="checkbox" id="f_agenda_outros" style="width:auto;height:auto;margin:0"> Pode criar compromissos na agenda de outros corretores</label>
@@ -142,6 +151,7 @@ td.strong{font-weight:700;color:var(--heading)}
 <div class="modal-bg" id="detModal"><div class="modal">
   <div class="modal-h"><h3 id="dTit">·</h3><button class="modal-x" id="dClose">×</button></div>
   <div class="mgrid" id="dGrid"></div>
+  <div id="dDocs" style="padding:14px 18px;border-top:1px solid var(--border)"></div>
   <div class="modal-f"><button class="btn" id="dEdit">Editar</button><button class="btn" id="dClose2">Fechar</button></div>
 </div></div>
 
@@ -211,7 +221,10 @@ td.strong{font-weight:700;color:var(--heading)}
   function openDetail(m){curDetail=m;$('dTit').textContent=m.nome||'Corretor';
     function fi(l,v,full){return (v==null||v==='')?'':fld(l,v,full);}
     var creciFull=[m.creci,m.creci_uf&&('/'+m.creci_uf),m.creci_situacao&&(' ('+m.creci_situacao+')')].filter(Boolean).join('');
-    $('dGrid').innerHTML=fld('Imobiliária',imobMap[m.imobiliaria_id])+fld('Perfil',m.perfil==='estagiario'?'Estagiário':cap(m.perfil))+fld('E-mail',m.email)+fld('Telefone',m.telefone)+fi('Telefone alt.',m.telefone2)+fld('CRECI',creciFull||m.creci)+fi('CPF',m.cpf)+fi('Endereço',m.endereco,true)+fi('Regiões',m.regioes,true)+fi('Tipos de imóvel',m.tipos_imovel)+fi('Idiomas',m.idiomas)+fi('Horários',m.horarios)+(m.perfil==='estagiario'?fld('Corretor responsável',m.supervisor_nome):'')+'<div class="mcell full"><label>Status de acesso</label><strong>'+acessoBadge(m)+'</strong></div>';
+    $('dGrid').innerHTML=fld('Imobiliária',imobMap[m.imobiliaria_id])+fld('Perfil',m.perfil==='estagiario'?'Estagiário':cap(m.perfil))+fld('E-mail',m.email)+fld('Telefone',m.telefone)+fi('Telefone alt.',m.telefone2)+fld('CRECI',creciFull||m.creci)+fi('CPF',m.cpf)+fi('Endereço',m.endereco,true)+fi('Regiões',m.regioes,true)+fi('Tipos de imóvel',m.tipos_imovel)+fi('Idiomas',m.idiomas)+fi('Horários',m.horarios)+(m.perfil==='estagiario'?fld('Corretor responsável',m.supervisor_nome):'')
+      +(m.bancario_restrito?fld('Recebimento','Acesso restrito (gestor/diretoria)',true):(fi('Favorecido',m.fav_nome)+fi('CPF/CNPJ favorecido',m.fav_doc)+fi('Banco/conta',[m.banco,m.agencia&&('ag '+m.agencia),m.conta&&('c/ '+m.conta),m.conta_tipo].filter(Boolean).join(' · '),true)+fi('Pix',m.pix)))
+      +'<div class="mcell full"><label>Status de acesso</label><strong>'+acessoBadge(m)+'</strong></div>';
+    try{ if(window.hubDocs) window.hubDocs('corretores', m.id, document.getElementById('dDocs')); }catch(_){}
     dm.classList.add('open');}
   $('dClose').addEventListener('click',function(){dm.classList.remove('open');});
   $('dClose2').addEventListener('click',function(){dm.classList.remove('open');});
@@ -227,6 +240,7 @@ td.strong{font-weight:700;color:var(--heading)}
     $('f_agenda_outros').checked=(m.agenda_outros===true||m.agenda_outros==='true');
     $('f_cpf').value=m.cpf||'';$('f_tel2').value=m.telefone2||'';$('f_creci_uf').value=m.creci_uf||'';selVal($('f_creci_sit'),m.creci_situacao);
     $('f_endereco').value=m.endereco||'';$('f_regioes').value=m.regioes||'';$('f_tipos').value=m.tipos_imovel||'';$('f_idiomas').value=m.idiomas||'';$('f_horarios').value=m.horarios||'';
+    $('f_fav_nome').value=m.fav_nome||'';$('f_fav_doc').value=m.fav_doc||'';$('f_banco').value=m.banco||'';$('f_agencia').value=m.agencia||'';$('f_conta').value=m.conta||'';selVal($('f_conta_tipo'),m.conta_tipo);$('f_pix').value=m.pix||'';
     fm.dataset.id=m.id||'';popSupervisors(m.supervisor_id||'');toggleSup();fm.classList.add('open');}
   function popSupervisors(selId){var im=$('f_imob').value;var list=items.filter(function(x){return (x.perfil==='corretor')&&String(x.imobiliaria_id||'')===String(im)&&x.id!==fm.dataset.id;});var sel=$('f_supervisor');sel.innerHTML=list.length?list.map(function(x){return '<option value="'+esc(x.id)+'">'+esc(x.nome||'—')+'</option>';}).join(''):'<option value="">Nenhum corretor nesta imobiliária</option>';if(selId)selVal(sel,selId);}
   function toggleSup(){var est=$('f_perfil').value==='estagiario';$('supRow').style.display=est?'':'none';$('f_creci').placeholder=est?'Sem CRECI (atua na rede do corretor)':'';if(!fm.dataset.id)$('fTit').textContent=est?'Novo estagiário':'Novo corretor';if(est)popSupervisors($('f_supervisor').value);}
@@ -257,7 +271,8 @@ td.strong{font-weight:700;color:var(--heading)}
   $('fSave').addEventListener('click',function(){
     var o={nome:$('f_nome').value.trim(),imobiliaria_id:$('f_imob').value,email:$('f_email').value.trim(),telefone:$('f_telefone').value.trim(),creci:$('f_creci').value.trim(),perfil:$('f_perfil').value,status:$('f_status').value,agenda_outros:$('f_agenda_outros').checked,
       cpf:$('f_cpf').value.trim(),telefone2:$('f_tel2').value.trim(),creci_uf:$('f_creci_uf').value.trim().toUpperCase(),creci_situacao:$('f_creci_sit').value,
-      endereco:$('f_endereco').value.trim(),regioes:$('f_regioes').value.trim(),tipos_imovel:$('f_tipos').value.trim(),idiomas:$('f_idiomas').value.trim(),horarios:$('f_horarios').value.trim()};
+      endereco:$('f_endereco').value.trim(),regioes:$('f_regioes').value.trim(),tipos_imovel:$('f_tipos').value.trim(),idiomas:$('f_idiomas').value.trim(),horarios:$('f_horarios').value.trim(),
+      fav_nome:$('f_fav_nome').value.trim(),fav_doc:$('f_fav_doc').value.trim(),banco:$('f_banco').value.trim(),agencia:$('f_agencia').value.trim(),conta:$('f_conta').value.trim(),conta_tipo:$('f_conta_tipo').value,pix:$('f_pix').value.trim()};
     if(o.perfil==='estagiario'){var sv=$('f_supervisor');o.supervisor_id=sv.value||'';o.supervisor_nome=(sv.options[sv.selectedIndex]||{}).text||'';o.is_estagiario=true;o.creci='';if(!o.supervisor_id){$('fErr').textContent='Selecione o corretor responsável pelo estagiário.';return;}}
     if(!o.nome){$('fErr').textContent='Informe o nome.';return;}
     if(!o.imobiliaria_id){$('fErr').textContent='Selecione a imobiliária.';return;}

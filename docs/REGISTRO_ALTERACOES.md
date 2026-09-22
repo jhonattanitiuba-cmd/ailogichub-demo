@@ -8,6 +8,34 @@ Convenção de escrita: português do Brasil, sem travessão e sem til solto; ac
 
 ---
 
+## Rodada 47 - Fase 2 do gap de cadastros (anexos, dados bancarios restritos, documentacao do imovel)
+
+- 2a Anexos por cadastro (api/data.js + hub.js): novos endpoints docs/doc_add/doc_del/doc_conf para
+  imoveis, corretores, imobiliarias e leads. Os documentos ficam em extra.documentos (jsonb), com
+  tipo (contrato, matricula, identidade, comprovante, autorizacao, CNPJ, contrato social, procuracao,
+  ficha de visita, outro), nome, URL, emissao, validade e situacao de conferencia. O arquivo sobe pelo
+  upload existente (PDF/imagem). Painel reaproveitavel window.hubDocs no hub.js, integrado nos modais
+  de detalhe de imovel, corretor, imobiliaria e pessoa. O save dos cadastros passou a preservar
+  extra.documentos (o formulario nao reenvia os anexos).
+- 2b Dados bancarios/Pix com acesso restrito (api/data.js + corretores.html + imobiliarias.html):
+  secao "Recebimento" (favorecido, CPF/CNPJ, banco, agencia, conta, tipo, Pix) em corretor e
+  imobiliaria, guardada no extra. A saida e mascarada para quem nao e admin/gestor (o proprio corretor
+  ve os seus dados); a mascara e aplicada na resposta, nunca no cache (que e compartilhado por
+  imobiliaria), e o update preserva os campos bancarios quando o editor nao pode ve-los.
+- 2c Documentacao e comercializacao do imovel (imoveis.html): matricula, cartorio/UF, inscricao
+  municipal, CIB, onus/pendencias; comissao (%, base, pagador, condicao) e portais autorizados.
+  Round-trip via extra; aparecem no detalhe do imovel.
+
+Por que: Fase 2 do docs/GAP_CADASTROS.md, escolhida pelo cliente. Falta a Fase 3 (entidades novas
+Indicador e Proprietario, e qualificacao completa do cliente).
+
+Validacao: sintaxe (backend + hub.js + 4 telas) ok; testes no navegador (API mockada) confirmando o
+painel de anexos ponta a ponta (upload -> anexar com tipo/emissao/validade -> listar -> conferir ->
+remover) e o round-trip dos campos 2b (bancarios) e 2c (documentacao/comercializacao) no payload. A
+mascara bancaria e reforcada no backend.
+
+---
+
 ## Rodada 46 - Fase 1 do gap de cadastros (enriquecer os cadastros que ja existem)
 
 Implementa a Fase 1 do documento docs/GAP_CADASTROS.md: campos novos que entram no jsonb `extra`

@@ -50,6 +50,9 @@ td.strong{font-weight:700;color:var(--heading)}
 .fbody label input,.fbody label select{display:block;width:100%;margin-top:6px;height:40px;border:1px solid var(--border2);border-radius:10px;padding:0 12px;font:inherit;font-size:13px;color:var(--text);background:var(--panel2);outline:none;text-transform:none;font-weight:500;letter-spacing:0}
 .fbody label input:focus,.fbody label select:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--blueSoft)}
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.fgroup{display:flex;flex-direction:column;gap:6px}
+.fglabel{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
 .modal-f{padding:14px 20px;display:flex;justify-content:flex-end;align-items:center;gap:10px;border-top:1px solid var(--border)}
 .ferr{margin-right:auto;color:var(--red);font-size:12px;font-weight:600}
 .fsec{border-top:1px solid var(--border);padding-top:12px;margin-top:2px}
@@ -93,7 +96,7 @@ td.strong{font-weight:700;color:var(--heading)}
 .stt.blk{background:rgba(220,38,38,.10);color:var(--red)}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
 .mcell{background:var(--panel);padding:13px 18px}.mcell.full{grid-column:1/-1}.mcell label{display:block;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}.mcell strong{font-size:13.5px;color:var(--text);font-weight:650}
-@media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto}.main{height:auto}.sidebar{height:auto}.kpis{grid-template-columns:repeat(2,1fr)}.fg2{grid-template-columns:1fr}}
+@media(max-width:1100px){html,body{overflow:auto}.app{grid-template-columns:1fr;height:auto}.main{height:auto}.sidebar{height:auto}.kpis{grid-template-columns:repeat(2,1fr)}.fg2,.fg3{grid-template-columns:1fr}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -167,6 +170,12 @@ td.strong{font-weight:700;color:var(--heading)}
     <div class="fg2"><label>WhatsApp<input id="f_whats"></label><label>UF do CRECI<input id="f_creci_uf" maxlength="2" placeholder="AM"></label></div>
     <div class="fg2"><label>Responsável técnico (nome)<input id="f_rt_nome"></label><label>CRECI do responsável técnico<input id="f_rt_creci"></label></div>
     <div class="fg2"><label>Representante legal (nome)<input id="f_rep_nome"></label><label>CPF do representante<input id="f_rep_cpf"></label></div>
+    <div class="fgroup" style="border:1px solid var(--border2);border-radius:12px;padding:12px 13px;gap:10px">
+      <div class="fglabel" style="margin:0">Recebimento (acesso restrito)</div>
+      <div class="fg2"><label>Favorecido<input id="f_fav_nome"></label><label>CNPJ do favorecido<input id="f_fav_doc"></label></div>
+      <div class="fg3"><label>Banco<input id="f_banco"></label><label>Agência<input id="f_agencia"></label><label>Conta<input id="f_conta"></label></div>
+      <div class="fg2"><label>Tipo de conta<select id="f_conta_tipo"><option value="">—</option><option>Corrente</option><option>Poupança</option></select></label><label>Chave Pix<input id="f_pix"></label></div>
+    </div>
 
     <!-- REV2 item 01 — Gestor responsável -->
     <div class="fsec">
@@ -233,6 +242,7 @@ td.strong{font-weight:700;color:var(--heading)}
     <button class="subtab" data-t="plano">Plano e financeiro</button>
   </div>
   <div id="dPane"></div>
+  <div id="imobDocs" style="padding:14px 20px;border-top:1px solid var(--border)"></div>
   <div class="modal-f"><button class="btn primary" id="dApprove" style="display:none">Aprovar acesso</button><button class="btn" id="dEdit">Editar</button><button class="btn" id="dClose2">Fechar</button></div>
 </div></div>
 
@@ -292,7 +302,8 @@ td.strong{font-weight:700;color:var(--heading)}
     var creciFull=[m.creci,m.creci_uf&&('/'+m.creci_uf)].filter(Boolean).join('');
     var rt=[m.rt_nome,m.rt_creci&&('CRECI '+m.rt_creci)].filter(Boolean).join(' · ');
     var rep=[m.rep_nome,m.rep_cpf&&('CPF '+m.rep_cpf)].filter(Boolean).join(' · ');
-    return '<div class="mgrid">'+fld('CRECI',creciFull||m.creci)+fld('Status',m.pendente?'Pendente':m.status)+fi('Razão social',m.razao_social)+fi('Nome fantasia',m.nome_fantasia)+fi('CNPJ',m.cnpj)+fi('Inscrição municipal',m.inscricao_municipal)+fld('Telefone',m.telefone)+fi('WhatsApp',m.whatsapp)+fld('E-mail',m.email)+fld('Cidade',m.cidade)+fld('Instagram',m.instagram)+fld('Site',m.site,true)+fld('Endereço',m.endereco,true)+fi('Responsável técnico',rt,true)+fi('Representante legal',rep,true)+extra+'</div>';
+    return '<div class="mgrid">'+fld('CRECI',creciFull||m.creci)+fld('Status',m.pendente?'Pendente':m.status)+fi('Razão social',m.razao_social)+fi('Nome fantasia',m.nome_fantasia)+fi('CNPJ',m.cnpj)+fi('Inscrição municipal',m.inscricao_municipal)+fld('Telefone',m.telefone)+fi('WhatsApp',m.whatsapp)+fld('E-mail',m.email)+fld('Cidade',m.cidade)+fld('Instagram',m.instagram)+fld('Site',m.site,true)+fld('Endereço',m.endereco,true)+fi('Responsável técnico',rt,true)+fi('Representante legal',rep,true)
+      +(m.bancario_restrito?fld('Recebimento','Acesso restrito (gestor/diretoria)',true):(fi('Favorecido',m.fav_nome)+fi('CNPJ favorecido',m.fav_doc)+fi('Banco/conta',[m.banco,m.agencia&&('ag '+m.agencia),m.conta&&('c/ '+m.conta),m.conta_tipo].filter(Boolean).join(' · '),true)+fi('Pix',m.pix)))+extra+'</div>';
   }
   function paneGestor(m){
     var g=m.gestor_id?userById(m.gestor_id):null;
@@ -318,6 +329,7 @@ td.strong{font-weight:700;color:var(--heading)}
   function openDetail(m){curDetail=m;$('dTit').textContent=m.nome||'Imobiliária';
     $('dApprove').style.display=m.pendente?'':'none';
     showPane('geral');
+    try{ if(window.hubDocs && m.id && !m.pendente) window.hubDocs('imobiliarias', m.id, $('imobDocs')); else $('imobDocs').innerHTML=''; }catch(_){}
     dm.classList.add('open');}
   $('dClose').addEventListener('click',function(){dm.classList.remove('open');});
   $('dClose2').addEventListener('click',function(){dm.classList.remove('open');});
@@ -424,6 +436,7 @@ td.strong{font-weight:700;color:var(--heading)}
     $('f_razao').value=m.razao_social||'';$('f_fantasia').value=m.nome_fantasia||'';$('f_cnpj').value=m.cnpj||'';$('f_im').value=m.inscricao_municipal||'';
     $('f_whats').value=m.whatsapp||'';$('f_creci_uf').value=m.creci_uf||'';$('f_rt_nome').value=m.rt_nome||'';$('f_rt_creci').value=m.rt_creci||'';
     $('f_rep_nome').value=m.rep_nome||'';$('f_rep_cpf').value=m.rep_cpf||'';
+    $('f_fav_nome').value=m.fav_nome||'';$('f_fav_doc').value=m.fav_doc||'';$('f_banco').value=m.banco||'';$('f_agencia').value=m.agencia||'';$('f_conta').value=m.conta||'';$('f_conta_tipo').value=(['Corrente','Poupança'].indexOf(m.conta_tipo)>=0?m.conta_tipo:'');$('f_pix').value=m.pix||'';
     $('f_status').value=(['Ativo','Implantando','Pausado'].indexOf(m.status)>=0)?m.status:'Implantando';
     // gestor: prefill se já vinculado
     gestorInviteMode=false;cancelInvite();
@@ -456,7 +469,8 @@ td.strong{font-weight:700;color:var(--heading)}
       cidade:$('f_cidade').value.trim(),instagram:$('f_instagram').value.trim(),site:$('f_site').value.trim(),endereco:$('f_endereco').value.trim(),status:$('f_status').value,
       razao_social:$('f_razao').value.trim(),nome_fantasia:$('f_fantasia').value.trim(),cnpj:$('f_cnpj').value.trim(),inscricao_municipal:$('f_im').value.trim(),
       whatsapp:$('f_whats').value.trim(),creci_uf:$('f_creci_uf').value.trim().toUpperCase(),rt_nome:$('f_rt_nome').value.trim(),rt_creci:$('f_rt_creci').value.trim(),
-      rep_nome:$('f_rep_nome').value.trim(),rep_cpf:$('f_rep_cpf').value.trim()};
+      rep_nome:$('f_rep_nome').value.trim(),rep_cpf:$('f_rep_cpf').value.trim(),
+      fav_nome:$('f_fav_nome').value.trim(),fav_doc:$('f_fav_doc').value.trim(),banco:$('f_banco').value.trim(),agencia:$('f_agencia').value.trim(),conta:$('f_conta').value.trim(),conta_tipo:$('f_conta_tipo').value,pix:$('f_pix').value.trim()};
     if(!o.nome){$('fErr').textContent='Informe o nome.';return;}
     if(o.email&&!isEmail(o.email)){$('fErr').textContent='E-mail da imobiliária inválido.';return;}
     // gestor obrigatório (seleção ou convite)

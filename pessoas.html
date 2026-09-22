@@ -116,6 +116,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
 <div class="modal-bg" id="modal"><div class="modal">
   <div class="modal-h"><div><h3 id="mTit">·</h3><p id="mSub">·</p></div><button class="modal-x" id="mClose">×</button></div>
   <div class="mgrid" id="mGrid"></div>
+  <div id="pDocs" style="padding:14px 18px;border-top:1px solid var(--border)"></div>
   <div class="modal-f" id="detFoot"><button class="btn" id="mClose2">Fechar</button></div>
 </div></div>
 
@@ -198,6 +199,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--panel2)}td.strong{fon
     document.getElementById('mEditar').addEventListener('click',function(){close_();openForm(p);});
     var bi=document.getElementById('mBuscarImob'); if(bi&&temInt)bi.addEventListener('click',function(){buscarImoveis(p,'imob');});
     var st=document.getElementById('mBuscarSite'); if(st&&temInt)st.addEventListener('click',function(){buscarImoveis(p,'site');});
+    try{ if(window.hubDocs) window.hubDocs('leads', p.id, document.getElementById('pDocs')); }catch(_){}
     modal.classList.add('open');
   }
   function buscarImoveis(p,alvo){

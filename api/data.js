@@ -227,6 +227,11 @@ function leadExtraFields(src) {
   return e;
 }
 
+// Fase 2b: dados de recebimento (bancarios/Pix) — acesso restrito. Guardados no extra do corretor/imobiliaria.
+const BANK_KEYS = ['fav_nome', 'fav_doc', 'banco', 'agencia', 'conta', 'conta_tipo', 'pix', 'dados_fiscais'];
+function podeVerBancario(user) { const p = String(user.perfil || '').toLowerCase(); return user.isAdmin || p === 'gerente' || p === 'gestor' || p === 'diretoria' || p === 'admin' || p === 'comercial'; }
+function stripBancario(o) { BANK_KEYS.forEach(function (k) { if (k in o) delete o[k]; }); o.bancario_restrito = true; return o; }
+
 const TABLE = { imobiliarias: 'imobiliarias', imoveis: 'imoveis', corretores: 'usuarios', leads: 'leads', fontes: 'fontes_lead', negocios: 'negocios', agenda: 'atividades', contratos: 'contratos' };
 const OUT = { imobiliarias: imobOut, imoveis: imovOut, corretores: corOut, leads: leadOut, fontes: fonteOut, negocios: negOut, agenda: atividadeOut, contratos: contratoOut };
 // tabelas que têm coluna deleted_at (soft delete)
@@ -290,6 +295,53 @@ module.exports = async (req, res) => {
       if (ent === 'agenda') cacheDel('data:leads:all', 'data:leads:' + (user.imobiliariaId || 'none'));
     }
 
+    // ---- Fase 2a: ANEXOS genericos por cadastro (imovel/corretor/imobiliaria/lead) ----
+    // Documentos guardados em extra.documentos (jsonb array), com tipo, emissao, validade e conferencia.
+    if (action === 'docs' || action === 'doc_add' || action === 'doc_del' || action === 'doc_conf') {
+      const DOC_ENT = { imoveis: 'imoveis', corretores: 'usuarios', imobiliarias: 'imobiliarias', leads: 'leads' };
+      const tbl = DOC_ENT[ent];
+      if (!tbl) { res.status(400).json({ error: 'anexos nao suportados para ' + ent }); return; }
+      const id = (req.query && req.query.id) || body.id;
+      if (!id) { res.status(400).json({ error: 'id obrigatorio' }); return; }
+      // escopo: admin ve tudo; senao o registro precisa ser da imobiliaria do usuario
+      if (!user.isAdmin) {
+        if (!user.imobiliariaId) { res.status(403).json({ error: 'sem permissao' }); return; }
+        const col = (ent === 'imobiliarias') ? 'id' : 'imobiliaria_id';
+        const chk = await db(`select 1 from ${tbl} where id=$1 and ${col}=$2`, [id, user.imobiliariaId]);
+        if (!chk.rows[0]) { res.status(403).json({ error: 'sem permissao sobre este registro' }); return; }
+      }
+      let extra0 = {};
+      try { const r0 = await db(`select extra from ${tbl} where id=$1`, [id]); extra0 = (r0.rows[0] && r0.rows[0].extra) || {}; } catch (_) {}
+      let docs = Array.isArray(extra0.documentos) ? extra0.documentos : [];
+      if (action === 'docs') { res.status(200).json({ docs: docs }); return; }
+      const TIPOS = { contrato: 'Contrato', matricula: 'Matrícula', identidade: 'Identidade/CPF', comprovante_endereco: 'Comprovante de endereço', comprovante_renda: 'Comprovante de renda', autorizacao: 'Autorização', cnpj: 'CNPJ', contrato_social: 'Contrato social', procuracao: 'Procuração', ficha_visita: 'Ficha de visita', outro: 'Outro' };
+      async function persist(newDocs) {
+        await db(`update ${tbl} set extra = jsonb_set(coalesce(extra,'{}'::jsonb),'{documentos}',$2::jsonb), updated_at=now() where id=$1`, [id, JSON.stringify(newDocs)]);
+        try { cacheDel('data:' + ent + ':all', 'data:' + ent + ':' + (user.imobiliariaId || 'none')); } catch (_) {}
+      }
+      if (action === 'doc_add') {
+        const tipo = TIPOS[body.tipo] ? body.tipo : 'outro';
+        const url = String(body.url || '').trim();
+        if (!url || !/^https?:\/\//i.test(url)) { res.status(400).json({ error: 'url do documento invalida' }); return; }
+        const doc = { id: Math.random().toString(36).slice(2, 10), tipo: tipo, tipo_label: TIPOS[tipo], nome: String(body.nome || '').slice(0, 160).trim() || TIPOS[tipo], url: url, emissao: body.emissao || null, validade: body.validade || null, conferido: false, autor: user.nome || null, criado_em: new Date().toISOString() };
+        docs = docs.concat([doc]);
+        await persist(docs);
+        res.status(200).json({ ok: true, doc: doc, docs: docs }); return;
+      }
+      if (action === 'doc_del') {
+        const docId = String(body.doc_id || '');
+        docs = docs.filter(function (d) { return String(d && d.id) !== docId; });
+        await persist(docs);
+        res.status(200).json({ ok: true, docs: docs }); return;
+      }
+      if (action === 'doc_conf') {
+        const docId = String(body.doc_id || '');
+        docs = docs.map(function (d) { return (String(d && d.id) === docId) ? Object.assign({}, d, { conferido: !d.conferido, conferido_por: user.nome || null }) : d; });
+        await persist(docs);
+        res.status(200).json({ ok: true, docs: docs }); return;
+      }
+    }
+
     // ---- LIST (com escopo RBAC) ----
     if (action === 'list') {
       const lawyer = isLawyerRole(user.perfil) && !user.isAdmin;
@@ -297,8 +349,15 @@ module.exports = async (req, res) => {
       const self = !user.isAdmin && !lawyer && isSelfRole(user.perfil) && !!user.usuarioId && !!SELF_ENT[ent];
       const scope = user.isAdmin ? 'all' : (lawyer ? ('law:' + (user.usuarioId || 'none')) : (self ? ('self:' + user.usuarioId + ':' + (user.imobiliariaId || 'none')) : (user.imobiliariaId || 'none')));
       const ckey = 'data:' + ent + ':' + scope;
+      // Fase 2b: aplica a mascara bancaria na resposta (nunca no cache, que e compartilhado por imobiliaria)
+      const scopedBancario = function (o) {
+        if ((ent === 'corretores' || ent === 'imobiliarias') && !podeVerBancario(user)) {
+          return { rows: (o.rows || []).map(function (row) { return (ent === 'corretores' && user.usuarioId && String(row.id) === String(user.usuarioId)) ? row : stripBancario(Object.assign({}, row)); }) };
+        }
+        return o;
+      };
       const cached = await cacheGet(ckey);
-      if (cached) { res.status(200).json(cached); return; }   // hit Redis -> nav instantanea
+      if (cached) { res.status(200).json(scopedBancario(cached)); return; }   // hit Redis -> nav instantanea
       const conds = [], params = [];
       if (SOFT.has(TABLE[ent])) conds.push('deleted_at is null');
       if (lawyer) {
@@ -328,8 +387,8 @@ module.exports = async (req, res) => {
       } else {
         out = { rows: r.rows.map(OUT[ent]) };
       }
-      cacheSet(ckey, out, 90);   // invalidado ao salvar/excluir (acima)
-      res.status(200).json(out);
+      cacheSet(ckey, out, 90);   // cache COMPLETO (invalidado ao salvar/excluir); a mascara e aplicada na resposta
+      res.status(200).json(scopedBancario(out));
       return;
     }
 
@@ -378,6 +437,8 @@ module.exports = async (req, res) => {
     // ---- SAVE (insert/update) ----
     if (action === 'save') {
       if (READONLY.has(ent)) { res.status(400).json({ error: 'save nao suportado para ' + ent + ' (somente leitura)' }); return; }
+      // Fase 2b: mascara os dados bancarios no row retornado quando o editor nao pode ve-los
+      const maskBank = function (row) { if (row && (ent === 'corretores' || ent === 'imobiliarias') && !podeVerBancario(user) && !(ent === 'corretores' && user.usuarioId && String(row.id) === String(user.usuarioId))) stripBancario(row); return row; };
       // RBAC: não-admin fica preso à própria imobiliária
       if (!user.isAdmin) {
         if (!user.imobiliariaId) { res.status(403).json({ error: 'sem permissao' }); return; }
@@ -474,6 +535,18 @@ module.exports = async (req, res) => {
       }
       const o = body;
       const extra = { ...o }; delete extra.id; delete extra.senha; delete extra.password; delete extra.pass;  // SEGURANCA: credenciais nunca vao para o jsonb extra
+      // Fase 2a/2b: num update, preserva o que o formulario nao reenvia: anexos (documentos) e,
+      // quando o editor nao pode ver dados bancarios, tambem os campos bancarios existentes.
+      if (o.id) {
+        try {
+          const er = await db(`select extra from ${TABLE[ent]} where id=$1`, [o.id]);
+          const e0 = (er.rows[0] && er.rows[0].extra) || {};
+          if (extra.documentos === undefined && e0.documentos) extra.documentos = e0.documentos;
+          if ((ent === 'corretores' || ent === 'imobiliarias') && !podeVerBancario(user) && !(ent === 'corretores' && user.usuarioId && String(o.id) === String(user.usuarioId))) {
+            BANK_KEYS.forEach(function (k) { if (e0[k] !== undefined) extra[k] = e0[k]; else delete extra[k]; });
+          }
+        } catch (_) {}
+      }
 
       if (ent === 'imobiliarias') {
         if (!o.nome) { res.status(400).json({ error: 'nome obrigatorio' }); return; }
@@ -483,12 +556,12 @@ module.exports = async (req, res) => {
         if (o.id) {
           const r = await db(`update imobiliarias set nome=$1,creci=$2,telefone=$3,email=$4,site=$5,instagram=$6,endereco=$7,cidade=$8,lat=$9,lng=$10,raio_atuacao_m=$11,ativo=$12,extra=$13,updated_at=now() where id=$14 returning *`,
             [o.nome, o.creci||null, o.telefone||null, o.email||null, o.site||null, o.instagram||null, o.endereco||null, o.cidade||null, lat, lng, raio, ativo, JSON.stringify(extra), o.id]);
-          res.status(200).json({ row: imobOut(await applyImobVinculos(o, r.rows[0])) }); return;
+          res.status(200).json({ row: maskBank(imobOut(await applyImobVinculos(o, r.rows[0]))) }); return;
         }
         const slug = slugify(o.nome) + '-' + rid();
         const r = await db(`insert into imobiliarias(nome,creci,slug,telefone,email,site,instagram,endereco,cidade,lat,lng,raio_atuacao_m,ativo,extra) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning *`,
           [o.nome, o.creci||null, slug, o.telefone||null, o.email||null, o.site||null, o.instagram||null, o.endereco||null, o.cidade||null, lat, lng, raio, ativo, JSON.stringify(extra)]);
-        res.status(200).json({ row: imobOut(await applyImobVinculos(o, r.rows[0])) }); return;
+        res.status(200).json({ row: maskBank(imobOut(await applyImobVinculos(o, r.rows[0]))) }); return;
       }
 
       if (ent === 'corretores') {
@@ -509,7 +582,7 @@ module.exports = async (req, res) => {
         if (o.id) {
           const r = await db(`update usuarios set imobiliaria_id=$1,nome=$2,email=$3,telefone=$4,creci=$5,perfil=$6,ativo=$7,extra=$8,updated_at=now() where id=$9 returning *`,
             [imob, o.nome, o.email||null, o.telefone||null, o.creci||null, perfil, ativo, JSON.stringify(extra), o.id]);
-          const respU = { row: corOut(r.rows[0]) };
+          const respU = { row: maskBank(corOut(r.rows[0])) };
           // senha informada na edição -> cria/redefine o login (garante que funcione no app)
           if (o.email && o.senha && String(o.senha).length >= 6) {
             const login = await criarLoginSupabase(String(o.email).toLowerCase(), String(o.senha), { nome: o.nome, perfil: perfil });
@@ -534,7 +607,7 @@ module.exports = async (req, res) => {
         const r = await db(`insert into usuarios(imobiliaria_id,nome,email,telefone,creci,perfil,ativo,extra) values($1,$2,$3,$4,$5,$6,$7,$8) returning *`,
           [imob, o.nome, o.email||null, o.telefone||null, o.creci||null, perfil, ativo, JSON.stringify(extra)]);
         const row = r.rows[0];
-        const resp = { row: corOut(row) };
+        const resp = { row: maskBank(corOut(row)) };
         // cria o login (Supabase Auth) com senha temporaria para o admin repassar
         if (o.email) {
           const senha = (o.senha && String(o.senha).length >= 6) ? String(o.senha) : genSenha();
