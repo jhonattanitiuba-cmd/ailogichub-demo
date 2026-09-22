@@ -51,7 +51,22 @@ Legenda: [Feito] pronto no ar | [Parcial] parte feita | [A fazer] | [Depende] de
 - [A fazer] D3. Visualizacao 360 (Street View) no imovel - passo futuro.
 - [Depende] D4. Substituir ferramentas externas (funil de cotacao/dashboard de milhas) pelo Hub (reuniao com a Fran).
 
-## 6. Vindos de atas anteriores (ainda pendentes)
+## 6. Espelhar o Imobzi (clonar o maximo de funcionalidades) - diretriz do cliente
+Replicar o maior numero possivel de recursos do Imobzi. Mapa por area (o que o Hub ja tem x o que clonar); a lista fina se confirma com o acesso ao Imobzi.
+- [Parcial] M1. Cadastro completo de imoveis (clonar campos ricos: CEP/IPTU/condominio, caracteristicas, proximidades, codigo automatico - A6/B1/B9).
+- [Parcial] M2. Cadastro de pessoas (proprietario, inquilino, cliente) com ficha completa e documentos.
+- [Parcial] M3. CRM e funil com cards ricos (tarefas, follow-up, historico, documentos - B2/B4).
+- [Parcial] M4. Agenda e visitas (clonar disponibilidade estilo Booking - B7).
+- [Parcial] M5. Contratos e documentos por modelo (Fase 1 da assinatura ja feita).
+- [Parcial] M6. Financeiro, comissoes e repasses (clonar repasses, boletos, prestacao de contas).
+- [A fazer] M7. Integracao com portais (ZAP, VivaReal, OLX) a partir do Hub (junto com C3).
+- [Parcial] M8. Site do corretor/imobiliaria editavel pelo cliente (Bloco 5).
+- [Parcial] M9. Painel e indicadores (clonar dashboards e metricas do Imobzi).
+- [Feito] M10. Gestao de equipe e permissoes (perfis, CRECI, escopo por imobiliaria); ajustar o que faltar.
+- [Parcial] M11. Relatorios operacionais e gerenciais.
+- [Parcial] M12. App e atendimento por IA (o Sam e diferencial do Hub; app mobile futuro).
+
+## 7. Vindos de atas anteriores (ainda pendentes)
 - [A fazer] Rodizio de leads. [Parcial] Mapa por CEP para prospeccao. [Parcial] Planos/limite de corretores (hoje liberado).
 - [Depende] SERVICE ROLE KEY na Vercel; modelos de contrato e clausulas de autorizacao.
 
